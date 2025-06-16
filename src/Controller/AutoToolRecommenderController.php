@@ -56,11 +56,11 @@ class AutoToolRecommenderController
     {
         self::initSession();
         if (empty($_SESSION['material_id']) || !is_numeric($_SESSION['material_id'])) {
-            header('Location: /wizard-stepper_git/load-step.php?step=2');
+            header('Location: /wizard-stepper/load-step.php?step=2');
             exit;
         }
         if (empty($_SESSION['strategy_id']) || !is_numeric($_SESSION['strategy_id'])) {
-            header('Location: /wizard-stepper_git/load-step.php?step=3');
+            header('Location: /wizard-stepper/load-step.php?step=3');
             exit;
         }
     }
@@ -79,7 +79,7 @@ class AutoToolRecommenderController
         $progress = (int)($_SESSION['wizard_progress'] ?? 0);
 
         if ($state !== 'wizard' || $progress < $minProgress) {
-            header('Location: /wizard-stepper_git/index.php');
+            header('Location: /wizard-stepper/index.php');
             exit;
         }
     }

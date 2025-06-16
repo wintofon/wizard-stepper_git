@@ -20,7 +20,7 @@ function dbgLocal(string $msg): void {
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_set_cookie_params([
         'lifetime' => 0,
-        'path'     => '/wizard-stepper_git/',
+        'path'     => '/wizard-stepper/',
         'secure'   => true,
         'httponly' => true,
         'samesite' => 'Strict',
