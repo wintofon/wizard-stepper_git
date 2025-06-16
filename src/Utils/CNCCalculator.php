@@ -2,7 +2,7 @@
 /**
  * CNCCalculator.php
  *
- * Ubicación: C:\xampp\htdocs\wizard-stepper\src\Utils\CNCCalculator.php
+ * Ubicación: C:\xampp\htdocs\wizard-stepper_git\src\Utils\CNCCalculator.php
  *
  * Clase de utilidades numéricas para cálculos CNC:
  * - helixAngle(ae, D) → ángulo de compromiso φ

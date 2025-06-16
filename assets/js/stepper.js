@@ -104,7 +104,7 @@
         if (step === 6) {
           if (!window.step6Loaded) {
             const script = document.createElement('script');
-            script.src = '/wizard-stepper/assets/js/step6.js';
+            script.src = '/wizard-stepper_git/assets/js/step6.js';
             script.defer = true;
             script.onload = () => { 
               window.step6Loaded = true;

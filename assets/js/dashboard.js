@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (errorCount >= MAX_ERR) return;
 
     try {
-      const res  = await fetch('/wizard-stepper/session-api.php', {cache: 'no-store'});
+      const res  = await fetch('/wizard-stepper_git/session-api.php', {cache: 'no-store'});
       const cTyp = res.headers.get('Content-Type') || '';
 
       if (!res.ok || !cTyp.includes('application/json')) {

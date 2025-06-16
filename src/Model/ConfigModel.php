@@ -2,7 +2,7 @@
 /**
  * ConfigModel.php
  *
- * Ubicación: C:\xampp\htdocs\wizard-stepper\src\Model\ConfigModel.php
+ * Ubicación: C:\xampp\htdocs\wizard-stepper_git\src\Model\ConfigModel.php
  *
  * Obtiene parámetros globales de tablas auxiliares:
  *  - kc11 y mc de 'materials'
