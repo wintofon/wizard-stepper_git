@@ -152,7 +152,7 @@
     };
 
     try {
-      const res = await fetch('/wizard-stepper/step_minimo_ajax.php', {
+      const res = await fetch('/wizard-stepper/ajax/step_minimo_ajax.php', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
