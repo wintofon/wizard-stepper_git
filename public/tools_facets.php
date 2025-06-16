@@ -25,7 +25,7 @@ function logError(string $msg): void {
 }
 
 // Incluir conexión
-require_once __DIR__ . '/includes/db.php';
+require_once __DIR__ . '/../includes/db.php';
 if (!isset($pdo)) {
   http_response_code(500);
   echo json_encode(['error' => 'No se pudo inicializar la base de datos']);

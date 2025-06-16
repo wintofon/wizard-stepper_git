@@ -38,8 +38,8 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 // [3] DEBUG OPCIONAL
 // ─────────────────────────────────────────────────────────────
 $DEBUG = filter_input(INPUT_GET, 'debug', FILTER_VALIDATE_BOOLEAN);
-if ($DEBUG && is_readable(__DIR__ . '/includes/debug.php')) {
-    require_once __DIR__ . '/includes/debug.php';
+if ($DEBUG && is_readable(__DIR__ . '/../includes/debug.php')) {
+    require_once __DIR__ . '/../includes/debug.php';
     dbg('🔧 load-step.php iniciado (modo DEBUG)');
 } else {
     if (!function_exists('dbg')) {
@@ -50,7 +50,7 @@ if ($DEBUG && is_readable(__DIR__ . '/includes/debug.php')) {
 // ─────────────────────────────────────────────────────────────
 // [4] INCLUIR CONEXIÓN A LA BASE DE DATOS
 // ─────────────────────────────────────────────────────────────
-$dbFile = __DIR__ . '/includes/db.php';
+$dbFile = __DIR__ . '/../includes/db.php';
 if (!is_readable($dbFile)) {
     dbg('❌ No se encontró includes/db.php en: ' . $dbFile);
     http_response_code(500);
@@ -105,7 +105,7 @@ dbg("🧭 Modo actual: {$mode}");
 // ─────────────────────────────────────────────────────────────
 // [9] BUSCAR ARCHIVO DE VISTA DEL PASO
 // ─────────────────────────────────────────────────────────────
-$baseDir        = __DIR__ . '/views/steps';
+$baseDir        = __DIR__ . '/../views/steps';
 $viewCandidates = [
     "{$baseDir}/{$mode}/step{$step}.php",
     "{$baseDir}/step{$step}.php"

@@ -163,7 +163,7 @@ echo <<<'HTML'
     }
     // Redirigir a index.php tras un breve retardo (200ms)
     setTimeout(function() {
-      window.location.replace('index.php');
+      window.location.replace('../index.php');
     }, 200);
   </script>
 </body>

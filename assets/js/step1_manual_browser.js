@@ -29,7 +29,7 @@
   let currentSort = { col:null, dir:null };
 
   /* ========== CARGAR FACETAS ====================================== */
-  fetch('/wizard-stepper_git/tools_facets.php',{cache:'no-store'})
+  fetch('/wizard-stepper_git/public/tools_facets.php',{cache:'no-store'})
     .then(r => r.ok ? r.json() : Promise.reject(r.statusText))
     .then(renderFacets)
     .then(() => {        // Marcas seleccionadas por default

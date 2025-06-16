@@ -25,7 +25,7 @@
 
   <!-- Botón reset -->
   <div style="text-align:right; padding:.5rem 1rem;">
-    <a href="reset.php" class="btn btn-outline-light">
+    <a href="public/reset.php" class="btn btn-outline-light">
       🔄 Volver al inicio
     </a>
   </div>

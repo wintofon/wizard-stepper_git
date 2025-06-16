@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   btnStart.addEventListener('click', () => {
     // Destruye sesión PHP y localStorage antes de ir a selección de modo
-    fetch('/wizard-stepper_git/reset.php', { method: 'GET' })
+    fetch('/wizard-stepper_git/public/reset.php', { method: 'GET' })
       .finally(() => {
         localStorage.removeItem('wizard_progress');
         // Redirige a la selección de modo
