@@ -3,8 +3,8 @@
 
   const DEBUG = true;
   const LS_KEY = 'wizard_progress';
-  const LOAD_ENDPOINT = 'load-step.php';
-  const HANDLE_ENDPOINT = 'handle-step.php';
+  const LOAD_ENDPOINT = 'public/load-step.php';
+  const HANDLE_ENDPOINT = 'public/handle-step.php';
 
   const $qs  = sel => document.querySelector(sel);
   const $qsa = sel => [...document.querySelectorAll(sel)];

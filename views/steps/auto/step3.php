@@ -67,7 +67,7 @@ try {
 $currentProgress = (int)($_SESSION['wizard_progress'] ?? 0);
 if ($currentProgress < 2) {
     dbg("⚠ [step3] Progreso insuficiente ({$currentProgress}) → redirigir a paso 2");
-    header('Location: /wizard-stepper_git/load-step.php?step=2');
+    header('Location: /wizard-stepper_git/public/load-step.php?step=2');
     exit;
 }
 
@@ -112,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $_SESSION['wizard_progress'] = 4;
     session_regenerate_id(true);
     dbg("✅ [step3][POST] Herramienta guardada en sesión → tool_id={$toolIdRaw} tool_table={$toolTblClean}");
-    header('Location: /wizard-stepper_git/load-step.php?step=4');
+    header('Location: /wizard-stepper_git/public/load-step.php?step=4');
     exit;
 }
 
@@ -125,7 +125,7 @@ try {
 } catch (\RuntimeException $e) {
     dbg("❌ [step3][GET] getSessionData lanzó excepción: " . $e->getMessage());
     // Si por algún motivo falta material/estrategia, redirigimos a paso 2
-    header('Location: /wizard-stepper_git/load-step.php?step=2');
+    header('Location: /wizard-stepper_git/public/load-step.php?step=2');
     exit;
 }
 

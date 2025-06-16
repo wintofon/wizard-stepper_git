@@ -3,7 +3,7 @@
  * File: wizard/assets/js/stepper.js
  * v2.3 (blindado • debug-ready • ejecuta <script> dinámicos e inline)
  * ------------------------------------------------------------
- * ▸ Carga dinámica via fetch() (load-step.php)
+ * ▸ Carga dinámica via fetch() (public/load-step.php)
  * ▸ Ejecuta scripts embebidos (por paso, src + inline)
  * ▸ Validación HTML5 en vivo (.is-valid / .is-invalid)
  * ▸ Persistencia de progreso en localStorage
@@ -19,8 +19,8 @@
 
   const DEBUG = true;
   const LS_KEY = 'wizard_progress';
-  const LOAD_ENDPOINT = 'load-step.php';
-  const HANDLE_ENDPOINT = 'handle-step.php';
+  const LOAD_ENDPOINT = 'public/load-step.php';
+  const HANDLE_ENDPOINT = 'public/handle-step.php';
 
   const $qs  = sel => document.querySelector(sel);
   const $qsa = sel => [...document.querySelectorAll(sel)];

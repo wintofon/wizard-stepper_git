@@ -5,7 +5,7 @@ function render(data) {
   dash.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
 }
 setInterval(() => {
-  fetch('session-api.php')
+  fetch('public/session-api.php')
     .then(res => res.json())
     .then(render)
     .catch(() => {/* ignore */});
