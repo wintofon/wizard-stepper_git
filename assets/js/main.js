@@ -6,11 +6,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   btnStart.addEventListener('click', () => {
     // Destruye sesión PHP y localStorage antes de ir a selección de modo
-    fetch('/wizard-stepper_git/reset.php', { method: 'GET' })
+    fetch('/wizard-stepper/reset.php', { method: 'GET' })
       .finally(() => {
         localStorage.removeItem('wizard_progress');
         // Redirige a la selección de modo
-        window.location.href = '/wizard-stepper_git/index.php?state=mode';
+        window.location.href = '/wizard-stepper/index.php?state=mode';
       });
   });
 });

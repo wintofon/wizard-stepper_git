@@ -2,7 +2,7 @@
 /**
  * ExpertResultController.php
  *
- * Ubicación: C:\xampp\htdocs\wizard-stepper_git\src\Controller\ExpertResultController.php
+ * Ubicación: C:\xampp\htdocs\wizard-stepper\src\Controller\ExpertResultController.php
  *
  * Controlador robusto y debugable para recopilar todos los parámetros técnicos
  * usados en la vista Paso 6 del Wizard CNC.

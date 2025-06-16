@@ -79,7 +79,7 @@ window.initStep6 = function () {
     console.debug('📤 Enviando AJAX a step6_ajax.php', payload);
 
     try {
-      const res = await fetch('/wizard-stepper_git/ajax/step6_ajax.php', {
+      const res = await fetch('/wizard-stepper/ajax/step6_ajax.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

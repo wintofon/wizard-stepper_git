@@ -1,5 +1,5 @@
 <?php
-// File: C:\xampp\htdocs\wizard-stepper_git\views\steps\step6.php
+// File: C:\xampp\htdocs\wizard-stepper\views\steps\step6.php
 declare(strict_types=1);
 
 /* ──────────────────────────────────────────────────────────────
@@ -42,12 +42,12 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
 /* [C] DEBUG OPCIONAL */
 $DEBUG = filter_input(INPUT_GET, 'debug', FILTER_VALIDATE_BOOLEAN);
-if ($DEBUG && is_readable('C:\xampp\htdocs\wizard-stepper_git\includes\debug.php')) {
-    require_once 'C:\xampp\htdocs\wizard-stepper_git\includes\debug.php';
+if ($DEBUG && is_readable('C:\xampp\htdocs\wizard-stepper\includes\debug.php')) {
+    require_once 'C:\xampp\htdocs\wizard-stepper\includes\debug.php';
 }
 
 /* [D] INCLUIR CONEXIÓN A LA BD */
-$dbFile = 'C:\xampp\htdocs\wizard-stepper_git\includes\db.php';
+$dbFile = 'C:\xampp\htdocs\wizard-stepper\includes\db.php';
 if (!is_readable($dbFile)) {
     http_response_code(500);
     exit('Error interno: falta el archivo de conexión a la BD.');
@@ -121,7 +121,7 @@ if (!empty($missingKeys)) {
 }
 
 /* [I] INCLUIR DEPENDENCIAS (RUTAS ABSOLUTAS) */
-$rootDir = 'C:\xampp\htdocs\wizard-stepper_git';
+$rootDir = 'C:\xampp\htdocs\wizard-stepper';
 $srcDir  = $rootDir . '\src';
 foreach ([
     $srcDir . '\Controller\ExpertResultController.php',
@@ -153,9 +153,9 @@ if ($jsonParams === false) {
 $serialNumber = htmlspecialchars($toolData['serie']      ?? '', ENT_QUOTES);
 $toolCode     = htmlspecialchars($toolData['tool_code']  ?? '', ENT_QUOTES);
 $imageRel     = $toolData['image'] ?? '';
-$imageURL     = $imageRel !== '' ? ('/wizard-stepper_git/' . ltrim($imageRel, '/\\')) : '';
+$imageURL     = $imageRel !== '' ? ('/wizard-stepper/' . ltrim($imageRel, '/\\')) : '';
 $vectorRel    = $toolData['image_url2'] ?? '';
-$vectorURL    = $vectorRel !== '' ? ('/wizard-stepper_git/' . ltrim($vectorRel, '/\\')) : '';
+$vectorURL    = $vectorRel !== '' ? ('/wizard-stepper/' . ltrim($vectorRel, '/\\')) : '';
 $toolName     = htmlspecialchars($toolData['name'] ?? 'N/A', ENT_QUOTES);
 $toolType     = htmlspecialchars($toolData['tool_type'] ?? 'N/A', ENT_QUOTES);
 $diameterMb   = (float)($toolData['diameter_mm']       ?? 0);
@@ -201,18 +201,18 @@ try {
 
 $notesArray = $params['notes'] ?? [];
 
-$cssBootstrapRel = file_exists('C:\xampp\htdocs\wizard-stepper_git\assets\css\bootstrap.min.css')
-    ? '/wizard-stepper_git/assets/css/bootstrap.min.css' : '';
-$bootstrapJsRel = file_exists('C:\xampp\htdocs\wizard-stepper_git\assets\js\bootstrap.bundle.min.js')
-    ? '/wizard-stepper_git/assets/js/bootstrap.bundle.min.js' : '';
-$featherLocal   = 'C:\xampp\htdocs\wizard-stepper_git\node_modules\feather-icons\dist\feather.min.js';
+$cssBootstrapRel = file_exists('C:\xampp\htdocs\wizard-stepper\assets\css\bootstrap.min.css')
+    ? '/wizard-stepper/assets/css/bootstrap.min.css' : '';
+$bootstrapJsRel = file_exists('C:\xampp\htdocs\wizard-stepper\assets\js\bootstrap.bundle.min.js')
+    ? '/wizard-stepper/assets/js/bootstrap.bundle.min.js' : '';
+$featherLocal   = 'C:\xampp\htdocs\wizard-stepper\node_modules\feather-icons\dist\feather.min.js';
 $cdnFeather     = 'https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js';
-$chartJsLocal   = 'C:\xampp\htdocs\wizard-stepper_git\node_modules\chart.js\dist\chart.umd.min.js';
+$chartJsLocal   = 'C:\xampp\htdocs\wizard-stepper\node_modules\chart.js\dist\chart.umd.min.js';
 $cdnChartJs     = 'https://cdn.jsdelivr.net/npm/chart.js/dist/chart.umd.min.js';
-$countUpLocal   = 'C:\xampp\htdocs\wizard-stepper_git\node_modules\countup.js\dist\countUp.umd.js';
+$countUpLocal   = 'C:\xampp\htdocs\wizard-stepper\node_modules\countup.js\dist\countUp.umd.js';
 $cdnCountUp     = 'https://cdn.jsdelivr.net/npm/countup.js/dist/countUp.umd.js';
-$step6JsRel = file_exists('C:\xampp\htdocs\wizard-stepper_git\assets\js\step6.js')
-    ? '/wizard-stepper_git/assets/js/step6.js' : '';
+$step6JsRel = file_exists('C:\xampp\htdocs\wizard-stepper\assets\js\step6.js')
+    ? '/wizard-stepper/assets/js/step6.js' : '';
 
 $assetErrors = [];
 if ($cssBootstrapRel === '') $assetErrors[] = 'Bootstrap CSS no encontrado en local; se cargará desde CDN.';
@@ -238,7 +238,7 @@ if (!file_exists($countUpLocal)) $assetErrors[] = 'CountUp.js no encontrado en l
       ⚠️ Bootstrap CSS no encontrado en local; se cargó desde CDN.
     </div>
   <?php endif; ?>
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/step6.css">
+  <link rel="stylesheet" href="/wizard-stepper/assets/css/step6.css">
 </head>
 <body>
 <?php endif; ?>
@@ -523,17 +523,17 @@ if (!file_exists($countUpLocal)) $assetErrors[] = 'CountUp.js no encontrado en l
 
 <?php if (!$embedded): ?>
   <?php if (file_exists($featherLocal)): ?>
-    <script src="/wizard-stepper_git/node_modules/feather-icons/dist/feather.min.js" defer></script>
+    <script src="/wizard-stepper/node_modules/feather-icons/dist/feather.min.js" defer></script>
   <?php else: ?>
     <script src="<?= $cdnFeather ?>" defer></script>
   <?php endif; ?>
   <?php if (file_exists($chartJsLocal)): ?>
-    <script src="/wizard-stepper_git/node_modules/chart.js/dist/chart.umd.min.js" defer></script>
+    <script src="/wizard-stepper/node_modules/chart.js/dist/chart.umd.min.js" defer></script>
   <?php else: ?>
     <script src="<?= $cdnChartJs ?>" defer></script>
   <?php endif; ?>
   <?php if (file_exists($countUpLocal)): ?>
-    <script src="/wizard-stepper_git/node_modules/countup.js/dist/countUp.umd.js" defer></script>
+    <script src="/wizard-stepper/node_modules/countup.js/dist/countUp.umd.js" defer></script>
   <?php else: ?>
     <script src="<?= $cdnCountUp ?>" defer></script>
   <?php endif; ?>
@@ -555,7 +555,7 @@ if (!file_exists($countUpLocal)) $assetErrors[] = 'CountUp.js no encontrado en l
     } else {
       console.warn('[step6] JS step6.js no estaba cargado. Lo cargo ahora...');
       var s = document.createElement('script');
-      s.src = '/wizard-stepper_git/assets/js/step6.js';
+      s.src = '/wizard-stepper/assets/js/step6.js';
       s.defer = true;
       s.onload = function() {
         console.debug('[step6] JS cargado dinámicamente. Llamando initStep6().');

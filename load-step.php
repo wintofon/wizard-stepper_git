@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * File: C:\xampp\htdocs\wizard-stepper_git\load-step.php
+ * File: C:\xampp\htdocs\wizard-stepper\load-step.php
  * ---------------------------------------------------------------
  * Cargador asincrónico de cada paso del wizard
  */
