@@ -1,0 +1,349 @@
+/**
+ * Step 6 CSS – Ultra-Responsive & Debuggable styles
+ * -----------------------------------------------
+ * Incluye variables CSS para fácil theming, grid flexible para tarjetas,
+ * modo debug con outlines, y estilos refinados para sliders, resultados y debug panel.
+ */
+
+/* Variables globales (colores, tamaños) */
+:root {
+  --bg-body: #0d1117;
+  --bg-card: #161b22;
+  --bg-header: #0d1117;
+  --border-color: #2c2f33;
+  --text-color: #e0e0e0;
+  --text-color-sec: #a7b1bb;
+  --accent-color: #4fc3f7;
+  --accent-color-light: #7fdcff;
+  --slider-thumb-size: 16px;
+  --spinner-size: 2.5rem;
+  --border-radius-xxl: 1rem;
+}
+
+/* Tema claro */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-body: #f6f8fa;
+    --bg-card: #ffffff;
+    --bg-header: #eaf2f8;
+    --border-color: #d0d7de;
+    --text-color: #24292e;
+    --text-color-sec: #57606a;
+    --accent-color: #0077b6;
+    --accent-color-light: #329dd1;
+  }
+}
+
+body {
+  background: var(--bg-body);
+  color: var(--text-color);
+  font-family: 'Segoe UI', Roboto, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Tarjetas */
+.card,
+.config-card-static,
+.notes-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+}
+.card-header {
+  background: var(--bg-header);
+  border-bottom: 1px solid var(--border-color);
+  color: var(--accent-color);
+  font-weight: 600;
+  text-align: center;
+}
+.card.h-100 {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Encabezado */
+.tool-image {
+  display: block;
+  margin: 0.75rem auto;
+  max-height: 120px;
+  object-fit: contain;
+}
+.tool-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+.tool-type {
+  color: var(--text-color-sec);
+  font-size: 0.95rem;
+}
+
+/* Specs */
+.spec-list {
+  list-style: disc inside;
+  padding-left: 0;
+  margin: 0;
+}
+.spec-list li {
+  margin-bottom: 0.4rem;
+  display: flex;
+  justify-content: space-between;
+}
+.spec-list li span:first-child {
+  color: var(--text-color-sec);
+}
+.spec-list li span:last-child {
+  color: var(--accent-color);
+  font-weight: 600;
+}
+
+/* Imagen vectorial */
+.vector-image {
+  display: block;
+  margin: 0 auto;
+  max-height: 280px;
+  object-fit: contain;
+}
+
+/* Grid tarjetas */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+  align-items: flex-start;
+}
+.cards-grid [class*="col-"] {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+}
+
+/* Sliders */
+.form-label {
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+input[type=range].form-range {
+  width: 100%;
+  height: 6px;
+  background: var(--border-color);
+  border-radius: 3px;
+  appearance: none;
+  cursor: pointer;
+}
+input[type=range].form-range:focus {
+  outline: none;
+}
+input[type=range].form-range::-webkit-slider-thumb {
+  appearance: none;
+  width: var(--slider-thumb-size);
+  height: var(--slider-thumb-size);
+  background: var(--accent-color);
+  border: 2px solid var(--bg-header);
+  border-radius: 50%;
+  cursor: pointer;
+  margin-top: -5px;
+}
+input[type=range].form-range::-moz-range-thumb,
+input[type=range].form-range::-ms-thumb {
+  width: var(--slider-thumb-size);
+  height: var(--slider-thumb-size);
+  background: var(--accent-color);
+  border: 2px solid var(--bg-header);
+  border-radius: 50%;
+  cursor: pointer;
+}
+input[type=range].form-range::-webkit-slider-runnable-track,
+input[type=range].form-range::-moz-range-track,
+input[type=range].form-range::-ms-track {
+  background: var(--border-color);
+  height: 6px;
+  border-radius: 3px;
+}
+
+/* Tooltip */
+.badge-value {
+  position: absolute;
+  top: -1.2rem;
+  transform: translateX(-50%);
+  background: var(--accent-color);
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* Valores slider */
+.text-end.small.text-secondary {
+  color: var(--text-color-sec) !important;
+}
+#valFz, #valVc, #valAe {
+  color: var(--accent-color);
+  font-weight: 600;
+}
+
+/* Pasadas */
+#textPasadasInfo {
+  color: var(--text-color-sec);
+  font-size: 0.85rem;
+}
+#errorMsg {
+  color: #ff4444;
+  font-size: 0.85rem;
+  display: none;
+}
+
+/* Resultados */
+.result-box {
+  flex: 1;
+  min-width: 80px;
+  margin: 0.3rem;
+  padding: 0.5rem;
+  text-align: center;
+  border: 1px solid var(--border-color);
+  border-radius: 0.25rem;
+}
+.param-label {
+  color: var(--text-color-sec);
+  font-size: 0.75rem;
+}
+.fw-bold {
+  color: var(--accent-color);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* Radar */
+#radarChart {
+  max-width: 100% !important;
+}
+
+/* Config */
+.config-card-static {
+  padding: 0.8rem;
+}
+.config-section-title {
+  color: var(--text-color-sec);
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+.config-item {
+  display: flex;
+  justify-content: space-between;
+  margin: 0.25rem 0;
+}
+.label-static {
+  color: var(--text-color-sec);
+}
+.value-static {
+  color: var(--accent-color);
+  font-weight: 600;
+}
+.section-divider {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 0.5rem 0;
+}
+
+/* Notas */
+.notes-card {
+  padding: 0.8rem;
+}
+.notes-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.notes-list li {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+  align-items: flex-start;
+}
+.notes-list li i {
+  font-size: 1rem;
+  margin-top: 0.2rem;
+  color: var(--accent-color);
+}
+.notes-list li div {
+  color: var(--text-color);
+  font-size: 0.9rem;
+}
+.text-secondary {
+  color: var(--text-color-sec) !important;
+}
+
+/* Spinner */
+.spinner-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 0.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  visibility: hidden;
+  z-index: 10;
+}
+.spinner-overlay.show {
+  visibility: visible;
+}
+.spinner-border {
+  width: var(--spinner-size);
+  height: var(--spinner-size);
+  border: 4px solid var(--accent-color-light);
+  border-top: 4px solid var(--accent-color);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Debug */
+body.debug-mode * {
+  outline: 1px solid rgba(255, 0, 0, 0.2);
+}
+body.debug-mode .card {
+  outline: 1px dashed magenta;
+}
+.debug-outline {
+  outline: 2px solid #e00 !important;
+}
+.debug-panel {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  max-height: 150px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #0f0;
+  font-family: Consolas, monospace;
+  font-size: 0.85rem;
+  padding: 0.5rem;
+  overflow-y: auto;
+  display: none;
+  z-index: 9999;
+}
+.debug-panel.show {
+  display: block;
+}
+
+/* Mobile */
+@media (max-width: 991px) {
+  .content-main {
+    margin-bottom: 12rem;
+  }
+  .slider-box {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    max-height: 50%;
+    overflow-y: auto;
+    padding: 0.5rem;
+    z-index: 1040;
+    background: var(--bg-card);
+  }
+}

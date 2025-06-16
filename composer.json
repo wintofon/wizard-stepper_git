@@ -1,0 +1,12 @@
+{
+  "name": "industrial/wizard-cnc",
+  "type": "project",
+  "require": {},
+  "autoload": {
+    "psr-4": {
+      "IndustrialWizard\\": "src/"
+    }
+  },
+  "require": {},
+  "name": "industrial/wizard"
+}
