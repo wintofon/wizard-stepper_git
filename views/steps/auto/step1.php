@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * File: C:\xampp\htdocs\wizard-stepper\views\steps\auto\step1.php
+ * File: C:\xampp\htdocs\wizard-stepper_git\views\steps\auto\step1.php
  *
  * Paso 1 (Auto) – Selección de material y espesor
  * • Rate-limiting (10 POST / 5 minutos)
@@ -53,7 +53,7 @@ dbg('🔧 step1.php iniciado');
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_set_cookie_params([
         'lifetime' => 0,
-        'path'     => '/wizard-stepper/',    // Fuerza la ruta base
+        'path'     => '/wizard-stepper_git/',    // Fuerza la ruta base
         'domain'   => '',                    // Ajusta si usas dominio
         'secure'   => true,                  // Solo HTTPS
         'httponly' => true,                  // Inaccesible a JavaScript
@@ -68,8 +68,8 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 // -------------------------------------------
 // Si no venimos del index.php que fijó wizard_state='wizard', volvemos a index.php.
 if (empty($_SESSION['wizard_state']) || $_SESSION['wizard_state'] !== 'wizard') {
-    dbg('❌ wizard_state no válido → redirigiendo a /wizard-stepper/index.php');
-    header('Location: /wizard-stepper/index.php');
+    dbg('❌ wizard_state no válido → redirigiendo a /wizard-stepper_git/index.php');
+    header('Location: /wizard-stepper_git/index.php');
     exit;
 }
 
@@ -146,8 +146,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         dbg("✅ Paso 1 completado: material={$mat}, thickness={$thk}");
         session_write_close();
 
-        // Redirigir a Paso 2 (ruta absoluta dentro de /wizard-stepper/)
-        header('Location: /wizard-stepper/views/steps/auto/step2.php');
+        // Redirigir a Paso 2 (ruta absoluta dentro de /wizard-stepper_git/)
+        header('Location: /wizard-stepper_git/views/steps/auto/step2.php');
         exit;
     }
 }
