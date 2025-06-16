@@ -51,7 +51,7 @@ dbg('🔧 step2.php iniciado');
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_set_cookie_params([
         'lifetime' => 0,
-        'path'     => '/wizard-stepper/',
+        'path'     => '/wizard-stepper_git/',
         'domain'   => '',
         'secure'   => true,
         'httponly' => true,
