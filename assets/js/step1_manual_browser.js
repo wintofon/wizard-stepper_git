@@ -106,7 +106,7 @@
             .forEach(cb=>fd.append(cb.name+'[]',cb.value));
     fd.append('q',qBox.value.trim());
 
-    const url='/wizard-stepper_git/tools_ajax.php?'+new URLSearchParams(fd);
+    const url='/wizard-stepper_git/ajax/tools_ajax.php?'+new URLSearchParams(fd);
     dbg('fetch',url);
     const r = await fetch(url,{cache:'no-store'});
     toolsData = await r.json();
