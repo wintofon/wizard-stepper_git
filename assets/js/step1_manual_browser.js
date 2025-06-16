@@ -29,7 +29,7 @@
   let currentSort = { col:null, dir:null };
 
   /* ========== CARGAR FACETAS ====================================== */
-  fetch('/wizard-stepper/tools_facets.php',{cache:'no-store'})
+  fetch('/wizard-stepper_git/tools_facets.php',{cache:'no-store'})
     .then(r => r.ok ? r.json() : Promise.reject(r.statusText))
     .then(renderFacets)
     .then(() => {        // Marcas seleccionadas por default
@@ -106,7 +106,7 @@
             .forEach(cb=>fd.append(cb.name+'[]',cb.value));
     fd.append('q',qBox.value.trim());
 
-    const url='/wizard-stepper/ajax/tools_ajax.php?'+new URLSearchParams(fd);
+    const url='/wizard-stepper_git/ajax/tools_ajax.php?'+new URLSearchParams(fd);
     dbg('fetch',url);
     const r = await fetch(url,{cache:'no-store'});
     toolsData = await r.json();

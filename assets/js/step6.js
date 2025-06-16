@@ -1,4 +1,4 @@
-/** Ubicación: C:\xampp\htdocs\wizard-stepper\assets\js\step6.js */
+/** Ubicación: C:\xampp\htdocs\wizard-stepper_git\assets\js\step6.js */
 (() => {
   // 1. Parámetros inyectados por PHP
   const {
@@ -152,7 +152,7 @@
     };
 
     try {
-      const res = await fetch('/wizard-stepper/ajax/step_minimo_ajax.php', {
+      const res = await fetch('/wizard-stepper_git/ajax/step_minimo_ajax.php', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

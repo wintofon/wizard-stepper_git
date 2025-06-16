@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * File: C:\xampp\htdocs\wizard-stepper\views\steps\auto\step4.php
+ * File: C:\xampp\htdocs\wizard-stepper_git\views\steps\auto\step4.php
  *
  * Paso 4 (Auto) – Confirmar herramienta seleccionada
  * • POST desde step3.php o GET con brand+code
@@ -50,7 +50,7 @@ dbg('🔧 step4.php iniciado');
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_set_cookie_params([
         'lifetime' => 0,
-        'path'     => '/wizard-stepper/',
+        'path'     => '/wizard-stepper_git/',
         'domain'   => '',
         'secure'   => true,
         'httponly' => true,
@@ -65,13 +65,13 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 // -------------------------------------------
 if (empty($_SESSION['wizard_state']) || $_SESSION['wizard_state'] !== 'wizard') {
     dbg('❌ wizard_state no válido, redirigiendo a index.php');
-    header('Location: /wizard-stepper/index.php');
+    header('Location: /wizard-stepper_git/index.php');
     exit;
 }
 $currentProgress = (int)($_SESSION['wizard_progress'] ?? 0);
 if ($currentProgress < 3) {
     dbg("❌ wizard_progress={$currentProgress} <3, redirigiendo a step3.php");
-    header('Location: /wizard-stepper/views/steps/auto/step3.php');
+    header('Location: /wizard-stepper_git/views/steps/auto/step3.php');
     exit;
 }
 
