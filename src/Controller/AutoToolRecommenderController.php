@@ -1,7 +1,10 @@
 <?php
 declare(strict_types=1);
 
+namespace App\Controller;
+
 use PDO;
+use PDOException;
 use RuntimeException;
 
 /**
@@ -47,6 +50,31 @@ class AutoToolRecommenderController
     }
 
     /**
+     * Verifica que el usuario se encuentra en el flujo correcto y que los
+     * pasos 1 y 2 fueron completados. Lanza RuntimeException si falta algún
+     * dato necesario.
+     *
+     * @return void
+     * @throws RuntimeException
+     */
+    public static function checkStep(): void
+    {
+        self::initSession();
+
+        if (($_SESSION['wizard_state'] ?? '') !== 'wizard') {
+            throw new RuntimeException('Estado de wizard inválido');
+        }
+
+        if (empty($_SESSION['material_id']) || !is_numeric($_SESSION['material_id'])) {
+            throw new RuntimeException('Falta material_id en la sesión');
+        }
+
+        if (empty($_SESSION['strategy_id']) || !is_numeric($_SESSION['strategy_id'])) {
+            throw new RuntimeException('Falta strategy_id en la sesión');
+        }
+    }
+
+    /**
      * Verifica que el usuario completó pasos 1 y 2 (material + estrategia).
      * Si no, redirige al paso correspondiente.
      *
@@ -82,6 +110,31 @@ class AutoToolRecommenderController
             header('Location: /wizard-stepper_git/index.php');
             exit;
         }
+    }
+
+    /**
+     * Obtiene algunos valores de la sesión necesarios para la vista de Paso 3.
+     * Devuelve material_id, strategy_id y thickness como entero/float.
+     *
+     * @return array{material_id:int,strategy_id:int,thickness:float}
+     * @throws RuntimeException si falta algún dato en la sesión
+     */
+    public static function getSessionData(): array
+    {
+        self::initSession();
+
+        $required = ['material_id', 'strategy_id', 'thickness'];
+        foreach ($required as $key) {
+            if (!isset($_SESSION[$key]) || $_SESSION[$key] === '') {
+                throw new RuntimeException("Falta {$key} en la sesión");
+            }
+        }
+
+        return [
+            'material_id' => (int)$_SESSION['material_id'],
+            'strategy_id' => (int)$_SESSION['strategy_id'],
+            'thickness'   => (float)$_SESSION['thickness'],
+        ];
     }
 
     /**
@@ -133,3 +186,6 @@ class AutoToolRecommenderController
         }
     }
 }
+
+// Alias global para retrocompatibilidad
+\class_alias(__NAMESPACE__ . '\\AutoToolRecommenderController', 'AutoToolRecommenderController');
