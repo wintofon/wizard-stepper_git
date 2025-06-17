@@ -309,7 +309,13 @@ dbg('Tipos de mecanizado disponibles:', $grouped);
     </div>
 
     <!-- 3) Continuar -->
-    <?php include __DIR__ . "/../../components/button-next.php"; ?>
+    <div class="text-end mt-4">
+      <button type="submit"
+              class="btn btn-primary btn-lg float-end mt-4 btn-next-step"
+              id="btn-next" disabled>
+        Siguiente →
+      </button>
+    </div>
   </form>
 
   <!-- Caja de debug interno -->
