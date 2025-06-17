@@ -192,37 +192,7 @@ $hasPrev   = is_int($prevType) && array_key_exists((int)$prevType, $types)
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
     rel="stylesheet"
   >
-  <style>
-    body {
-      background-color: #0d1117;
-      color: #e0e0e0;
-      font-family: 'Segoe UI', Roboto, sans-serif;
-    }
-    .btn-type {
-      margin: .35rem .45rem;
-      white-space: nowrap;
-    }
-    .btn-type.active {
-      background: #0d6efd !important;
-      color: #fff   !important;
-    }
-    .btn-strat {
-      margin: .25rem 0;
-      width: 100%;
-    }
-    .btn-strat.active {
-      background: #198754 !important;
-      color: #fff       !important;
-    }
-    .alert-custom {
-      background-color: #4c1d1d;
-      color: #f8d7da;
-      border: 1px solid #f5c2c7;
-      margin-bottom: 1.5rem;
-      padding: 0.75rem 1rem;
-      border-radius: 0.375rem;
-    }
-  </style>
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/step-common.css">
 </head>
 <body class="container py-4">
 
