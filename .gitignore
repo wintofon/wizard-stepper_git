@@ -1,4 +1,22 @@
 # Ignore debug logs and development scripts
+
 debug.log
 ajax/debug.log
 includes/test_db.php
+
+# Dependency directories
+node_modules/
+vendor/
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS metadata
+.DS_Store
+
+# Build artifacts
+/dist/
+/build/
+/public/assets/
