@@ -124,6 +124,9 @@ if ($tool) {
       <div class="alert alert-danger mt-3">
         <i class="bi bi-exclamation-triangle"></i> <?= htmlspecialchars($error) ?>
       </div>
+      <a href="step1.php" class="btn btn-outline-light mt-3">
+        <i class="bi bi-arrow-left-circle"></i> Volver a seleccionar
+      </a>
 
   <?php else: ?>
       <div class="card bg-dark text-white mt-3">
@@ -154,6 +157,9 @@ if ($tool) {
         <input type="hidden" name="tool_id"    value="<?= $tool['tool_id'] ?>">
         <input type="hidden" name="tool_table" value="<?= htmlspecialchars($_SESSION['tool_table']) ?>">
 
+        <a href="step1.php" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left-circle"></i> Volver
+        </a>
         <button type="submit" class="btn btn-primary">
           Siguiente <i class="bi bi-arrow-right-circle"></i>
         </button>

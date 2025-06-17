@@ -309,6 +309,18 @@ if (isset($tool['length_total_mm'])) {
     .card-body p, .card-body small {
       margin: 0.25rem 0;
     }
+    .btn-back {
+      background-color: transparent;
+      border: 1px solid #4fc3f7;
+      color: #4fc3f7;
+      border-radius: 0.4rem;
+      padding: 0.5rem 1rem;
+      transition: background 0.3s, color 0.3s;
+    }
+    .btn-back:hover {
+      background-color: #4fc3f7;
+      color: #0d1117;
+    }
     .btn-next {
       background-color: #4fc3f7;
       border: none;
@@ -357,6 +369,9 @@ if (isset($tool['length_total_mm'])) {
       <i class="bi bi-exclamation-triangle"></i>
       <?= htmlspecialchars($error, ENT_QUOTES) ?>
     </div>
+    <a href="step3.php" class="btn-back mt-3">
+      <i class="bi bi-arrow-left-circle"></i> Volver a Paso 3
+    </a>
 
   <?php else: ?>
     <div class="card mb-4">
@@ -402,6 +417,12 @@ if (isset($tool['length_total_mm'])) {
       <input type="hidden" name="tool_id"    value="<?= htmlspecialchars((string)$tool['tool_id'], ENT_QUOTES) ?>">
       <input type="hidden" name="tool_table" value="<?= htmlspecialchars((string)$_SESSION['tool_table'], ENT_QUOTES) ?>">
 
+      <a href="step3.php" class="btn-back">
+        ← Volver a Paso 3
+      </a>
+      <button type="submit" class="btn-next">
+        Siguiente → Paso 5
+      </button>
     </form>
   <?php endif; ?>
 </main>
