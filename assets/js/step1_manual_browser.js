@@ -124,7 +124,7 @@
                  data-tool_id="${t.tool_id}" data-tbl="${t.tbl}">✓</button></td>
           <td><span class="badge bg-info text-dark">${t.brand}</span></td>
           <td>${t.series_code}</td>
-          <td>${t.details.image?`<img src="/admin/${t.details.image}" class="thumb">`:''}</td>
+          <td>${t.details.image?`<img src="/wizard-stepper_git/${t.details.image}" class="thumb">`:''}</td>
           <td>${t.tool_code}</td>
           <td class="text-truncate" style="max-width:200px">${t.name}</td>
           <td>${t.diameter_mm}</td><td>${t.flute_count||'-'}</td><td>${t.tool_type}</td>
