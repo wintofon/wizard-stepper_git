@@ -239,6 +239,13 @@ if (isset($tool['length_total_mm'])) {
     $tool['length_total_mm'] = 0;
 }
 
+// -------------------------------------------
+// [H.1] Preparar URL de imagen
+// -------------------------------------------
+if ($tool && !empty($tool['image'])) {
+    $tool['image_url'] = '/wizard-stepper_git/' . ltrim((string)$tool['image'], '/');
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="es">

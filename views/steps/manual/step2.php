@@ -111,6 +111,9 @@ dbg('STEP-2', $error ? ['ERR'=>$error] : ['OK'=>$tool['tool_id']??'-']);
 /* ---------- fallback longitud total -------------------------------------- */
 if ($tool) {
     $tool['length_total_mm'] ??= $tool['full_length_mm'] ?? 0;
+    if (!empty($tool['image'])) {
+        $tool['image_url'] = '/wizard-stepper_git/' . ltrim((string)$tool['image'], '/');
+    }
 }
 ?>
 <link rel="stylesheet"
