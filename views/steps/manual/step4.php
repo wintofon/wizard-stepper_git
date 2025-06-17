@@ -199,21 +199,6 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
   color: #0d1117;
 }
 
-/* -------------------------------
-   ➡️ Botón "Siguiente"
----------------------------------- */
-.btn-next {
-  background-color: #4fc3f7;
-  border: none;
-  color: #0d1117;
-  border-radius: 0.4rem;
-  padding: 0.5rem 1rem;
-  transition: opacity 0.3s;
-}
-.btn-next:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
 
 /* -------------------------------
    ⚠️ Alertas
@@ -369,9 +354,9 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
       </div>
 
       <!-- 5) Botón “Siguiente” unificado -->
-      <div class="mt-4 text-end">
+      <div class="text-end mt-4">
         <button type="submit"
-                class="btn btn-primary btn-lg float-end"
+                class="btn btn-primary btn-lg float-end mt-4 btn-next-step"
                 id="btnNext"
                 <?= (empty($data) || !($hasPrevMat && $hasPrevThick)) ? 'disabled' : '' ?>>
           Siguiente →

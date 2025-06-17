@@ -309,8 +309,10 @@ dbg('Tipos de mecanizado disponibles:', $grouped);
     </div>
 
     <!-- 3) Continuar -->
-    <div class="mt-4 text-end">
-      <button type="submit" class="btn btn-primary btn-lg float-end" id="btn-next" disabled>
+    <div class="text-end mt-4">
+      <button type="submit"
+              class="btn btn-primary btn-lg float-end mt-4 btn-next-step"
+              id="btn-next" disabled>
         Siguiente →
       </button>
     </div>

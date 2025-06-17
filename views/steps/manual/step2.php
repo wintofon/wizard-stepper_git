@@ -150,14 +150,15 @@ if ($tool) {
       <!-- ********  ¡campo step=2 añadido!  ******** -->
         <form action="step4_select_strategy.php"
               method="post"
-              class="mt-4 text-end">
+              class="mt-4">
         <input type="hidden" name="step"       value="2">
         <input type="hidden" name="tool_id"    value="<?= $tool['tool_id'] ?>">
         <input type="hidden" name="tool_table" value="<?= htmlspecialchars($_SESSION['tool_table']) ?>">
-
-          <button type="submit" class="btn btn-primary btn-lg float-end">
-            Siguiente →
-          </button>
+          <div class="text-end mt-4">
+            <button type="submit" class="btn btn-primary btn-lg float-end mt-4 btn-next-step">
+              Siguiente →
+            </button>
+          </div>
       </form>
   <?php endif; ?>
 </main>
