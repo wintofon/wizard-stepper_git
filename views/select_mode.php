@@ -11,76 +11,34 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Seleccionar Modo – Wizard CNC</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Bootstrap 5 CSS (opcional) -->
+    <title>Seleccionar Modo – Wizard CNC</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f8f9fa; 
-            color: #333;
-            font-family: 'Segoe UI', Roboto, sans-serif;
-        }
-        .container {
-            max-width: 400px;
-            margin: 4rem auto;
-            padding: 2rem;
-            background: #fff;
-            border-radius: 0.5rem;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        h2 {
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
-        .btn-submit {
-            width: 100%;
-            margin-top: 1rem;
-        }
-    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/wizard.css">
 </head>
 <body>
-<div class="container">
-    <h2>¿Cómo querés operar?</h2>
-    <form method="post" action="index.php" novalidate>
-        <!-- Token CSRF -->
-        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>">
+<div class="container d-flex flex-column justify-content-center align-items-center min-vh-100">
+    <div class="text-center" style="max-width: 400px;">
+        <h2 class="display-6 fw-semibold mb-4">¿Cómo querés operar?</h2>
+        <form method="post" action="index.php" class="d-grid gap-2" novalidate>
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>">
 
-        <div class="form-check mb-2">
-            <input 
-                class="form-check-input" 
-                type="radio" 
-                name="tool_mode" 
-                id="mode-manual" 
-                value="manual"
-                required
-            >
-            <label class="form-check-label" for="mode-manual">
-                Modo Manual
-            </label>
-        </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="tool_mode" id="mode-manual" value="manual" required>
+                <label class="form-check-label" for="mode-manual">Modo Manual</label>
+            </div>
 
-        <div class="form-check mb-2">
-            <input 
-                class="form-check-input" 
-                type="radio" 
-                name="tool_mode" 
-                id="mode-auto" 
-                value="auto"
-                required
-            >
-            <label class="form-check-label" for="mode-auto">
-                Modo Automático
-            </label>
-        </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="tool_mode" id="mode-auto" value="auto" required>
+                <label class="form-check-label" for="mode-auto">Modo Automático</label>
+            </div>
 
-        <button type="submit" class="btn btn-primary btn-submit">
-            Continuar
-        </button>
-    </form>
+            <button type="submit" class="btn btn-primary btn-lg mt-3">Continuar</button>
+        </form>
+    </div>
 </div>
 
-<!-- Bootstrap 5 JS + Popper (opcional) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
