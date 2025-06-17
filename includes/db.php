@@ -3,10 +3,28 @@
 declare(strict_types=1);
 
 /* ───────── CONFIG DB ───────── */
-const DB_HOST = 'localhost';
-const DB_NAME = 'cnc_calculador';
-const DB_USER = 'root';
-const DB_PASS = '';
+// Load environment variables from .env if present
+if (file_exists(__DIR__ . '/../.env')) {
+    $env = parse_ini_file(__DIR__ . '/../.env', false, INI_SCANNER_TYPED);
+    if ($env !== false) {
+        foreach ($env as $key => $val) {
+            if (!isset($_ENV[$key])) {
+                $_ENV[$key] = $val;
+            }
+        }
+    }
+}
+
+/**
+ * Convenience wrapper to fetch environment values with defaults.
+ *
+ * @param string $key     Environment variable name
+ * @param mixed  $default Default value if the variable is not set
+ */
+function env(string $key, mixed $default = null): mixed
+{
+    return $_ENV[$key] ?? $default;
+}
 
 /**
  * Devuelve una instancia singleton de PDO.
@@ -17,14 +35,23 @@ function db(): PDO
 {
     static $pdo = null;
     if ($pdo === null) {
-        $dsn = sprintf('mysql:host=%s;dbname=%s;charset=utf8mb4', DB_HOST, DB_NAME);
+        $dsn = sprintf(
+            'mysql:host=%s;dbname=%s;charset=utf8mb4',
+            env('DB_HOST', 'localhost'),
+            env('DB_NAME', 'cnc_calculador')
+        );
         $opts = [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_EMULATE_PREPARES   => false,
         ];
         try {
-            $pdo = new PDO($dsn, DB_USER, DB_PASS, $opts);
+            $pdo = new PDO(
+                $dsn,
+                env('DB_USER', 'root'),
+                env('DB_PASS', ''),
+                $opts
+            );
         } catch (PDOException $e) {
             http_response_code(500);
             exit('DB Connection Error: ' . htmlspecialchars($e->getMessage()));
