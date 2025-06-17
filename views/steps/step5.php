@@ -185,18 +185,6 @@ $hasPrev = is_int($prev['transmission_id']) && $prev['transmission_id'] > 0;
       display: <?= $hasPrev ? 'block' : 'none' ?>;
       margin-bottom: 1.5rem;
     }
-    #nextBtn {
-      background-color: #4fc3f7;
-      border: none;
-      color: #0d1117;
-      border-radius: 0.4rem;
-      padding: 0.5rem 1rem;
-      transition: opacity 0.3s;
-    }
-    #nextBtn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
     .row.g-3 .col-md-3 {
       margin-bottom: 1rem;
     }
@@ -282,12 +270,11 @@ $hasPrev = is_int($prev['transmission_id']) && $prev['transmission_id'] > 0;
       </div>
 
       <!-- 3) Botón “Siguiente” -->
-      <div class="mt-4 text-end">
-        <button
-          id="nextBtn"
-          class="btn btn-primary btn-lg float-end"
-          <?= $hasPrev ? '' : 'disabled' ?>
-        >
+      <div class="text-end mt-4">
+        <button type="submit"
+                class="btn btn-primary btn-lg float-end mt-4 btn-next-step"
+                id="nextBtn"
+                <?= $hasPrev ? '' : 'disabled' ?>>
           Siguiente →
         </button>
       </div>

@@ -321,18 +321,6 @@ if (isset($tool['length_total_mm'])) {
       background-color: #4fc3f7;
       color: #0d1117;
     }
-    .btn-next {
-      background-color: #4fc3f7;
-      border: none;
-      color: #0d1117;
-      border-radius: 0.4rem;
-      padding: 0.5rem 1rem;
-      transition: background 0.3s;
-    }
-    .btn-next:hover {
-      background-color: #0d6efd;
-      color: #fff;
-    }
     .alert-danger {
       background-color: #4c1d1d;
       color: #f8d7da;
@@ -415,9 +403,11 @@ if (isset($tool['length_total_mm'])) {
       <input type="hidden" name="tool_id"    value="<?= htmlspecialchars((string)$tool['tool_id'], ENT_QUOTES) ?>">
       <input type="hidden" name="tool_table" value="<?= htmlspecialchars((string)$_SESSION['tool_table'], ENT_QUOTES) ?>">
 
-        <button type="submit" class="btn btn-primary btn-lg float-end">
-          Siguiente →
-        </button>
+        <div class="text-end mt-4">
+          <button type="submit" class="btn btn-primary btn-lg float-end mt-4 btn-next-step">
+            Siguiente →
+          </button>
+        </div>
       </form>
   <?php endif; ?>
 </main>

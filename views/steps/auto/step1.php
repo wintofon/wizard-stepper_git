@@ -325,13 +325,13 @@ dbg('children', $children);
     </div>
 
     <!-- 5) Botón “Siguiente” -->
-    <div class="mt-4 text-end">
-      <button
-        type="submit"
-        id="nextBtn"
-        class="btn btn-primary btn-lg float-end"
-        disabled
-      >Siguiente →</button>
+    <div class="text-end mt-4">
+      <button type="submit"
+              class="btn btn-primary btn-lg float-end mt-4 btn-next-step"
+              id="nextBtn"
+              disabled>
+        Siguiente →
+      </button>
     </div>
   </form>
 
