@@ -274,6 +274,9 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
   .btn-mat {
     width: 100%;
   }
+  #next-button-container .btn {
+    width: 100%;
+  }
 }
   </style>
 </head>
@@ -366,6 +369,7 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
   <pre id="debug" class="debug-box"></pre>
 
   <script>
+  document.addEventListener('DOMContentLoaded', () => {
   /*────────────────────────────────────────────────────────────────────
     normalizeText(str):
       – Quita tildes, convierte a minúsculas.
@@ -580,6 +584,7 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
       e.preventDefault();
       alert('Debés elegir un material válido y un espesor mayor a 0 antes de continuar.');
     }
+  });
   });
   </script>
 </body>
