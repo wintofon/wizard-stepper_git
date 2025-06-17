@@ -354,11 +354,8 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
       </div>
 
       <!-- 5) Botón “Siguiente” unificado -->
-      <div class="text-end mt-4">
-        <button type="submit"
-                class="btn btn-primary btn-lg"
-                id="btnNext"
-                <?= (empty($data) || !($hasPrevMat && $hasPrevThick)) ? 'disabled' : '' ?>>
+      <div id="next-button-container" class="text-end mt-4" style="display: <?= ($hasPrevMat && $hasPrevThick) ? 'block' : 'none' ?>;">
+        <button type="submit" id="btn-next" class="btn btn-primary btn-lg">
           Siguiente →
         </button>
       </div>
@@ -388,7 +385,8 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
   const matCol  = document.getElementById('matCol');
   const matBox  = document.getElementById('matBox');
   const thickIn = document.getElementById('thick');
-  const nextBtn = document.getElementById('btnNext');
+  const nextContainer = document.getElementById('next-button-container');
+  const nextBtn = document.getElementById('btn-next');
   const search  = document.getElementById('matSearch');
   const noMatch = document.getElementById('noMatchMsg');
   const dropdown = document.getElementById('searchDropdown');
@@ -412,7 +410,7 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
     hiddenMat.value = '';
     thickIn.value = '';
     thickIn.parentNode.style.display = 'none';
-    nextBtn.disabled = true;
+    nextContainer.style.display = 'none';
     search.classList.remove('is-invalid');
     noMatch.style.display = 'none';
     hideDropdown();
@@ -421,7 +419,7 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
   function validateNext() {
     const matOk   = hiddenMat.value !== '';
     const thickOk = parseFloat(thickIn.value) > 0;
-    nextBtn.disabled = !(matOk && thickOk);
+    nextContainer.style.display = (matOk && thickOk) ? 'block' : 'none';
   }
 
   function noMatchMsg(state) {
