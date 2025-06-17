@@ -2,7 +2,7 @@
 /** File: src/StepperFlow.php
  *  Responsibility: define flujos de 6 pasos
  */
-namespace App;
+namespace IndustrialWizard;
 
 class StepperFlow
 {

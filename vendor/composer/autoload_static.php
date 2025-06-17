@@ -7,14 +7,14 @@ namespace Composer\Autoload;
 class ComposerStaticInit2cb96070b56f4e03491cb5b0cfa9ebb7
 {
     public static $prefixLengthsPsr4 = array (
-        'A' => 
+        'I' => 
         array (
-            'App\\' => 4,
+            'IndustrialWizard\\' => 17,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'App\\' => 
+        'IndustrialWizard\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src',
         ),
@@ -22,6 +22,7 @@ class ComposerStaticInit2cb96070b56f4e03491cb5b0cfa9ebb7
 
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+        'IndustrialWizard\\StepperFlow' => __DIR__ . '/../..' . '/src/StepperFlow.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
