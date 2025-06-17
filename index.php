@@ -141,7 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tool_mode'])) {
 // [H] AUTOLOAD + NAMESPACE PARA STEPflow
 // -------------------------------------------
 require_once __DIR__ . '/vendor/autoload.php';
-use IndustrialWizard\StepperFlow;
+use App\StepperFlow;
 
 // -------------------------------------------
 // [I] DISPATCH SEGÚN ESTADO ACTUAL
