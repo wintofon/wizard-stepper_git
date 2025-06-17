@@ -1,0 +1,33 @@
+/* CSS extraído de views/steps/manual/step3.php */
+.btn-strategy { margin: 5px; }
+.btn-strategy.active { background-color: #0d6efd; color: white; }
+.alert-custom {
+  background-color: #4c1d1d;
+  color: #f8d7da;
+  border: 1px solid #f5c2c7;
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+}
+.debug-box {
+  background: #102735;
+  color: #a7d3e9;
+  font-family: monospace;
+  font-size: 0.85rem;
+  padding: 1rem;
+  max-width: 1000px;
+  margin: 2rem auto 0;
+  white-space: pre-wrap;
+  height: 160px;
+  overflow-y: auto;
+  border-top: 1px solid #2e5b78;
+  border-radius: 6px;
+}
+body {
+  background-color: #0d1117;
+  color: #e0e0e0;
+  font-family: 'Segoe UI', Roboto, sans-serif;
+}
+h2, h5 {
+  color: #4fc3f7;
+}
+
