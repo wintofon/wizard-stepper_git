@@ -154,11 +154,7 @@ if ($tool) {
         <input type="hidden" name="step"       value="2">
         <input type="hidden" name="tool_id"    value="<?= $tool['tool_id'] ?>">
         <input type="hidden" name="tool_table" value="<?= htmlspecialchars($_SESSION['tool_table']) ?>">
-          <div class="text-end mt-4">
-            <button type="submit" class="btn btn-primary btn-lg float-end mt-4 btn-next-step">
-              Siguiente →
-            </button>
-          </div>
+          <?php include __DIR__ . "/../../components/button-next.php"; ?>
       </form>
   <?php endif; ?>
 </main>
