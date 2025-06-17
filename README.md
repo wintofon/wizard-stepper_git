@@ -1,0 +1,37 @@
+# Wizard CNC Stepper
+
+This project contains a PHP wizard for configuring CNC operations.
+
+## Requirements
+
+- **PHP 7.4+** (Composer uses `php >=7.4`)
+- **Composer** for autoloading
+- **MySQL/MariaDB** to import the provided database
+
+## Setup
+
+1. Install Composer dependencies:
+   ```bash
+   composer install
+   ```
+2. Create a database called `cnc_calculador` (or adjust the name in `includes/db.php`).
+3. Import `cnc_calculador.sql`:
+   ```bash
+   mysql -u <user> -p cnc_calculador < cnc_calculador.sql
+   ```
+4. Adjust database credentials in `includes/db.php` if needed.
+5. Start the application using PHP's built‑in server:
+   ```bash
+   php -S localhost:8000
+   ```
+   Then visit [http://localhost:8000](http://localhost:8000).
+
+## Debug Endpoints
+
+When running with `?debug=1` in the URL you can access additional debug helpers:
+
+- `public/session-api.php` – dumps the session as JSON.
+- `public/export.php` – downloads session data as text.
+- `public/export_json.php` – downloads session data as JSON.
+
+All these endpoints require debug mode.
