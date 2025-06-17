@@ -241,7 +241,7 @@ dbg('Tipos de mecanizado disponibles:', $grouped);
   <link rel="stylesheet" href="/wizard-stepper_git/assets/css/steps/manual/step3.css">
 </head>
 <body>
-  <div class="container py-4">
+  <main class="container py-4">
 
   <h2 class="mb-4">Paso 3 – Elegí el tipo de mecanizado y la estrategia</h2>
 
@@ -252,7 +252,7 @@ dbg('Tipos de mecanizado disponibles:', $grouped);
     </div>
   <?php endif; ?>
 
-  <form method="post" id="strategyForm" novalidate>
+  <form method="post" action="" id="strategyForm" novalidate>
     <!-- Campos ocultos: step, CSRF, IDs seleccionados -->
     <input type="hidden" name="step" value="3">
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>">
@@ -363,6 +363,6 @@ dbg('Tipos de mecanizado disponibles:', $grouped);
       nextContainer.style.display = 'none';
     });
   </script>
-  </div>
+  </main>
 </body>
 </html>

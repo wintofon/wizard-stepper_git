@@ -146,7 +146,7 @@ try {
   <link rel="stylesheet" href="/wizard-stepper_git/assets/css/steps/auto/step3.css">
 </head>
 <body>
-  <div class="container py-4">
+  <main class="container py-4">
 
   <h2>Paso 3 – Herramientas compatibles (Modo Auto)</h2>
 
@@ -165,7 +165,7 @@ try {
   </div>
 
   <!-- 7.3) Formulario oculto que se usará al pulsar “Seleccionar” -->
-  <form id="selectForm" method="post" style="display:none;">
+  <form id="selectForm" method="post" action="" style="display:none;">
     <input type="hidden" name="step" value="3">
     <input type="hidden" id="tool_id"    name="tool_id"    value="">
     <input type="hidden" id="tool_table" name="tool_table" value="">
@@ -385,6 +385,6 @@ try {
     fetchTools();
   })();
   </script>
-  </div>
+  </main>
 </body>
 </html>

@@ -131,7 +131,7 @@ $hasPrev = is_int($prev['transmission_id']) && $prev['transmission_id'] > 0;
   <link rel="stylesheet" href="/wizard-stepper_git/assets/css/steps/step5.css">
 </head>
 <body>
-  <div class="container py-4">
+  <main class="container py-4">
     <h2>Paso 5 – Configurá tu router</h2>
 
     <?php if (!empty($errors)): ?>
@@ -144,7 +144,7 @@ $hasPrev = is_int($prev['transmission_id']) && $prev['transmission_id'] > 0;
       </div>
     <?php endif; ?>
 
-    <form method="post" id="machineForm" novalidate>
+    <form method="post" action="" id="machineForm" novalidate>
       <!-- Campos ocultos: step y CSRF -->
       <input type="hidden" name="step"       value="5">
       <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>">
@@ -274,6 +274,6 @@ $hasPrev = is_int($prev['transmission_id']) && $prev['transmission_id'] > 0;
     <?php endif; ?>
   })();
   </script>
-  </div>
+  </main>
 </body>
 </html>

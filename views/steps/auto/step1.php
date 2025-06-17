@@ -209,7 +209,7 @@ dbg('children', $children);
   <link rel="stylesheet" href="/wizard-stepper_git/assets/css/steps/auto/step1.css">
 </head>
 <body>
-  <div class="container py-4">
+  <main class="container py-4">
 
   <h2 class="mb-3">Paso 1 – Elegí el material y el espesor</h2>
 
@@ -219,7 +219,7 @@ dbg('children', $children);
     </div>
   <?php endif; ?>
 
-  <form id="formMat" method="post" novalidate>
+  <form id="formMat" method="post" action="" novalidate>
     <!-- always-send “step” por consistencia interna -->
     <input type="hidden" name="step" value="1">
     <!-- CSRF token -->
@@ -489,6 +489,6 @@ dbg('children', $children);
     }
   });
   </script>
-  </div>
+  </main>
 </body>
 </html>

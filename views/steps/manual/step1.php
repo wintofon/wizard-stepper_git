@@ -128,14 +128,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </noscript>
 
   <!-- ─────────────── Formulario Paso 1 ──────────────── -->
-  <form id="step1ManualForm" method="post" novalidate>
+  <form id="step1ManualForm" method="post" action="" novalidate>
     <!-- Campos ocultos para CSRF y control de paso -->
     <input type="hidden" name="step"       value="1">
     <input type="hidden" name="csrf_token"  value="<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>">
     <input type="hidden" name="tool_id"     id="tool_id" value="">
     <input type="hidden" name="tool_table"  id="tool_table" value="">
 
-    <div class="container py-4" data-debug="step1">
+    <main class="container py-4" data-debug="step1">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold text-white m-0">
           <i class="bi bi-box-seam"></i> Explorador de fresas
@@ -214,7 +214,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </button>
       </div>
 
-    </div>
+    </main>
   </form>
 
   <!-- Caja opcional de debugging -->

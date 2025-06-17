@@ -9,12 +9,12 @@
   <link rel="stylesheet" href="assets/css/wizard.css">
 </head>
 <body>
-  <div class="container d-flex flex-column justify-content-center align-items-center text-center min-vh-100">
+  <main class="container d-flex flex-column justify-content-center align-items-center text-center min-vh-100">
     <i class="bi bi-tools display-3 mb-3"></i>
     <h1 class="display-5 fw-semibold mb-2">Wizard CNC</h1>
     <p class="lead mb-4">Asistente para configurar tu herramienta de corte.</p>
     <button id="btn-start" class="btn btn-primary btn-lg">Iniciar</button>
-  </div>
+  </main>
   <script src="assets/js/main.js"></script>
 </body>
 </html>
