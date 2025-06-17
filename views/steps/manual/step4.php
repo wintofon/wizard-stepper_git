@@ -368,16 +368,13 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
         >
       </div>
 
-      <!-- 5) Botones “Volver” y “Siguiente” -->
-      <div class="d-flex align-items-center">
-        <a href="step3.php" class="btn btn-back">
-          ← Volver al Paso 3
-        </a>
+      <!-- 5) Botón “Siguiente” unificado -->
+      <div class="mt-4 text-end">
         <button type="submit"
-                class="btn btn-next ms-auto"
+                class="btn btn-primary btn-lg float-end"
                 id="btnNext"
                 <?= (empty($data) || !($hasPrevMat && $hasPrevThick)) ? 'disabled' : '' ?>>
-          Siguiente → Paso 5
+          Siguiente →
         </button>
       </div>
     </form>

@@ -124,9 +124,7 @@ if ($tool) {
       <div class="alert alert-danger mt-3">
         <i class="bi bi-exclamation-triangle"></i> <?= htmlspecialchars($error) ?>
       </div>
-      <a href="step1.php" class="btn btn-outline-light mt-3">
-        <i class="bi bi-arrow-left-circle"></i> Volver a seleccionar
-      </a>
+      <!-- Botón eliminado por nuevo flujo sin regreso -->
 
   <?php else: ?>
       <div class="card bg-dark text-white mt-3">
@@ -150,19 +148,16 @@ if ($tool) {
       </div>
 
       <!-- ********  ¡campo step=2 añadido!  ******** -->
-      <form action="step4_select_strategy.php"
-            method="post"
-            class="d-flex justify-content-between mt-4">
+        <form action="step4_select_strategy.php"
+              method="post"
+              class="mt-4 text-end">
         <input type="hidden" name="step"       value="2">
         <input type="hidden" name="tool_id"    value="<?= $tool['tool_id'] ?>">
         <input type="hidden" name="tool_table" value="<?= htmlspecialchars($_SESSION['tool_table']) ?>">
 
-        <a href="step1.php" class="btn btn-outline-secondary">
-          <i class="bi bi-arrow-left-circle"></i> Volver
-        </a>
-        <button type="submit" class="btn btn-primary">
-          Siguiente <i class="bi bi-arrow-right-circle"></i>
-        </button>
+          <button type="submit" class="btn btn-primary btn-lg float-end">
+            Siguiente →
+          </button>
       </form>
   <?php endif; ?>
 </main>
