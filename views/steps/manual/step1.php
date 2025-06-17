@@ -207,13 +207,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
       <?php endif; ?>
 
-
-      <div class="text-end mt-4">
-        <button type="submit" class="btn btn-primary btn-lg">
-          Siguiente →
-        </button>
-      </div>
-
     </main>
   </form>
 
