@@ -177,6 +177,11 @@ try {
       color: #ff6666;
       font-weight: bold;
     }
+    .tool-thumb {
+      max-width: 80px;
+      height: auto;
+      object-fit: contain;
+    }
     .btn-select {
       background-color: #4fc3f7;
       border: none;
@@ -334,14 +339,18 @@ try {
         // Celdas internas (imagen / detalles / botón)
         const imgCol = document.createElement('div');
         imgCol.className = 'col-md-2 mb-2 mb-md-0';
+        const baseUrl = '/wizard-stepper_git/';
+        const img = document.createElement('img');
+        img.className = 'img-fluid tool-thumb';
         if (tool.image) {
-          const img = document.createElement('img');
-          img.src = `/${tool.image}`;
-          img.alt = 'Imagen de la fresa';
-          img.className = 'img-fluid';
-          img.onerror = () => { img.style.display = 'none'; };
-          imgCol.appendChild(img);
+          const clean = String(tool.image).replace(/^\/+/, '');
+          img.src = baseUrl + clean;
+        } else {
+          img.src = baseUrl + 'assets/img/logos/logo_stepper.png';
         }
+        img.alt = 'Imagen de la fresa';
+        img.onerror = () => { img.src = baseUrl + 'assets/img/logos/logo_stepper.png'; };
+        imgCol.appendChild(img);
         card.appendChild(imgCol);
 
         const infoCol = document.createElement('div');
