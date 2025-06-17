@@ -4,7 +4,7 @@ session_start();
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../src/StepperFlow.php';
 
-use App\StepperFlow;
+use IndustrialWizard\StepperFlow;
 
 header('Content-Type: application/json');
 

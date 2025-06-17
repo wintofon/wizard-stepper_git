@@ -116,11 +116,6 @@ foreach ([
     }
 }
 
-use App\Controller\ExpertResultController;
-use App\Model\ToolModel;
-use App\Model\ConfigModel;
-use App\Utils\CNCCalculator;
-
 // [I] OBTENER DATOS HERRAMIENTA Y PARÁMETROS
 $toolTable = (string)$_SESSION['tool_table'];
 $toolId    = (int)$_SESSION['tool_id'];
