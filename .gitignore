@@ -1,0 +1,4 @@
+# Ignore debug logs and development scripts
+debug.log
+ajax/debug.log
+includes/test_db.php
