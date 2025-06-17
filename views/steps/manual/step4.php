@@ -9,36 +9,6 @@
 
 declare(strict_types=1);
 
-// [A] Cabeceras de seguridad / anti-caching
-header('Content-Type: text/html; charset=UTF-8');
-header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
-header("X-Frame-Options: DENY");
-header("X-Content-Type-Options: nosniff");
-header("Referrer-Policy: no-referrer");
-header("Permissions-Policy: geolocation=(), microphone=()");
-header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-header("Pragma: no-cache");
-header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';");
-
-// [B] Errores y Debug
-$DEBUG = filter_input(INPUT_GET, 'debug', FILTER_VALIDATE_BOOLEAN);
-if ($DEBUG) {
-    error_reporting(E_ALL);
-    ini_set('display_errors', '1');
-} else {
-    error_reporting(0);
-    ini_set('display_errors', '0');
-}
-if (!function_exists('dbg')) {
-    function dbg(string $msg, $data = null): void {
-        global $DEBUG;
-        if ($DEBUG) {
-            error_log("[step4.php] " . $msg . ' ' . json_encode($data, JSON_UNESCAPED_UNICODE));
-        }
-    }
-}
-dbg('🔧 step4.php iniciado');
-
 // 1) Sesión y flujo
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start([
@@ -63,27 +33,6 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 $csrfToken = $_SESSION['csrf_token'];
-
-// 2) Rate-limiting básico por IP (máx. 10 POST en 5 min)
-$clientIp = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-if (!isset($_SESSION['rate_limit'])) {
-    $_SESSION['rate_limit'] = [];
-}
-foreach ($_SESSION['rate_limit'] as $ip => $timestamps) {
-    $_SESSION['rate_limit'][$ip] = array_filter(
-        $timestamps,
-        fn($ts) => ($ts + 300) > time()
-    );
-}
-if (!isset($_SESSION['rate_limit'][$clientIp])) {
-    $_SESSION['rate_limit'][$clientIp] = [];
-}
-if ($_SERVER['REQUEST_METHOD'] === 'POST'
-    && count($_SESSION['rate_limit'][$clientIp]) >= 10) {
-    http_response_code(429);
-    echo "<h1>Demasiados intentos. Esperá unos minutos antes de reintentar.</h1>";
-    exit;
-}
 
 // 4) Comprobamos que haya herramienta en sesión
 if (empty($_SESSION['tool_id']) || empty($_SESSION['tool_table'])) {
@@ -176,7 +125,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // 7.5) Si no hay errores, guardamos en sesión y avanzamos al paso 5
     if (empty($errors)) {
-        $_SESSION['rate_limit'][$clientIp][] = time();
         $_SESSION['material_id']     = $matIdRaw;
         $_SESSION['thickness']       = $thickRaw;
         $_SESSION['wizard_progress'] = 4;
@@ -203,6 +151,66 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
   <link rel="stylesheet" href="/wizard-stepper_git/assets/css/step-common.css">
   <style>
 
+/* -------------------------------
+   📦 Contenedor principal
+---------------------------------- */
+.wizard-body {
+  max-width: 800px;
+  margin: 2rem auto;
+  background: #132330;
+  padding: 2rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 0 24px rgba(0, 0, 0, 0.5);
+  border: 1px solid #264b63;
+}
+
+/* -------------------------------
+/* -------------------------------
+   📋 Campos de formulario
+---------------------------------- */
+.form-control {
+  background-color: #0f172a;
+  color: #e0e0e0;
+  border-color: #334156;
+}
+.form-control:disabled {
+  background-color: #1e293b;
+  color: #a7b1bb;
+  border-color: #334156;
+}
+.form-label {
+  font-weight: 600;
+  color: #cbd5e0;
+}
+
+/* -------------------------------
+   ⬅️ Botón "Volver"
+---------------------------------- */
+.btn-back {
+  background-color: transparent;
+  border: 1px solid #4fc3f7;
+  color: #4fc3f7;
+  border-radius: 0.4rem;
+  padding: 0.5rem 1rem;
+  transition: background 0.3s, color 0.3s;
+}
+.btn-back:hover {
+  background-color: #4fc3f7;
+  color: #0d1117;
+}
+
+
+/* -------------------------------
+   ⚠️ Alertas
+---------------------------------- */
+.alert-warning {
+  background-color: #ffd966;
+  color: #664d03;
+  border: 1px solid #ffeb3b;
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+}
 
 /* -------------------------------
    🔍 Dropdown de búsqueda
@@ -241,6 +249,25 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
 }
 
 /* -------------------------------
+   🛠️ Consola interna (debug)
+---------------------------------- */
+.debug-box {
+  background: #102735;
+  color: #a7d3e9;
+  font-family: monospace;
+  font-size: 0.85rem;
+  padding: 1rem;
+  max-width: 1000px;
+  margin: 2rem auto 0;
+  white-space: pre-wrap;
+  height: 160px;
+  overflow-y: auto;
+  border-top: 1px solid #2e5b78;
+  border-radius: 6px;
+}
+
+/* -------------------------------
+   📱 Responsive
 ---------------------------------- */
 @media (max-width: 768px) {
   .btn-cat,
@@ -256,18 +283,18 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
 <body>
 
   <div class="container py-4">
-    <h2 class="mb-3">Paso 4 – Elegí la madera compatible</h2>
+    <h2>Paso 4 – Elegí la madera compatible</h2>
 
     <!-- Si no se encontró ninguna madera compatible, mostrar alerta -->
     <?php if (empty($data)): ?>
-      <div class="alert alert-warning">
+      <div class="alert-warning">
         No se encontraron maderas compatibles para esta fresa.
       </div>
     <?php endif; ?>
 
     <!-- Mostrar errores si existen -->
     <?php if (!empty($errors)): ?>
-      <div class="alert alert-danger">
+      <div class="alert alert-custom">
         <ul class="mb-0">
           <?php foreach ($errors as $e): ?>
             <li><?= htmlspecialchars($e, ENT_QUOTES) ?></li>
@@ -340,7 +367,7 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
   </div>
 
   <!-- Caja opcional de debugging -->
-  <pre id="debug" class="bg-dark text-info p-2 mt-4"></pre>
+  <pre id="debug" class="debug-box"></pre>
 
   <script>
   document.addEventListener('DOMContentLoaded', () => {
