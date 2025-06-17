@@ -270,11 +270,8 @@ $hasPrev = is_int($prev['transmission_id']) && $prev['transmission_id'] > 0;
       </div>
 
       <!-- 3) Botón “Siguiente” -->
-      <div class="text-end mt-4">
-        <button type="submit"
-                class="btn btn-primary btn-lg"
-                id="nextBtn"
-                <?= $hasPrev ? '' : 'disabled' ?>>
+      <div id="next-button-container" class="text-end mt-4" style="display: <?= $hasPrev ? 'block' : 'none' ?>;">
+        <button type="submit" id="btn-next" class="btn btn-primary btn-lg">
           Siguiente →
         </button>
       </div>
@@ -285,7 +282,8 @@ $hasPrev = is_int($prev['transmission_id']) && $prev['transmission_id'] > 0;
   (function() {
     const radios    = document.querySelectorAll('.btn-check');
     const paramSection = document.getElementById('paramSection');
-    const nextBtn   = document.getElementById('nextBtn');
+    const nextContainer = document.getElementById('next-button-container');
+    const nextBtn   = document.getElementById('btn-next');
     const getById   = id => document.getElementById(id);
     const inputs    = {
       rpm_min:  getById('rpm_min'),
@@ -297,7 +295,7 @@ $hasPrev = is_int($prev['transmission_id']) && $prev['transmission_id'] > 0;
     // Ocultar inputs hasta que se elija una transmisión
     function hideParams() {
       paramSection.style.display = 'none';
-      nextBtn.disabled = true;
+      nextContainer.style.display = 'none';
       for (const key in inputs) {
         inputs[key].value = '';
         inputs[key].disabled = true;
@@ -326,7 +324,7 @@ $hasPrev = is_int($prev['transmission_id']) && $prev['transmission_id'] > 0;
         for (const key in inputs) {
           inputs[key].disabled = false;
         }
-        nextBtn.disabled = false;
+        nextContainer.style.display = 'block';
       });
     });
 

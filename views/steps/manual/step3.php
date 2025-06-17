@@ -310,10 +310,8 @@ dbg('Tipos de mecanizado disponibles:', $grouped);
     </div>
 
     <!-- 3) Continuar -->
-    <div class="text-end mt-4">
-      <button type="submit"
-              class="btn btn-primary btn-lg"
-              id="btn-next" disabled>
+    <div id="next-button-container" class="text-end mt-4" style="display: none;">
+      <button type="submit" id="btn-next" class="btn btn-primary btn-lg">
         Siguiente →
       </button>
     </div>
@@ -329,6 +327,7 @@ dbg('Tipos de mecanizado disponibles:', $grouped);
   <script>
     // Convertir “$grouped” de PHP a objeto JS
     const grouped = <?= json_encode($grouped, JSON_UNESCAPED_UNICODE) ?>;
+    const nextContainer = document.getElementById('next-button-container');
     const btnNext   = document.getElementById('btn-next');
     const inputType = document.getElementById('machining_type_id');
     const inputStrat= document.getElementById('strategy_id');
@@ -367,13 +366,13 @@ dbg('Tipos de mecanizado disponibles:', $grouped);
                     .forEach(bs => bs.classList.remove('active'));
             b.classList.add('active');
             inputStrat.value = e.id;
-            btnNext.disabled = false;
+            nextContainer.style.display = 'block';
             dbg('Estrategia seleccionada:', e.id, e.name);
           });
           strategyBtns.appendChild(b);
         });
         strategyBox.style.display = 'block';
-        btnNext.disabled = true;
+        nextContainer.style.display = 'none';
         dbg('Tipo de mecanizado seleccionado:', mtid, grouped[mtid].name);
       });
     });
@@ -393,7 +392,7 @@ dbg('Tipos de mecanizado disponibles:', $grouped);
 
     // 3) Evitar doble envío muy rápido
     form.addEventListener('submit', () => {
-      btnNext.disabled = true;
+      nextContainer.style.display = 'none';
     });
   </script>
   </div>

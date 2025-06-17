@@ -326,11 +326,8 @@ dbg('children', $children);
     </div>
 
     <!-- 5) Botón “Siguiente” -->
-    <div class="text-end mt-4">
-      <button type="submit"
-              class="btn btn-primary btn-lg"
-              id="nextBtn"
-              disabled>
+    <div id="next-button-container" class="text-end mt-4" style="display: none;">
+      <button type="submit" id="btn-next" class="btn btn-primary btn-lg">
         Siguiente →
       </button>
     </div>
@@ -360,7 +357,8 @@ dbg('children', $children);
   const matInp   = document.getElementById('material_id');
   const thick    = document.getElementById('thick');
   const thickGrp = document.getElementById('thickGroup');
-  const nextBtn  = document.getElementById('nextBtn');
+  const nextContainer = document.getElementById('next-button-container');
+  const nextBtn  = document.getElementById('btn-next');
   const search   = document.getElementById('matSearch');
   const noMatch  = document.getElementById('noMatchMsg');
   const dropdown = document.getElementById('searchDropdown');
@@ -382,16 +380,16 @@ dbg('children', $children);
     matInp.value = '';
     thickGrp.style.display = 'none';
     thick.value = '';
-    nextBtn.disabled = true;
+    nextContainer.style.display = 'none';
     search.classList.remove('is-invalid');
     noMatch.style.display = 'none';
   }
 
   function validate() {
     if (matInp.value && parseFloat(thick.value) > 0) {
-      nextBtn.disabled = false;
+      nextContainer.style.display = 'block';
     } else {
-      nextBtn.disabled = true;
+      nextContainer.style.display = 'none';
     }
   }
 

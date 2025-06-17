@@ -250,11 +250,8 @@ $hasPrev   = is_int($prevType) && array_key_exists((int)$prevType, $types)
     </div>
 
     <!-- 3) Botón “Siguiente” -->
-    <div class="text-end mt-4">
-      <button type="submit"
-              class="btn btn-primary btn-lg"
-              id="nextBtn_p2"
-              <?= $hasPrev ? '' : 'disabled' ?>>
+    <div id="next-button-container" class="text-end mt-4" style="display: <?= $hasPrev ? 'block' : 'none' ?>;">
+      <button type="submit" id="btn-next" class="btn btn-primary btn-lg">
         Siguiente →
       </button>
     </div>
@@ -273,13 +270,14 @@ $hasPrev   = is_int($prevType) && array_key_exists((int)$prevType, $types)
     const stratCol = document.getElementById('stratCol');
     const inType   = document.getElementById('machining_type_id');
     const inStrat  = document.getElementById('strategy_id');
-    const nextBtn  = document.getElementById('nextBtn_p2');
+    const nextContainer = document.getElementById('next-button-container');
+    const nextBtn  = document.getElementById('btn-next');
 
     function resetStrat() {
       stratCol.innerHTML = '';
       stratBox.style.display = 'none';
       inStrat.value = '';
-      nextBtn.disabled = true;
+      nextContainer.style.display = 'none';
     }
 
     // Clic en tipo de mecanizado
@@ -302,7 +300,7 @@ $hasPrev   = is_int($prevType) && array_key_exists((int)$prevType, $types)
             stratCol.querySelectorAll('.btn-strat').forEach(x => x.classList.remove('active'));
             b.classList.add('active');
             inStrat.value = s.id;
-            nextBtn.disabled = false;
+            nextContainer.style.display = 'block';
           });
           stratCol.appendChild(b);
         });
@@ -313,6 +311,9 @@ $hasPrev   = is_int($prevType) && array_key_exists((int)$prevType, $types)
     // Si había valores previos, mostrar estrategias
     if (inType.value) {
       stratBox.style.display = 'block';
+    }
+    if (inType.value && inStrat.value) {
+      nextContainer.style.display = 'block';
     }
   })();
   </script>
