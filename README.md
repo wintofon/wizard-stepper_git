@@ -35,3 +35,7 @@ When running with `?debug=1` in the URL you can access additional debug helpers:
 - `public/export_json.php` – downloads session data as JSON.
 
 All these endpoints require debug mode.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
