@@ -211,6 +211,7 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
       <div id="matBox" style="display:none" class="mb-3">
         <h5>Madera</h5>
         <div id="matCol"></div>
+        <div id="emptyMsg" class="text-warning mt-2" style="display:none">No se encontraron materiales compatibles</div>
       </div>
 
       <!-- 4) Espesor (mm) -->
@@ -260,12 +261,14 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
   const flat    = <?= json_encode($flat, JSON_UNESCAPED_UNICODE) ?>;
   const matCol  = document.getElementById('matCol');
   const matBox  = document.getElementById('matBox');
+  const emptyMsg = document.getElementById('emptyMsg');
   const thickIn = document.getElementById('thick');
   const nextContainer = document.getElementById('next-button-container');
   const nextBtn = document.getElementById('btn-next');
   const search  = document.getElementById('matSearch');
   const noMatch = document.getElementById('noMatchMsg');
   const dropdown = document.getElementById('searchDropdown');
+  const debugBox = document.getElementById('debug');
 
   /*────────────────────────────────────────────────────────────────────
     Mapa material_id → parent_id (para búsquedas rápidas)
@@ -276,6 +279,11 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
       matToPid[m.id] = pid;
     });
   });
+  if (debugBox) {
+    debugBox.textContent = Object.entries(cats)
+      .map(([id, c]) => `${c.name}: ${c.mats.length}`)
+      .join('\n');
+  }
 
   /*────────────────────────────────────────────────────────────────────
     Functions auxiliares
@@ -289,6 +297,7 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
     nextContainer.style.display = 'none';
     search.classList.remove('is-invalid');
     noMatch.style.display = 'none';
+    emptyMsg.style.display = 'none';
     hideDropdown();
   }
 
@@ -380,9 +389,12 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
       btn.classList.add('active');
 
       const cid = parseInt(btn.dataset.cid, 10);
+      console.log('→ Clic en categoría', cid);
       resetMat();
 
-      (cats[cid].mats || []).forEach(m => {
+      const list = (cats[cid] && cats[cid].mats) ? cats[cid].mats : [];
+      console.log('→ Materiales:', list);
+      list.forEach(m => {
         const b = document.createElement('button');
         b.type      = 'button';
         b.className = 'btn btn-outline-secondary btn-mat';
@@ -401,6 +413,7 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
         matCol.appendChild(b);
       });
 
+      emptyMsg.style.display = list.length ? 'none' : 'block';
       matBox.style.display = 'block';
       hideDropdown();
     };
