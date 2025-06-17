@@ -118,23 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <!-- Estilos propios -->
   <link rel="stylesheet" href="/wizard-stepper_git/assets/css/step1_manual.css">
 
-  <style>
-    /* Opcional: estilos para box de debugging */
-    .debug-box {
-      background: #102735;
-      color: #a7d3e9;
-      font-family: monospace;
-      font-size: 0.85rem;
-      padding: 1rem;
-      max-width: 1000px;
-      margin: 2rem auto 0;
-      white-space: pre-wrap;
-      height: 160px;
-      overflow-y: auto;
-      border-top: 1px solid #2e5b78;
-      border-radius: 6px;
-    }
-  </style>
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/steps/manual/step1.css">
 </head>
 <body>
   <noscript>
