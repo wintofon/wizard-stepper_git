@@ -6,6 +6,7 @@ namespace App\Controller;
 use PDO;
 use PDOException;
 use RuntimeException;
+require_once __DIR__ . '/../Utils/Session.php';
 
 /**
  * Archivo: src/Controller/AutoToolRecommenderController.php
@@ -37,15 +38,9 @@ class AutoToolRecommenderController
      */
     public static function initSession(): void
     {
+        startSecureSession();
         if (session_status() !== PHP_SESSION_ACTIVE) {
-            $ok = session_start([
-                'cookie_secure'   => true,
-                'cookie_httponly' => true,
-                'cookie_samesite' => 'Strict',
-            ]);
-            if (!$ok) {
-                throw new RuntimeException('No se pudo iniciar la sesión de forma segura.');
-            }
+            throw new RuntimeException('No se pudo iniciar la sesión de forma segura.');
         }
     }
 

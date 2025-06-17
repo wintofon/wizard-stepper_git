@@ -37,6 +37,8 @@ if (!function_exists('dbg')) {
 }
 dbg('🔧 index.php iniciado');
 
+require_once __DIR__ . '/src/Utils/Session.php';
+
 // -------------------------------------------
 // [B] CABECERAS DE SEGURIDAD HTTP
 // -------------------------------------------
@@ -51,39 +53,11 @@ header('Permissions-Policy: geolocation=(), microphone=()');
 // -------------------------------------------
 // [C] INICIO DE SESIÓN SEGURA
 // -------------------------------------------
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_set_cookie_params([
-        'lifetime' => 0,
-        'path'     => '/',
-        'domain'   => '',        // Ajustar dominio si es necesario
-        'secure'   => true,
-        'httponly' => true,
-        'samesite' => 'Strict'
-    ]);
-    session_start();
-    dbg('🔒 Sesión iniciada de forma segura');
-}
+startSecureSession();
 
 // -------------------------------------------
 // [D] FUNCIONES CSRF
 // -------------------------------------------
-if (!function_exists('generateCsrfToken')) {
-    function generateCsrfToken(): string {
-        if (empty($_SESSION['csrf_token'])) {
-            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-        }
-        return $_SESSION['csrf_token'];
-    }
-}
-
-if (!function_exists('validateCsrfToken')) {
-    function validateCsrfToken(?string $token): bool {
-        if (empty($_SESSION['csrf_token']) || !is_string($token)) {
-            return false;
-        }
-        return hash_equals($_SESSION['csrf_token'], $token);
-    }
-}
 
 // -------------------------------------------
 // [E] OVERRIDE DE ESTADO “mode” POR GET
