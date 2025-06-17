@@ -23,12 +23,6 @@
     </ul>
   </nav>
 
-  <!-- Botón reset -->
-  <div style="text-align:right; padding:.5rem 1rem;">
-    <a href="public/reset.php" class="btn btn-outline-light">
-      🔄 Volver al inicio
-    </a>
-  </div>
 
   <!-- Contenido dinámico -->
   <main id="step-content" class="wizard-body"></main>
