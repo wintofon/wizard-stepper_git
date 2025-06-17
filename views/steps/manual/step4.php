@@ -148,16 +148,8 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
   <title>Paso 4 – Selección de madera</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/step-common.css">
   <style>
-   body {
-  --bs-body-bg: #0d1117;
-  --bs-body-color: #e0e0e0;
-  background-color: var(--bs-body-bg);
-  color: var(--bs-body-color);
-  font-family: 'Segoe UI', Roboto, sans-serif;
-  margin: 0;
-  padding: 0;
-}
 
 /* -------------------------------
    📦 Contenedor principal
@@ -173,29 +165,6 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
 }
 
 /* -------------------------------
-   🟦 Botones por categoría
----------------------------------- */
-.btn-cat {
-  margin: 0.3rem 0.4rem;
-  white-space: nowrap;
-}
-.btn-cat.active {
-  background: #0d6efd !important;
-  color: #fff !important;
-}
-
-/* -------------------------------
-   🟩 Botones por material
----------------------------------- */
-.btn-mat {
-  margin: 0.25rem 0;
-  width: 100%;
-}
-.btn-mat.active {
-  background: #198754 !important;
-  color: #fff !important;
-}
-
 /* -------------------------------
    📋 Campos de formulario
 ---------------------------------- */
@@ -249,12 +218,6 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
 /* -------------------------------
    ⚠️ Alertas
 ---------------------------------- */
-.alert-custom {
-  background-color: #4c1d1d;
-  color: #f8d7da;
-  border: 1px solid #f5c2c7;
-  margin-bottom: 1.5rem;
-}
 .alert-warning {
   background-color: #ffd966;
   color: #664d03;
