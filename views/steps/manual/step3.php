@@ -310,8 +310,8 @@ dbg('Tipos de mecanizado disponibles:', $grouped);
     </div>
 
     <!-- 3) Continuar -->
-    <div id="next-button-container" class="text-end mt-4" style="display: none;">
-      <button type="submit" id="btn-next" class="btn btn-primary btn-lg">
+    <div id="next-button-container" class="text-end mt-4 d-none">
+      <button type="submit" id="btn-next" class="btn btn-primary btn-lg w-100 w-md-auto">
         Siguiente →
       </button>
     </div>
@@ -325,7 +325,7 @@ dbg('Tipos de mecanizado disponibles:', $grouped);
 
   <!-- JavaScript para manejo de botones y validaciones -->
   <script>
-    // Convertir “$grouped” de PHP a objeto JS
+  document.addEventListener('DOMContentLoaded', () => {
     const grouped = <?= json_encode($grouped, JSON_UNESCAPED_UNICODE) ?>;
     const nextContainer = document.getElementById('next-button-container');
     const btnNext   = document.getElementById('btn-next');
@@ -336,7 +336,6 @@ dbg('Tipos de mecanizado disponibles:', $grouped);
     const strategyBox    = document.getElementById('strategy-container');
     const strategyBtns   = document.getElementById('strategy-buttons');
 
-    // Helper de debug (imprime en consola + <pre id="debug">)
     window.dbg = (...m) => {
       console.log('[DBG]', ...m);
       const box = document.getElementById('debug');
@@ -344,16 +343,33 @@ dbg('Tipos de mecanizado disponibles:', $grouped);
     };
     dbg('JS de Step 3 cargado. grouped=', grouped);
 
-    // 1) Elegir tipo de mecanizado
+    function validateNext() {
+      if (inputType.value && inputStrat.value) {
+        nextContainer.classList.remove('d-none');
+      } else {
+        nextContainer.classList.add('d-none');
+      }
+    }
+
     machiningBtns.forEach(btn => {
       btn.addEventListener('click', () => {
+        const wasActive = btn.classList.contains('active');
         machiningBtns.forEach(b => b.classList.remove('active'));
+        strategyBtns.innerHTML = '';
+        inputStrat.value = '';
+
+        if (wasActive) {
+          inputType.value = '';
+          strategyBox.style.display = 'none';
+          validateNext();
+          dbg('Tipo de mecanizado deseleccionado');
+          return;
+        }
+
         btn.classList.add('active');
         const mtid = btn.dataset.id;
         inputType.value = mtid;
 
-        // Mostrar/llenar estrategias correspondientes
-        strategyBtns.innerHTML = '';
         const estrats = grouped[mtid]?.estrategias || [];
         estrats.forEach(e => {
           const b = document.createElement('button');
@@ -362,38 +378,44 @@ dbg('Tipos de mecanizado disponibles:', $grouped);
           b.dataset.id = e.id;
           b.textContent = e.name;
           b.addEventListener('click', () => {
-            document.querySelectorAll('.btn-strategy')
-                    .forEach(bs => bs.classList.remove('active'));
+            const wasSActive = b.classList.contains('active');
+            document.querySelectorAll('.btn-strategy').forEach(bs => bs.classList.remove('active'));
+            if (wasSActive) {
+              inputStrat.value = '';
+              validateNext();
+              dbg('Estrategia deseleccionada');
+              return;
+            }
             b.classList.add('active');
             inputStrat.value = e.id;
-            nextContainer.style.display = 'block';
+            validateNext();
             dbg('Estrategia seleccionada:', e.id, e.name);
           });
           strategyBtns.appendChild(b);
         });
+
         strategyBox.style.display = 'block';
-        nextContainer.style.display = 'none';
+        validateNext();
         dbg('Tipo de mecanizado seleccionado:', mtid, grouped[mtid].name);
       });
     });
 
-    // 2) Validación extra antes de enviar el formulario
     const form = document.getElementById('strategyForm');
     form.addEventListener('submit', e => {
-      const mtid = inputType.value.trim();
-      const sid  = inputStrat.value.trim();
-      const token = form.querySelector('input[name="csrf_token"]').value.trim();
-      if (!mtid || !sid || !token) {
+      if (!inputType.value || !inputStrat.value) {
         e.preventDefault();
         alert('Debe seleccionar un tipo de mecanizado y una estrategia válidos.');
-        dbg('Intento de submit inválido: mtid=', mtid, 'sid=', sid, 'token=', token);
+        dbg('Intento de submit inválido');
+        return;
       }
     });
 
-    // 3) Evitar doble envío muy rápido
     form.addEventListener('submit', () => {
-      nextContainer.style.display = 'none';
+      nextContainer.classList.add('d-none');
     });
+
+    validateNext();
+  });
   </script>
   </div>
 </body>
