@@ -184,22 +184,6 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
 }
 
 /* -------------------------------
-   ⬅️ Botón "Volver"
----------------------------------- */
-.btn-back {
-  background-color: transparent;
-  border: 1px solid #4fc3f7;
-  color: #4fc3f7;
-  border-radius: 0.4rem;
-  padding: 0.5rem 1rem;
-  transition: background 0.3s, color 0.3s;
-}
-.btn-back:hover {
-  background-color: #4fc3f7;
-  color: #0d1117;
-}
-
-/* -------------------------------
    ➡️ Botón "Siguiente"
 ---------------------------------- */
 .btn-next {
@@ -370,9 +354,6 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
 
       <!-- 5) Botones “Volver” y “Siguiente” -->
       <div class="d-flex align-items-center">
-        <a href="step3.php" class="btn btn-back">
-          ← Volver al Paso 3
-        </a>
         <button type="submit"
                 class="btn btn-next ms-auto"
                 id="btnNext"
