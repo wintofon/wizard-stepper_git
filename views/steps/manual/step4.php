@@ -307,6 +307,7 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
       <!-- Campo oculto “step” y CSRF -->
       <input type="hidden" name="step" value="4">
       <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>">
+      <input type="hidden" name="material_id" id="material_id" value="<?= $hasPrevMat ? htmlspecialchars((string)$prevMat, ENT_QUOTES) : '' ?>">
 
       <!-- 1) Buscador / Autocompletado -->
       <div class="mb-3 position-relative">
@@ -357,8 +358,8 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
       </div>
 
       <!-- 5) Botón “Siguiente” unificado -->
-      <div id="next-button-container" class="text-end mt-4" style="display: <?= ($hasPrevMat && $hasPrevThick) ? 'block' : 'none' ?>;">
-        <button type="submit" id="btn-next" class="btn btn-primary btn-lg">
+      <div id="next-button-container" class="text-end mt-4" style="display: none;">
+        <button type="submit" id="btn-next" class="btn btn-primary btn-lg w-100 w-md-auto">
           Siguiente →
         </button>
       </div>
@@ -411,7 +412,7 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
   function resetMat() {
     matCol.innerHTML = '';
     matBox.style.display = 'none';
-    hiddenMat.value = '';
+    matInp.value = '';
     thickIn.value = '';
     thickIn.parentNode.style.display = 'none';
     nextContainer.style.display = 'none';
@@ -421,7 +422,7 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
   }
 
   function validateNext() {
-    const matOk   = hiddenMat.value !== '';
+    const matOk   = matInp.value !== '';
     const thickOk = parseFloat(thickIn.value) > 0;
     nextContainer.style.display = (matOk && thickOk) ? 'block' : 'none';
   }
@@ -495,12 +496,9 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
     hideDropdown();
   }
 
-  // 1) Crear input hidden para material_id
-  const hiddenMat = document.createElement('input');
-  hiddenMat.type  = 'hidden';
-  hiddenMat.name  = 'material_id';
-  hiddenMat.id    = 'material_id';
-  document.getElementById('formWood').appendChild(hiddenMat);
+  // 1) Referencia al campo oculto material_id
+  const matInp = document.getElementById('material_id');
+  validateNext();
 
   /*────────────────────────────────────────────────────────────────────
     2) Al hacer clic en cada botón de categoría:
@@ -522,7 +520,7 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
         b.onclick = () => {
           document.querySelectorAll('.btn-mat').forEach(x => x.classList.remove('active'));
           b.classList.add('active');
-          hiddenMat.value = m.id;
+          matInp.value = m.id;
           search.value = m.name;
           noMatchMsg(false);
           thickIn.parentNode.style.display = 'block';
@@ -580,7 +578,7 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
     6) Validación final on-submit
   ────────────────────────────────────────────────────────────────────*/
   document.getElementById('formWood').addEventListener('submit', e => {
-    if (!hiddenMat.value || !(parseFloat(thickIn.value) > 0)) {
+    if (!matInp.value || !(parseFloat(thickIn.value) > 0)) {
       e.preventDefault();
       alert('Debés elegir un material válido y un espesor mayor a 0 antes de continuar.');
     }
