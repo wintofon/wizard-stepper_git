@@ -40,6 +40,11 @@
   <pre id="debug" class="debug-box"></pre>
 
   <!-- Scripts -->
+  <?php if (!empty($_SESSION['csrf_token'])): ?>
+  <script>
+    window.csrfToken = '<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>';
+  </script>
+  <?php endif; ?>
   <script src="assets/js/stepper.js" defer></script>
   <script src="assets/js/dashboard.js" defer></script>
 <link rel="stylesheet" href="assets/css/wizard.css">

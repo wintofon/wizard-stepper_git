@@ -1,4 +1,16 @@
 <?php
+declare(strict_types=1);
+require_once __DIR__ . '/../includes/security.php';
+
 session_start();
-header('Content-Type: application/json');
+require_debug_mode();
+
+$token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? ($_GET['csrf_token'] ?? '');
+if (!validate_csrf_token($token)) {
+    http_response_code(403);
+    exit('Invalid CSRF token');
+}
+
+header('Content-Type: application/json; charset=utf-8');
 echo json_encode($_SESSION);
+

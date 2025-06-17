@@ -22,7 +22,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (errorCount >= MAX_ERR) return;
 
     try {
-      const res  = await fetch('/wizard-stepper_git/public/session-api.php', {cache: 'no-store'});
+      const headers = window.csrfToken ? { 'X-CSRF-Token': window.csrfToken } : {};
+      const res  = await fetch('/wizard-stepper_git/public/session-api.php?debug=1', {
+        cache: 'no-store',
+        headers
+      });
       const cTyp = res.headers.get('Content-Type') || '';
 
       if (!res.ok || !cTyp.includes('application/json')) {
