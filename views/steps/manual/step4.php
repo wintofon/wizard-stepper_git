@@ -148,63 +148,142 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
   <title>Paso 4 – Selección de madera</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/step-common.css">
   <style>
-    body {
-      background-color: #0d1117;
-      color: #e0e0e0;
-      font-family: 'Segoe UI', Roboto, sans-serif;
-    }
-    .btn-cat {
-      margin: .35rem .45rem;
-      white-space: nowrap;
-    }
-    .btn-cat.active {
-      background: #0d6efd !important;
-      color: #fff   !important;
-    }
-    .btn-mat {
-      margin: .25rem 0;
-      width: 100%;
-    }
-    .btn-mat.active {
-      background: #198754 !important;
-      color: #fff       !important;
-    }
-    /* Dropdown búsqueda */
-    .dropdown-search {
-      position: absolute;
-      width: 100%;
-      max-height: 200px;
-      overflow-y: auto;
-      background: #000;
-      border: 1px solid #444;
-      z-index: 1000;
-      display: none;
-    }
-    .dropdown-search .item {
-      padding: .5rem .75rem;
-      color: #f1f1f1;
-      cursor: pointer;
-    }
-    .dropdown-search .item:hover {
-      background: #333;
-    }
-    .dropdown-search .hl {
-      background: #ffd54f;
-      color: #000;
-    }
-    #noMatchMsg {
-      color: #dc3545;
-      font-size: .875rem;
-      display: none;
-      margin-top: .25rem;
-    }
+
+/* -------------------------------
+   📦 Contenedor principal
+---------------------------------- */
+.wizard-body {
+  max-width: 800px;
+  margin: 2rem auto;
+  background: #132330;
+  padding: 2rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 0 24px rgba(0, 0, 0, 0.5);
+  border: 1px solid #264b63;
+}
+
+/* -------------------------------
+/* -------------------------------
+   📋 Campos de formulario
+---------------------------------- */
+.form-control {
+  background-color: #0f172a;
+  color: #e0e0e0;
+  border-color: #334156;
+}
+.form-control:disabled {
+  background-color: #1e293b;
+  color: #a7b1bb;
+  border-color: #334156;
+}
+.form-label {
+  font-weight: 600;
+  color: #cbd5e0;
+}
+
+/* -------------------------------
+   ⬅️ Botón "Volver"
+---------------------------------- */
+.btn-back {
+  background-color: transparent;
+  border: 1px solid #4fc3f7;
+  color: #4fc3f7;
+  border-radius: 0.4rem;
+  padding: 0.5rem 1rem;
+  transition: background 0.3s, color 0.3s;
+}
+.btn-back:hover {
+  background-color: #4fc3f7;
+  color: #0d1117;
+}
+
+
+/* -------------------------------
+   ⚠️ Alertas
+---------------------------------- */
+.alert-warning {
+  background-color: #ffd966;
+  color: #664d03;
+  border: 1px solid #ffeb3b;
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+}
+
+/* -------------------------------
+   🔍 Dropdown de búsqueda
+---------------------------------- */
+.dropdown-search {
+  position: absolute;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  background: #000;
+  border: 1px solid #444;
+  z-index: 1000;
+  display: none;
+}
+.dropdown-search .item {
+  padding: 0.5rem 0.75rem;
+  color: #f1f1f1;
+  cursor: pointer;
+}
+.dropdown-search .item:hover {
+  background: #333;
+}
+.dropdown-search .hl {
+  background: #ffd54f;
+  color: #000;
+}
+
+/* -------------------------------
+   ❌ Sin coincidencias
+---------------------------------- */
+#noMatchMsg {
+  color: #dc3545;
+  font-size: 0.875rem;
+  display: none;
+  margin-top: 0.25rem;
+}
+
+/* -------------------------------
+   🛠️ Consola interna (debug)
+---------------------------------- */
+.debug-box {
+  background: #102735;
+  color: #a7d3e9;
+  font-family: monospace;
+  font-size: 0.85rem;
+  padding: 1rem;
+  max-width: 1000px;
+  margin: 2rem auto 0;
+  white-space: pre-wrap;
+  height: 160px;
+  overflow-y: auto;
+  border-top: 1px solid #2e5b78;
+  border-radius: 6px;
+}
+
+/* -------------------------------
+   📱 Responsive
+---------------------------------- */
+@media (max-width: 768px) {
+  .btn-cat,
+  .btn-mat {
+    width: 100%;
+  }
+  #next-button-container .btn {
+    width: 100%;
+  }
+}
   </style>
 </head>
 <body>
 
   <div class="container py-4">
-    <h2 class="mb-3">Paso 4 – Elegí la madera compatible</h2>
+    <h2>Paso 4 – Elegí la madera compatible</h2>
 
     <!-- Si no se encontró ninguna madera compatible, mostrar alerta -->
     <?php if (empty($data)): ?>
@@ -215,7 +294,7 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
 
     <!-- Mostrar errores si existen -->
     <?php if (!empty($errors)): ?>
-      <div class="alert alert-danger">
+      <div class="alert alert-custom">
         <ul class="mb-0">
           <?php foreach ($errors as $e): ?>
             <li><?= htmlspecialchars($e, ENT_QUOTES) ?></li>
@@ -280,7 +359,7 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
 
       <!-- 5) Botón “Siguiente” unificado -->
       <div id="next-button-container" class="text-end mt-4" style="display: none;">
-        <button type="submit" id="btn-next" class="btn btn-primary btn-lg">
+        <button type="submit" id="btn-next" class="btn btn-primary btn-lg w-100 w-md-auto">
           Siguiente →
         </button>
       </div>
@@ -288,7 +367,7 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
   </div>
 
   <!-- Caja opcional de debugging -->
-  <pre id="debug" class="bg-dark text-info p-2 mt-4"></pre>
+  <pre id="debug" class="debug-box"></pre>
 
   <script>
   document.addEventListener('DOMContentLoaded', () => {
