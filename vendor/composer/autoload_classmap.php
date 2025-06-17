@@ -7,5 +7,4 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
-    'IndustrialWizard\\StepperFlow' => $baseDir . '/src/StepperFlow.php',
 );

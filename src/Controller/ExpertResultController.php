@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use ToolModel;
-use ConfigModel;
-use CNCCalculator;
+use App\Model\ToolModel;
+use App\Model\ConfigModel;
+use App\Utils\CNCCalculator;
 
 if (!function_exists('dbg')) {
     /**
