@@ -1,69 +1,26 @@
-/* CSS extraído de views/steps/manual/step4.php */
-
-/* -------------------------------
-   📦 Contenedor principal
----------------------------------- */
-.wizard-body {
-  max-width: 800px;
-  margin: 2rem auto;
-  background: #132330;
-  padding: 2rem;
-  border-radius: 0.75rem;
-  box-shadow: 0 0 24px rgba(0, 0, 0, 0.5);
-  border: 1px solid #264b63;
-}
-
-/* -------------------------------
-/* -------------------------------
-   📌 Campos de formulario
----------------------------------- */
-.form-control {
-  background-color: #0f172a;
+/* CSS extraído de views/steps/auto/step1.php */
+body {
+  background-color: #0d1117;
   color: #e0e0e0;
-  border-color: #334156;
+  font-family: 'Segoe UI', Roboto, sans-serif;
 }
-.form-control:disabled {
-  background-color: #1e293b;
-  color: #a7b1bb;
-  border-color: #334156;
+.btn-cat {
+  margin: .35rem .45rem;
+  white-space: nowrap;
 }
-.form-label {
-  font-weight: 600;
-  color: #cbd5e0;
+.btn-cat.active {
+  background: #0d6efd !important;
+  color: #fff   !important;
 }
-
-/* -------------------------------
-   ⬅️ Botón "Volver"
----------------------------------- */
-.btn-back {
-  background-color: transparent;
-  border: 1px solid #4fc3f7;
-  color: #4fc3f7;
-  border-radius: 0.4rem;
-  padding: 0.5rem 1rem;
-  transition: background 0.3s, color 0.3s;
+.btn-mat {
+  margin: .25rem 0;
+  width: 100%;
 }
-.btn-back:hover {
-  background-color: #4fc3f7;
-  color: #0d1117;
+.btn-mat.active {
+  background: #198754 !important;
+  color: #fff       !important;
 }
-
-
-/* -------------------------------
-   ⚠️ Alertas
----------------------------------- */
-.alert-warning {
-  background-color: #ffd966;
-  color: #664d03;
-  border: 1px solid #ffeb3b;
-  margin-bottom: 1rem;
-  padding: 0.75rem 1rem;
-  border-radius: 0.375rem;
-}
-
-/* -------------------------------
-   🔍 Dropdown de búsqueda
----------------------------------- */
+/* Dropdown búsqueda */
 .dropdown-search {
   position: absolute;
   width: 100%;
@@ -75,7 +32,7 @@
   display: none;
 }
 .dropdown-search .item {
-  padding: 0.5rem 0.75rem;
+  padding: .5rem .75rem;
   color: #f1f1f1;
   cursor: pointer;
 }
@@ -86,44 +43,9 @@
   background: #ffd54f;
   color: #000;
 }
-
-/* -------------------------------
-   ❌ Sin coincidencias
----------------------------------- */
 #noMatchMsg {
   color: #dc3545;
-  font-size: 0.875rem;
+  font-size: .875rem;
   display: none;
-  margin-top: 0.25rem;
-}
-
-/* -------------------------------
-   🛠 Consola interna (debug)
----------------------------------- */
-.debug-box {
-  background: #102735;
-  color: #a7d3e9;
-  font-family: monospace;
-  font-size: 0.85rem;
-  padding: 1rem;
-  max-width: 1000px;
-  margin: 2rem auto 0;
-  white-space: pre-wrap;
-  height: 160px;
-  overflow-y: auto;
-  border-top: 1px solid #2e5b78;
-  border-radius: 6px;
-}
-
-/* -------------------------------
-   📱 Responsive
----------------------------------- */
-@media (max-width: 768px) {
-  .btn-cat,
-  .btn-mat {
-    width: 100%;
-  }
-  #next-button-container .btn {
-    width: 100%;
-  }
+  margin-top: .25rem;
 }
