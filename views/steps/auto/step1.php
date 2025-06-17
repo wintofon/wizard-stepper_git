@@ -327,7 +327,7 @@ dbg('children', $children);
 
     <!-- 5) Botón “Siguiente” -->
     <div id="next-button-container" class="text-end mt-4" style="display: none;">
-      <button type="submit" id="btn-next" class="btn btn-primary btn-lg w-100 w-sm-auto">
+      <button type="submit" id="btn-next" class="btn btn-primary btn-lg">
         Siguiente →
       </button>
     </div>
@@ -336,7 +336,6 @@ dbg('children', $children);
   <pre id="debug" class="bg-dark text-info p-2 mt-4"></pre>
 
   <script>
-  document.addEventListener('DOMContentLoaded', () => {
   //────────────────────────────────────────────────────────────────────
   // normalizeText: Quita tildes, pasa a minúsculas
   function normalizeText(str) {
