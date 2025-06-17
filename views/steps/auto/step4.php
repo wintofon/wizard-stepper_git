@@ -403,11 +403,7 @@ if (isset($tool['length_total_mm'])) {
       <input type="hidden" name="tool_id"    value="<?= htmlspecialchars((string)$tool['tool_id'], ENT_QUOTES) ?>">
       <input type="hidden" name="tool_table" value="<?= htmlspecialchars((string)$_SESSION['tool_table'], ENT_QUOTES) ?>">
 
-        <div class="text-end mt-4">
-          <button type="submit" class="btn btn-primary btn-lg float-end mt-4 btn-next-step">
-            Siguiente →
-          </button>
-        </div>
+        <?php include __DIR__ . "/../../components/button-next.php"; ?>
       </form>
   <?php endif; ?>
 </main>

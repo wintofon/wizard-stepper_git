@@ -248,15 +248,7 @@ $hasPrev   = is_int($prevType) && array_key_exists((int)$prevType, $types)
       </div>
     </div>
 
-    <!-- 3) Botón “Siguiente” -->
-    <div class="text-end mt-4">
-      <button type="submit"
-              class="btn btn-primary btn-lg float-end mt-4 btn-next-step"
-              id="nextBtn_p2"
-              <?= $hasPrev ? '' : 'disabled' ?>>
-        Siguiente →
-      </button>
-    </div>
+    <?php include __DIR__ . "/../../components/button-next.php"; ?>
   </form>
 
   <pre id="debug" class="bg-dark text-info p-2 mt-4"></pre>
