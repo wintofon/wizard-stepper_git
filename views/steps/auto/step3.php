@@ -188,7 +188,8 @@ try {
     }
   </style>
 </head>
-<body class="container py-4">
+<body>
+  <div class="container py-4">
 
   <h2>Paso 3 – Herramientas compatibles (Modo Auto)</h2>
 
@@ -212,6 +213,12 @@ try {
     <input type="hidden" id="tool_id"    name="tool_id"    value="">
     <input type="hidden" id="tool_table" name="tool_table" value="">
   </form>
+
+  <div class="text-end mt-4">
+    <button type="submit" form="selectForm" class="btn btn-primary btn-lg" id="btn-next" disabled>
+      Siguiente →
+    </button>
+  </div>
 
   <!-- 7.4) Consola interna de debugging -->
   <pre id="debug" class="bg-dark text-info p-2 mt-4"></pre>
@@ -417,5 +424,6 @@ try {
     fetchTools();
   })();
   </script>
+  </div>
 </body>
 </html>

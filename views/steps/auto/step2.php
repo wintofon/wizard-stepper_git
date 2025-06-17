@@ -194,7 +194,8 @@ $hasPrev   = is_int($prevType) && array_key_exists((int)$prevType, $types)
   >
   <link rel="stylesheet" href="/wizard-stepper_git/assets/css/step-common.css">
 </head>
-<body class="container py-4">
+<body>
+  <div class="container py-4">
 
   <h2 class="mb-3">Paso 2 – Seleccioná mecanizado y estrategia</h2>
 
@@ -251,7 +252,7 @@ $hasPrev   = is_int($prevType) && array_key_exists((int)$prevType, $types)
     <!-- 3) Botón “Siguiente” -->
     <div class="text-end mt-4">
       <button type="submit"
-              class="btn btn-primary btn-lg float-end mt-4 btn-next-step"
+              class="btn btn-primary btn-lg"
               id="nextBtn_p2"
               <?= $hasPrev ? '' : 'disabled' ?>>
         Siguiente →
@@ -315,5 +316,6 @@ $hasPrev   = is_int($prevType) && array_key_exists((int)$prevType, $types)
     }
   })();
   </script>
+  </div>
 </body>
 </html>

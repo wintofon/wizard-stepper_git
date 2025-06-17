@@ -346,7 +346,7 @@ if (isset($tool['length_total_mm'])) {
 </head>
 <body>
 
-<main class="wizard-body">
+<div class="container py-4">
   <div class="wizard-header">
     <i class="bi bi-tools"></i>
     <h2>Paso 4 – Confirmar herramienta</h2>
@@ -404,13 +404,13 @@ if (isset($tool['length_total_mm'])) {
       <input type="hidden" name="tool_table" value="<?= htmlspecialchars((string)$_SESSION['tool_table'], ENT_QUOTES) ?>">
 
         <div class="text-end mt-4">
-          <button type="submit" class="btn btn-primary btn-lg float-end mt-4 btn-next-step">
+          <button type="submit" class="btn btn-primary btn-lg">
             Siguiente →
           </button>
         </div>
       </form>
   <?php endif; ?>
-</main>
+</div>
 
 <pre id="debug"></pre>
 </body>

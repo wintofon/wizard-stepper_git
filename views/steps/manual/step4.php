@@ -279,7 +279,7 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
 </head>
 <body>
 
-  <div class="wizard-body">
+  <div class="container py-4">
     <h2>Paso 4 – Elegí la madera compatible</h2>
 
     <!-- Si no se encontró ninguna madera compatible, mostrar alerta -->
@@ -356,7 +356,7 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
       <!-- 5) Botón “Siguiente” unificado -->
       <div class="text-end mt-4">
         <button type="submit"
-                class="btn btn-primary btn-lg float-end mt-4 btn-next-step"
+                class="btn btn-primary btn-lg"
                 id="btnNext"
                 <?= (empty($data) || !($hasPrevMat && $hasPrevThick)) ? 'disabled' : '' ?>>
           Siguiente →

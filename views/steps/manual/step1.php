@@ -151,7 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <input type="hidden" name="tool_id"     id="tool_id" value="">
     <input type="hidden" name="tool_table"  id="tool_table" value="">
 
-    <div class="container-fluid py-4" data-debug="step1">
+    <div class="container py-4" data-debug="step1">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold text-white m-0">
           <i class="bi bi-box-seam"></i> Explorador de fresas
@@ -223,6 +223,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
       <?php endif; ?>
 
+
+      <div class="text-end mt-4">
+        <button type="submit" class="btn btn-primary btn-lg">
+          Siguiente →
+        </button>
+      </div>
 
     </div>
   </form>
