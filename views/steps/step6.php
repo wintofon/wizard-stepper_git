@@ -237,6 +237,7 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
   
 </head>
 <body>
+  <div class="container py-4">
 <?php endif; ?>
 
 <!-- ALERTA DE ASSETS FALTANTES -->
@@ -629,6 +630,7 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.umd.min.js"></script>
 <script src="/wizard-stepper_git/assets/js/step6.js"></script>
+  </div>
 
 <?php if (!$embedded): ?>
 </body>

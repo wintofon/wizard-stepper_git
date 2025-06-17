@@ -117,7 +117,7 @@ if ($tool) {
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="assets/css/step2_manual.css">
 
-<main class="wizard-body shadow-lg mt-4">
+<div class="container py-4">
   <h2 class="text-info"><i class="bi bi-tools"></i> Confirmar herramienta</h2>
 
   <?php if ($error): ?>
@@ -155,13 +155,13 @@ if ($tool) {
         <input type="hidden" name="tool_id"    value="<?= $tool['tool_id'] ?>">
         <input type="hidden" name="tool_table" value="<?= htmlspecialchars($_SESSION['tool_table']) ?>">
           <div class="text-end mt-4">
-            <button type="submit" class="btn btn-primary btn-lg float-end mt-4 btn-next-step">
+            <button type="submit" class="btn btn-primary btn-lg">
               Siguiente →
             </button>
           </div>
       </form>
   <?php endif; ?>
-</main>
+</div>
 
 <!-- consola interna -->
 <pre id="debug" class="debug-box"></pre>

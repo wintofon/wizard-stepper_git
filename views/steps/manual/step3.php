@@ -272,7 +272,8 @@ dbg('Tipos de mecanizado disponibles:', $grouped);
     }
   </style>
 </head>
-<body class="container py-4">
+<body>
+  <div class="container py-4">
 
   <h2 class="mb-4">Paso 3 – Elegí el tipo de mecanizado y la estrategia</h2>
 
@@ -311,7 +312,7 @@ dbg('Tipos de mecanizado disponibles:', $grouped);
     <!-- 3) Continuar -->
     <div class="text-end mt-4">
       <button type="submit"
-              class="btn btn-primary btn-lg float-end mt-4 btn-next-step"
+              class="btn btn-primary btn-lg"
               id="btn-next" disabled>
         Siguiente →
       </button>
@@ -395,5 +396,6 @@ dbg('Tipos de mecanizado disponibles:', $grouped);
       btnNext.disabled = true;
     });
   </script>
+  </div>
 </body>
 </html>

@@ -259,7 +259,8 @@ dbg('children', $children);
     }
   </style>
 </head>
-<body class="container py-4">
+<body>
+  <div class="container py-4">
 
   <h2 class="mb-3">Paso 1 – Elegí el material y el espesor</h2>
 
@@ -327,7 +328,7 @@ dbg('children', $children);
     <!-- 5) Botón “Siguiente” -->
     <div class="text-end mt-4">
       <button type="submit"
-              class="btn btn-primary btn-lg float-end mt-4 btn-next-step"
+              class="btn btn-primary btn-lg"
               id="nextBtn"
               disabled>
         Siguiente →
@@ -541,5 +542,6 @@ dbg('children', $children);
     }
   });
   </script>
+  </div>
 </body>
 </html>

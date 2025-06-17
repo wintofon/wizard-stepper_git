@@ -190,8 +190,8 @@ $hasPrev = is_int($prev['transmission_id']) && $prev['transmission_id'] > 0;
     }
   </style>
 </head>
-<body class="py-4">
-  <div class="container">
+<body>
+  <div class="container py-4">
     <h2>Paso 5 – Configurá tu router</h2>
 
     <?php if (!empty($errors)): ?>
@@ -272,7 +272,7 @@ $hasPrev = is_int($prev['transmission_id']) && $prev['transmission_id'] > 0;
       <!-- 3) Botón “Siguiente” -->
       <div class="text-end mt-4">
         <button type="submit"
-                class="btn btn-primary btn-lg float-end mt-4 btn-next-step"
+                class="btn btn-primary btn-lg"
                 id="nextBtn"
                 <?= $hasPrev ? '' : 'disabled' ?>>
           Siguiente →
@@ -336,5 +336,6 @@ $hasPrev = is_int($prev['transmission_id']) && $prev['transmission_id'] > 0;
     <?php endif; ?>
   })();
   </script>
+  </div>
 </body>
 </html>
