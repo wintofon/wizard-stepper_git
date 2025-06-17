@@ -223,14 +223,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
       <?php endif; ?>
 
-      <div class="mt-3 text-end">
-        <button id="nextBtn"
-                class="btn btn-primary"
-                type="submit"
-                disabled>
-          Siguiente <i class="bi bi-arrow-right-circle"></i>
-        </button>
-      </div>
+
     </div>
   </form>
 
@@ -288,8 +281,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         document.getElementById('tool_id').value    = btn.dataset.tool_id;
         document.getElementById('tool_table').value = btn.dataset.tbl;
 
-        // Activamos el botón “Siguiente” y forzamos el submit
-        document.getElementById('nextBtn').disabled = false;
+        // Enviamos el formulario automáticamente luego de la selección
         document.getElementById('step1ManualForm').requestSubmit();
 
         dbg('► herramienta seleccionada:', btn.dataset.tbl, btn.dataset.tool_id);

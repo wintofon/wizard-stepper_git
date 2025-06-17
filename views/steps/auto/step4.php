@@ -369,9 +369,7 @@ if (isset($tool['length_total_mm'])) {
       <i class="bi bi-exclamation-triangle"></i>
       <?= htmlspecialchars($error, ENT_QUOTES) ?>
     </div>
-    <a href="step3.php" class="btn-back mt-3">
-      <i class="bi bi-arrow-left-circle"></i> Volver a Paso 3
-    </a>
+      <!-- Botón de retroceso eliminado -->
 
   <?php else: ?>
     <div class="card mb-4">
@@ -412,18 +410,15 @@ if (isset($tool['length_total_mm'])) {
     </div>
 
     <!-- Formulario para avanzar a Paso 5 -->
-    <form action="step5.php" method="post" class="d-flex justify-content-between">
+      <form action="step5.php" method="post" class="mt-4 text-end">
       <input type="hidden" name="step"       value="4">
       <input type="hidden" name="tool_id"    value="<?= htmlspecialchars((string)$tool['tool_id'], ENT_QUOTES) ?>">
       <input type="hidden" name="tool_table" value="<?= htmlspecialchars((string)$_SESSION['tool_table'], ENT_QUOTES) ?>">
 
-      <a href="step3.php" class="btn-back">
-        ← Volver a Paso 3
-      </a>
-      <button type="submit" class="btn-next">
-        Siguiente → Paso 5
-      </button>
-    </form>
+        <button type="submit" class="btn btn-primary btn-lg float-end">
+          Siguiente →
+        </button>
+      </form>
   <?php endif; ?>
 </main>
 
