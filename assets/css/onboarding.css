@@ -1,0 +1,90 @@
+.wizard-welcome {
+  max-width: 800px;
+  margin: 3rem auto;
+  text-align: center;
+  color: #e2e8f0;
+  padding: 2rem;
+}
+
+.icon-xl {
+  width: 64px;
+  height: 64px;
+  color: #60a5fa;
+  margin-bottom: 1rem;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.lead {
+  font-size: 1.2rem;
+  color: #cbd5e1;
+  margin-bottom: 2rem;
+}
+
+.disclaimer {
+  background: #1e293b;
+  border: 1px solid #facc15;
+  color: #facc15;
+  padding: 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  max-width: 720px;
+  margin: 0 auto 2rem;
+}
+
+.explanation {
+  text-align: center;
+  color: #cbd5e1;
+  margin-bottom: 1.5rem;
+}
+
+.mode-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.mode-option {
+  background: #0f172a;
+  border: 1px solid #334155;
+  padding: 1.25rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  color: #e2e8f0;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.mode-option:hover {
+  background: #1e293b;
+}
+
+.mode-option input {
+  margin-top: 0.4rem;
+}
+
+.mode-option strong {
+  display: block;
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+}
+
+.mode-option span {
+  font-size: 0.95rem;
+  color: #aebbc8;
+}
+
+.icon-sm {
+  width: 24px;
+  height: 24px;
+  margin-top: 0.2rem;
+  color: #60a5fa;
+}
