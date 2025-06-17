@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__ . '/../src/Utils/Session.php';
 /**
  * File: C:\xampp\htdocs\wizard-stepper_git\load-step.php
  * ---------------------------------------------------------------
@@ -22,17 +23,7 @@ header('Pragma: no-cache');
 // ─────────────────────────────────────────────────────────────
 // [2] SESIÓN SEGURA
 // ─────────────────────────────────────────────────────────────
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_set_cookie_params([
-        'lifetime' => 0,
-        'path'     => '/',
-        'domain'   => '',
-        'secure'   => true,
-        'httponly' => true,
-        'samesite' => 'Strict'
-    ]);
-    session_start();
-}
+startSecureSession();
 
 // ─────────────────────────────────────────────────────────────
 // [3] DEBUG OPCIONAL
