@@ -357,7 +357,7 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
       </div>
 
       <!-- 5) Botón “Siguiente” unificado -->
-      <div id="next-button-container" class="text-end mt-4" style="display: <?= ($hasPrevMat && $hasPrevThick) ? 'block' : 'none' ?>;">
+      <div id="next-button-container" class="text-end mt-4" style="display: none;">
         <button type="submit" id="btn-next" class="btn btn-primary btn-lg">
           Siguiente →
         </button>
