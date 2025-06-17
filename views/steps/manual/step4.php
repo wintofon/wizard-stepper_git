@@ -1,6 +1,6 @@
 <?php
 /**
- * Paso 4 (Auto) – Selección de madera compatible
+ * Paso 4 (Manual) – Selección de madera compatible
  *  • Solo accesible si wizard_progress ≥ 3 (es decir, se completaron los pasos previos).
  *  • Incluye comprobación CSRF en el POST.
  *  • Valida que material_id provenga efectivamente de la lista de materiales compatibles.
@@ -9,13 +9,79 @@
 
 declare(strict_types=1);
 
-// 1) Sesión y flujo
+// ────────────────────────────────────────────────────────────────────────────
+// [A] Cabeceras de seguridad / anti‑caching
+// ────────────────────────────────────────────────────────────────────────────
+header('Content-Type: text/html; charset=UTF-8');
+header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
+header("X-Frame-Options: DENY");
+header("X-Content-Type-Options: nosniff");
+header("Referrer-Policy: no-referrer");
+header("Permissions-Policy: geolocation=(), microphone=()");
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Pragma: no-cache");
+header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';");
+
+// ────────────────────────────────────────────────────────────────────────────
+// [B] Errores y debug opcional
+// ────────────────────────────────────────────────────────────────────────────
+$DEBUG = filter_input(INPUT_GET, 'debug', FILTER_VALIDATE_BOOLEAN);
+if ($DEBUG) {
+    error_reporting(E_ALL);
+    ini_set('display_errors', '1');
+} else {
+    error_reporting(0);
+    ini_set('display_errors', '0');
+}
+if (!function_exists('dbg')) {
+    function dbg(string $msg, $data = null): void {
+        global $DEBUG;
+        if ($DEBUG) {
+            error_log("[step4.php] " . $msg . ' ' . json_encode($data, JSON_UNESCAPED_UNICODE));
+        }
+    }
+}
+dbg('🔧 step4.php iniciado');
+
+// ────────────────────────────────────────────────────────────────────────────
+// [C] Sesión y control de flujo
+// ────────────────────────────────────────────────────────────────────────────
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start([
         'cookie_secure'   => true,
         'cookie_httponly' => true,
         'cookie_samesite' => 'Strict',
     ]);
+}
+
+// Validamos que el asistente esté en curso
+if (empty($_SESSION['wizard_state']) || $_SESSION['wizard_state'] !== 'wizard') {
+    dbg('❌ wizard_state no válido → redirigiendo a index.php');
+    header('Location: /wizard-stepper_git/index.php');
+    exit;
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// [D] Rate‑limit básico por IP (10 POST en 5 minutos)
+// ────────────────────────────────────────────────────────────────────────────
+$clientIp = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+if (!isset($_SESSION['rate_limit'])) {
+    $_SESSION['rate_limit'] = [];
+}
+foreach ($_SESSION['rate_limit'] as $ip => $times) {
+    $_SESSION['rate_limit'][$ip] = array_filter(
+        $times,
+        fn(int $ts) => ($ts + 300) > time()
+    );
+}
+if (!isset($_SESSION['rate_limit'][$clientIp])) {
+    $_SESSION['rate_limit'][$clientIp] = [];
+}
+if ($_SERVER['REQUEST_METHOD'] === 'POST'
+    && count($_SESSION['rate_limit'][$clientIp]) >= 10) {
+    http_response_code(429);
+    echo "<!DOCTYPE html><html lang=\"es\"><head><meta charset=\"UTF-8\"><title>429 Too Many Requests</title></head><body style=\"background:#000;color:#f00;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;\"><h1>429 – Demasiados intentos. Esperá unos minutos.</h1></body></html>";
+    exit;
 }
 
 // Si no completó el paso 3, lo mandamos al paso 1
@@ -123,8 +189,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // 7.5) Si no hay errores, guardamos en sesión y avanzamos al paso 5
+    // 7.5) Si no hay errores, registramos el intento y avanzamos al paso 5
     if (empty($errors)) {
+        $_SESSION['rate_limit'][$clientIp][] = time();
         $_SESSION['material_id']     = $matIdRaw;
         $_SESSION['thickness']       = $thickRaw;
         $_SESSION['wizard_progress'] = 4;
