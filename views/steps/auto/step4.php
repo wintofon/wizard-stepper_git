@@ -360,16 +360,21 @@ if (isset($tool['length_total_mm'])) {
       <!-- Botón de retroceso eliminado -->
 
   <?php else: ?>
+    <?php if (!empty($tool['image_url'])): ?>
+      <figure class="text-center mb-4">
+        <img
+          src="/<?= htmlspecialchars($tool['image_url'], ENT_QUOTES) ?>"
+          alt="Imagen de la herramienta seleccionada"
+          class="img-fluid rounded shadow-sm"
+          style="max-width: 100%; height: auto;"
+          onerror="this.style.display='none'"
+        >
+        <figcaption class="text-muted mt-2">Fresa seleccionada</figcaption>
+      </figure>
+    <?php endif; ?>
+
     <div class="card mb-4">
       <div class="card-body">
-        <?php if (!empty($tool['image_url'])): ?>
-          <img
-            src="/<?= htmlspecialchars($tool['image_url'], ENT_QUOTES) ?>"
-            alt="Imagen de la herramienta"
-            class="img-thumbnail"
-            onerror="this.style.display='none'"
-          >
-        <?php endif; ?>
         <div>
           <h4 class="text-info">
             <?= htmlspecialchars($tool['tool_code'], ENT_QUOTES) ?> –
