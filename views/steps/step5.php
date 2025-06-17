@@ -270,7 +270,14 @@ $hasPrev = is_int($prev['transmission_id']) && $prev['transmission_id'] > 0;
       </div>
 
       <!-- 3) Botón “Siguiente” -->
-<?php include __DIR__ . "/../components/button-next.php"; ?>
+      <div class="text-end mt-4">
+        <button type="submit"
+                class="btn btn-primary btn-lg float-end mt-4 btn-next-step"
+                id="nextBtn"
+                <?= $hasPrev ? '' : 'disabled' ?>>
+          Siguiente →
+        </button>
+      </div>
     </form>
   </div>
 
