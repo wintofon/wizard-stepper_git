@@ -1,6 +1,7 @@
 <?php
 // tools_ajax.php - Devuelve lista de herramientas filtradas (sin autenticación)
 require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../src/Utils/ToolService.php';
 header('Content-Type: application/json; charset=utf-8');
 
 $brandTables = [
@@ -129,6 +130,11 @@ foreach ($stmt as $row) {
     $det = $pdo->prepare("SELECT * FROM {$row['tbl']} WHERE tool_id=?");
     $det->execute([$row['tool_id']]);
     $row['details'] = $det->fetch(PDO::FETCH_ASSOC);
+    $row['details']['image_url'] = ToolService::getToolImageUrl(
+        $pdo,
+        $row['tbl'],
+        (int) $row['tool_id']
+    );
 
     // Fetch parameters per material
     $tm = 'toolsmaterial_' . substr($row['tbl'], 6);
