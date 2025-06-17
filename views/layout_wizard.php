@@ -34,7 +34,7 @@
   <main id="step-content" class="wizard-body"></main>
 
   <!-- Dashboard (opcional) -->
-  <div id="wizard-dashboard"></div>
+  <section id="wizard-dashboard"></section>
 
   <!-- Consola interna -->
   <pre id="debug" class="debug-box"></pre>

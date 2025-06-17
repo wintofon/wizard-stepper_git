@@ -282,7 +282,7 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
 </head>
 <body>
 
-  <div class="container py-4">
+  <main class="container py-4">
     <h2>Paso 4 – Elegí la madera compatible</h2>
 
     <!-- Si no se encontró ninguna madera compatible, mostrar alerta -->
@@ -303,7 +303,7 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
       </div>
     <?php endif; ?>
 
-    <form method="post" id="formWood" novalidate>
+    <form method="post" action="" id="formWood" novalidate>
       <!-- Campo oculto “step” y CSRF -->
       <input type="hidden" name="step" value="4">
       <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>">
@@ -364,7 +364,7 @@ $hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
         </button>
       </div>
     </form>
-  </div>
+  </main>
 
   <!-- Caja opcional de debugging -->
   <pre id="debug" class="debug-box"></pre>

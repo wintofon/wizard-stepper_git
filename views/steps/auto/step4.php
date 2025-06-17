@@ -353,7 +353,7 @@ if ($tool && !empty($tool['image'])) {
 </head>
 <body>
 
-<div class="container py-4">
+<main class="container py-4">
   <div class="wizard-header">
     <i class="bi bi-tools"></i>
     <h2>Paso 4 – Confirmar herramienta</h2>
@@ -422,7 +422,7 @@ if ($tool && !empty($tool['image'])) {
         </div>
       </form>
   <?php endif; ?>
-</div>
+</main>
 
 <pre id="debug"></pre>
 </body>

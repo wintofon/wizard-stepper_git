@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="assets/css/wizard.css">
 </head>
 <body>
-<div class="container d-flex flex-column justify-content-center align-items-center min-vh-100">
+<main class="container d-flex flex-column justify-content-center align-items-center min-vh-100">
     <div class="text-center" style="max-width: 400px;">
         <h2 class="display-6 fw-semibold mb-4">¿Cómo querés operar?</h2>
         <form method="post" action="index.php" class="d-grid gap-2" novalidate>
@@ -37,7 +37,7 @@
             <button type="submit" class="btn btn-primary btn-lg mt-3">Continuar</button>
         </form>
     </div>
-</div>
+</main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

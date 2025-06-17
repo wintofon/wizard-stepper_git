@@ -195,7 +195,7 @@ $hasPrev   = is_int($prevType) && array_key_exists((int)$prevType, $types)
   <link rel="stylesheet" href="/wizard-stepper_git/assets/css/step-common.css">
 </head>
 <body>
-  <div class="container py-4">
+  <main class="container py-4">
 
   <h2 class="mb-3">Paso 2 – Seleccioná mecanizado y estrategia</h2>
 
@@ -209,7 +209,7 @@ $hasPrev   = is_int($prevType) && array_key_exists((int)$prevType, $types)
     </div>
   <?php endif; ?>
 
-  <form id="formStrat" method="post" novalidate>
+  <form id="formStrat" method="post" action="" novalidate>
     <!-- Campos ocultos: step y csrf -->
     <input type="hidden" name="step"       value="2">
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>">
@@ -317,6 +317,6 @@ $hasPrev   = is_int($prevType) && array_key_exists((int)$prevType, $types)
     }
   })();
   </script>
-  </div>
+  </main>
 </body>
 </html>
