@@ -7,13 +7,20 @@ export const sentinel = document.getElementById('sentinel');
 export const tbody = document.querySelector('#toolTbl tbody');
 const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
 
+console.log('Sentinel:', sentinel);
+
+const scrollContainer = document.querySelector('.list-scroll-container');
 const observer = new IntersectionObserver(
   (entries) => {
     entries.forEach((entry) => {
-      if (entry.isIntersecting) loadPage();
+      console.log('Observer entry:', entry);
+      if (entry.isIntersecting) {
+        console.log('Sentinel visible \u2192 loadPage()');
+        loadPage();
+      }
     });
   },
-  { rootMargin: '200px', threshold: 0.1 },
+  { root: scrollContainer, rootMargin: '200px', threshold: 0.1 },
 );
 
 export async function loadPage() {
@@ -42,9 +49,10 @@ export async function loadPage() {
         tbody.appendChild(tr);
       });
     }
-    page = data.nextPage;
     hasMore = data.hasMore;
-    if (!hasMore) {
+    if (hasMore) {
+      page++;
+    } else {
       observer.unobserve(sentinel);
       const end = document.createElement("tr");
       const endTd = document.createElement("td");
@@ -73,5 +81,4 @@ export function initLazy() {
 }
 
 document.addEventListener("DOMContentLoaded", initLazy);
-if (document.readyState !== "loading") initLazy();
 window.initLazy = initLazy;
