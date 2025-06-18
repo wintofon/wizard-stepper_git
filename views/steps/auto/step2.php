@@ -188,10 +188,8 @@ $hasPrev   = is_int($prevType) && array_key_exists((int)$prevType, $types)
   <title>Paso 2 – Mecanizado & Estrategia</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Bootstrap 5 -->
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  >
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/strategy.css">
   <link rel="stylesheet" href="/wizard-stepper_git/assets/css/step-common.css">
 </head>
 <body>
@@ -235,7 +233,6 @@ $hasPrev   = is_int($prevType) && array_key_exists((int)$prevType, $types)
       id="stratBox"
       class="mb-3"
       style="<?= $hasPrev ? 'display:block' : 'display:none' ?>"
-    >
       <h5>Estrategia</h5>
       <div id="stratCol">
         <?php if ($hasPrev):

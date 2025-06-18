@@ -234,11 +234,11 @@ dbg('Tipos de mecanizado disponibles:', $grouped);
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- Bootstrap 5 (CDN) -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/strategy.css">
 
   <!-- Estilos mínimos para botones de estrategia -->
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/steps/manual/step3.css">
+  
 </head>
 <body>
   <main class="container py-4">
