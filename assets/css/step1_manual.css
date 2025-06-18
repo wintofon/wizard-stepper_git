@@ -127,3 +127,7 @@ h2.fw-bold {
   max-height: 70vh;
   overflow-y: auto;
 }
+
+#sentinel {
+  min-height: 40px;
+}
