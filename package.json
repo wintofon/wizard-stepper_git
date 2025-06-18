@@ -12,15 +12,15 @@
     "postcss-cli": "^11.0.1",
     "postcss-preset-env": "^10.2.3",
     "prettier": "^3.5.3",
-    "stylelint": "^16.20.0",
-    "stylelint-config-standard": "^38.0.0",
-    "stylelint-order": "^7.0.0",
+    "stylelint": "^16.6.0",
+    "stylelint-config-standard": "^36.0.0",
+    "stylelint-order": "^6.0.4",
     "webpack": "^5.99.9"
   },
   "scripts": {
     "build": "postcss 'assets/css/**/*.css' -r",
     "watch": "chokidar 'assets/css/**/*.css' -c \"npm run build\"",
-    "lint:css": "stylelint 'assets/css/**/*.css' --fix"
+    "lint:css": "stylelint \"**/*.css\" --quiet"
   },
   "keywords": [],
   "author": "",

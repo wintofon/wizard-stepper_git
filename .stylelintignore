@@ -1,3 +1,2 @@
-# ignora vendor y minificados
-assets/css/**/vendor/**
-assets/css/**/*.min.css
+assets/vendor/**
+dist/**
