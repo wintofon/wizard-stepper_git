@@ -21,7 +21,7 @@ if (file_exists(__DIR__ . '/../.env')) {
  * @param string $key     Environment variable name
  * @param mixed  $default Default value if the variable is not set
  */
-function env(string $key, mixed $default = null): mixed
+function env(string $key, $default = null)
 {
     return $_ENV[$key] ?? $default;
 }
@@ -70,13 +70,18 @@ $pdo = db();
  */
 function brandTable(int $brandId): string
 {
-    return match ($brandId) {
-        1 => 'tools_sgs',
-        2 => 'tools_maykestag',
-        3 => 'tools_schneider',
-        4 => 'tools_generico',
-        default => 'tools',
-    };
+    switch ($brandId) {
+        case 1:
+            return 'tools_sgs';
+        case 2:
+            return 'tools_maykestag';
+        case 3:
+            return 'tools_schneider';
+        case 4:
+            return 'tools_generico';
+        default:
+            return 'tools';
+    }
 }
 
 /**
