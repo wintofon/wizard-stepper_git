@@ -19,11 +19,10 @@ if (($_SESSION['wizard_state'] ?? '') !== 'wizard') {
     exit;
 }
 
-$csrfHeader = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
-if (empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $csrfHeader)) {
+$token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+if (!hash_equals($_SESSION['csrf_token'], $token)) {
     http_response_code(403);
-    echo json_encode(['status' => 'error', 'message' => 'csrf']);
-    exit;
+    exit('CSRF fail');
 }
 
 if (isset($_SESSION['tools_permission']) && !$_SESSION['tools_permission']) {
