@@ -10,6 +10,8 @@
   <title>Wizard CNC</title>
   <link rel="stylesheet" href="assets/css/wizard.css">
   <link rel="stylesheet" href="assets/css/stepper.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.0/nouislider.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.0/nouislider.min.js" defer integrity="sha384-..." crossorigin="anonymous" nonce="<?= $nonce ?? '' ?>"></script>
 </head>
 <body>
 

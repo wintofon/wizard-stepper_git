@@ -295,16 +295,14 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
           <div class="card-body p-4">
             <!-- fz -->
             <div class="mb-4 px-2">
-              <label for="sliderFz" class="form-label">fz (mm/tooth)</label>
-              <input
-                type="range"
-                id="sliderFz"
-                class="form-range"
-                min="<?= number_format($fzMinDb,4,'.','') ?>"
-                max="<?= number_format($fzMaxDb,4,'.','') ?>"
-                step="0.0001"
-                value="<?= number_format($baseFz,4,'.','') ?>"
-              >
+              <label for="fz_slider" class="form-label">fz (mm/tooth)</label>
+              <div
+                id="fz_slider"
+                data-min="<?= number_format($fzMinDb,4,'.','') ?>"
+                data-max="<?= number_format($fzMaxDb,4,'.','') ?>"
+                data-step="0.0001"
+                data-value="<?= number_format($baseFz,4,'.','') ?>"
+              ></div>
               <div class="text-end small text-secondary mt-1">
                 <span><?= number_format($fzMinDb,4,'.','') ?></span> –
                 <strong id="valFz"><?= number_format($baseFz,4,'.','') ?></strong> –
@@ -313,16 +311,14 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
             </div>
             <!-- Vc -->
             <div class="mb-4 px-2">
-              <label for="sliderVc" class="form-label">Vc (m/min)</label>
-              <input
-                type="range"
-                id="sliderVc"
-                class="form-range"
-                min="<?= number_format($vcMinDb,1,'.','') ?>"
-                max="<?= number_format($vcMaxDb,1,'.','') ?>"
-                step="0.1"
-                value="<?= number_format($baseVc,1,'.','') ?>"
-              >
+              <label for="vc_slider" class="form-label">Vc (m/min)</label>
+              <div
+                id="vc_slider"
+                data-min="<?= number_format($vcMinDb,1,'.','') ?>"
+                data-max="<?= number_format($vcMaxDb,1,'.','') ?>"
+                data-step="0.1"
+                data-value="<?= number_format($baseVc,1,'.','') ?>"
+              ></div>
               <div class="text-end small text-secondary mt-1">
                 <span><?= number_format($vcMinDb,1,'.','') ?></span> –
                 <strong id="valVc"><?= number_format($baseVc,1,'.','') ?></strong> –
