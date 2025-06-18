@@ -123,7 +123,7 @@ if (!$toolData) {
     http_response_code(404);
     exit('Herramienta no encontrada.');
 }
-$params    = ExpertResultController::getResultData($pdo, $_SESSION);
+$params    = \App\Controller\ExpertResultController::getResultData($pdo, $_SESSION);
 $jsonParams = json_encode($params, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 if ($jsonParams === false) {
     http_response_code(500);
