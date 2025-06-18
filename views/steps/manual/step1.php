@@ -152,9 +152,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <main class="container py-4" data-debug="step1">
       <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-white m-0">
-          <i class="bi bi-box-seam"></i> Explorador de fresas
-        </h2>
+        <div>
+          <h2 class="step-title"><i class="bi bi-box-seam"></i> Paso 1 – Explorador de fresas</h2>
+          <p class="step-desc">Elegí la herramienta inicial para el trabajo.</p>
+        </div>
         <img src="/wizard-stepper_git/assets/img/logo_nexgen.png"
              height="46"
              alt="logo"

@@ -45,3 +45,15 @@ body {
     width: 100%;
   }
 }
+
+/* Títulos y descripciones de pasos */
+.step-title {
+  color: #fff;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.step-desc {
+  color: #adb5bd;
+  margin-bottom: 1.5rem;
+}

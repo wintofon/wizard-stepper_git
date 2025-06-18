@@ -145,7 +145,8 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
 <link rel="stylesheet" href="/wizard-stepper_git/assets/css/material.css">
 </head><body>
 <main class="container py-4">
-<h2 class="mb-3">Paso 4 – Elegí el material y el espesor</h2>
+<h2 class="step-title">Paso 4 – Material y espesor</h2>
+<p class="step-desc">Indicá el material a procesar y su espesor.</p>
 
 <?php if($err):?>
   <div class="alert alert-danger"><?=htmlspecialchars($err)?></div>
