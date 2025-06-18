@@ -263,7 +263,7 @@ if ($tool && !empty($tool['image'])) {
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
     rel="stylesheet"
   >
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/steps/auto/step4.css">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/material.css">
 </head>
 <body>
 
