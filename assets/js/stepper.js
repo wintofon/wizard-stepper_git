@@ -153,7 +153,8 @@
           alert(js.error || 'Error al procesar');
           return;
         }
-        const next = js.next ?? cur + 1;
+        let next = (typeof js.next === 'number') ? js.next : cur + 1;
+        if (next > MAX_STEPS) next = MAX_STEPS;
         setProg(next);
         loadStep(next);
       })

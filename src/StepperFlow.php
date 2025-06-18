@@ -25,11 +25,14 @@ class StepperFlow
     {
         $flow = self::get($mode);
         $i    = array_search($current, $flow, true);
-        return $flow[$i+1] ?? null;
+        if ($i === false || !isset($flow[$i + 1])) {
+            return null;
+        }
+        return $flow[$i + 1];
     }
 
-    public static function isAllowed(int $step): bool
+    public static function isAllowed(int $step, string $mode = 'manual'): bool
     {
-        return $step >= 1 && $step <= 6;
+        return in_array($step, self::get($mode), true);
     }
 }
