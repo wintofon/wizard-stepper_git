@@ -40,6 +40,14 @@ When running with `?debug=1` in the URL you can access additional debug helpers:
 
 All these endpoints require debug mode.
 
+## Running Tests
+
+Unit tests can be run with PHPUnit. From the project root execute:
+
+```bash
+vendor/bin/phpunit
+```
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
