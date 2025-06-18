@@ -1,32 +1,29 @@
-// Lazy loading of tool rows via IntersectionObserver
+// Lazy loading table rows using IntersectionObserver
 export let page = 1;
 export let loading = false;
 export let hasMore = true;
 
-const csrf = document.querySelector('meta[name="csrf-token"]')?.content || "";
-export const sentinel = document.getElementById("sentinel");
-export const tbody = document.querySelector("#toolTbl tbody");
+export const sentinel = document.getElementById('sentinel');
+export const tbody = document.querySelector('#toolTbl tbody');
+const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
 
 const observer = new IntersectionObserver(
   (entries) => {
-    entries.forEach((e) => {
-      if (e.isIntersecting) loadPage();
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) loadPage();
     });
   },
-  { rootMargin: "200px", threshold: 0.1 },
+  { rootMargin: '200px', threshold: 0.1 },
 );
 
 export async function loadPage() {
   if (loading || !hasMore || !tbody) return;
   loading = true;
   try {
-    const res = await fetch(
-      `/wizard-stepper_git/ajax/tools_scroll.php?page=${page}`,
-      {
-        cache: "no-store",
-        headers: csrf ? { "X-CSRF-Token": csrf } : {},
-      },
-    );
+    const res = await fetch(`/ajax/tools_scroll.php?page=${page}`, {
+      cache: 'no-store',
+      headers: csrf ? { 'X-CSRF-Token': csrf } : {},
+    });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     if (Array.isArray(data.tools)) {
