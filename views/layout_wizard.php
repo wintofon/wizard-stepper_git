@@ -9,11 +9,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Wizard CNC</title>
   <link rel="stylesheet" href="assets/css/wizard.css">
-  <link rel="stylesheet" href="assets/css/base/theme.css">
 </head>
 <body>
-
-  <h1 class="text-center my-3">Configurador de Fresas CNC</h1>
 
   <!-- Barra de pasos -->
   <nav class="stepper-container">
@@ -48,15 +45,10 @@
     window.csrfToken = '<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>';
   </script>
   <?php endif; ?>
-  <script type="module" crossorigin
-          src="https://cdn.jsdelivr.net/npm/lucide@latest/+esm"></script>
-  <script type="module">
-    import { createIcons } from 'https://cdn.jsdelivr.net/npm/lucide@latest/+esm';
-    window.createLucideIcons = () => createIcons();
-    document.addEventListener('DOMContentLoaded', () => createIcons());
-  </script>
   <script src="assets/js/stepper.js" defer></script>
   <script src="assets/js/dashboard.js" defer></script>
+<link rel="stylesheet" href="assets/css/wizard.css">
+<link rel="stylesheet" href="assets/css/step6.css"><!-- <---- AGREGALO ACÁ -->
 
 </body>
 </html>

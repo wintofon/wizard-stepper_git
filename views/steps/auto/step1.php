@@ -201,7 +201,6 @@ dbg('children', $children);
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
     rel="stylesheet"
   >
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/base/theme.css">
   <link rel="stylesheet" href="/wizard-stepper_git/assets/css/material.css">
 </head>
 <body>
@@ -273,8 +272,8 @@ dbg('children', $children);
 
     <!-- 5) Botón “Siguiente” -->
     <div id="next-button-container" class="text-end mt-4" style="display: none;">
-      <button type="submit" id="btn-next" class="btn btn-primary btn-lg" aria-label="Siguiente">
-        Siguiente <i data-lucide="arrow-right" class="ms-1"></i>
+      <button type="submit" id="btn-next" class="btn btn-primary btn-lg">
+        Siguiente →
       </button>
     </div>
   </form>

@@ -1,12 +1,11 @@
 /* wizard/assets/css/wizard.css */
-@import url('base/theme.css');
 
 /* ────────────────────────────────────────────────────────────────
    GENERAL
    ──────────────────────────────────────────────────────────────── */
 body {
-  background: var(--clr-bg);        /* tono azul-oscuro global   */
-  color: var(--clr-text);           /* texto casi blanco-celeste */
+  background: #0b1e2d;              /* tono azul-oscuro global   */
+  color: #dceefb;                   /* texto casi blanco-celeste */
   font-family: 'Segoe UI', Roboto, sans-serif; /* tipografía base */
   margin: 0;                        /* quitamos margen browser   */
   padding: 0;                       /* …y padding por defecto    */
@@ -96,7 +95,7 @@ body {
    CONTENEDOR CENTRAL
    ──────────────────────────────────────────────────────────────── */
 .wizard-body {
-  background: var(--clr-card);      /* caja azul oscuro          */
+  background: #132330;              /* caja azul oscuro          */
   border: 1px solid #264b63;        /* contorno sutil            */
   border-radius: .75rem;            /* bordes redondeados        */
   box-shadow: 0 0 24px rgb(0 0 0 / 50%); /* sombra envolvente      */

@@ -605,7 +605,7 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
               <ul class="notes-list mb-0">
                 <?php foreach ($notesArray as $note): ?>
                   <li class="mb-2 d-flex align-items-start">
-                    <i data-lucide="file-text" class="me-2"></i>
+                    <i data-feather="file-text" class="me-2"></i>
                     <div><?= htmlspecialchars($note, ENT_QUOTES) ?></div>
                   </li>
                 <?php endforeach; ?>
