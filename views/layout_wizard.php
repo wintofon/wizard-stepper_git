@@ -9,6 +9,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Wizard CNC</title>
   <link rel="stylesheet" href="assets/css/wizard.css">
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
 </head>
 <body>
 
@@ -26,7 +27,7 @@
   <!-- Botón reset -->
   <div style="text-align:right; padding:.5rem 1rem;">
     <a href="public/reset.php" class="btn btn-outline-light">
-      🔄 Volver al inicio
+      <i data-feather="rotate-ccw" class="me-1"></i>Volver al inicio
     </a>
   </div>
 
@@ -47,8 +48,9 @@
   <?php endif; ?>
   <script src="assets/js/stepper.js" defer></script>
   <script src="assets/js/dashboard.js" defer></script>
-<link rel="stylesheet" href="assets/css/wizard.css">
-<link rel="stylesheet" href="assets/css/step6.css"><!-- <---- AGREGALO ACÁ -->
+  <script>feather.replace();</script>
+  <link rel="stylesheet" href="assets/css/wizard.css">
+  <link rel="stylesheet" href="assets/css/step6.css"><!-- <---- AGREGALO ACÁ -->
 
 </body>
 </html>

@@ -37,10 +37,14 @@
         <span>Te guiamos paso a paso para elegir la herramienta ideal según tu experiencia, material y tipo de corte.</span>
       </label>
     </div>
-    <button class="btn btn-primary btn-lg mt-4">Continuar</button>
+    <button class="btn btn-primary btn-lg mt-4">
+      <i data-feather="chevron-right" class="me-1"></i>Continuar
+    </button>
   </form>
 </main>
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>lucide.createIcons();</script>
+<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+<script>feather.replace();</script>
 </body>
 </html>

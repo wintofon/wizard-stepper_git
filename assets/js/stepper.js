@@ -39,10 +39,15 @@
       li.classList.toggle('done',      n < prog);
       li.classList.toggle('active',    n === current);
       li.classList.toggle('clickable', n <= prog - 1);
-      li.innerHTML =
-        `<span>${n}. ${li.dataset.label}</span>` +
-        (n < prog ? ' ✅' : n === current ? ' 🟢' : '');
+      let icon = '';
+      if (n < prog) {
+        icon = ' <i data-feather="check-circle" class="ms-1"></i>';
+      } else if (n === current) {
+        icon = ' <i data-feather="circle" class="ms-1"></i>';
+      }
+      li.innerHTML = `<span>${n}. ${li.dataset.label}</span>` + icon;
     });
+    if (window.feather) feather.replace();
   };
 
   /** Ejecuta scripts <script> embebidos en el HTML del paso (necesario para los AJAX). */
