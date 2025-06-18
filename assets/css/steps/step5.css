@@ -1,22 +1,7 @@
+
 /* CSS extraído de views/steps/step5.php */
-body {
-  --bs-body-bg: #0d1117;
-  --bs-body-color: #e0e0e0;
 
-  background-color: var(--bs-body-bg);
-  color: var(--bs-body-color);
-  font-family: 'Segoe UI', Roboto, sans-serif;
-}
-
-h2 {
-  color: #cbd5e0;
-  margin-bottom: 1.5rem;
-}
-
-.form-label {
-  color: #a7b1bb;
-  font-weight: 600;
-}
+/* Estilos específicos del paso 5 */
 
 .btn-outline-primary {
   border-color: #4fc3f7;
@@ -33,6 +18,11 @@ h2 {
   background-color: #0d6efd !important;
   border-color: #0d6efd !important;
   color: #fff !important;
+}
+
+.form-label {
+  color: #a7b1bb;
+  font-weight: 600;
 }
 
 .form-control {
@@ -52,14 +42,12 @@ h2 {
   color: #f8d7da;
 }
 
+
+
 #routerForm {
-  background: #132330;
-  border: 1px solid #264b63;
-  border-radius: 0.75rem;
-  box-shadow: 0 0 24px rgb(0 0 0 / 50%);
   margin: 0 auto;
   max-width: 800px;
-  padding: 2rem;
+  padding: 0;
 }
 
 #paramSection {
