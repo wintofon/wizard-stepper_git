@@ -2,6 +2,7 @@
     Refuerzo contra respuestas “casi-JSON” (cabecera JSON
     pero texto contaminado con warnings, BOM, etc.).        */
 
+const BASE_URL = window.BASE_URL || '/wizard-stepper_git';
 document.addEventListener('DOMContentLoaded', () => {
   const dash = document.getElementById('wizard-dashboard');
   if (!dash) return;
@@ -23,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       const headers = window.csrfToken ? { 'X-CSRF-Token': window.csrfToken } : {};
-      const res  = await fetch('/wizard-stepper_git/public/session-api.php?debug=1', {
+      const res  = await fetch(`${BASE_URL}/public/session-api.php?debug=1`, {
         cache: 'no-store',
         headers
       });
