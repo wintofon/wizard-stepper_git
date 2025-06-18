@@ -160,7 +160,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
   <div class="mb-3 position-relative">
     <label for="matSearch" class="form-label">Buscar material (2+ letras)</label>
     <input id="matSearch" class="form-control" autocomplete="off" placeholder="Ej.: MDF…">
-    <div id="noMatchMsg">Material no encontrado</div>
+    <div id="no-match-msg">Material no encontrado</div>
     <div id="searchDropdown" class="dropdown-search"></div>
   </div>
 
@@ -208,7 +208,7 @@ const thick=document.getElementById('thick');
 const thickGrp=document.getElementById('thickGroup');
 const nextCont=document.getElementById('next-button-container');
 const search=document.getElementById('matSearch');
-const noMatch=document.getElementById('noMatchMsg');
+const noMatch=document.getElementById('no-match-msg');
 const dropdown=document.getElementById('searchDropdown');
 
 const matToPid={};

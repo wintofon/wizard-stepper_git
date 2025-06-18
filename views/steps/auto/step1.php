@@ -231,7 +231,7 @@ dbg('children', $children);
         autocomplete="off"
         placeholder="Ej.: MDF, Aluminio…"
       >
-      <div id="noMatchMsg">Material no encontrado</div>
+      <div id="no-match-msg">Material no encontrado</div>
       <div id="searchDropdown" class="dropdown-search"></div>
     </div>
 
@@ -304,7 +304,7 @@ dbg('children', $children);
   const nextContainer = document.getElementById('next-button-container');
   const nextBtn  = document.getElementById('btn-next');
   const search   = document.getElementById('matSearch');
-  const noMatch  = document.getElementById('noMatchMsg');
+  const noMatch  = document.getElementById('no-match-msg');
   const dropdown = document.getElementById('searchDropdown');
 
   //────────────────────────────────────────────────────────────────────
