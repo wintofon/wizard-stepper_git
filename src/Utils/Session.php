@@ -55,3 +55,27 @@ if (!function_exists('validateCsrfToken')) {
         return hash_equals($_SESSION['csrf_token'], $token);
     }
 }
+
+if (!function_exists('sendSecurityHeaders')) {
+    /**
+     * Sends a common set of security headers.
+     *
+     * @param string $contentType      MIME type for the response.
+     * @param int    $hstsMaxAge       Max-age for the Strict-Transport-Security header.
+     * @param bool   $xssProtection    Whether to send the X-XSS-Protection header.
+     *
+     * @return void
+     */
+    function sendSecurityHeaders(string $contentType = 'text/html; charset=UTF-8', int $hstsMaxAge = 31536000, bool $xssProtection = false): void
+    {
+        header('Content-Type: ' . $contentType);
+        header('Strict-Transport-Security: max-age=' . $hstsMaxAge . '; includeSubDomains; preload');
+        header('X-Frame-Options: DENY');
+        header('X-Content-Type-Options: nosniff');
+        if ($xssProtection) {
+            header('X-XSS-Protection: 1; mode=block');
+        }
+        header('Referrer-Policy: no-referrer');
+        header('Permissions-Policy: geolocation=(), microphone=()');
+    }
+}

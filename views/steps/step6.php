@@ -10,15 +10,11 @@ use App\Controller\ExpertResultController;
 // Si se abre en el navegador directamente → la constante NO existe
 // ──────────────────────────────────────────────────────────────
 $embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
+require_once __DIR__ . '/../../src/Utils/Session.php';
 
 // [A] CABECERAS DE SEGURIDAD Y NO-CACHING (solo si NO embebido)
 if (!$embedded) {
-    header('Content-Type: text/html; charset=UTF-8');
-    header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
-    header('X-Frame-Options: DENY');
-    header('X-Content-Type-Options: nosniff');
-    header('Referrer-Policy: no-referrer');
-    header('Permissions-Policy: geolocation=(), microphone=()');
+    sendSecurityHeaders('text/html; charset=UTF-8');
     header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
     header('Pragma: no-cache');
     header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';");

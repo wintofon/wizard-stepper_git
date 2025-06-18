@@ -6,6 +6,7 @@
  */
 
 declare(strict_types=1);
+require_once __DIR__ . '/../../../src/Utils/Session.php';
 
 // ──────────────── 1) Sesión y configuración segura ──────────────────
 if (session_status() !== PHP_SESSION_ACTIVE) {
@@ -17,12 +18,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 }
 
 // ──────────────── Cabeceras de seguridad ────────────────────────────
-header('Content-Type: text/html; charset=UTF-8');
-header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
-header("X-Frame-Options: DENY");
-header("X-Content-Type-Options: nosniff");
-header("Referrer-Policy: no-referrer");
-header("Permissions-Policy: geolocation=(), microphone=()");
+sendSecurityHeaders('text/html; charset=UTF-8');
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Pragma: no-cache");
 $nonce = base64_encode(random_bytes(16));

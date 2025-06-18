@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__ . '/../../../src/Utils/Session.php';
 /**
  * File: C:\xampp\htdocs\wizard-stepper_git\views\steps\auto\step4.php
  *
@@ -12,12 +13,7 @@ declare(strict_types=1);
 // ──────────────────────────────────────────────────────────────
 // [A] Cabeceras de seguridad / anti-caching
 // ──────────────────────────────────────────────────────────────
-header('Content-Type: text/html; charset=UTF-8');
-header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
-header("X-Frame-Options: DENY");
-header("X-Content-Type-Options: nosniff");
-header("Referrer-Policy: no-referrer");
-header("Permissions-Policy: geolocation=(), microphone=()");
+sendSecurityHeaders('text/html; charset=UTF-8');
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Pragma: no-cache");
 header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';");
