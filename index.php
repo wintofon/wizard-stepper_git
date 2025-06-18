@@ -42,13 +42,7 @@ require_once __DIR__ . '/src/Utils/Session.php';
 // -------------------------------------------
 // [B] CABECERAS DE SEGURIDAD HTTP
 // -------------------------------------------
-header('Content-Type: text/html; charset=UTF-8');
-header('Strict-Transport-Security: max-age=63072000; includeSubDomains; preload');
-header('X-Frame-Options: DENY');
-header('X-Content-Type-Options: nosniff');
-header('X-XSS-Protection: 1; mode=block');
-header('Referrer-Policy: no-referrer');
-header('Permissions-Policy: geolocation=(), microphone=()');
+sendSecurityHeaders('text/html; charset=UTF-8', 63072000, true);
 
 // -------------------------------------------
 // [C] INICIO DE SESIÓN SEGURA
