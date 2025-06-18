@@ -1,84 +1,80 @@
+// Lazy loading of tool rows via IntersectionObserver
 export let page = 1;
 export let loading = false;
 export let hasMore = true;
 
-const csrf = document
-  .querySelector('meta[name="csrf-token"]')?.content || '';
-const toolList = document.getElementById('tool-list');
-const sentinel = document.getElementById('sentinel');
-let controller;
+const csrf = document.querySelector('meta[name="csrf-token"]')?.content || "";
+export const sentinel = document.getElementById("sentinel");
+export const tbody = document.querySelector("#toolTbl tbody");
+
+const observer = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((e) => {
+      if (e.isIntersecting) loadPage();
+    });
+  },
+  { rootMargin: "200px", threshold: 0.1 },
+);
 
 export async function loadPage() {
-  if (loading || !hasMore || !toolList) return;
-  if (controller) controller.abort();
-  controller = new AbortController();
+  if (loading || !hasMore || !tbody) return;
   loading = true;
-
-  const spinnerWrap = document.createElement('div');
-  spinnerWrap.className = 'd-flex justify-content-center my-3';
-  spinnerWrap.innerHTML =
-    '<div class="spinner-border" role="status"><span class="visually-hidden">Cargando...</span></div>';
-  sentinel.before(spinnerWrap);
   try {
-    const res = await fetch(`/wizard-stepper_git/ajax/tools_scroll.php?page=${page}`, {
-      cache: 'no-store',
-      signal: controller.signal,
-      headers: csrf ? { 'X-CSRF-Token': csrf } : {}
-    });
+    const res = await fetch(
+      `/wizard-stepper_git/ajax/tools_scroll.php?page=${page}`,
+      {
+        cache: "no-store",
+        headers: csrf ? { "X-CSRF-Token": csrf } : {},
+      },
+    );
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     if (Array.isArray(data.tools)) {
-      data.tools.forEach(t => {
-        const card = document.createElement('div');
-        card.className = 'card mb-2';
-        card.innerHTML = `<div class="card-body"><strong>${t.tool_code ?? ''}</strong> ${t.name ?? ''}</div>`;
-        toolList.appendChild(card);
+      data.tools.forEach((t) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><input type="radio" class="form-check-input select-btn" data-tool_id="${t.tool_id}" data-tbl="${t.tbl}"></td>
+          <td><span class="badge bg-info text-dark">${t.brand ?? ""}</span></td>
+          <td>${t.series ?? t.series_code ?? ""}</td>
+          <td>${t.img_url ? `<img src="${t.img_url}" class="thumb">` : ""}</td>
+          <td>${t.tool_code ?? ""}</td>
+          <td class="text-truncate" style="max-width:200px">${t.name ?? ""}</td>
+          <td>${t.diameter_mm ?? ""}</td>
+          <td>${t.flute_count ?? ""}</td>
+          <td>${t.tool_type ?? ""}</td>`;
+        tbody.appendChild(tr);
       });
     }
     page = data.nextPage;
     hasMore = data.hasMore;
     if (!hasMore) {
       observer.unobserve(sentinel);
-      const endMsg = document.createElement('div');
-      endMsg.className = 'alert alert-info text-center my-3';
-      endMsg.textContent = 'Fin de lista';
-      toolList.appendChild(endMsg);
+      const end = document.createElement("tr");
+      const endTd = document.createElement("td");
+      endTd.colSpan = 9;
+      endTd.className = "text-center";
+      endTd.textContent = "Fin de lista";
+      end.appendChild(endTd);
+      tbody.appendChild(end);
     }
   } catch (err) {
-    if (err.name !== 'AbortError') {
-      console.error('loadPage error:', err);
-      const alert = document.createElement('div');
-      alert.className = 'alert alert-danger';
-      alert.textContent = 'Error al cargar herramientas';
-      toolList.appendChild(alert);
-    }
+    console.error("loadPage error:", err);
   } finally {
-    spinnerWrap.remove();
     loading = false;
   }
 }
 
-const observer = new IntersectionObserver(
-  entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) loadPage();
-    });
-  },
-  { rootMargin: '300px' }
-);
-
 export function initLazy() {
-  if (toolList && sentinel) {
-    sentinel.style.minHeight = '1px';
+  if (tbody && sentinel) {
     page = 1;
     loading = false;
     hasMore = true;
-    toolList.innerHTML = '';
+    tbody.innerHTML = "";
     observer.observe(sentinel);
     loadPage();
   }
 }
 
-document.addEventListener('DOMContentLoaded', initLazy);
-if (document.readyState !== 'loading') initLazy();
+document.addEventListener("DOMContentLoaded", initLazy);
+if (document.readyState !== "loading") initLazy();
 window.initLazy = initLazy;
