@@ -18,7 +18,7 @@
       <?php foreach ($flow as $n): ?>
         <li
           data-step="<?= $n ?>"
-          data-label="<?= h($labels[$n]) ?>"></li>
+          data-label="<?= htmlspecialchars($labels[$n], ENT_QUOTES) ?>"></li>
       <?php endforeach; ?>
     </ul>
   </nav>
@@ -42,7 +42,7 @@
   <!-- Scripts -->
   <?php if (!empty($_SESSION['csrf_token'])): ?>
   <script>
-    window.csrfToken = '<?= h($_SESSION['csrf_token']) ?>';
+    window.csrfToken = '<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>';
   </script>
   <?php endif; ?>
   <script src="assets/js/stepper.js" defer></script>

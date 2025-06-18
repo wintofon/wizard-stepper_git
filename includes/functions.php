@@ -24,7 +24,7 @@ function respond_json($data) {
  * @param string $key Clave de sesión
  * @return mixed|null
  */
-function session_get(string $key)
-{
+function session_get(string $key) {
     return $_SESSION[$key] ?? null;
 }
+?>
