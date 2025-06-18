@@ -246,19 +246,44 @@ if ($tool && !empty($tool['image'])) {
     $tool['image_url'] = '/wizard-stepper_git/' . ltrim((string)$tool['image'], '/');
 }
 
+// -------------------------------------------
+// [H.2] Cargar listado plano de herramientas
+// -------------------------------------------
+$tables = ['tools_sgs','tools_maykestag','tools_schneider','tools_generico'];
+$toolsFlat = [];
+foreach ($tables as $tbl) {
+    $sql = "SELECT t.tool_id, t.tool_code, t.name, b.name AS brand
+              FROM {$tbl} t
+              JOIN series s ON t.series_id = s.id
+              JOIN brands b ON s.brand_id  = b.id";
+    try {
+        $st = $pdo->query($sql);
+        while ($row = $st->fetch(PDO::FETCH_ASSOC)) {
+            $toolsFlat[] = [
+                'tool_id'   => (int)$row['tool_id'],
+                'tool_code' => $row['tool_code'],
+                'name'      => $row['name'],
+                'brand'     => $row['brand'],
+                'table'     => $tbl,
+            ];
+        }
+    } catch (PDOException $e) {
+        // Si falla alguna tabla, continuamos con las demás
+        continue;
+    }
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <title>Paso 4 – Confirmar herramienta</title>
+  <title>Paso 4 – Elegí la herramienta</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Bootstrap 5 CSS -->
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
     rel="stylesheet"
   >
-  <!-- Bootstrap Icons -->
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
     rel="stylesheet"
@@ -270,74 +295,150 @@ if ($tool && !empty($tool['image'])) {
 <main class="container py-4">
   <div class="wizard-header">
     <i class="bi bi-tools"></i>
-    <h2>Paso 4 – Confirmar herramienta</h2>
+    <h2>Paso 4 – Elegí la herramienta</h2>
   </div>
 
-  <?php if ($error): ?>
-    <div class="alert alert-danger">
-      <i class="bi bi-exclamation-triangle"></i>
-      <?= htmlspecialchars($error, ENT_QUOTES) ?>
-    </div>
-      <!-- Botón de retroceso eliminado -->
+  <form id="formTool" method="post" action="step5.php" novalidate>
+    <input type="hidden" name="step" value="4">
+    <input type="hidden" name="tool_id" id="tool_id" value="">
+    <input type="hidden" name="tool_table" id="tool_table" value="">
 
-  <?php else: ?>
-    <?php if (!empty($tool['image_url'])): ?>
-      <figure class="text-center mb-4">
-        <img
-          src="/<?= htmlspecialchars($tool['image_url'], ENT_QUOTES) ?>"
-          alt="Imagen de la herramienta seleccionada"
-          class="img-fluid rounded shadow-sm"
-          style="max-width: 100%; height: auto;"
-          onerror="this.style.display='none'"
-        >
-        <figcaption class="text-muted mt-2">Fresa seleccionada</figcaption>
-      </figure>
-    <?php endif; ?>
-
-    <div class="card mb-4">
-      <div class="card-body">
-        <div>
-          <h4 class="text-info">
-            <?= htmlspecialchars($tool['tool_code'], ENT_QUOTES) ?> –
-            <?= htmlspecialchars($tool['name'], ENT_QUOTES) ?>
-          </h4>
-          <p class="mb-1">
-            <strong>Marca:</strong> <?= htmlspecialchars($tool['brand'], ENT_QUOTES) ?>
-            &nbsp;|&nbsp;
-            <strong>Serie:</strong> <?= htmlspecialchars($tool['serie'], ENT_QUOTES) ?>
-          </p>
-          <p class="mb-1">
-            <strong>Ø:</strong> <?= htmlspecialchars((string)$tool['diameter_mm'], ENT_QUOTES) ?> mm
-            &nbsp;|&nbsp;
-            <strong>Filos:</strong> <?= htmlspecialchars((string)$tool['flute_count'], ENT_QUOTES) ?>
-          </p>
-          <p class="mb-1">
-            <strong>Tipo:</strong> <?= htmlspecialchars($tool['tool_type'] ?? '-', ENT_QUOTES) ?>
-          </p>
-          <p class="mb-0">
-            <strong>Long. corte:</strong> <?= htmlspecialchars((string)$tool['cut_length_mm'], ENT_QUOTES) ?> mm
-            &nbsp;|&nbsp;
-            <strong>Total:</strong> <?= htmlspecialchars((string)$tool['length_total_mm'], ENT_QUOTES) ?> mm
-          </p>
-        </div>
-      </div>
+    <div class="mb-3 position-relative">
+      <label for="toolSearch" class="form-label">Buscar herramienta (2+ letras)</label>
+      <input
+        id="toolSearch"
+        class="form-control"
+        autocomplete="off"
+        placeholder="Ej.: código o nombre"
+      >
+      <div id="toolNoMatchMsg">Herramienta no encontrada</div>
+      <div id="toolDropdown" class="dropdown-search"></div>
     </div>
 
-    <!-- Formulario para avanzar a Paso 5 -->
-      <form action="step5.php" method="post" class="mt-4 text-end">
-      <input type="hidden" name="step"       value="4">
-      <input type="hidden" name="tool_id"    value="<?= htmlspecialchars((string)$tool['tool_id'], ENT_QUOTES) ?>">
-      <input type="hidden" name="tool_table" value="<?= htmlspecialchars((string)$_SESSION['tool_table'], ENT_QUOTES) ?>">
+    <div id="next-button-container" class="text-end mt-4" style="display:none;">
+      <button type="submit" id="btn-next" class="btn btn-primary btn-lg">
+        Siguiente →
+      </button>
+    </div>
+  </form>
 
-        <div class="text-end mt-4">
-          <button type="submit" class="btn btn-primary btn-lg">
-            Siguiente →
-          </button>
-        </div>
-      </form>
-  <?php endif; ?>
+  <pre id="debug" class="bg-dark text-info p-2 mt-4"></pre>
+
+  <script>
+  function normalizeText(str) {
+    return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  }
+
+  const toolsFlat = <?= json_encode($toolsFlat, JSON_UNESCAPED_UNICODE) ?>;
+
+  const toolInp = document.getElementById('tool_id');
+  const tblInp  = document.getElementById('tool_table');
+  const search  = document.getElementById('toolSearch');
+  const dropdown= document.getElementById('toolDropdown');
+  const noMatch = document.getElementById('toolNoMatchMsg');
+  const nextCont= document.getElementById('next-button-container');
+
+  function validateNext() {
+    nextCont.style.display = toolInp.value ? 'block' : 'none';
+  }
+
+  function noMatchMsg(state) {
+    search.classList.toggle('is-invalid', state);
+    noMatch.style.display = state ? 'block' : 'none';
+  }
+
+  function hideDropdown() {
+    dropdown.style.display = 'none';
+    dropdown.innerHTML = '';
+  }
+
+  function showDropdown(matches) {
+    dropdown.innerHTML = '';
+    matches.forEach(t => {
+      const rawText = `${t.tool_code} - ${t.name}`;
+      const termNorm = normalizeText(search.value.trim());
+      const rawNorm = normalizeText(rawText);
+      let highlighted = rawText;
+      const idxNorm = rawNorm.indexOf(termNorm);
+      if (idxNorm !== -1) {
+        let idxOrigStart = 0;
+        let acc = '';
+        for (let i=0;i<rawText.length;i++) {
+          acc += normalizeText(rawText[i]);
+          if (acc.endsWith(termNorm)) {
+            idxOrigStart = i + 1 - termNorm.length;
+            break;
+          }
+        }
+        const before = rawText.slice(0, idxOrigStart);
+        const match  = rawText.slice(idxOrigStart, idxOrigStart + termNorm.length);
+        const after  = rawText.slice(idxOrigStart + termNorm.length);
+        highlighted = `${before}<span class="hl">${match}</span>${after}`;
+      }
+      const item = document.createElement('div');
+      item.className = 'item';
+      item.innerHTML = highlighted;
+      item.onclick = () => {
+        toolInp.value = t.tool_id;
+        tblInp.value  = t.table;
+        search.value  = rawText;
+        hideDropdown();
+        noMatchMsg(false);
+        validateNext();
+      };
+      dropdown.appendChild(item);
+    });
+    dropdown.style.display = matches.length ? 'block' : 'none';
+  }
+
+  function attemptExactMatch() {
+    const val = search.value.trim();
+    if (val.length < 2) return;
+    const norm = normalizeText(val);
+    const exact = toolsFlat.find(t => normalizeText(`${t.tool_code} - ${t.name}`) === norm);
+    if (!exact) return;
+    toolInp.value = exact.tool_id;
+    tblInp.value  = exact.table;
+    search.value  = `${exact.tool_code} - ${exact.name}`;
+    hideDropdown();
+    noMatchMsg(false);
+    validateNext();
+  }
+
+  search.addEventListener('input', e => {
+    const val = e.target.value.trim();
+    if (val.length < 2) {
+      toolInp.value = '';
+      tblInp.value  = '';
+      noMatchMsg(false);
+      hideDropdown();
+      validateNext();
+      return;
+    }
+    const term = normalizeText(val);
+    const matches = toolsFlat.filter(t => normalizeText(`${t.tool_code} - ${t.name}`).includes(term));
+    if (matches.length === 0) {
+      toolInp.value = '';
+      tblInp.value  = '';
+      noMatchMsg(true);
+      hideDropdown();
+      validateNext();
+      return;
+    }
+    noMatchMsg(false);
+    showDropdown(matches);
+  });
+
+  search.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      attemptExactMatch();
+    }
+  });
+  search.addEventListener('blur', () => { setTimeout(attemptExactMatch, 0); });
+
+  </script>
 </main>
 
-<pre id="debug"></pre>
 </body>
 </html>
