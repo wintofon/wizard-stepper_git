@@ -373,7 +373,7 @@ dbg('children', $children);
         const before = rawText.slice(0, idxOrigStart);
         const match  = rawText.slice(idxOrigStart, idxOrigStart + termNorm.length);
         const after  = rawText.slice(idxOrigStart + termNorm.length);
-        highlighted = ${before}<span class="hl">${match}</span>${after};
+        highlighted = `${before}<span class="hl">${match}</span>${after}`;
       }
       const item = document.createElement('div');
       item.className = 'item';
@@ -381,10 +381,10 @@ dbg('children', $children);
       item.dataset.mid = m.material_id;
       item.onclick = () => {
         const pid = matToPid[m.material_id];
-        const catBtn = document.querySelector(.btn-cat[data-pid='${pid}']);
+        const catBtn = document.querySelector(`.btn-cat[data-pid='${pid}']`);
         if (catBtn) catBtn.click();
         setTimeout(() => {
-          const matBtn = document.querySelector(.btn-mat[data-mid='${m.material_id}']);
+          const matBtn = document.querySelector(`.btn-mat[data-mid='${m.material_id}']`);
           if (matBtn) matBtn.click();
         }, 0);
         hideDropdown();
@@ -400,10 +400,10 @@ dbg('children', $children);
     const exact = matsFlat.find(m => normalizeText(m.name) === normalizeText(val));
     if (!exact) return;
     const pid = matToPid[exact.material_id];
-    const catBtn = document.querySelector(.btn-cat[data-pid='${pid}']);
+    const catBtn = document.querySelector(`.btn-cat[data-pid='${pid}']`);
     if (catBtn) catBtn.click();
     setTimeout(() => {
-      const matBtn = document.querySelector(.btn-mat[data-mid='${exact.material_id}']);
+      const matBtn = document.querySelector(`.btn-mat[data-mid='${exact.material_id}']`);
       if (matBtn) matBtn.click();
     }, 0);
     hideDropdown();
