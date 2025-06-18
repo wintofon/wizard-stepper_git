@@ -122,6 +122,7 @@
         stepHolder.style.opacity = '1';
         renderBar(step);
         hookEvents();
+        if (typeof window.initLazy === 'function') window.initLazy();
         dbgMsg(`🧭 Paso ${step} cargado correctamente`);
       })
       .catch(err => {

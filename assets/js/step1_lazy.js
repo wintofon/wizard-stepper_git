@@ -76,3 +76,5 @@ export function initLazy() {
 }
 
 document.addEventListener('DOMContentLoaded', initLazy);
+if (document.readyState !== 'loading') initLazy();
+window.initLazy = initLazy;
