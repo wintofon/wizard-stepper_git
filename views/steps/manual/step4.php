@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 /**
- * File: C:\xampp\htdocs\wizard-stepper_git\views\steps\auto\step4.php
+ * File: C:\xampp\htdocs\wizard-stepper_git\views\steps\manual\step4.php
  *
- * Paso 4 (Auto) – Selección de madera compatible
+ * Paso 4 (Manual) – Selección de madera compatible
  * • Solo accesible si wizard_progress ≥ 3 (se completaron los pasos previos)
  * • Headers de seguridad + anti-caching
  * • Sesión segura (Secure, HttpOnly, SameSite=Strict)
@@ -220,7 +220,7 @@ $hasPrevT  = is_numeric($prevThick) && $prevThick > 0;
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Estilos comunes + específicos -->
   <link rel="stylesheet" href="/wizard-stepper_git/assets/css/step-common.css">
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/steps/auto/step4.css">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/steps/manual/step4.css">
 </head>
 <body>
 
