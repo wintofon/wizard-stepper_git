@@ -67,6 +67,10 @@ const observer = new IntersectionObserver(
 
 export function initLazy() {
   if (toolList && sentinel) {
+    page = 1;
+    loading = false;
+    hasMore = true;
+    toolList.innerHTML = '';
     observer.observe(sentinel);
   }
 }
