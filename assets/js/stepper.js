@@ -1,3 +1,4 @@
+/* global feather, bootstrap */
 (() => {
   'use strict';
 

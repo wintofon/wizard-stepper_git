@@ -117,7 +117,6 @@
   function renderTable(){
     tableBody.innerHTML='';
     toolsData.forEach(t=>{
-      const rowId=`r${t.tbl}${t.tool_id}`;
       tableBody.insertAdjacentHTML('beforeend',`
         <tr>
           <td><button class="btn btn-sm btn-primary select-btn"

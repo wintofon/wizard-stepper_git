@@ -1,4 +1,5 @@
 /** Ubicación: C:\xampp\htdocs\wizard-stepper_git\assets\js\step6.js */
+/* global Chart */
 (() => {
   // 1. Parámetros inyectados por PHP
   const {
