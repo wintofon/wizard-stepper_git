@@ -209,6 +209,7 @@ $prevMat   = $_SESSION['material_id'] ?? '';
 $prevThick = $_SESSION['thickness']   ?? '';
 $hasPrevM  = is_int($prevMat) && $prevMat > 0;
 $hasPrevT  = is_numeric($prevThick) && $prevThick > 0;
+$imgUrl    = $_SESSION['tool_image_url'] ?? '';
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -220,12 +221,27 @@ $hasPrevT  = is_numeric($prevThick) && $prevThick > 0;
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Estilos comunes + específicos -->
   <link rel="stylesheet" href="/wizard-stepper_git/assets/css/step-common.css">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/step2_manual.css">
   <link rel="stylesheet" href="/wizard-stepper_git/assets/css/material.css">
 </head>
 <body>
 
 <main class="container py-4">
   <h2 class="mb-3">Paso 4 – Elegí la madera compatible</h2>
+
+  <?php if (!empty($imgUrl)): ?>
+    <div class="card bg-dark text-white mb-3">
+      <figure class="text-center p-3 mb-0">
+        <img
+          src="<?= htmlspecialchars($imgUrl, ENT_QUOTES) ?>"
+          alt="Imagen de la herramienta seleccionada"
+          class="tool-image"
+          onerror="this.style.display='none'"
+        >
+        <figcaption class="text-muted mt-2">Fresa seleccionada</figcaption>
+      </figure>
+    </div>
+  <?php endif; ?>
 
   <?php if (empty($rows)): ?>
     <div class="alert alert-warning">Esta fresa no tiene maderas compatibles registradas.</div>
