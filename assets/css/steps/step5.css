@@ -52,6 +52,7 @@ h2 {
   border: 1px solid #264b63;
 }
 #paramSection {
+  /* Show params if user navigated from previous step */
   display: <?= $hasPrev ? 'block' : 'none' ?>;
   margin-bottom: 1.5rem;
 }

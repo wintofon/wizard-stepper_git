@@ -53,7 +53,7 @@ body {
   color: #000;
 }
 
-#noMatchMsg {
+#no-match-msg {
   color: #dc3545;
   font-size: .875rem;
   display: none;
