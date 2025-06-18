@@ -230,13 +230,15 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Cutting Data Épico – Paso 6</title>
+  <title>Datos de corte – Paso 6</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/wizard-stepper_git/assets/css/step6.css">
   
 </head>
 <body>
   <div class="container py-4">
+    <h2 class="step-title">Paso 6 – Resultados finales</h2>
+    <p class="step-desc">Revisá los valores recomendados para el corte.</p>
 <?php endif; ?>
 
 <!-- ALERTA DE ASSETS FALTANTES -->

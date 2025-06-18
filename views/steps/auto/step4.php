@@ -151,7 +151,8 @@ if($tool){
 <body class="bg-dark text-white">
 
 <div class="container py-4">
-  <h2 class="text-info"><i class="bi bi-tools"></i> Confirmar herramienta</h2>
+  <h2 class="step-title"><i class="bi bi-tools"></i> Paso 4 – Confirmar herramienta</h2>
+  <p class="step-desc">Verificá la fresa sugerida antes de continuar.</p>
 
   <?php if ($error): ?>
       <div class="alert alert-danger mt-3">

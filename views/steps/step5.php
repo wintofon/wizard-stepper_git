@@ -108,7 +108,8 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
 <link rel="stylesheet" href="/wizard-stepper_git/assets/css/steps/step5.css">
 </head><body>
 <main class="container py-4">
-  <h2 class="mb-4">Paso 5 – Configurá tu router</h2>
+  <h2 class="step-title">Paso 5 – Configurá tu router</h2>
+  <p class="step-desc">Ingresá los datos de tu máquina para calcular parámetros.</p>
 
   <?php if ($errors): ?>
     <div class="alert alert-danger"><ul class="mb-0">
