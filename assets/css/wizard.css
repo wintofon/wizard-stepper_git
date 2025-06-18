@@ -16,7 +16,9 @@ body {
   background: #0f172a;              /* fondo azul más oscuro     */
   overflow-x: auto;                 /* scroll horizontal móvil   */
   padding: 0;                       /* sin padding extra         */
-  position: relative;               /* base para ::after/etc.    */
+  position: sticky;                 /* se fija al hacer scroll   */
+  top: 0;                           /* siempre pegado arriba     */
+  z-index: 100;                     /* sobre el contenido        */
   scrollbar-width: none;            /* oculta scroll en Firefox  */
   width: 100%;                      /* ocupa todo el ancho       */
 }
