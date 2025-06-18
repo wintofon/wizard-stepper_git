@@ -162,7 +162,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
                         session_regenerate_id(true);
                         $_SESSION['tool_id']         = $toolId;
                         $_SESSION['tool_table']      = $tbl;
-                        $_SESSION['wizard_progress'] = 3;  // Marcamos Paso 3 completado
+                        $_SESSION['wizard_progress'] = 4;  // Marcamos Paso 4 completado
                         dbg("✅ Paso 4 POST completado: tool_id={$toolId}, table={$tbl}");
                     }
                 }
@@ -196,7 +196,7 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'GET'
             session_regenerate_id(true);
             $_SESSION['tool_id']         = (int)$tool['tool_id'];
             $_SESSION['tool_table']      = $tbl;
-            $_SESSION['wizard_progress'] = 3;  // Marcamos Paso 3 completado
+            $_SESSION['wizard_progress'] = 4;  // Marcamos Paso 4 completado
             dbg("✅ Paso 4 GET completado: brand={$brandInput}, code={$code}");
         }
     }
