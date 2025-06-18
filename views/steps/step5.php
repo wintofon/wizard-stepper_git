@@ -144,7 +144,7 @@ $hasPrev = is_int($prev['transmission_id']) && $prev['transmission_id'] > 0;
       </div>
     <?php endif; ?>
 
-    <form method="post" action="" id="machineForm" novalidate>
+    <form method="post" action="" id="routerForm" class="needs-validation" novalidate>
       <!-- Campos ocultos: step y CSRF -->
       <input type="hidden" name="step"       value="5">
       <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>">
@@ -204,6 +204,9 @@ $hasPrev = is_int($prev['transmission_id']) && $prev['transmission_id'] > 0;
                 value="<?= $value ?>"
                 required
               >
+              <div class="invalid-feedback">
+                ⚠ Valor inválido.
+              </div>
             </div>
           <?php endforeach; ?>
         </div>
@@ -225,12 +228,53 @@ $hasPrev = is_int($prev['transmission_id']) && $prev['transmission_id'] > 0;
     const nextContainer = document.getElementById('next-button-container');
     const nextBtn   = document.getElementById('btn-next');
     const getById   = id => document.getElementById(id);
-    const inputs    = {
+  const inputs    = {
       rpm_min:  getById('rpm_min'),
       rpm_max:  getById('rpm_max'),
       feed_max: getById('feed_max'),
       hp:       getById('hp')
     };
+
+    function checkValidation() {
+      let valid = true;
+      const rpmMin  = parseFloat(inputs.rpm_min.value);
+      const rpmMax  = parseFloat(inputs.rpm_max.value);
+      const feedMax = parseFloat(inputs.feed_max.value);
+      const hp      = parseFloat(inputs.hp.value);
+
+      const setInvalid = (input, condition) => {
+        if (condition) {
+          input.classList.add('is-invalid');
+          valid = false;
+        } else {
+          input.classList.remove('is-invalid');
+        }
+      };
+
+      setInvalid(inputs.rpm_min, !(rpmMin > 0));
+      setInvalid(inputs.rpm_max, !(rpmMax > 0));
+      setInvalid(inputs.feed_max, !(feedMax > 0));
+      setInvalid(inputs.hp, !(hp > 0));
+
+      if (rpmMin > 0 && rpmMax > 0 && rpmMin >= rpmMax) {
+        inputs.rpm_min.classList.add('is-invalid');
+        inputs.rpm_max.classList.add('is-invalid');
+        valid = false;
+      }
+
+      return valid;
+    }
+
+    Object.values(inputs).forEach(inp =>
+      inp.addEventListener('input', checkValidation)
+    );
+
+    document.getElementById('routerForm').addEventListener('submit', e => {
+      if (!checkValidation()) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    });
 
     // Ocultar inputs hasta que se elija una transmisión
     function hideParams() {
