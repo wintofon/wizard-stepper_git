@@ -162,7 +162,9 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
 
     <!-- Botón -->
     <div id="nextWrap" class="text-end mt-4" style="display:<?=$hasPrev?'block':'none'?>">
-      <button class="btn btn-primary btn-lg">Siguiente →</button>
+      <button class="btn btn-primary btn-lg" aria-label="Siguiente">
+        <i data-lucide="arrow-right" class="me-1"></i> Siguiente
+      </button>
     </div>
   </form>
 </main>

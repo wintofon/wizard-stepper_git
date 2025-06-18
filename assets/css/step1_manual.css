@@ -1,5 +1,7 @@
 /* File: assets/css/step1_manual.css */
 
+@import url('base/theme.css');
+
 /* Estilo v6.0 trapezoidal, adaptado al stepper azul oscuro */
 
 .sidebar {

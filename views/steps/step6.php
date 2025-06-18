@@ -204,8 +204,8 @@ $cssBootstrapRel = file_exists($root . 'assets/css/bootstrap.min.css')
     ? '/wizard-stepper_git/assets/css/bootstrap.min.css' : '';
 $bootstrapJsRel  = file_exists($root . 'assets/js/bootstrap.bundle.min.js')
     ? '/wizard-stepper_git/assets/js/bootstrap.bundle.min.js' : '';
-$featherLocal    = $root . 'node_modules/feather-icons/dist/feather.min.js';
-$cdnFeather      = 'https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js';
+$lucideLocal     = $root . 'assets/js/lucide.js';
+$cdnLucide       = 'https://cdn.jsdelivr.net/npm/lucide@latest/+esm';
 $chartJsLocal    = $root . 'node_modules/chart.js/dist/chart.umd.min.js';
 $cdnChartJs      = 'https://cdn.jsdelivr.net/npm/chart.js/dist/chart.umd.min.js';
 $countUpLocal    = $root . 'node_modules/countup.js/dist/countUp.umd.js';
@@ -219,7 +219,6 @@ $step6JsRel      = file_exists($root . 'assets/js/step6.js')
 $assetErrors = [];
 if (!$cssBootstrapRel)             $assetErrors[] = 'Bootstrap CSS no encontrado localmente.';
 if (!$bootstrapJsRel)               $assetErrors[] = 'Bootstrap JS no encontrado localmente.';
-if (!file_exists($featherLocal))    $assetErrors[] = 'Feather Icons JS faltante.';
 if (!file_exists($chartJsLocal))    $assetErrors[] = 'Chart.js faltante.';
 if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
 ?>
@@ -605,7 +604,7 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
               <ul class="notes-list mb-0">
                 <?php foreach ($notesArray as $note): ?>
                   <li class="mb-2 d-flex align-items-start">
-                    <i data-feather="file-text" class="me-2"></i>
+                    <i data-lucide="file-text" class="me-2"></i>
                     <div><?= htmlspecialchars($note, ENT_QUOTES) ?></div>
                   </li>
                 <?php endforeach; ?>
@@ -630,8 +629,10 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module" src="/wizard-stepper_git/assets/js/lucide.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.umd.min.js"></script>
 <script src="/wizard-stepper_git/assets/js/step6.js"></script>
+<script>lucide.createIcons();</script>
 <script>
   window.addEventListener('pageshow', (e) => {
     if (e.persisted) {

@@ -1,0 +1,11 @@
+:root {
+  --clr-bg: #0d1117;
+  --clr-card: #161b22;
+  --clr-text: #e0e0e0;
+  --clr-primary: #4fc3f7;
+  --clr-accent: #0ea5e9;
+  --radius-lg: 1rem;
+  --spc-1: .25rem;   /* 4 px */
+  --spc-2: .5rem;    /* 8 px */
+  --spc-4: 1rem;     /* 16 px */
+}
