@@ -2,6 +2,8 @@ export let page = 1;
 export let loading = false;
 export let hasMore = true;
 
+const csrf = document
+  .querySelector('meta[name="csrf-token"]')?.content || '';
 const toolList = document.getElementById('tool-list');
 const sentinel = document.getElementById('sentinel');
 let controller;
@@ -21,7 +23,7 @@ export async function loadPage() {
     const res = await fetch(`/wizard-stepper_git/ajax/tools_scroll.php?page=${page}`, {
       cache: 'no-store',
       signal: controller.signal,
-      headers: window.csrfToken ? { 'X-CSRF-Token': window.csrfToken } : {}
+      headers: csrf ? { 'X-CSRF-Token': csrf } : {}
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
@@ -67,11 +69,13 @@ const observer = new IntersectionObserver(
 
 export function initLazy() {
   if (toolList && sentinel) {
+    sentinel.style.minHeight = '1px';
     page = 1;
     loading = false;
     hasMore = true;
     toolList.innerHTML = '';
     observer.observe(sentinel);
+    loadPage();
   }
 }
 
