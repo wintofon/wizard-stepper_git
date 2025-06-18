@@ -155,7 +155,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <main class="container py-4" data-debug="step1">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-          <h2 class="step-title"><i data-lucide="box"></i> Paso 1 – Explorador de fresas</h2>
+          <h2 class="step-title"><i class="bi bi-box-seam"></i> Paso 1 – Explorador de fresas</h2>
           <p class="step-desc">Elegí la herramienta inicial para el trabajo.</p>
         </div>
         <img src="/wizard-stepper_git/assets/img/logo_nexgen.png"
@@ -169,7 +169,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <aside class="col-md-3 sidebar">
           <div class="card h-100 shadow-sm">
             <div class="card-header bg-primary text-white py-2">
-              <i data-lucide="filter"></i> Filtros
+              <i class="bi bi-funnel"></i> Filtros
             </div>
             <div id="facetBox"></div>
             <div id="brandWarning" class="alert alert-warning m-0 py-1" hidden>
@@ -182,7 +182,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <main class="col-md-9">
           <div class="input-group mb-2">
             <span class="input-group-text">
-              <i data-lucide="search"></i>
+              <i class="bi bi-search"></i>
             </span>
             <input id="qBox"
                    class="form-control"
