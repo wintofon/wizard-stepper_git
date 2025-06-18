@@ -5,8 +5,6 @@
  * modo debug con outlines, y estilos refinados para sliders, resultados y debug panel.
  */
 
-@import url('base/theme.css');
-
 /* Variables globales (colores, tamaños) */
 :root {
   --bg-body: #0d1117;
