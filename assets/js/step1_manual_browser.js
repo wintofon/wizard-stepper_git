@@ -91,12 +91,16 @@
   qBox.addEventListener('input', debounce(applyFilter,300));
 
   function applyFilter(){
+    tableBody.innerHTML='';
     if(!facetBox.querySelectorAll('input[name="brand"]:checked').length){
-      brandWarning.hidden=false; tableBody.innerHTML='';
-      return;
+      brandWarning.hidden=false;
+    } else {
+      brandWarning.hidden=true;
+      cargarTabla();
     }
-    brandWarning.hidden=true;
-    cargarTabla();
+    import('/wizard-stepper_git/assets/js/step1_lazy.js')
+      .then(m => m.initLazy())
+      .catch(console.error);
   }
 
   /* ========== AJAX → tools_ajax.php =============================== */
