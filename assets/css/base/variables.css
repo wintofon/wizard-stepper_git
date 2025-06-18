@@ -1,0 +1,13 @@
+:root{
+  --font-base:'Segoe UI',roboto,sans-serif;
+  --color-primary:#4fc3f7;
+  --color-secondary:#0d6efd;
+  --color-body-bg:#0d1117;
+  --color-text:#e0e0e0;
+  --color-muted:#a7b1bb;
+  --radius-lg:.75rem;
+  --spacer-1:.25rem;
+  --spacer-2:.5rem;
+  --shadow-md:0 0 24px rgb(0 0 0 / 50%);
+  --color-bg-dark:#0d1117;
+}

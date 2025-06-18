@@ -1,0 +1,6 @@
+/* ─── Utilities ─────────────────────────────── */
+.flex-center{display:-webkit-box;display:flexbox;display:flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center}
+.text-ellipsis{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.shadow-md{box-shadow:0 0 24px rgb(0 0 0 / 50%);box-shadow:0 0 24px rgb(0 0 0 / 50%)}
+.gap-1{gap:.25rem}
+.gap-2{gap:.5rem}

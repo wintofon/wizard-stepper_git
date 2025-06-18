@@ -1,0 +1,12 @@
+/* Common material selection styles */
+
+body {
+  background-color: #0d1117;
+  color: #e0e0e0;
+
+/* deduplicado del file step-common.css */
+  font-family: 'Segoe UI', Roboto, sans-serif;
+}
+
+
+/* deduplicado a components/dropdown-search.css */

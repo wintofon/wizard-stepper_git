@@ -220,9 +220,9 @@ $imgUrl    = $_SESSION['tool_image_url'] ?? '';
   <!-- Bootstrap local o CDN -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Estilos comunes + específicos -->
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/step-common.css">
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/step2_manual.css">
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/material.css">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/components/step-common.css">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/steps/manual/step2.css">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/components/material.css">
 </head>
 <body>
 

@@ -2,7 +2,7 @@
 
 /* ────────────────────────────────────────────────────────────────
    GENERAL
-   ────────────────────────────────────────────────────────────────*/
+   ──────────────────────────────────────────────────────────────── */
 body {
   background: #0b1e2d;              /* tono azul-oscuro global   */
   color: #dceefb;                   /* texto casi blanco-celeste */
@@ -24,8 +24,10 @@ body {
 
 /* ────────────────────────────────────────────────────────────────
    STEPPER TRAPEZOIDAL
-   ────────────────────────────────────────────────────────────────*/
+   ──────────────────────────────────────────────────────────────── */
 .stepper {
+  display: -webkit-box;
+  display: flexbox;
   display: flex;                    /* pasos en línea            */
   list-style: none;                 /* sin bullets               */
   margin: 0; padding: 0;            /* reset                     */
@@ -41,10 +43,12 @@ body {
   background: #0f172a;              /* mismo fondo contenedor    */
   min-width: 180px;                 /* ancho mínimo de paso      */
   clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0% 100%);
+
                                     /* polígono ↗ trapecio       */
   margin-left: -10px;               /* solapado para trapecios   */
-  border-right: 1px solid rgba(255,255,255,0.1); /* línea divisoria */
+  border-right: 1px solid rgb(255 255 255 / 10%); /* línea divisoria */
   z-index: 1;                       /* debajo de activo/done     */
+  transition: background .3s, color .3s;
   transition: background .3s, color .3s; /* suavidad hover/cambio */
 }
 
@@ -58,7 +62,7 @@ body {
 .stepper li.done,
 .stepper li.active {
   background: #1e293b;              /* fondo azul intermedio     */
-  color: #ffffff;                   /* texto blanco              */
+  color: #fff;                   /* texto blanco              */
   z-index: 2;                       /* por encima de inactivos   */
 }
 
@@ -71,7 +75,13 @@ body {
   height: 4px;                      /* grosor de la barra        */
   width: 100%;                      /* ocupa todo el paso        */
   background: #0ea5e9;              /* azul brillante            */
-  animation: fillLineLeft .6s ease-in forwards; /* efecto de llenado */
+  animation: fillLineLeft .6s ease-in forwards;
+          animation: fillLineLeft .6s ease-in forwards; /* efecto de llenado */
+}
+
+@keyframes fillLineLeft {           /* animación de ancho barra  */
+  from { width: 0; }
+  to   { width: 100%; }
 }
 
 @keyframes fillLineLeft {           /* animación de ancho barra  */
@@ -86,26 +96,27 @@ body {
   right: 0;                         /* pegada al borde derecho   */
   top: 10%; bottom: 10%;            /* deja margen arriba/abajo  */
   width: 1px;                       /* grosor línea              */
-  background: rgba(255, 255, 255, .15); /* blanco translúcido   */
+  background: rgb(255 255 255 / 15%); /* blanco translúcido   */
   z-index: 3;                       /* sobre fondo del paso      */
 }
 
 /* ────────────────────────────────────────────────────────────────
    CONTENEDOR CENTRAL
-   ────────────────────────────────────────────────────────────────*/
+   ──────────────────────────────────────────────────────────────── */
 .wizard-body {
   max-width: 1200px;                /* ancho máx. de contenido   */
   margin: 3rem auto;                /* centrado y margen sup.    */
   background: #132330;              /* caja azul oscuro          */
   padding: 2.5rem;                  /* espacio interno generoso  */
   border-radius: .75rem;            /* bordes redondeados        */
-  box-shadow: 0 0 24px rgba(0,0,0,.5); /* sombra envolvente      */
+  box-shadow: 0 0 24px rgb(0 0 0 / 50%);
+          box-shadow: 0 0 24px rgb(0 0 0 / 50%); /* sombra envolvente      */
   border: 1px solid #264b63;        /* contorno sutil            */
 }
 
 /* ────────────────────────────────────────────────────────────────
    BOTONES
-   ────────────────────────────────────────────────────────────────*/
+   ──────────────────────────────────────────────────────────────── */
 .btn-primary {
   background-color: #2b8ac6;        /* azul principal            */
   border-color: #256fa1;            /* borde más oscuro          */
@@ -113,8 +124,10 @@ body {
   padding: .7rem 1.4rem;            /* tamaño cómodo             */
   font-size: 1rem;                  /* texto estándar            */
   border-radius: .4rem;             /* bordes redondeados        */
+  transition: background .3s, border-color .3s;
   transition: background .3s, border-color .3s; /* hover suave    */
 }
+
 .btn-primary:hover {
   background-color: #3aa0db;        /* aclaramos al hover        */
   border-color: #2b8ac6;            /* borde acompaña            */
@@ -122,7 +135,7 @@ body {
 
 /* ────────────────────────────────────────────────────────────────
    DEBUG BOX
-   ────────────────────────────────────────────────────────────────*/
+   ──────────────────────────────────────────────────────────────── */
 .debug-box {
   background: #102735;              /* fondo casi negro-azul     */
   color: #a7d3e9;                   /* texto celeste claro       */
@@ -140,8 +153,8 @@ body {
 
 /* ────────────────────────────────────────────────────────────────
    RESPONSIVE: pantallas < 768 px
-   ────────────────────────────────────────────────────────────────*/
-@media (max-width: 768px) {
+   ──────────────────────────────────────────────────────────────── */
+@media (width <= 768px) {
   .stepper li {
     min-width: 100vw;               /* cada paso ocupa la pantalla */
     clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); /* rectángulo */

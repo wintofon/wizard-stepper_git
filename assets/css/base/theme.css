@@ -1,0 +1,15 @@
+:root{
+  --color-primary:#4fc3f7;
+  --color-primary-hover:#3aa5cc;
+  --color-secondary:#0d6efd;
+  --color-body-bg:#0d1117;
+  --color-text:#e0e0e0;
+  --color-muted:#a7b1bb;
+  --shadow-md:0 0 24px rgb(0 0 0 / 50%);
+  --radius-lg:.75rem;
+  --radius-md:.5rem;
+}
+
+[data-theme="dark"]{
+  --color-body-bg:#0d1117;
+}

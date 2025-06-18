@@ -2,18 +2,22 @@
 body {
   --bs-body-bg: #0d1117;
   --bs-body-color: #e0e0e0;
+
   background-color: var(--bs-body-bg);
   color: var(--bs-body-color);
   font-family: 'Segoe UI', Roboto, sans-serif;
 }
+
 h2 {
   margin-bottom: 1.5rem;
   color: #cbd5e0;
 }
+
 .form-label {
   font-weight: 600;
   color: #a7b1bb;
 }
+
 .fresa-card {
   border: 1px solid #2c2f33;
   border-radius: 8px;
@@ -21,27 +25,35 @@ h2 {
   margin-bottom: 1rem;
   background: #161b22;
   transition: background-color 0.2s;
+  transition: background-color 0.2s;
 }
+
 .fresa-card:hover {
   background-color: #1f2a36;
 }
+
 .estrella {
   color: #f0ad4e;
 }
+
 .warning {
-  color: #ff6666;
+  color: #f66;
   font-weight: bold;
 }
+
 .tool-thumb {
   max-width: 80px;
   height: auto;
   object-fit: contain;
+     object-fit: contain;
 }
+
 .btn-select {
   background-color: #4fc3f7;
   border: none;
   color: #0d1117;
 }
+
 .btn-select:hover {
   background-color: #0d6efd;
   color: #fff;
