@@ -171,11 +171,7 @@ try {
     <input type="hidden" id="tool_table" name="tool_table" value="">
   </form>
 
-  <div class="text-end mt-4">
-    <button type="submit" form="selectForm" class="btn btn-primary btn-lg" id="btn-next" disabled>
-      Siguiente →
-    </button>
-  </div>
+  <!-- Botón "Siguiente" removido -->
 
   <!-- 7.4) Consola interna de debugging -->
   <pre id="debug" class="bg-dark text-info p-2 mt-4"></pre>
