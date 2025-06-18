@@ -323,14 +323,14 @@ if ($tool && !empty($tool['image'])) {
       </div>
     </div>
 
-    <!-- Formulario para avanzar a Paso 5 -->
+      <!-- Formulario para avanzar a Paso 5 -->
       <form action="step5.php" method="post" class="mt-4 text-end">
-      <input type="hidden" name="step"       value="4">
-      <input type="hidden" name="tool_id"    value="<?= htmlspecialchars((string)$tool['tool_id'], ENT_QUOTES) ?>">
-      <input type="hidden" name="tool_table" value="<?= htmlspecialchars((string)$_SESSION['tool_table'], ENT_QUOTES) ?>">
+        <input type="hidden" name="step"       value="4">
+        <input type="hidden" name="tool_id"    value="<?= htmlspecialchars((string)$tool['tool_id'], ENT_QUOTES) ?>">
+        <input type="hidden" name="tool_table" value="<?= htmlspecialchars((string)$_SESSION['tool_table'], ENT_QUOTES) ?>">
 
-        <div class="text-end mt-4">
-          <button type="submit" class="btn btn-primary btn-lg">
+        <div id="next-button-container" class="text-end mt-4">
+          <button type="submit" id="btn-next" class="btn btn-primary btn-lg">
             Siguiente →
           </button>
         </div>
