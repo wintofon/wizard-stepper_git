@@ -9,19 +9,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Wizard CNC</title>
   <link rel="stylesheet" href="assets/css/wizard.css">
+  <link rel="stylesheet" href="assets/css/stepper.css">
 </head>
 <body>
 
   <!-- Barra de pasos -->
-  <nav class="stepper-container">
-    <ul class="stepper">
-      <?php foreach ($flow as $n): ?>
-        <li
-          data-step="<?= $n ?>"
-          data-label="<?= htmlspecialchars($labels[$n], ENT_QUOTES) ?>"></li>
-      <?php endforeach; ?>
-    </ul>
-  </nav>
+  <div class="stepper-header d-flex align-items-center">
+    <img src="assets/img/logos/logo_stepper.png" alt="Logo Stepper" class="logo-stepper">
+    <div class="stepper-bar flex-grow-1">
+      <nav class="stepper-container">
+        <ul class="stepper">
+          <?php foreach ($flow as $n): ?>
+            <li
+              data-step="<?= $n ?>"
+              data-label="<?= htmlspecialchars($labels[$n], ENT_QUOTES) ?>"></li>
+          <?php endforeach; ?>
+        </ul>
+      </nav>
+    </div>
+  </div>
 
   <!-- Botón reset -->
   <div style="text-align:right; padding:.5rem 1rem;">
