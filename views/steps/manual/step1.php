@@ -38,9 +38,7 @@ if ($DEBUG && is_readable(__DIR__ . '/../../../includes/debug.php')) {
     require_once __DIR__ . '/../../../includes/debug.php';
     dbg('Sesión wizard cargada. Progreso actual: ' . $currentProgress);
 } else {
-    if (!function_exists('dbg')) {
-        function dbg() { /* stub */ }
-    }
+    require_once __DIR__ . '/../../../includes/wizard_helpers.php';
 }
 
 // ──────────────── 4) Conexión a BD (solo si luego necesitas datos) ────
