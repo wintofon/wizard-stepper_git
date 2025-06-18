@@ -21,7 +21,7 @@
     <button id="btn-start" class="btn btn-primary btn-lg mt-4">Iniciar</button>
   </main>
   <script src="assets/js/main.js"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <script type="module" src="assets/js/lucide.js"></script>
   <script>lucide.createIcons();</script>
 </body>
 </html>

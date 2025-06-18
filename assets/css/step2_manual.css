@@ -1,5 +1,7 @@
 /* File: assets/css/step2_manual.css */
 
+@import url('base/theme.css');
+
 /* Estilos específicos para el paso 2 manual */
 
 .tool-image {
