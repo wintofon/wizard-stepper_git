@@ -111,7 +111,9 @@ dbg('STEP-2', $error ? ['ERR'=>$error] : ['OK'=>$tool['tool_id']??'-']);
 /* ---------- fallback longitud total -------------------------------------- */
 if ($tool) {
     $tool['length_total_mm'] ??= $tool['full_length_mm'] ?? 0;
-    if (!empty($tool['image'])) {
+    if (!empty($_SESSION['tool_image_url'])) {
+        $tool['image_url'] = rtrim((string)$_SESSION['tool_image_url'], '/');
+    } elseif (!empty($tool['image'])) {
         $tool['image_url'] = '/wizard-stepper_git/' . ltrim((string)$tool['image'], '/');
     }
 }
@@ -133,7 +135,7 @@ if ($tool) {
       <?php if (!empty($tool['image_url'])): ?>
         <figure class="text-center mb-4">
           <img
-            src="/<?= htmlspecialchars($tool['image_url']) ?>"
+            src="<?= htmlspecialchars($tool['image_url']) ?>"
             alt="Imagen de la herramienta seleccionada"
             class="img-fluid rounded shadow-sm"
             style="max-width: 100%; height: auto;"
