@@ -26,7 +26,8 @@
   <!-- Botón reset -->
   <div style="text-align:right; padding:.5rem 1rem;">
     <a href="public/reset.php" class="btn btn-outline-light">
-      🔄 Volver al inicio
+      <i data-feather="refresh-ccw" class="me-1"></i>
+      Volver al inicio
     </a>
   </div>
 
@@ -45,6 +46,7 @@
     window.csrfToken = '<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>';
   </script>
   <?php endif; ?>
+  <script src="node_modules/feather-icons/dist/feather.min.js"></script>
   <script src="assets/js/stepper.js" defer></script>
   <script src="assets/js/dashboard.js" defer></script>
 <link rel="stylesheet" href="assets/css/wizard.css">
