@@ -11,7 +11,6 @@
     "postcss-cli": "^11.0.1",
     "postcss-preset-env": "^10.2.3",
     "stylelint": "^16.20.0",
-    "stylelint-config-prettier": "^9.0.5",
     "stylelint-config-standard": "^38.0.0",
     "stylelint-order": "^7.0.0"
   },
