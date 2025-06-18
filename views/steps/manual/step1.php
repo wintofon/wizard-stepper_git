@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $postedStep = filter_input(INPUT_POST, 'step', FILTER_VALIDATE_INT);
     if ($postedStep !== 1) {
         $errors[] = 'Paso inválido. Reiniciá el asistente.';
-        dbg('Error Step: se esperaba step=1, llegó step=', $postedStep);
+        dbg('Error Step: se esperaba step=1, llegó step=' . $postedStep);
     }
 
     // 6.3) Validar tool_id
@@ -97,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['tool_image_url'] = $imgUrl;
 
         $_SESSION['wizard_progress'] = 2; // Marcamos que ya completó Paso 1
-        dbg('Paso 1 validado con éxito. tool_id=', $toolId, 'tool_table=', $toolTable);
+        dbg('Paso 1 validado con éxito. tool_id=' . $toolId . ' tool_table=' . $toolTable);
 
         header('Location: step2.php');
         exit;
