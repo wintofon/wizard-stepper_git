@@ -92,6 +92,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($errors)) {
         $_SESSION['tool_id']    = $toolId;
         $_SESSION['tool_table'] = $toolTable;
+
+        // Guardar también la URL de la imagen seleccionada para usarla en el Paso 2
+        require_once __DIR__ . '/../../../src/Utils/ToolService.php';
+        $imgUrl = ToolService::getToolImageUrl($pdo, $toolTable, $toolId);
+        $_SESSION['tool_image_url'] = $imgUrl;
+
         $_SESSION['wizard_progress'] = 2; // Marcamos que ya completó Paso 1
         dbg('Paso 1 validado con éxito. tool_id=', $toolId, 'tool_table=', $toolTable);
 
