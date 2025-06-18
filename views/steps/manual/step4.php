@@ -1,11 +1,14 @@
 <?php
 declare(strict_types=1);
 /**
+ * File: views/steps/manual/step4.php
  * Paso 4 (Manual) – Selección de madera compatible
- * Estructura y validaciones calcadas del Paso 1 (Auto).
+ * Estructura clonada de paso 1 (auto)
  */
 
-/* ─────────────────────────  A) CABECERAS  ───────────────────────── */
+//
+// [A] Cabeceras de seguridad / anti-caching
+//
 header('Content-Type: text/html; charset=UTF-8');
 header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
 header("X-Frame-Options: DENY");
@@ -16,15 +19,20 @@ header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Pragma: no-cache");
 header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;");
 
-/* ─────────────────────────  B) DEBUG  ──────────────────────────── */
+//
+// [B] Errores y Debug
+//
 $DEBUG = filter_input(INPUT_GET, 'debug', FILTER_VALIDATE_BOOLEAN);
-if ($DEBUG) { error_reporting(E_ALL); ini_set('display_errors','1'); }
-else        { error_reporting(0);    ini_set('display_errors','0'); }
+if ($DEBUG) { error_reporting(E_ALL); ini_set('display_errors', '1'); }
+else        { error_reporting(0);    ini_set('display_errors', '0'); }
+
 require_once __DIR__.'/../../../includes/wizard_helpers.php';
 if ($DEBUG && function_exists('dbg')) dbg('🔧 step4.php iniciado');
 
-/* ─────────────────────────  C) SESIÓN SEGURA  ──────────────────── */
-if (session_status()!==PHP_SESSION_ACTIVE){
+//
+// [C] Sesión segura
+//
+if (session_status() !== PHP_SESSION_ACTIVE) {
     session_set_cookie_params([
         'lifetime'=>0,
         'path'    =>'/wizard-stepper_git/',
@@ -33,114 +41,125 @@ if (session_status()!==PHP_SESSION_ACTIVE){
         'samesite'=>'Strict'
     ]);
     session_start();
+    dbg('🔒 Sesión iniciada');
 }
 
-/* ─────────────────────────  D) FLUJO DEL WIZARD  ───────────────── */
-if (empty($_SESSION['wizard_state'])||$_SESSION['wizard_state']!=='wizard'){
+//
+// [D] Control de flujo
+//
+if (empty($_SESSION['wizard_state']) || $_SESSION['wizard_state']!=='wizard') {
     header('Location:/wizard-stepper_git/index.php'); exit;
 }
-if ((int)($_SESSION['wizard_progress']??0) < 3){
+if ((int)($_SESSION['wizard_progress']??0) < 3) {
     header('Location:/wizard-stepper_git/views/steps/auto/step'.(int)$_SESSION['wizard_progress'].'.php'); exit;
 }
 
-/* ─────────────────────────  E) RATE-LIMIT  ─────────────────────── */
-$ip=$_SERVER['REMOTE_ADDR']??'unk';
-$_SESSION['rate_limit']??=[];
-$_SESSION['rate_limit'][$ip]=array_filter(
-    $_SESSION['rate_limit'][$ip]??[], fn(int $t)=>($t+300)>time()
+//
+// [E] Rate-limiting 10 POST / 5 min
+//
+$clientIp = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+$_SESSION['rate_limit'] ??= [];
+$_SESSION['rate_limit'][$clientIp] = array_filter(
+    $_SESSION['rate_limit'][$clientIp] ?? [],
+    fn(int $t)=>($t+300) > time()
 );
-if ($_SERVER['REQUEST_METHOD']==='POST' && count($_SESSION['rate_limit'][$ip])>=10){
+if ($_SERVER['REQUEST_METHOD']==='POST' && count($_SESSION['rate_limit'][$clientIp])>=10) {
     http_response_code(429);
     exit('<h1 style="color:red;text-align:center;margin-top:2rem;">429 – Demasiados intentos.</h1>');
 }
 
-/* ─────────────────────────  F) CSRF  ───────────────────────────── */
-$_SESSION['csrf_token']??=bin2hex(random_bytes(32));
-$csrf=$_SESSION['csrf_token'];
+//
+// [F] CSRF-token
+//
+$_SESSION['csrf_token'] ??= bin2hex(random_bytes(32));
+$csrf = $_SESSION['csrf_token'];
 
-/* ─────────────────────────  G) DEPENDENCIAS & BD  ──────────────── */
+//
+// [G] Dependencias + herramienta seleccionada
+//
 require_once __DIR__.'/../../../includes/db.php';
 require_once __DIR__.'/../../../includes/debug.php';
 
-if (empty($_SESSION['tool_id'])||empty($_SESSION['tool_table'])){
+if (empty($_SESSION['tool_id']) || empty($_SESSION['tool_table'])) {
     header('Location:/wizard-stepper_git/views/steps/auto/step2.php'); exit;
 }
-$toolId =(int)$_SESSION['tool_id'];
-$toolTbl=preg_replace('/[^a-z0-9_]/i','',$_SESSION['tool_table']);
+$toolId   = (int)$_SESSION['tool_id'];
+$toolTbl  = preg_replace('/[^a-z0-9_]/i','',$_SESSION['tool_table']);
 
-/* ─────────────────────────  H) MADERAS COMPATIBLES  ────────────── */
-$compat='toolsmaterial_'.str_replace('tools_','',$toolTbl);
-$stmt=$pdo->prepare("
-  SELECT m.material_id,m.name mat,c.category_id,c.name cat
-    FROM {$compat} tm
+//
+// [H] Cargar categorías “Madera” compatibles
+//
+$compatTbl = 'toolsmaterial_'.str_replace('tools_','',$toolTbl);
+$sql = "
+  SELECT m.material_id, m.name, c.category_id, c.name AS cat
+    FROM {$compatTbl} tm
     JOIN materials            m ON m.material_id = tm.material_id
     JOIN materialcategories   c ON c.category_id = m.category_id
    WHERE tm.tool_id = :tid AND c.name LIKE 'Madera%'
-   ORDER BY c.name,m.name");
+   ORDER BY c.name, m.name";
+$stmt=$pdo->prepare($sql);
 $stmt->execute([':tid'=>$toolId]);
-$rows=$stmt->fetchAll(PDO::FETCH_ASSOC);
+$mats=$stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$cats=[]; $flat=[];
-foreach($rows as $r){
-    $cid=(int)$r['category_id'];
-    $cats[$cid]['name']=$r['cat'];
-    $cats[$cid]['mats'][]=['id'=>(int)$r['material_id'],'name'=>$r['mat']];
-    $flat[]=['id'=>(int)$r['material_id'],'cid'=>$cid,'name'=>$r['mat']];
+/* Agrupar como en step1 */
+$parents=[]; $children=[];
+foreach ($mats as $m){
+    $cid=(int)$m['category_id'];
+    $parents[$cid]          = $m['cat'];                   // parent = categoría madera
+    $children[$cid][] = [
+        'id'  => (int)$m['material_id'],
+        'cid' => $cid,
+        'name'=> $m['name']
+    ];
 }
+dbg('parents',$parents); dbg('children',$children);
 
-/* ─────────────────────────  I) POST  ───────────────────────────── */
-$errors=[];
+//
+// [I] Procesar POST (idéntico a step1)
+//
+$err=null;
 if ($_SERVER['REQUEST_METHOD']==='POST'){
-    if(!hash_equals($csrf,$_POST['csrf_token']??''))           $errors[]='Token de seguridad inválido.';
-    if((int)($_POST['step']??0)!==4)                           $errors[]='Paso inválido. Reiniciá el asistente.';
-    $mat=filter_input(INPUT_POST,'material_id',FILTER_VALIDATE_INT);
-    $thk=filter_input(INPUT_POST,'thickness'  ,FILTER_VALIDATE_FLOAT);
-    if($mat===false||$mat===null||$mat<1)                      $errors[]='Material no válido.';
-    if($thk===false||$thk===null||$thk<=0)                     $errors[]='Espesor no válido.';
-    if(!$errors && !in_array($mat,array_column($flat,'id'),true))
-        $errors[]='La madera seleccionada no es compatible con esta fresa.';
+    if(!hash_equals($csrf,$_POST['csrf_token']??''))               $err='Token de seguridad inválido.';
+    $mat = filter_input(INPUT_POST,'material_id',FILTER_VALIDATE_INT);
+    $thk = filter_input(INPUT_POST,'thickness'  ,FILTER_VALIDATE_FLOAT);
+    if(!$err && ($mat===false||$mat===null||$mat<1))               $err='Material no válido.';
+    if(!$err && ($thk===false||$thk===null||$thk<=0))              $err='Espesor no válido.';
+    if(!$err && !array_key_exists($mat,array_column($mats,'material_id','material_id')))
+        $err='Material no válido.'; // no coincide con lista
 
-    if(!$errors){
+    if(!$err){
+        $_SESSION['rate_limit'][$clientIp][] = time();
+        session_regenerate_id(true);
         $_SESSION['material_id']=$mat;
-        $_SESSION['thickness']=$thk;
+        $_SESSION['thickness'] =(float)$thk;
         $_SESSION['wizard_progress']=4;
-        $_SESSION['rate_limit'][$ip][] = time();
         header('Location:/wizard-stepper_git/views/steps/manual/step5.php'); exit;
     }
 }
-
-/* ─────────────────────────  J) PREVIOS  ────────────────────────── */
-$prevMat=$_SESSION['material_id']??'';
-$prevThk=$_SESSION['thickness']??'';
-$hasPrev=$prevMat!=='' && $prevThk!=='';
 ?>
 <!DOCTYPE html><html lang="es"><head>
-<meta charset="utf-8"><title>Paso 4 – Madera compatible</title>
+<meta charset="utf-8">
+<title>Paso 4 – Material</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="/wizard-stepper_git/assets/css/step-common.css">
 <link rel="stylesheet" href="/wizard-stepper_git/assets/css/material.css">
 </head><body>
 <main class="container py-4">
-<h2 class="mb-3">Paso 4 – Elegí la madera compatible</h2>
+<h2 class="mb-3">Paso 4 – Elegí el material y el espesor</h2>
 
-<?php if(!$rows):?>
-  <div class="alert alert-warning">Esta fresa no tiene maderas compatibles registradas.</div>
+<?php if($err):?>
+  <div class="alert alert-danger"><?=htmlspecialchars($err)?></div>
 <?php endif;?>
 
-<?php if($errors):?>
-  <div class="alert alert-danger"><ul class="mb-0"><?php foreach($errors as $e) echo'<li>'.htmlspecialchars($e).'</li>';?></ul></div>
-<?php endif;?>
-
-<form id="formWood" method="post" novalidate>
+<form id="formMat" method="post" novalidate>
   <input type="hidden" name="step" value="4">
   <input type="hidden" name="csrf_token" value="<?=htmlspecialchars($csrf)?>">
-  <input type="hidden" name="material_id" id="material_id" value="<?=$prevMat?>">
+  <input type="hidden" name="material_id" id="material_id" value="">
 
   <!-- 1) Buscador -->
   <div class="mb-3 position-relative">
-    <label for="matSearch" class="form-label">Buscar madera (2+ letras)</label>
-    <input id="matSearch" class="form-control" autocomplete="off" placeholder="Ej.: MDF…" <?=$rows?'':'disabled'?>>
+    <label for="matSearch" class="form-label">Buscar material (2+ letras)</label>
+    <input id="matSearch" class="form-control" autocomplete="off" placeholder="Ej.: MDF…">
     <div id="noMatchMsg">Material no encontrado</div>
     <div id="searchDropdown" class="dropdown-search"></div>
   </div>
@@ -148,131 +167,121 @@ $hasPrev=$prevMat!=='' && $prevThk!=='';
   <!-- 2) Categorías -->
   <h5>Categoría</h5>
   <div id="catRow" class="d-flex flex-wrap mb-3">
-    <?php foreach($cats as $cid=>$c):?>
-      <button type="button" class="btn btn-outline-primary btn-cat me-2 mb-2"
-              data-cid="<?=$cid?>" <?=$rows?'':'disabled'?>>
-        <?=htmlspecialchars($c['name'])?>
+    <?php foreach($parents as $pid=>$pname):?>
+      <button type="button" class="btn btn-outline-primary btn-cat" data-pid="<?=$pid?>">
+        <?=htmlspecialchars($pname)?>
       </button>
     <?php endforeach;?>
   </div>
 
   <!-- 3) Materiales -->
   <div id="matBox" class="mb-3" style="display:none">
-    <h5>Madera</h5><div id="matCol"></div>
-    <div id="emptyMsg" class="text-warning mt-2" style="display:none">No hay materiales aquí</div>
+    <h5>Material</h5><div id="matCol"></div>
   </div>
 
   <!-- 4) Espesor -->
-  <div id="thickGroup" class="mb-3" style="<?=$hasPrev?'':'display:none'?>">
+  <div id="thickGroup" class="mb-3" style="display:none">
     <label for="thick" class="form-label">Espesor (mm)</label>
-    <input type="number" step="0.1" min="0.1" id="thick" name="thickness"
-           class="form-control" placeholder="Ej.: 18"
-           value="<?=$hasPrev?htmlspecialchars((string)$prevThk):''?>">
-    <div class="invalid-feedback">⚠ Valor inválido.</div>
+    <input type="number" id="thick" name="thickness" class="form-control" step="0.1" min="0.1" required>
   </div>
 
-  <!-- 5) Botón Siguiente -->
-  <div id="nextBox" class="text-end mt-4" style="<?=$hasPrev?'block':'none'?>">
-    <button class="btn btn-primary btn-lg" id="btn-next">Siguiente →</button>
+  <!-- 5) Botón “Siguiente” -->
+  <div id="next-button-container" class="text-end mt-4" style="display:none">
+    <button id="btn-next" class="btn btn-primary btn-lg">Siguiente →</button>
   </div>
 </form>
+
+<pre id="debug" class="bg-dark text-info p-2 mt-4"></pre>
 </main>
 
-<!-- ───── JS = copia literal de la lógica de Step 1 (Auto) ───── -->
 <script>
-const norm=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-const cats=<?=json_encode($cats,JSON_UNESCAPED_UNICODE)?>;
-const flat=<?=json_encode($flat,JSON_UNESCAPED_UNICODE)?>;
-const mat2cid={};Object.entries(cats).forEach(([cid,o])=>o.mats.forEach(m=>mat2cid[m.id]=cid));
+function normalizeText(s){return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();}
 
+const parents  = <?=json_encode($parents,JSON_UNESCAPED_UNICODE)?>;
+const children = <?=json_encode($children,JSON_UNESCAPED_UNICODE)?>;
+const matsFlat = <?=json_encode($mats,    JSON_UNESCAPED_UNICODE)?>;
+
+const matBox=document.getElementById('matBox');
+const matCol=document.getElementById('matCol');
 const matInp=document.getElementById('material_id');
 const thick=document.getElementById('thick');
 const thickGrp=document.getElementById('thickGroup');
-const nextBox=document.getElementById('nextBox');
+const nextCont=document.getElementById('next-button-container');
 const search=document.getElementById('matSearch');
 const noMatch=document.getElementById('noMatchMsg');
-const ddwn=document.getElementById('searchDropdown');
-const matBox=document.getElementById('matBox');
-const matCol=document.getElementById('matCol');
-const emptyMsg=document.getElementById('emptyMsg');
+const dropdown=document.getElementById('searchDropdown');
 
-function validate(){
-  const ok=matInp.value&&parseFloat(thick.value)>0;
-  thick.classList.toggle('is-invalid',!(parseFloat(thick.value)>0));
-  nextBox.style.display=ok?'block':'none';
-}
-function noMatchMsg(state){
-  search.classList.toggle('is-invalid',state);
-  noMatch.style.display=state?'block':'none';
-}
-function hideDD(){ddwn.style.display='none';ddwn.innerHTML='';}
+const matToPid={};
+Object.entries(children).forEach(([pid,list])=>list.forEach(m=>matToPid[m.id]=pid));
+
 function resetMat(){
   matCol.innerHTML='';matBox.style.display='none';
   matInp.value='';thick.value='';thickGrp.style.display='none';
-  nextBox.style.display='none';noMatchMsg(false);emptyMsg.style.display='none';hideDD();
+  nextCont.style.display='none';search.classList.remove('is-invalid');noMatch.style.display='none';
+}
+function validate(){ nextCont.style.display=(matInp.value && parseFloat(thick.value)>0)?'block':'none';}
+function noMatchMsg(st){search.classList.toggle('is-invalid',st);noMatch.style.display=st?'block':'none';}
+function hideDD(){dropdown.style.display='none';dropdown.innerHTML='';}
+function showDropdown(list){
+  dropdown.innerHTML='';list.forEach(m=>{
+    const term=normalizeText(search.value.trim());
+    const raw=m.name, idx=normalizeText(raw).indexOf(term);
+    const item=document.createElement('div');
+    item.className='item';
+    item.innerHTML=idx==-1?raw:
+      raw.slice(0,idx)+'<span class="hl">'+raw.slice(idx,idx+term.length)+'</span>'+raw.slice(idx+term.length);
+    item.onclick=()=>{
+      document.querySelector(`.btn-cat[data-pid='${matToPid[m.material_id]}']`)?.click();
+      setTimeout(()=>document.querySelector(`.btn-mat[data-mid='${m.material_id}']`)?.click(),0);
+      hideDD();
+    };
+    dropdown.appendChild(item);
+  });
+  dropdown.style.display='block';
 }
 
 /* Categorías */
 document.querySelectorAll('.btn-cat').forEach(btn=>{
   btn.addEventListener('click',()=>{
     document.querySelectorAll('.btn-cat').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    const cid=btn.dataset.cid;resetMat();
-    (cats[cid]?.mats||[]).forEach(m=>{
+    btn.classList.add('active'); resetMat();
+    const pid=btn.dataset.pid;
+    (children[pid]||[]).forEach(m=>{
       const b=document.createElement('button');
-      b.type='button';b.className='btn btn-outline-secondary btn-mat me-2 mb-2';
+      b.type='button';b.className='btn btn-outline-secondary btn-mat';
       b.textContent=m.name;b.dataset.mid=m.id;
       b.addEventListener('click',()=>{
         document.querySelectorAll('.btn-mat').forEach(x=>x.classList.remove('active'));
         b.classList.add('active');
-        matInp.value=m.id;search.value=m.name;
-        thickGrp.style.display='block';noMatchMsg(false);validate();hideDD();
+        matInp.value=m.id;search.value=m.name;noMatchMsg(false);
+        thickGrp.style.display='block';validate();hideDD();
       });
       matCol.appendChild(b);
     });
-    emptyMsg.style.display=(cats[cid]?.mats||[]).length?'none':'block';
     matBox.style.display='block';
   });
 });
 
 /* Buscador */
 search.addEventListener('input',e=>{
-  const val=e.target.value.trim();
-  if(val.length<2){noMatchMsg(false);hideDD();return;}
-  const term=norm(val);
-  const matches=flat.filter(m=>norm(m.name).includes(term));
-  if(!matches.length){resetMat();noMatchMsg(true);return;}
-  noMatchMsg(false);ddwn.innerHTML='';ddwn.style.display='block';
-  matches.forEach(m=>{
-    const div=document.createElement('div');div.className='item';div.dataset.mid=m.id;
-    const raw=m.name,idx=norm(raw).indexOf(term);
-    div.innerHTML=idx===-1?raw:raw.slice(0,idx)+'<span class="hl">'+raw.slice(idx,idx+term.length)+'</span>'+raw.slice(idx+term.length);
-    div.addEventListener('click',()=>{
-      document.querySelector(`.btn-cat[data-cid='${mat2cid[m.id]}']`)?.click();
-      setTimeout(()=>document.querySelector(`.btn-mat[data-mid='${m.id}']`)?.click(),0);
-      hideDD();
-    });
-    ddwn.appendChild(div);
-  });
+  const v=e.target.value.trim();
+  if(v.length<2){noMatchMsg(false);hideDD();return;}
+  const list=matsFlat.filter(m=>normalizeText(m.name).includes(normalizeText(v)));
+  if(!list.length){resetMat();noMatchMsg(true);return;}
+  noMatchMsg(false);showDropdown(list);
 });
-search.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();hideDD();}});
-search.addEventListener('blur',()=>setTimeout(hideDD,80));
+search.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault();}});
+search.addEventListener('blur',()=>setTimeout(hideDD,100));
 
-thick?.addEventListener('input',validate);
+/* Espesor */
+thick.addEventListener('input',validate);
 
-document.getElementById('formWood').addEventListener('submit',e=>{
-  if(!(matInp.value&&parseFloat(thick.value)>0)){
+/* Submit */
+document.getElementById('formMat').addEventListener('submit',e=>{
+  if(!matInp.value || parseFloat(thick.value)<=0){
     e.preventDefault();
     alert('Debés elegir un material válido y un espesor mayor a 0 antes de continuar.');
   }
 });
-
-window.addEventListener('pageshow',e=>{
-  /* Si la página vuelve desde el Back-Forward-Cache, forzamos recarga
-     para evitar que el JS pierda estado (idéntico fix usado en step1). */
-  if (e.persisted) location.reload();
-});
-
-validate();
 </script>
 </body></html>
