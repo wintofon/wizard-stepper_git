@@ -1,4 +1,5 @@
 // Lazy loading table rows using IntersectionObserver
+import { BASE_URL } from './config.js';
 export let page = 1;
 export let loading = false;
 export let hasMore = true;
@@ -27,7 +28,7 @@ export async function loadPage() {
   if (loading || !hasMore || !tbody) return;
   loading = true;
   try {
-    const res = await fetch(`/ajax/tools_scroll.php?page=${page}`, {
+    const res = await fetch(`${BASE_URL}/ajax/tools_scroll.php?page=${page}`, {
       cache: 'no-store',
       headers: csrf ? { 'X-CSRF-Token': csrf } : {},
     });

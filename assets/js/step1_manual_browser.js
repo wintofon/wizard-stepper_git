@@ -6,6 +6,7 @@
  * ▸ Modo DEBUG: loguea TODO en consola + window.dbg()
  * ------------------------------------------------------------ */
 (() => {
+  const BASE_URL = window.BASE_URL || '/wizard-stepper_git';
   /* -------- utilidades comunes ------------------------------------ */
   const dbg = (...m) => {          // visible en consola + #debug
     console.log('[STEP-1]', ...m);
@@ -29,7 +30,7 @@
   let currentSort = { col:null, dir:null };
 
   /* ========== CARGAR FACETAS ====================================== */
-  fetch('/wizard-stepper_git/public/tools_facets.php',{cache:'no-store'})
+  fetch(`${BASE_URL}/public/tools_facets.php`,{cache:'no-store'})
     .then(r => r.ok ? r.json() : Promise.reject(r.statusText))
     .then(renderFacets)
     .then(() => {        // Marcas seleccionadas por default
@@ -106,7 +107,7 @@
             .forEach(cb=>fd.append(cb.name+'[]',cb.value));
     fd.append('q',qBox.value.trim());
 
-    const url='/wizard-stepper_git/ajax/tools_ajax.php?'+new URLSearchParams(fd);
+    const url=`${BASE_URL}/ajax/tools_ajax.php?`+new URLSearchParams(fd);
     dbg('fetch',url);
     const r = await fetch(url,{cache:'no-store'});
     toolsData = await r.json();
@@ -175,7 +176,7 @@
     const u=new URL(location.href), b=u.searchParams.get('brand'), c=u.searchParams.get('code');
     if(!b||!c) return;
     dbg('GET external',b,c);
-    fetch(`step2.php?brand=${encodeURIComponent(b)}&code=${encodeURIComponent(c)}`)
+    fetch(`${BASE_URL}/views/steps/manual/step2.php?brand=${encodeURIComponent(b)}&code=${encodeURIComponent(c)}`)
       .then(r=>r.ok?location.assign('index.php?step=2'):Promise.reject('404'))
       .catch(err=>alert('⚠️ No se pudo cargar '+c+': '+err));
   });
