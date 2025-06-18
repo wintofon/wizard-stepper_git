@@ -220,7 +220,7 @@ $hasPrevT  = is_numeric($prevThick) && $prevThick > 0;
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Estilos comunes + específicos -->
   <link rel="stylesheet" href="/wizard-stepper_git/assets/css/step-common.css">
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/steps/manual/step4.css">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/material.css">
 </head>
 <body>
 
