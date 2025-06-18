@@ -109,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // 5.3) Guardar en sesión y avanzar a paso 4
     $_SESSION['tool_id']         = $toolIdRaw;
     $_SESSION['tool_table']      = $toolTblClean;
-    $_SESSION['wizard_progress'] = 4;
+    $_SESSION['wizard_progress'] = 3;
     session_regenerate_id(true);
     dbg("✅ [step3][POST] Herramienta guardada en sesión → tool_id={$toolIdRaw} tool_table={$toolTblClean}");
     header('Location: /wizard-stepper_git/public/load-step.php?step=4');
