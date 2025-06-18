@@ -1,368 +1,298 @@
 <?php
+declare(strict_types=1);
 /**
+ * File: step3.php
+ * ------------------------------------------------------------------
  * Paso 3 (Auto) – Elegí el tipo de mecanizado y la estrategia
- *
- * • Acepta POST (desde el Paso 2) para guardar “machining_type_id” y “strategy_id”.
- * • Incluye token CSRF, rate‐limit, headers de seguridad y debug opcional.
- * • Verifica sesión, herramienta seleccionada en Step 1/2 y actualiza wizard_progress.
- * • Consulta las estrategias disponibles para la herramienta y las agrupa por tipo.
+ * • Protegido contra CSRF, headers seguros y rate-limit básico  
+ * • Requiere wizard_progress ≥ 2 (ya se eligió herramienta y estrategia)  
+ * • Muestra solo las combinaciones válidas de la fresa seleccionada  
+ * • Guarda {machining_type_id, strategy_id} y avanza a step4_select_material.php
+ * ------------------------------------------------------------------
  */
 
-declare(strict_types=1);
+/* ──────────────────────────────────────────────────────
+ * [A]  Cabeceras de seguridad & anti-cache
+ * ──────────────────────────────────────────────────── */
+header('Content-Type: text/html; charset=UTF-8');
+header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
+header("X-Frame-Options: DENY");
+header("X-Content-Type-Options: nosniff");
+header("Referrer-Policy: no-referrer");
+header("Permissions-Policy: geolocation=(), microphone=()");
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Pragma: no-cache");
+header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';");
 
-// ────────────────────────────────────────────────────────────────────────────
-// 1) Iniciar sesión con parámetros seguros y CSRF‐token
-// ────────────────────────────────────────────────────────────────────────────
+/* ──────────────────────────────────────────────────────
+ * [B]  Errores & debug
+ * ──────────────────────────────────────────────────── */
+$DEBUG = filter_input(INPUT_GET, 'debug', FILTER_VALIDATE_BOOLEAN);
+if ($DEBUG) {
+    error_reporting(E_ALL);
+    ini_set('display_errors', '1');
+} else {
+    error_reporting(0);
+    ini_set('display_errors', '0');
+}
+if (!function_exists('dbg')) {
+    function dbg(string $msg, $data = null): void {
+        global $DEBUG;
+        if ($DEBUG) {
+            error_log('[step3.php] ' . $msg . ' ' . json_encode($data, JSON_UNESCAPED_UNICODE));
+        }
+    }
+}
+dbg('🔧 step3.php iniciado');
+
+/* ──────────────────────────────────────────────────────
+ * [C]  Sesión segura
+ * ──────────────────────────────────────────────────── */
 if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start([
-        'cookie_secure'   => true,
-        'cookie_httponly' => true,
-        'cookie_samesite' => 'Strict',
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path'     => '/wizard-stepper_git/',
+        'domain'   => '',
+        'secure'   => true,
+        'httponly' => true,
+        'samesite' => 'Strict'
     ]);
+    session_start();
+    dbg('🔒 Sesión iniciada');
 }
-// Inicializar wizard_state/progress si no existen
-if (empty($_SESSION['wizard_state']) || $_SESSION['wizard_state'] !== 'wizard') {
-    $_SESSION['wizard_state']    = 'wizard';
-    $_SESSION['wizard_progress'] = 1;
-}
-// Sólo permitimos acceder a Step 3 si progress ≥ 2 (Step 1 y Step 2 completados)
-$currentProgress = (int)($_SESSION['wizard_progress'] ?? 1);
-if ($currentProgress < 2) {
+
+/* ──────────────────────────────────────────────────────
+ * [D]  Flujo de wizard – debe haberse completado paso 2
+ * ──────────────────────────────────────────────────── */
+if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 2) {
+    dbg('❌ wizard_progress<2 – redirigiendo a step1.php');
     header('Location: step1.php');
     exit;
 }
-// Generar CSRF token si no existe
+$_SESSION['wizard_state'] = 'wizard';
+
+/* ──────────────────────────────────────────────────────
+ * [E]  CSRF-token
+ * ──────────────────────────────────────────────────── */
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 $csrfToken = $_SESSION['csrf_token'];
 
-// ────────────────────────────────────────────────────────────────────────────
-// 2) Rate‐limit básico por IP (máx. 10 POST en 5 minutos)
-// ────────────────────────────────────────────────────────────────────────────
-$clientIp = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-if (!isset($_SESSION['rate_limit'])) {
-    $_SESSION['rate_limit'] = [];
-}
-// Limpiar timestamps mayores a 5 minutos
-foreach ($_SESSION['rate_limit'] as $ip => $timestamps) {
-    $_SESSION['rate_limit'][$ip] = array_filter(
-        $timestamps,
-        fn($ts) => ($ts + 300) > time()
-    );
-}
-if (!isset($_SESSION['rate_limit'][$clientIp])) {
-    $_SESSION['rate_limit'][$clientIp] = [];
-}
-if ($_SERVER['REQUEST_METHOD'] === 'POST'
-    && count($_SESSION['rate_limit'][$clientIp]) >= 10) {
+/* ──────────────────────────────────────────────────────
+ * [F]  Rate-limit 10 POST / 5 min por IP
+ * ──────────────────────────────────────────────────── */
+$ip = $_SERVER['REMOTE_ADDR'] ?? 'unk';
+$_SESSION['rate_limit'] ??= [];
+$_SESSION['rate_limit'][$ip] = array_filter(
+    $_SESSION['rate_limit'][$ip] ?? [],
+    fn($ts) => $ts + 300 > time()
+);
+if ($_SERVER['REQUEST_METHOD'] === 'POST' &&
+    count($_SESSION['rate_limit'][$ip]) >= 10) {
     http_response_code(429);
-    echo "<h1>Demasiados intentos. Esperá unos minutos antes de reintentar.</h1>";
-    exit;
+    exit('<h1>Demasiados intentos. Probá más tarde.</h1>');
 }
 
-// ────────────────────────────────────────────────────────────────────────────
-// 3) Headers de seguridad
-// ────────────────────────────────────────────────────────────────────────────
-header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';");
-header("Strict-Transport-Security: max-age=31536000; includeSubDomains");
-header("X-Content-Type-Options: nosniff");
-
-// ────────────────────────────────────────────────────────────────────────────
-// 4) Conexión a BD y debug opcional
-// ────────────────────────────────────────────────────────────────────────────
+/* ──────────────────────────────────────────────────────
+ * [G]  Conexión BD & helpers
+ * ──────────────────────────────────────────────────── */
 require_once __DIR__ . '/../../../includes/db.php';
-$DEBUG = isset($_GET['debug']) && $_GET['debug'] === '1';
-if ($DEBUG && is_readable(__DIR__ . '/../../../includes/debug.php')) {
-    require_once __DIR__ . '/../../../includes/debug.php';
-    dbg('Step 3 iniciado. Progreso actual: ' . $currentProgress);
-} else {
-    if (!function_exists('dbg')) {
-        function dbg() { /* stub */ }
-    }
-}
+require_once __DIR__ . '/../../../includes/debug.php';
 
-// ────────────────────────────────────────────────────────────────────────────
-// 5) Validar que la herramienta ya esté en sesión (Step 1/2)
-// ────────────────────────────────────────────────────────────────────────────
+/* ──────────────────────────────────────────────────────
+ * [H]  Validar que existe herramienta seleccionada
+ * ──────────────────────────────────────────────────── */
 if (empty($_SESSION['tool_id']) || empty($_SESSION['tool_table'])) {
-    // Si no viene tool_id/tool_table en sesión, lo mandamos al Paso 1
-    header('Location: step1.php');
+    header('Location: step1.php'); /* flujo roto */
     exit;
 }
-$toolId       = (int)$_SESSION['tool_id'];
-$toolTableRaw = (string)$_SESSION['tool_table'];
+$toolId    = (int)$_SESSION['tool_id'];
+$toolTable = preg_replace('/[^a-z0-9_]/i', '', $_SESSION['tool_table']);
 
-// ────────────────────────────────────────────────────────────────────────────
-// 6) Tablas válidas y helper para sanitizar $toolTable
-// ────────────────────────────────────────────────────────────────────────────
-$brandTables = [
-    'tools_sgs',
-    'tools_maykestag',
-    'tools_schneider',
-    'tools_generico',
-];
-// Sólo permitimos nombres de tablas exactos en $brandTables
-function tblClean(string $raw, array $allowed): ?string {
-    $clean = preg_replace('/[^a-z0-9_]/i', '', $raw);
-    return in_array($clean, $allowed, true) ? $clean : null;
-}
-$toolTable = tblClean($toolTableRaw, $brandTables);
-if (!$toolTable) {
-    // Sesión corrupta: tabla inválida
-    unset($_SESSION['tool_id'], $_SESSION['tool_table']);
-    header('Location: step1.php');
-    exit;
-}
-
-// ────────────────────────────────────────────────────────────────────────────
-// 7) Procesar POST para guardar “machining_type_id” y “strategy_id”
-// ────────────────────────────────────────────────────────────────────────────
-$errors = [];
-if ($_SERVER['REQUEST_METHOD'] === 'POST'
-    && isset($_POST['machining_type_id'], $_POST['strategy_id'], $_POST['csrf_token'])) {
-
-    dbg('POST recibido en Step 3', $_POST);
-
-    // 7.1) Validar token CSRF
-    if (!hash_equals($csrfToken, (string)$_POST['csrf_token'])) {
-        $errors[] = 'Token de seguridad inválido. Recargá la página e intentá de nuevo.';
-        dbg('Error CSRF en POST Step 3');
-    }
-
-    // 7.2) Rate‐limit: registrar timestamp
-    if (!$errors) {
-        $_SESSION['rate_limit'][$clientIp][] = time();
-    }
-
-    // 7.3) Sanitizar y validar IDs
-    if (!$errors) {
-        $mtIdRaw    = filter_var($_POST['machining_type_id'], FILTER_VALIDATE_INT);
-        $stratIdRaw = filter_var($_POST['strategy_id'], FILTER_VALIDATE_INT);
-
-        if (!$mtIdRaw || $mtIdRaw < 1) {
-            $errors[] = 'Tipo de mecanizado inválido.';
-            dbg('machining_type_id inválido:', $_POST['machining_type_id']);
-        }
-        if (!$stratIdRaw || $stratIdRaw < 1) {
-            $errors[] = 'Estrategia inválida.';
-            dbg('strategy_id inválido:', $_POST['strategy_id']);
-        }
-    }
-
-    // 7.4) Verificar que la combinación herramienta‐estrategia‐tipo exista en BD
-    if (!$errors) {
-        $checkSql = "
-          SELECT COUNT(*) AS cnt
-            FROM toolstrategy ts
-            JOIN strategies s ON ts.strategy_id = s.strategy_id
-           WHERE ts.tool_id          = :tool_id
-             AND ts.tool_table       = :tool_table
-             AND ts.strategy_id      = :strategy_id
-             AND s.machining_type_id = :mt_id
-        ";
-        $stCheck = $pdo->prepare($checkSql);
-        $stCheck->execute([
-            ':tool_id'     => $toolId,
-            ':tool_table'  => $toolTable,
-            ':strategy_id' => $stratIdRaw,
-            ':mt_id'       => $mtIdRaw,
-        ]);
-        $row = $stCheck->fetch(PDO::FETCH_ASSOC);
-        if (!$row || (int)$row['cnt'] === 0) {
-            $errors[] = 'La estrategia seleccionada no está disponible para esta herramienta.';
-            dbg('Combinación inválida en BD:', $toolId, $toolTable, $stratIdRaw, $mtIdRaw);
-        }
-    }
-
-    // 7.5) Si no hay errores, guardamos en sesión y avanzamos
-    if (empty($errors)) {
-        $_SESSION['machining_type_id'] = $mtIdRaw;
-        $_SESSION['strategy_id']       = $stratIdRaw;
-        $_SESSION['wizard_progress']   = 3; // ya completó Step 3
-        dbg('Step 3 validado. machining_type_id=', $mtIdRaw, 'strategy_id=', $stratIdRaw);
-
-        header('Location: step4_select_material.php');
-        exit;
-    }
-}
-
-// ────────────────────────────────────────────────────────────────────────────
-// 8) Consultar estrategias disponibles para la herramienta actual
-// ────────────────────────────────────────────────────────────────────────────
-$query = "
+/* ──────────────────────────────────────────────────────
+ * [I]  Cargar estrategias disponibles para esta fresa
+ * ──────────────────────────────────────────────────── */
+$q = "
   SELECT s.strategy_id,
          s.name,
          s.machining_type_id,
          mt.name AS type_name
     FROM toolstrategy ts
-    JOIN strategies s ON ts.strategy_id = s.strategy_id
-    JOIN machining_types mt ON s.machining_type_id = mt.machining_type_id
-   WHERE ts.tool_id    = :tool_id
-     AND ts.tool_table = :tool_table
+    JOIN strategies      s  ON s.strategy_id      = ts.strategy_id
+    JOIN machining_types mt ON mt.machining_type_id = s.machining_type_id
+   WHERE ts.tool_id    = :tid
+     AND ts.tool_table = :tbl
    ORDER BY mt.name, s.name
 ";
-$stmt = $pdo->prepare($query);
-$stmt->execute([
-    ':tool_id'    => $toolId,
-    ':tool_table' => $toolTable
-]);
-$strategies = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$st = $pdo->prepare($q);
+$st->execute([':tid' => $toolId, ':tbl' => $toolTable]);
+$strats = $st->fetchAll(PDO::FETCH_ASSOC);
 
-// Agrupar por tipo de mecanizado
+/* Agrupar */
 $grouped = [];
-foreach ($strategies as $s) {
-    $mtid = (int)$s['machining_type_id'];
-    if (!isset($grouped[$mtid])) {
-        $grouped[$mtid] = [
-            'name'        => $s['type_name'],
-            'estrategias' => []
-        ];
-    }
-    $grouped[$mtid]['estrategias'][] = [
-        'id'   => (int)$s['strategy_id'],
-        'name' => $s['name']
-    ];
+foreach ($strats as $row) {
+    $mt = (int)$row['machining_type_id'];
+    $grouped[$mt]['name']           = $row['type_name'];
+    $grouped[$mt]['estrategias'][]  = ['id' => (int)$row['strategy_id'],
+                                       'name' => $row['name']];
 }
-dbg('Tipos de mecanizado disponibles:', $grouped);
+dbg('Grouped', $grouped);
+
+/* ──────────────────────────────────────────────────────
+ * [J]  Procesar POST (guardar elección)
+ * ──────────────────────────────────────────────────── */
+$errors = [];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    /* J-1  CSRF */
+    if (!hash_equals($csrfToken, (string)($_POST['csrf_token'] ?? ''))) {
+        $errors[] = 'Token de seguridad inválido.';
+    }
+
+    /* J-2  Limitar */
+    $_SESSION['rate_limit'][$ip][] = time();
+
+    /* J-3  Sanitizar & validar */
+    $mtId = filter_input(INPUT_POST, 'machining_type_id', FILTER_VALIDATE_INT);
+    $stId = filter_input(INPUT_POST, 'strategy_id',       FILTER_VALIDATE_INT);
+    if (!$mtId || !isset($grouped[$mtId])) {
+        $errors[] = 'Tipo de mecanizado inválido.';
+    }
+    if (!$stId) {
+        $errors[] = 'Estrategia inválida.';
+    }
+    if (!$errors) {
+        $valid = false;
+        foreach ($grouped[$mtId]['estrategias'] as $e) {
+            if ($e['id'] === $stId) { $valid = true; break; }
+        }
+        if (!$valid) $errors[] = 'La estrategia no corresponde al tipo elegido.';
+    }
+
+    /* J-4  OK */
+    if (!$errors) {
+        $_SESSION['machining_type_id'] = $mtId;
+        $_SESSION['strategy_id']       = $stId;
+        $_SESSION['wizard_progress']   = 3;
+        header('Location: step4_select_material.php');
+        exit;
+    }
+}
+
+/* ──────────────────────────────────────────────────────
+ * [K]  Salida HTML
+ * ──────────────────────────────────────────────────── */
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Paso 3 – Elegí tipo de mecanizado y estrategia</title>
+  <meta charset="utf-8">
+  <title>Paso 3 – Tipo de mecanizado & estrategia</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <!-- Bootstrap 5 (CDN) -->
+  <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Estilos compartidos -->
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/step-common.css">
   <link rel="stylesheet" href="/wizard-stepper_git/assets/css/strategy.css">
-
-  <!-- Estilos mínimos para botones de estrategia -->
-  
 </head>
 <body>
-  <main class="container py-4">
+<main class="container py-4">
 
-  <h2 class="mb-4">Paso 3 – Elegí el tipo de mecanizado y la estrategia</h2>
+  <h2 class="mb-3">Paso 3 – Elegí el tipo de mecanizado y la estrategia</h2>
 
-  <!-- Si no hay estrategias, mostramos un cartel -->
-  <?php if (empty($grouped)): ?>
+  <?php if ($errors): ?>
     <div class="alert-custom">
-      No se encontraron estrategias disponibles para esta herramienta.
+      <ul class="mb-0">
+        <?php foreach ($errors as $e): ?>
+          <li><?= htmlspecialchars($e, ENT_QUOTES) ?></li>
+        <?php endforeach; ?>
+      </ul>
     </div>
   <?php endif; ?>
 
-  <form method="post" action="" id="strategyForm" novalidate>
-    <!-- Campos ocultos: step, CSRF, IDs seleccionados -->
-    <input type="hidden" name="step" value="3">
-    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>">
-    <input type="hidden" name="machining_type_id" id="machining_type_id" value="">
-    <input type="hidden" name="strategy_id" id="strategy_id" value="">
+  <?php if (empty($grouped)): ?>
+    <div class="alert-custom">No hay estrategias disponibles para esta herramienta.</div>
+  <?php else: ?>
 
-    <!-- 1) Selección de tipo de mecanizado -->
+  <form id="strategyForm" method="post" novalidate>
+    <input type="hidden" name="step"           value="3">
+    <input type="hidden" name="csrf_token"     value="<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>">
+    <input type="hidden" name="machining_type_id" id="machining_type_id">
+    <input type="hidden" name="strategy_id"       id="strategy_id">
+
+    <!-- Tipo de mecanizado -->
     <h5>Tipo de mecanizado</h5>
-    <div id="machining-buttons" class="mb-4">
-      <?php foreach ($grouped as $mtid => $g): ?>
+    <div id="machiningRow" class="d-flex flex-wrap mb-3">
+      <?php foreach ($grouped as $mid => $g): ?>
         <button type="button"
-                class="btn btn-outline-primary me-2 mb-2 btn-machining"
-                data-id="<?= $mtid ?>">
+                class="btn btn-outline-primary btn-machining me-2 mb-2"
+                data-id="<?= $mid ?>">
           <?= htmlspecialchars($g['name'], ENT_QUOTES) ?>
         </button>
       <?php endforeach; ?>
     </div>
 
-    <!-- 2) Estrategias -->
-    <div id="strategy-container" class="mb-4" style="display:none">
+    <!-- Estrategias -->
+    <div id="strategyBox" style="display:none">
       <h5>Estrategia</h5>
-      <div id="strategy-buttons"></div>
+      <div id="strategyButtons"></div>
     </div>
 
-    <!-- 3) Continuar -->
-    <div id="next-button-container" class="text-end mt-4" style="display: none;">
-      <button type="submit" id="btn-next" class="btn btn-primary btn-lg">
-        Siguiente →
-      </button>
+    <!-- Siguiente -->
+    <div id="nextContainer" class="text-end mt-4" style="display:none">
+      <button type="submit" class="btn btn-primary btn-lg">Siguiente →</button>
     </div>
   </form>
+  <?php endif; ?>
 
-  <!-- Caja de debug interno -->
   <pre id="debug" class="debug-box"></pre>
+</main>
 
-  <!-- Bootstrap Bundle JS (CDN) -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Bootstrap Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- JavaScript para manejo de botones y validaciones -->
-  <script>
-    // Convertir “$grouped” de PHP a objeto JS
-    const grouped = <?= json_encode($grouped, JSON_UNESCAPED_UNICODE) ?>;
-    const nextContainer = document.getElementById('next-button-container');
-    const btnNext   = document.getElementById('btn-next');
-    const inputType = document.getElementById('machining_type_id');
-    const inputStrat= document.getElementById('strategy_id');
+<script>
+/* PHP → JS */
+const grouped = <?= json_encode($grouped, JSON_UNESCAPED_UNICODE) ?>;
 
-    const machiningBtns  = document.querySelectorAll('.btn-machining');
-    const strategyBox    = document.getElementById('strategy-container');
-    const strategyBtns   = document.getElementById('strategy-buttons');
+const machRow  = document.getElementById('machiningRow');
+const stratBox = document.getElementById('strategyBox');
+const stratBtns= document.getElementById('strategyButtons');
+const inputMt  = document.getElementById('machining_type_id');
+const inputSt  = document.getElementById('strategy_id');
+const nextBox  = document.getElementById('nextContainer');
 
-    // Helper de debug (imprime en consola + <pre id="debug">)
-    window.dbg = (...m) => {
-      console.log('[DBG]', ...m);
-      const box = document.getElementById('debug');
-      if (box) box.textContent += m.join(' ') + '\n';
-    };
-    dbg('JS de Step 3 cargado. grouped=', grouped);
+/* Helpers debug */
+window.dbg = (...m)=>{ console.log('[DBG]',...m);
+  const d=document.getElementById('debug'); if(d) d.textContent+=m.join(' ')+'\n';};
 
-    // 1) Elegir tipo de mecanizado
-    machiningBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        machiningBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const mtid = btn.dataset.id;
-        inputType.value = mtid;
-
-        // Mostrar/llenar estrategias correspondientes
-        strategyBtns.innerHTML = '';
-        const estrats = grouped[mtid]?.estrategias || [];
-        estrats.forEach(e => {
-          const b = document.createElement('button');
-          b.type = 'button';
-          b.className = 'btn btn-outline-secondary btn-strategy';
-          b.dataset.id = e.id;
-          b.textContent = e.name;
-          b.addEventListener('click', () => {
-            document.querySelectorAll('.btn-strategy')
-                    .forEach(bs => bs.classList.remove('active'));
-            b.classList.add('active');
-            inputStrat.value = e.id;
-            nextContainer.style.display = 'block';
-            dbg('Estrategia seleccionada:', e.id, e.name);
-          });
-          strategyBtns.appendChild(b);
-        });
-        strategyBox.style.display = 'block';
-        nextContainer.style.display = 'none';
-        dbg('Tipo de mecanizado seleccionado:', mtid, grouped[mtid].name);
-      });
+/* 1) Click en tipo */
+machRow.querySelectorAll('.btn-machining').forEach(b=>{
+  b.addEventListener('click',()=>{
+    machRow.querySelectorAll('.btn-machining').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    const id=b.dataset.id; inputMt.value=id; inputSt.value='';
+    nextBox.style.display='none';
+    stratBtns.innerHTML='';
+    (grouped[id]?.estrategias||[]).forEach(e=>{
+      const sb=document.createElement('button');
+      sb.type='button'; sb.className='btn btn-outline-secondary btn-strategy me-2 mb-2';
+      sb.dataset.id=e.id; sb.textContent=e.name;
+      sb.onclick=()=>{stratBtns.querySelectorAll('.btn-strategy').forEach(x=>x.classList.remove('active'));
+                      sb.classList.add('active'); inputSt.value=e.id; nextBox.style.display='block';};
+      stratBtns.appendChild(sb);
     });
+    stratBox.style.display='block';
+  });
+});
 
-    // 2) Validación extra antes de enviar el formulario
-    const form = document.getElementById('strategyForm');
-    form.addEventListener('submit', e => {
-      const mtid = inputType.value.trim();
-      const sid  = inputStrat.value.trim();
-      const token = form.querySelector('input[name="csrf_token"]').value.trim();
-      if (!mtid || !sid || !token) {
-        e.preventDefault();
-        alert('Debe seleccionar un tipo de mecanizado y una estrategia válidos.');
-        dbg('Intento de submit inválido: mtid=', mtid, 'sid=', sid, 'token=', token);
-      }
-    });
-
-    // 3) Evitar doble envío muy rápido
-    form.addEventListener('submit', () => {
-      nextContainer.style.display = 'none';
-    });
-  </script>
-  </main>
+/* 2) Submit simple -> val JS extra */
+document.getElementById('strategyForm').addEventListener('submit',e=>{
+  if(!inputMt.value||!inputSt.value){
+    e.preventDefault(); alert('Elegí un tipo de mecanizado y una estrategia.');
+  }
+});
+</script>
 </body>
 </html>
+
