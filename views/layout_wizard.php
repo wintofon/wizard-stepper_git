@@ -8,9 +8,13 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Wizard CNC</title>
+  <link rel="stylesheet" href="assets/css/base/theme.css">
   <link rel="stylesheet" href="assets/css/wizard.css">
 </head>
 <body>
+  <header class="visually-hidden">
+    <h1>Asistente CNC</h1>
+  </header>
 
   <!-- Barra de pasos -->
   <nav class="stepper-container">
@@ -47,8 +51,9 @@
   <?php endif; ?>
   <script src="assets/js/stepper.js" defer></script>
   <script src="assets/js/dashboard.js" defer></script>
-<link rel="stylesheet" href="assets/css/wizard.css">
-<link rel="stylesheet" href="assets/css/step6.css"><!-- <---- AGREGALO ACÁ -->
+  <script type="module" crossorigin src="https://cdn.jsdelivr.net/npm/lucide@latest/+esm"></script>
+  <script>window.lucide && window.lucide.createIcons();</script>
+  <link rel="stylesheet" href="assets/css/step6.css">
 
 </body>
 </html>

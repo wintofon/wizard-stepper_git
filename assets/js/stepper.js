@@ -1,4 +1,4 @@
-/* global feather, bootstrap */
+/* global lucide, bootstrap */
 (() => {
   'use strict';
 
@@ -93,8 +93,10 @@
         stepHolder.innerHTML = html;
         runStepScripts(stepHolder);
 
-        // Inicializadores JS globales (Feather, Bootstrap tooltips)
-        if (window.feather) feather.replace();
+        // Inicializadores JS globales (Lucide, Bootstrap tooltips)
+        if (window.lucide && window.lucide.createIcons) {
+          window.lucide.createIcons();
+        }
         if (window.bootstrap && bootstrap.Tooltip) {
           document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
             new bootstrap.Tooltip(el);

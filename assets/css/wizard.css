@@ -1,11 +1,12 @@
 /* wizard/assets/css/wizard.css */
+@import url('base/theme.css');
 
 /* ────────────────────────────────────────────────────────────────
    GENERAL
    ──────────────────────────────────────────────────────────────── */
 body {
-  background: #0b1e2d;              /* tono azul-oscuro global   */
-  color: #dceefb;                   /* texto casi blanco-celeste */
+  background: var(--clr-bg);        /* tono azul oscuro global   */
+  color: var(--clr-text);           /* texto principal           */
   font-family: 'Segoe UI', Roboto, sans-serif; /* tipografía base */
   margin: 0;                        /* quitamos margen browser   */
   padding: 0;                       /* …y padding por defecto    */
@@ -13,7 +14,7 @@ body {
 
 /* Contenedor del stepper (barra de pasos) */
 .stepper-container {
-  background: #0f172a;              /* fondo azul más oscuro     */
+  background: var(--clr-card);      /* fondo azul más oscuro     */
   overflow-x: auto;                 /* scroll horizontal móvil   */
   padding: 0;                       /* sin padding extra         */
   position: relative;               /* base para ::after/etc.    */
@@ -154,4 +155,13 @@ body {
   }
 
   .stepper li:not(:last-child)::after { display: none; } /* sin línea */
+}
+
+@media (width <= 768px) {
+  .stepper-container {
+    backdrop-filter: blur(4px);
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+  }
 }
