@@ -120,16 +120,15 @@ if ($tool) {
 ?>
 <link rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-<link rel="stylesheet" href="assets/css/base/theme.css">
 <link rel="stylesheet" href="assets/css/step2_manual.css">
 
 <div class="container py-4">
-  <h2 class="step-title"><i data-lucide="hammer" class="me-1"></i> Paso 2 – Confirmar herramienta</h2>
+  <h2 class="step-title"><i class="bi bi-tools"></i> Paso 2 – Confirmar herramienta</h2>
   <p class="step-desc">Revisá los datos de la fresa elegida.</p>
 
   <?php if ($error): ?>
       <div class="alert alert-danger mt-3">
-        <i data-lucide="alert-triangle" class="me-1"></i> <?= htmlspecialchars($error) ?>
+        <i class="bi bi-exclamation-triangle"></i> <?= htmlspecialchars($error) ?>
       </div>
       <!-- Botón eliminado por nuevo flujo sin regreso -->
 
