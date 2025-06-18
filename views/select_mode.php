@@ -40,7 +40,7 @@
     <button class="btn btn-primary btn-lg mt-4">Continuar</button>
   </form>
 </main>
-<script type="module" src="assets/js/lucide.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
 <script>lucide.createIcons();</script>
 </body>
 </html>

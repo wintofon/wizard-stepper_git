@@ -3,11 +3,9 @@
 /* ────────────────────────────────────────────────────────────────
    GENERAL
    ──────────────────────────────────────────────────────────────── */
-@import url('base/theme.css');
-
 body {
-  background: var(--clr-bg);        /* tono de fondo */
-  color: var(--clr-text);           /* texto base */
+  background: #0b1e2d;              /* tono azul-oscuro global   */
+  color: #dceefb;                   /* texto casi blanco-celeste */
   font-family: 'Segoe UI', Roboto, sans-serif; /* tipografía base */
   margin: 0;                        /* quitamos margen browser   */
   padding: 0;                       /* …y padding por defecto    */

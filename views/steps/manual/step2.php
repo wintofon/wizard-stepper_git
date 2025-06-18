@@ -167,8 +167,8 @@ if ($tool) {
         <input type="hidden" name="tool_id"    value="<?= $tool['tool_id'] ?>">
         <input type="hidden" name="tool_table" value="<?= htmlspecialchars($_SESSION['tool_table']) ?>">
           <div class="text-end mt-4">
-            <button type="submit" class="btn btn-primary btn-lg" aria-label="Siguiente">
-              <i data-lucide="arrow-right" class="me-1"></i> Siguiente
+            <button type="submit" class="btn btn-primary btn-lg">
+              Siguiente →
             </button>
           </div>
       </form>
