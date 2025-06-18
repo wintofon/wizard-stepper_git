@@ -1,16 +1,16 @@
 .wizard-welcome {
-  max-width: 800px;
-  margin: 3rem auto;
-  text-align: center;
   color: #e2e8f0;
+  margin: 3rem auto;
+  max-width: 800px;
   padding: 2rem;
+  text-align: center;
 }
 
 .icon-xl {
-  width: 64px;
-  height: 64px;
   color: #60a5fa;
+  height: 64px;
   margin-bottom: 1rem;
+  width: 64px;
 }
 
 .title {
@@ -20,46 +20,46 @@
 }
 
 .lead {
-  font-size: 1.2rem;
   color: #cbd5e1;
+  font-size: 1.2rem;
   margin-bottom: 2rem;
 }
 
 .disclaimer {
   background: #1e293b;
   border: 1px solid #facc15;
-  color: #facc15;
-  padding: 1rem;
   border-radius: 8px;
+  color: #facc15;
   font-size: 0.95rem;
-  max-width: 720px;
   margin: 0 auto 2rem;
+  max-width: 720px;
+  padding: 1rem;
 }
 
 .explanation {
-  text-align: center;
   color: #cbd5e1;
   margin-bottom: 1.5rem;
+  text-align: center;
 }
 
 .mode-options {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  max-width: 700px;
   margin: 0 auto;
+  max-width: 700px;
 }
 
 .mode-option {
+  align-items: flex-start;
   background: #0f172a;
   border: 1px solid #334155;
-  padding: 1.25rem;
   border-radius: 0.5rem;
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
   color: #e2e8f0;
   cursor: pointer;
+  display: flex;
+  gap: 1rem;
+  padding: 1.25rem;
   transition: background 0.3s;
 }
 
@@ -78,13 +78,13 @@
 }
 
 .mode-option span {
-  font-size: 0.95rem;
   color: #aebbc8;
+  font-size: 0.95rem;
 }
 
 .icon-sm {
-  width: 24px;
+  color: #60a5fa;
   height: 24px;
   margin-top: 0.2rem;
-  color: #60a5fa;
+  width: 24px;
 }

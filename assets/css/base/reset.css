@@ -1,27 +1,31 @@
 /* CSS extraído de public/reset.php */
+
 /* Estilo mínimo para cargar rápidamente */
 body {
+  align-items: center;
   background-color: #f8f9fa;
   color: #333;
-  font-family: 'Segoe UI', Roboto, sans-serif;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  font-family: 'Segoe UI', Roboto, sans-serif;
   height: 100vh;
+  justify-content: center;
   margin: 0;
 }
+
 .message-box {
   background: #fff;
   border-radius: 0.5rem;
+  box-shadow: 0 0 15px rgb(0 0 0 / 10%);
   padding: 2rem;
-  box-shadow: 0 0 15px rgba(0,0,0,0.1);
   text-align: center;
 }
+
 .message-box h1 {
   font-size: 1.5rem;
   margin-bottom: 1rem;
 }
+
 .message-box p {
-  margin: 0.5rem 0;
   color: #666;
+  margin: 0.5rem 0;
 }
