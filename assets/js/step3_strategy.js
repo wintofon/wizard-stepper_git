@@ -1,3 +1,5 @@
+/* global estrategiaMap */
+
 document.addEventListener('DOMContentLoaded', () => {
   const selTipo = document.getElementById('machining_type_id');
   const selStrat = document.getElementById('strategy_id');

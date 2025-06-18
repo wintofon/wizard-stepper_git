@@ -3,6 +3,7 @@
  * Calculadora CNC interactiva completa y didáctica.
  * Muestra todos los parámetros técnicos con cálculos explicativos.
  */
+/* global module */
 
 function initExpertResult(P) {
   if (!P || typeof P !== 'object') {
@@ -45,7 +46,9 @@ function initExpertResult(P) {
     datos_extra: document.getElementById('datos_extra')
   };
 
-  const missingDom = Object.entries(domMap).filter(([_, el]) => !el).map(([id]) => id);
+  const missingDom = Object.entries(domMap)
+    .filter(([, el]) => !el)
+    .map(([id]) => id);
   if (missingDom.length > 0) {
     const msg = '❌ Elementos del DOM faltantes: ' + missingDom.join(', ');
     console.error(msg);
