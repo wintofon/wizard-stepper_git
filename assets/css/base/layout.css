@@ -1,0 +1,27 @@
+/* Utility helpers */
+.flex {
+  display: flex;
+}
+
+.flex-column {
+  flex-direction: column;
+}
+
+.gap-1 {
+  gap: var(--spacer-1);
+}
+
+.gap-2 {
+  gap: var(--spacer-2);
+}
+
+.text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shadow-sm {
+  box-shadow: 0 0 4px rgb(0 0 0 / 10%);
+}
+
