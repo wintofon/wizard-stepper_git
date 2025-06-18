@@ -175,29 +175,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                    placeholder="Buscar…">
           </div>
 
-          <div class="table-responsive">
-            <table id="toolTbl"
-                   class="table table-dark table-hover align-middle">
-              <thead class="table-light">
-                <tr>
-                  <th>Sel.</th>
-                  <th data-col="brand">Marca</th>
-                  <th data-col="series_code">Serie</th>
-                  <th data-col="img">Img</th>
-                  <th data-col="tool_code">Código</th>
-                  <th data-col="name">Nombre</th>
-                  <th data-col="diameter_mm">Ø</th>
-                  <th data-col="flute_count">Filos</th>
-                  <th data-col="tool_type">Tipo</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- El JS externo se encargará de poblar las filas -->
-              </tbody>
-            </table>
-          </div>
-        </main>
-      </div>
+          <!-- Contenedor de cards con lazy-loading -->
+          <div id="tool-list" class="row g-3"></div>
+          <div id="sentinel"></div>
+          </main>
+        </div>
 
       <?php if (!empty($errors)): ?>
         <div class="mt-3">
@@ -220,60 +202,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <!-- ─────────────── Scripts ──────────────────────────────────────── -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- Script principal del paso (se encarga de rellenar la tabla y habilitar radios) -->
-  <script src="/wizard-stepper_git/assets/js/step1_manual_browser.js"
-          onload="window._TOOL_BROWSER_LOADED=true"
-          onerror="console.error('❌ step1_manual_browser.js no cargó');">
-  </script>
+  <!-- Listado dinámico con lazy-loading -->
+  <script type="module" src="/wizard-stepper_git/assets/js/step1_lazy.js"></script>
 
-  <!-- Alerta si no cargó el JS externo -->
+  <!-- Hook global dbg() para otras páginas -->
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      setTimeout(() => {
-        if (!window._TOOL_BROWSER_LOADED) {
-          const msg = '❌ Falló la carga de step1_manual_browser.js';
-          console.error(msg);
-          document.getElementById('step1ManualForm')
-                  .insertAdjacentHTML(
-                    'afterbegin',
-                    '<div class="alert alert-danger m-2">'+ msg +'</div>'
-                  );
-        }
-      }, 1000);
-    });
-  </script>
-
-  <!-- hook inline (no tocar tu JS externo) -->
-  <script>
-    /* helper global: imprime en consola + #debug */
     window.dbg = (...m) => {
       console.log('[DBG]', ...m);
       const box = document.getElementById('debug');
       if (box) box.textContent += m.join(' ') + '\n';
     };
-
-    (() => {
-      dbg('hook inline activo');
-      const tbl = document.getElementById('toolTbl');
-      if (!tbl) {
-        dbg('tabla no encontrada');
-        return;
-      }
-
-      tbl.addEventListener('click', e => {
-        const btn = e.target.closest('.select-btn');
-        if (!btn) return;
-
-        // Capturamos dataset de la fila seleccionada
-        document.getElementById('tool_id').value    = btn.dataset.tool_id;
-        document.getElementById('tool_table').value = btn.dataset.tbl;
-
-        // Enviamos el formulario automáticamente luego de la selección
-        document.getElementById('step1ManualForm').requestSubmit();
-
-        dbg('► herramienta seleccionada:', btn.dataset.tbl, btn.dataset.tool_id);
-      });
-    })();
   </script>
 </body>
 </html>
