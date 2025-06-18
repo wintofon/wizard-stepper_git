@@ -9,17 +9,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Wizard CNC</title>
   <link rel="stylesheet" href="assets/css/wizard.css">
-  <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/components/wizard-stepper.css">
 </head>
 <body>
 
   <!-- Barra de pasos -->
   <nav class="stepper-container">
-    <div class="stepper-logo">
-      <img src="<?= BASE_URL ?>assets/img/logos/logo_stepper.png"
-           alt="MaySpeedGuide NexGen"
-           width="120" height="40" loading="lazy">
-    </div>
     <ul class="stepper">
       <?php foreach ($flow as $n): ?>
         <li
