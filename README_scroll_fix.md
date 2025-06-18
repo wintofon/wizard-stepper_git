@@ -6,6 +6,12 @@ El listado de herramientas en `step1.php` se cargaba usando un script inline que
 ## Solución
 Se movieron los scripts inline a un módulo externo `assets/js/step1_manual_hook.js`. El token CSRF ahora se expone mediante una etiqueta `<meta>` y es leído por los módulos. La CSP se actualizó para permitir únicamente scripts propios y uno firmado con `nonce`. Dentro de `step1_lazy.js` se ajustó la inicialización para que siempre cargue la primera página y se añadió un alto mínimo al *sentinel*.
 
+```css
+#sentinel {
+  min-height: 40px;
+}
+```
+
 ## Pasos para reproducir
 1. Abrir `step1.php` antes de aplicar el fix y observar en la consola del navegador errores CSP y que la lista no se carga.
 2. Con la actualización, recargar la página y verificar que el primer lote de fresas aparece automáticamente.
