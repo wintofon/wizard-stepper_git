@@ -196,10 +196,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               </tbody>
             </table>
           </div>
-
-          <!-- Contenedor para las tarjetas del scroll infinito -->
-          <div id="tool-list" class="row g-3"></div>
-          <div id="sentinel"></div>
         </main>
       </div>
 
@@ -224,7 +220,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <!-- ─────────────── Scripts ──────────────────────────────────────── -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- Lógica de scroll infinito -->
-  <script type="module" src="/wizard-stepper_git/assets/js/step1_lazy.js"></script>
+  <!-- Script principal del paso (se encarga de rellenar la tabla y habilitar radios) -->
+  <script src="/wizard-stepper_git/assets/js/step1_manual_browser.js"
+          onload="window._TOOL_BROWSER_LOADED=true"
+          onerror="console.error('❌ step1_manual_browser.js no cargó');">
+  </script>
+
+  <!-- Alerta si no cargó el JS externo -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        if (!window._TOOL_BROWSER_LOADED) {
+          const msg = '❌ Falló la carga de step1_manual_browser.js';
+          console.error(msg);
+          document.getElementById('step1ManualForm')
+                  .insertAdjacentHTML(
+                    'afterbegin',
+                    '<div class="alert alert-danger m-2">'+ msg +'</div>'
+                  );
+        }
+      }, 1000);
+    });
+  </script>
+
+  <!-- hook inline (no tocar tu JS externo) -->
+  <script>
+    /* helper global: imprime en consola + #debug */
+    window.dbg = (...m) => {
+      console.log('[DBG]', ...m);
+      const box = document.getElementById('debug');
+      if (box) box.textContent += m.join(' ') + '\n';
+    };
+
+    (() => {
+      dbg('hook inline activo');
+      const tbl = document.getElementById('toolTbl');
+      if (!tbl) {
+        dbg('tabla no encontrada');
+        return;
+      }
+
+      tbl.addEventListener('click', e => {
+        const btn = e.target.closest('.select-btn');
+        if (!btn) return;
+
+        // Capturamos dataset de la fila seleccionada
+        document.getElementById('tool_id').value    = btn.dataset.tool_id;
+        document.getElementById('tool_table').value = btn.dataset.tbl;
+
+        // Enviamos el formulario automáticamente luego de la selección
+        document.getElementById('step1ManualForm').requestSubmit();
+
+        dbg('► herramienta seleccionada:', btn.dataset.tbl, btn.dataset.tool_id);
+      });
+    })();
+  </script>
 </body>
 </html>
