@@ -40,16 +40,10 @@ if ($DEBUG) {
     error_reporting(0);
     ini_set('display_errors', '0');
 }
-if (!function_exists('dbg')) {
-    function dbg(string $msg, $data = null): void
-    {
-        global $DEBUG;
-        if ($DEBUG) {
-            error_log('[step4.php] ' . $msg . ' ' . json_encode($data, JSON_UNESCAPED_UNICODE));
-        }
-    }
+require_once __DIR__ . '/../../../includes/wizard_helpers.php';
+if ($DEBUG && function_exists('dbg')) {
+    dbg('🔧 step4.php iniciado');
 }
-dbg('🔧 step4.php iniciado');
 
 //────────────────────────────────────────────────────────────────────
 // [C] Sesión segura

@@ -35,15 +35,10 @@ if ($DEBUG) {
     error_reporting(0);
     ini_set('display_errors', '0');
 }
-if (!function_exists('dbg')) {
-    function dbg(string $msg): void {
-        global $DEBUG;
-        if ($DEBUG) {
-            error_log("[step2.php] " . $msg);
-        }
-    }
+require_once __DIR__ . '/../../../includes/wizard_helpers.php';
+if ($DEBUG && function_exists('dbg')) {
+    dbg('🔧 step2.php iniciado');
 }
-dbg('🔧 step2.php iniciado');
 
 // -------------------------------------------
 // [C] Inicio de sesión seguro

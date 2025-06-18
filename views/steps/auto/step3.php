@@ -39,10 +39,10 @@ if ($DEBUG && is_readable(__DIR__ . '/../../../includes/debug.php')) {
     require_once __DIR__ . '/../../../includes/debug.php';
     dbg("🔧 [step3] Iniciando paso 3 (Modo Auto) con DEBUG=1");
 } else {
-    if (!function_exists('dbg')) {
-        function dbg(...$args) { /* stub si no está debug.php */ }
+    require_once __DIR__ . '/../../../includes/wizard_helpers.php';
+    if (function_exists('dbg')) {
+        dbg("🔧 [step3] Iniciando paso 3 (Modo Auto) sin DEBUG");
     }
-    dbg("🔧 [step3] Iniciando paso 3 (Modo Auto) sin DEBUG");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
