@@ -117,3 +117,13 @@ h2.fw-bold {
   font-size: 1rem;
   padding: 0.6rem 1.2rem;
 }
+
+.table-responsive {
+  overflow-x: auto;
+  overflow-y: visible !important;
+  max-height: none !important;
+}
+.list-scroll-container {
+  max-height: 70vh;
+  overflow-y: auto;
+}
