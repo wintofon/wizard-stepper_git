@@ -1,16 +1,11 @@
 <?php
 declare(strict_types=1);
 /**
- * File: views/steps/manual/step4.php
- * Paso 4 (Manual) – Elegí la madera compatible
- * -------------------------------------------------
- * Validaciones, textos de error y JS **calcados** del
- * Paso 1 (auto) para que el comportamiento sea idéntico.
+ * Paso 4 (Manual) – Selección de madera compatible
+ * Estructura y validaciones calcadas del Paso 1 (Auto).
  */
 
-//
-// [A] Cabeceras seguras y anti-caching (mismas de step1 auto)
-//
+/* ─────────────────────────  A) CABECERAS  ───────────────────────── */
 header('Content-Type: text/html; charset=UTF-8');
 header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
 header("X-Frame-Options: DENY");
@@ -21,19 +16,15 @@ header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Pragma: no-cache");
 header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;");
 
-//
-// [B] Debug opcional
-//
+/* ─────────────────────────  B) DEBUG  ──────────────────────────── */
 $DEBUG = filter_input(INPUT_GET, 'debug', FILTER_VALIDATE_BOOLEAN);
 if ($DEBUG) { error_reporting(E_ALL); ini_set('display_errors','1'); }
 else        { error_reporting(0);    ini_set('display_errors','0'); }
 require_once __DIR__.'/../../../includes/wizard_helpers.php';
 if ($DEBUG && function_exists('dbg')) dbg('🔧 step4.php iniciado');
 
-//
-// [C] Sesión segura
-//
-if (session_status()!==PHP_SESSION_ACTIVE) {
+/* ─────────────────────────  C) SESIÓN SEGURA  ──────────────────── */
+if (session_status()!==PHP_SESSION_ACTIVE){
     session_set_cookie_params([
         'lifetime'=>0,
         'path'    =>'/wizard-stepper_git/',
@@ -44,50 +35,40 @@ if (session_status()!==PHP_SESSION_ACTIVE) {
     session_start();
 }
 
-//
-// [D] Flujo del wizard
-//
-if (empty($_SESSION['wizard_state']) || $_SESSION['wizard_state']!=='wizard') {
+/* ─────────────────────────  D) FLUJO DEL WIZARD  ───────────────── */
+if (empty($_SESSION['wizard_state'])||$_SESSION['wizard_state']!=='wizard'){
     header('Location:/wizard-stepper_git/index.php'); exit;
 }
-if ((int)($_SESSION['wizard_progress']??0) < 3) {
+if ((int)($_SESSION['wizard_progress']??0) < 3){
     header('Location:/wizard-stepper_git/views/steps/auto/step'.(int)$_SESSION['wizard_progress'].'.php'); exit;
 }
 
-//
-// [E] Rate-limit 10 POST / 5 min
-//
-$ip = $_SERVER['REMOTE_ADDR'] ?? 'unk';
-$_SESSION['rate_limit'] ??= [];
-$_SESSION['rate_limit'][$ip] = array_filter(
+/* ─────────────────────────  E) RATE-LIMIT  ─────────────────────── */
+$ip=$_SERVER['REMOTE_ADDR']??'unk';
+$_SESSION['rate_limit']??=[];
+$_SESSION['rate_limit'][$ip]=array_filter(
     $_SESSION['rate_limit'][$ip]??[], fn(int $t)=>($t+300)>time()
 );
-if ($_SERVER['REQUEST_METHOD']==='POST' && count($_SESSION['rate_limit'][$ip])>=10) {
+if ($_SERVER['REQUEST_METHOD']==='POST' && count($_SESSION['rate_limit'][$ip])>=10){
     http_response_code(429);
     exit('<h1 style="color:red;text-align:center;margin-top:2rem;">429 – Demasiados intentos.</h1>');
 }
 
-//
-// [F] CSRF-token
-//
-$_SESSION['csrf_token'] ??= bin2hex(random_bytes(32));
-$csrf = $_SESSION['csrf_token'];
+/* ─────────────────────────  F) CSRF  ───────────────────────────── */
+$_SESSION['csrf_token']??=bin2hex(random_bytes(32));
+$csrf=$_SESSION['csrf_token'];
 
-//
-// [G] Verificar herramienta seleccionada y cargar BD
-//
+/* ─────────────────────────  G) DEPENDENCIAS & BD  ──────────────── */
 require_once __DIR__.'/../../../includes/db.php';
 require_once __DIR__.'/../../../includes/debug.php';
 
-if (empty($_SESSION['tool_id']) || empty($_SESSION['tool_table'])) {
+if (empty($_SESSION['tool_id'])||empty($_SESSION['tool_table'])){
     header('Location:/wizard-stepper_git/views/steps/auto/step2.php'); exit;
 }
-$toolId  = (int)$_SESSION['tool_id'];
-$toolTbl = preg_replace('/[^a-z0-9_]/i','',$_SESSION['tool_table']);
+$toolId =(int)$_SESSION['tool_id'];
+$toolTbl=preg_replace('/[^a-z0-9_]/i','',$_SESSION['tool_table']);
 
-//
-// [H] Maderas compatibles
-//
+/* ─────────────────────────  H) MADERAS COMPATIBLES  ────────────── */
 $compat='toolsmaterial_'.str_replace('tools_','',$toolTbl);
 $stmt=$pdo->prepare("
   SELECT m.material_id,m.name mat,c.category_id,c.name cat
@@ -107,11 +88,9 @@ foreach($rows as $r){
     $flat[]=['id'=>(int)$r['material_id'],'cid'=>$cid,'name'=>$r['mat']];
 }
 
-//
-// [I] Procesar POST (misma lógica que step1 auto)
-//
+/* ─────────────────────────  I) POST  ───────────────────────────── */
 $errors=[];
-if ($_SERVER['REQUEST_METHOD']==='POST') {
+if ($_SERVER['REQUEST_METHOD']==='POST'){
     if(!hash_equals($csrf,$_POST['csrf_token']??''))           $errors[]='Token de seguridad inválido.';
     if((int)($_POST['step']??0)!==4)                           $errors[]='Paso inválido. Reiniciá el asistente.';
     $mat=filter_input(INPUT_POST,'material_id',FILTER_VALIDATE_INT);
@@ -130,9 +109,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
     }
 }
 
-//
-// [J] Datos previos para la UI
-//
+/* ─────────────────────────  J) PREVIOS  ────────────────────────── */
 $prevMat=$_SESSION['material_id']??'';
 $prevThk=$_SESSION['thickness']??'';
 $hasPrev=$prevMat!=='' && $prevThk!=='';
@@ -164,7 +141,7 @@ $hasPrev=$prevMat!=='' && $prevThk!=='';
   <div class="mb-3 position-relative">
     <label for="matSearch" class="form-label">Buscar madera (2+ letras)</label>
     <input id="matSearch" class="form-control" autocomplete="off" placeholder="Ej.: MDF…" <?=$rows?'':'disabled'?>>
-    <div id="noMatchMsg">Sin coincidencias</div>
+    <div id="noMatchMsg">Material no encontrado</div>
     <div id="searchDropdown" class="dropdown-search"></div>
   </div>
 
@@ -189,19 +166,19 @@ $hasPrev=$prevMat!=='' && $prevThk!=='';
   <div id="thickGroup" class="mb-3" style="<?=$hasPrev?'':'display:none'?>">
     <label for="thick" class="form-label">Espesor (mm)</label>
     <input type="number" step="0.1" min="0.1" id="thick" name="thickness"
-           class="form-control" placeholder="Ingresá el espesor (mm)"
+           class="form-control" placeholder="Ej.: 18"
            value="<?=$hasPrev?htmlspecialchars((string)$prevThk):''?>">
     <div class="invalid-feedback">⚠ Valor inválido.</div>
   </div>
 
-  <!-- 5) Botón “Siguiente” -->
+  <!-- 5) Botón Siguiente -->
   <div id="nextBox" class="text-end mt-4" style="<?=$hasPrev?'block':'none'?>">
-    <button class="btn btn-primary btn-lg">Siguiente →</button>
+    <button class="btn btn-primary btn-lg" id="btn-next">Siguiente →</button>
   </div>
 </form>
 </main>
 
-<!-- ===== JS clonado de step1 auto (validación >0) ===== -->
+<!-- ───── JS = copia literal de la lógica de Step 1 (Auto) ───── -->
 <script>
 const norm=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const cats=<?=json_encode($cats,JSON_UNESCAPED_UNICODE)?>;
@@ -220,60 +197,61 @@ const matCol=document.getElementById('matCol');
 const emptyMsg=document.getElementById('emptyMsg');
 
 function validate(){
-  const ok = matInp.value && parseFloat(thick.value) > 0;
-  thick.classList.toggle('is-invalid', !(parseFloat(thick.value)>0));
-  nextBox.style.display = ok ? 'block' : 'none';
+  const ok=matInp.value&&parseFloat(thick.value)>0;
+  thick.classList.toggle('is-invalid',!(parseFloat(thick.value)>0));
+  nextBox.style.display=ok?'block':'none';
 }
-function showNoMatch(st){
-  search.classList.toggle('is-invalid',st); noMatch.style.display=st?'block':'none';
+function noMatchMsg(state){
+  search.classList.toggle('is-invalid',state);
+  noMatch.style.display=state?'block':'none';
 }
-function hideDD(){ddwn.style.display='none'; ddwn.innerHTML='';}
+function hideDD(){ddwn.style.display='none';ddwn.innerHTML='';}
 function resetMat(){
-  matCol.innerHTML=''; matBox.style.display='none';
-  matInp.value=''; thick.value=''; thickGrp.style.display='none';
-  nextBox.style.display='none'; showNoMatch(false); emptyMsg.style.display='none'; hideDD();
+  matCol.innerHTML='';matBox.style.display='none';
+  matInp.value='';thick.value='';thickGrp.style.display='none';
+  nextBox.style.display='none';noMatchMsg(false);emptyMsg.style.display='none';hideDD();
 }
 
 /* Categorías */
 document.querySelectorAll('.btn-cat').forEach(btn=>{
-  btn.onclick=()=>{
+  btn.addEventListener('click',()=>{
     document.querySelectorAll('.btn-cat').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
-    const cid=btn.dataset.cid; resetMat();
+    const cid=btn.dataset.cid;resetMat();
     (cats[cid]?.mats||[]).forEach(m=>{
       const b=document.createElement('button');
-      b.type='button'; b.className='btn btn-outline-secondary btn-mat me-2 mb-2';
-      b.textContent=m.name; b.dataset.mid=m.id;
-      b.onclick=()=>{
+      b.type='button';b.className='btn btn-outline-secondary btn-mat me-2 mb-2';
+      b.textContent=m.name;b.dataset.mid=m.id;
+      b.addEventListener('click',()=>{
         document.querySelectorAll('.btn-mat').forEach(x=>x.classList.remove('active'));
         b.classList.add('active');
-        matInp.value=m.id; search.value=m.name;
-        thickGrp.style.display='block'; showNoMatch(false); validate(); hideDD();
-      };
+        matInp.value=m.id;search.value=m.name;
+        thickGrp.style.display='block';noMatchMsg(false);validate();hideDD();
+      });
       matCol.appendChild(b);
     });
     emptyMsg.style.display=(cats[cid]?.mats||[]).length?'none':'block';
     matBox.style.display='block';
-  };
+  });
 });
 
 /* Buscador */
 search.addEventListener('input',e=>{
-  const v=e.target.value.trim();
-  if(v.length<2){showNoMatch(false);hideDD();return;}
-  const t=norm(v);
-  const matches=flat.filter(m=>norm(m.name).includes(t));
-  if(!matches.length){resetMat();showNoMatch(true);return;}
-  showNoMatch(false); ddwn.innerHTML=''; ddwn.style.display='block';
+  const val=e.target.value.trim();
+  if(val.length<2){noMatchMsg(false);hideDD();return;}
+  const term=norm(val);
+  const matches=flat.filter(m=>norm(m.name).includes(term));
+  if(!matches.length){resetMat();noMatchMsg(true);return;}
+  noMatchMsg(false);ddwn.innerHTML='';ddwn.style.display='block';
   matches.forEach(m=>{
-    const div=document.createElement('div'); div.className='item';
-    const raw=m.name,idx=norm(raw).indexOf(t);
-    div.innerHTML=idx===-1?raw:raw.slice(0,idx)+'<span class="hl">'+raw.slice(idx,idx+t.length)+'</span>'+raw.slice(idx+t.length);
-    div.onclick=()=>{
+    const div=document.createElement('div');div.className='item';div.dataset.mid=m.id;
+    const raw=m.name,idx=norm(raw).indexOf(term);
+    div.innerHTML=idx===-1?raw:raw.slice(0,idx)+'<span class="hl">'+raw.slice(idx,idx+term.length)+'</span>'+raw.slice(idx+term.length);
+    div.addEventListener('click',()=>{
       document.querySelector(`.btn-cat[data-cid='${mat2cid[m.id]}']`)?.click();
       setTimeout(()=>document.querySelector(`.btn-mat[data-mid='${m.id}']`)?.click(),0);
       hideDD();
-    };
+    });
     ddwn.appendChild(div);
   });
 });
@@ -283,16 +261,16 @@ search.addEventListener('blur',()=>setTimeout(hideDD,80));
 thick?.addEventListener('input',validate);
 
 document.getElementById('formWood').addEventListener('submit',e=>{
-  if(!(matInp.value && parseFloat(thick.value)>0)){
+  if(!(matInp.value&&parseFloat(thick.value)>0)){
     e.preventDefault();
-    alert('Debés elegir una madera válida y un espesor mayor a 0 antes de continuar.');
+    alert('Debés elegir un material válido y un espesor mayor a 0 antes de continuar.');
   }
 });
 
-window.addEventListener('pageshow',()=>{
-  if(matInp.value && parseFloat(thick.value)>0){
-    thickGrp.style.display='block'; validate();
-  }
+window.addEventListener('pageshow',e=>{
+  /* Si la página vuelve desde el Back-Forward-Cache, forzamos recarga
+     para evitar que el JS pierda estado (idéntico fix usado en step1). */
+  if (e.persisted) location.reload();
 });
 
 validate();
