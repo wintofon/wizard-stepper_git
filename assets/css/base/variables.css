@@ -1,0 +1,9 @@
+:root {
+  --color-primary: #2b8ac6;
+  --color-secondary: #0f172a;
+  --color-body-bg: #0b1e2d;
+  --color-text: #dceefb;
+  --radius-lg: .75rem;
+  --spacer-2: .5rem;
+  --color-bg-dark: #0d1117;
+}

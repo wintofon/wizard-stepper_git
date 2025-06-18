@@ -1,0 +1,12 @@
+assets/css/bootstrap.min.css
+assets/css/step6-dark.css
+node_modules/
+assets/css/onboarding.css
+assets/css/material.css
+assets/css/strategy.css
+assets/css/step-common.css
+assets/css/step6.css
+assets/css/steps/**
+assets/css/wizard.css
+assets/css/base/**
+assets/css/components/*.css

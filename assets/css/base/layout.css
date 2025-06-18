@@ -1,0 +1,7 @@
+/* ─── Utility Helpers ─────────────────────── */
+.flex-center{display:flex;justify-content:center;align-items:center;}
+.gap-2{gap:var(--spacer-2);}
+.text-ellipsis{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.shadow-lg{box-shadow:0 0 24px rgb(0 0 0 / 50%);}
+
+/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImxheW91dC5jc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUEsZ0RBQWdEO0FBQ2hELGFBQWEsWUFBWSxDQUFDLHNCQUFzQixDQUFDLGtCQUFrQixDQUFDO0FBQ3BFLE9BQU8sbUJBQW1CLENBQUM7QUFDM0IsZUFBZSxlQUFlLENBQUMsc0JBQXNCLENBQUMsa0JBQWtCLENBQUM7QUFDekUsV0FBVyxvQ0FBb0MsQ0FBQyIsImZpbGUiOiJsYXlvdXQuY3NzIiwic291cmNlc0NvbnRlbnQiOlsiLyog4pSA4pSA4pSAIFV0aWxpdHkgSGVscGVycyDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIAgKi9cbi5mbGV4LWNlbnRlcntkaXNwbGF5OmZsZXg7anVzdGlmeS1jb250ZW50OmNlbnRlcjthbGlnbi1pdGVtczpjZW50ZXI7fVxuLmdhcC0ye2dhcDp2YXIoLS1zcGFjZXItMik7fVxuLnRleHQtZWxsaXBzaXN7b3ZlcmZsb3c6aGlkZGVuO3RleHQtb3ZlcmZsb3c6ZWxsaXBzaXM7d2hpdGUtc3BhY2U6bm93cmFwO31cbi5zaGFkb3ctbGd7Ym94LXNoYWRvdzowIDAgMjRweCByZ2IoMCAwIDAgLyA1MCUpO31cbiJdfQ== */

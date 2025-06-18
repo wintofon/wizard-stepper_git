@@ -1,0 +1,5 @@
+- Added base CSS modules (variables, layout, theme)
+- Created components dropdown-search.css and wizard-stepper.css
+- Merged step1_manual.css into steps/manual/step1.css and removed old file
+- Merged step2_manual.css into steps/manual/step4.css and removed old file
+- Updated PHP views to new CSS paths

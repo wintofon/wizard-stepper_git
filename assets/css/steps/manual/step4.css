@@ -1,1 +1,13 @@
 /* todo movido a assets/css/material.css */
+
+/* File: assets/css/step2_manual.css */
+
+/* Estilos específicos para el paso 2 manual */
+
+.tool-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.25rem 0.5rem rgb(0 0 0 / 25%);
+}

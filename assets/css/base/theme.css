@@ -1,0 +1,5 @@
+/* ─── Theme Colors ────────────────────────── */
+body{background:var(--color-body-bg);color:var(--color-text);}
+.btn-primary{background:var(--color-primary);color:#fff;transition:.15s;}
+
+/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInRoZW1lLmNzcyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQSxnREFBZ0Q7QUFDaEQsS0FBSywrQkFBK0IsQ0FBQyx1QkFBdUIsQ0FBQztBQUM3RCxhQUFhLCtCQUErQixDQUFDLFVBQVUsQ0FBQyxlQUFlLENBQUMiLCJmaWxlIjoidGhlbWUuY3NzIiwic291cmNlc0NvbnRlbnQiOlsiLyog4pSA4pSA4pSAIFRoZW1lIENvbG9ycyDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIAgKi9cbmJvZHl7YmFja2dyb3VuZDp2YXIoLS1jb2xvci1ib2R5LWJnKTtjb2xvcjp2YXIoLS1jb2xvci10ZXh0KTt9XG4uYnRuLXByaW1hcnl7YmFja2dyb3VuZDp2YXIoLS1jb2xvci1wcmltYXJ5KTtjb2xvcjojZmZmO3RyYW5zaXRpb246LjE1czt9XG4iXX0= */

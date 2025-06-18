@@ -8,7 +8,12 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Wizard CNC</title>
-  <link rel="stylesheet" href="assets/css/wizard.css">
+  <link rel="stylesheet" href="assets/css/base/reset.css">
+  <link rel="stylesheet" href="assets/css/base/variables.css">
+  <link rel="stylesheet" href="assets/css/base/layout.css">
+  <link rel="stylesheet" href="assets/css/base/theme.css">
+  <link rel="stylesheet" href="assets/css/components/dropdown-search.css">
+  <link rel="stylesheet" href="assets/css/components/wizard-stepper.css">
 </head>
 <body>
 
@@ -47,7 +52,7 @@
   <?php endif; ?>
   <script src="assets/js/stepper.js" defer></script>
   <script src="assets/js/dashboard.js" defer></script>
-<link rel="stylesheet" href="assets/css/wizard.css">
+<link rel="stylesheet" href="assets/css/components/wizard-stepper.css">
 <link rel="stylesheet" href="assets/css/step6.css"><!-- <---- AGREGALO ACÁ -->
 
 </body>
