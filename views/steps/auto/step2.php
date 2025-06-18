@@ -184,6 +184,7 @@ $hasPrev   = is_int($prevType) && array_key_exists((int)$prevType, $types)
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/base/theme.css">
   <link rel="stylesheet" href="/wizard-stepper_git/assets/css/strategy.css">
   <link rel="stylesheet" href="/wizard-stepper_git/assets/css/step-common.css">
 </head>
@@ -244,8 +245,8 @@ $hasPrev   = is_int($prevType) && array_key_exists((int)$prevType, $types)
 
     <!-- 3) Botón “Siguiente” -->
     <div id="next-button-container" class="text-end mt-4" style="display: <?= $hasPrev ? 'block' : 'none' ?>;">
-      <button type="submit" id="btn-next" class="btn btn-primary btn-lg">
-        Siguiente →
+      <button type="submit" id="btn-next" class="btn btn-primary btn-lg" aria-label="Siguiente">
+        Siguiente <i data-lucide="arrow-right" class="ms-1"></i>
       </button>
     </div>
   </form>

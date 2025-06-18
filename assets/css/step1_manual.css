@@ -1,6 +1,7 @@
 /* File: assets/css/step1_manual.css */
 
 /* Estilo v6.0 trapezoidal, adaptado al stepper azul oscuro */
+@import url('base/theme.css');
 
 .sidebar {
   min-width: 100%;
@@ -25,7 +26,7 @@
 }
 
 .facet-body {
-  background: #0f172a;
+  background: var(--clr-card);
   border-left: 1px solid #334155;
   border-right: 1px solid #334155;
   display: none;

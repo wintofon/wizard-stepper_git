@@ -145,18 +145,19 @@ if($tool){
   <!-- Bootstrap 5 + Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/base/theme.css">
   <!-- Reutilizamos el mismo CSS del paso manual para un look idéntico -->
   <link rel="stylesheet" href="/wizard-stepper_git/assets/css/step2_manual.css">
 </head>
 <body class="bg-dark text-white">
 
 <div class="container py-4">
-  <h2 class="step-title"><i class="bi bi-tools"></i> Paso 4 – Confirmar herramienta</h2>
+  <h2 class="step-title"><i data-lucide="hammer" class="me-1"></i> Paso 4 – Confirmar herramienta</h2>
   <p class="step-desc">Verificá la fresa sugerida antes de continuar.</p>
 
   <?php if ($error): ?>
       <div class="alert alert-danger mt-3">
-        <i class="bi bi-exclamation-triangle"></i> <?= htmlspecialchars($error) ?>
+        <i data-lucide="alert-triangle" class="me-1"></i> <?= htmlspecialchars($error) ?>
       </div>
 
   <?php else: ?>

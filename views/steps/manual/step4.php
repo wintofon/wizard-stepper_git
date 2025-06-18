@@ -142,6 +142,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
 <title>Paso 4 – Material</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="/wizard-stepper_git/assets/css/base/theme.css">
 <link rel="stylesheet" href="/wizard-stepper_git/assets/css/material.css">
 </head><body>
 <main class="container py-4">
@@ -188,7 +189,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
 
   <!-- 5) Botón “Siguiente” -->
   <div id="next-button-container" class="text-end mt-4" style="display:none">
-    <button id="btn-next" class="btn btn-primary btn-lg">Siguiente →</button>
+    <button id="btn-next" class="btn btn-primary btn-lg" aria-label="Siguiente">Siguiente <i data-lucide="arrow-right" class="ms-1"></i></button>
   </div>
 </form>
 

@@ -1,4 +1,4 @@
-/* global feather, bootstrap */
+/* global bootstrap */
 (() => {
   'use strict';
 
@@ -93,8 +93,8 @@
         stepHolder.innerHTML = html;
         runStepScripts(stepHolder);
 
-        // Inicializadores JS globales (Feather, Bootstrap tooltips)
-        if (window.feather) feather.replace();
+        // Inicializadores JS globales (Lucide, Bootstrap tooltips)
+        if (window.createLucideIcons) window.createLucideIcons();
         if (window.bootstrap && bootstrap.Tooltip) {
           document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
             new bootstrap.Tooltip(el);
@@ -122,6 +122,7 @@
         stepHolder.style.opacity = '1';
         renderBar(step);
         hookEvents();
+        if (window.createLucideIcons) window.createLucideIcons();
         if (typeof window.initLazy === 'function') window.initLazy();
         dbgMsg(`🧭 Paso ${step} cargado correctamente`);
       })
@@ -208,5 +209,6 @@
   if (!localStorage.getItem(LS_KEY)) localStorage.setItem(LS_KEY, 1);
   renderBar(getProg());
   loadStep(getProg());
+  if (window.createLucideIcons) window.createLucideIcons();
 
 })();
