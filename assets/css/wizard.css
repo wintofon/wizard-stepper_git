@@ -16,9 +16,11 @@ body {
   background: #0f172a;              /* fondo azul más oscuro     */
   overflow-x: auto;                 /* scroll horizontal móvil   */
   padding: 0;                       /* sin padding extra         */
-  position: relative;               /* base para ::after/etc.    */
+  position: sticky;                 /* se fija al hacer scroll   */
   scrollbar-width: none;            /* oculta scroll en Firefox  */
+  top: 0;                           /* pegado al tope de la pág. */
   width: 100%;                      /* ocupa todo el ancho       */
+  z-index: 1000;                    /* por encima del contenido  */
 }
 .stepper-container::-webkit-scrollbar { display: none; } /* oculta en Chrome */
 
