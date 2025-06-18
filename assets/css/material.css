@@ -28,20 +28,20 @@ body {
 
 /* Dropdown búsqueda */
 .dropdown-search {
-  position: absolute;
-  width: 100%;
-  max-height: 200px;
-  overflow-y: auto;
   background: #000;
   border: 1px solid #444;
-  z-index: 1000;
   display: none;
+  max-height: 200px;
+  overflow-y: auto;
+  position: absolute;
+  width: 100%;
+  z-index: 1000;
 }
 
 .dropdown-search .item {
-  padding: .5rem .75rem;
   color: #f1f1f1;
   cursor: pointer;
+  padding: .5rem .75rem;
 }
 
 .dropdown-search .item:hover {
@@ -55,7 +55,7 @@ body {
 
 #no-match-msg {
   color: #dc3545;
-  font-size: .875rem;
   display: none;
+  font-size: .875rem;
   margin-top: .25rem;
 }
