@@ -25,7 +25,8 @@ header("Referrer-Policy: no-referrer");
 header("Permissions-Policy: geolocation=(), microphone=()");
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Pragma: no-cache");
-header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';");
+$nonce = base64_encode(random_bytes(16));
+header("Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-$nonce'; style-src  'self' 'unsafe-inline';");
 
 // ──────────────── 2) Estado del wizard ──────────────────────────────
 // Si aún no se inició el wizard, lo inicializamos en Paso 1
@@ -121,6 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="es">
 <head>
   <meta charset="utf-8">
+  <meta name="csrf-token" content="<?= htmlspecialchars($csrfToken) ?>">
   <title>Paso 1 – Explorador de fresas (Manual)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -239,59 +241,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           onload="window._TOOL_BROWSER_LOADED=true"
           onerror="console.error('❌ step1_manual_browser.js no cargó');">
   </script>
-  <script>
-    window.csrfToken = '<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>';
-  </script>
   <script type="module" src="/wizard-stepper_git/assets/js/step1_lazy.js"></script>
 
-  <!-- Alerta si no cargó el JS externo -->
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      setTimeout(() => {
-        if (!window._TOOL_BROWSER_LOADED) {
-          const msg = '❌ Falló la carga de step1_manual_browser.js';
-          console.error(msg);
-          document.getElementById('step1ManualForm')
-                  .insertAdjacentHTML(
-                    'afterbegin',
-                    '<div class="alert alert-danger m-2">'+ msg +'</div>'
-                  );
-        }
-      }, 1000);
-    });
-  </script>
-
-  <!-- hook inline (no tocar tu JS externo) -->
-  <script>
-    /* helper global: imprime en consola + #debug */
-    window.dbg = (...m) => {
-      console.log('[DBG]', ...m);
-      const box = document.getElementById('debug');
-      if (box) box.textContent += m.join(' ') + '\n';
-    };
-
-    (() => {
-      dbg('hook inline activo');
-      const tbl = document.getElementById('toolTbl');
-      if (!tbl) {
-        dbg('tabla no encontrada');
-        return;
-      }
-
-      tbl.addEventListener('click', e => {
-        const btn = e.target.closest('.select-btn');
-        if (!btn) return;
-
-        // Capturamos dataset de la fila seleccionada
-        document.getElementById('tool_id').value    = btn.dataset.tool_id;
-        document.getElementById('tool_table').value = btn.dataset.tbl;
-
-        // Enviamos el formulario automáticamente luego de la selección
-        document.getElementById('step1ManualForm').requestSubmit();
-
-        dbg('► herramienta seleccionada:', btn.dataset.tbl, btn.dataset.tool_id);
-      });
-    })();
+  <script type="module" nonce="<?= $nonce ?>">
+    import { initToolTable } from '/wizard-stepper_git/assets/js/step1_manual_hook.js';
+    initToolTable();
   </script>
 </body>
 </html>
