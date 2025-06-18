@@ -1,0 +1,28 @@
+Variables nuevas:
+  --color-primary      → valor original #0ea5e9
+  --color-body-bg      → #0b1e2d
+  --color-body-text    → #dceefb
+  --color-bg-dark      → #0d1117
+  --color-bg-card      → #161b22
+  --color-border       → #2c2f33
+  --color-accent       → #4fc3f7
+  --color-accent-light → #7fdcff
+  --color-stepper-bg   → #0f172a
+  --color-stepper-active-bg → #1e293b
+  --color-text-secondary → #64748b
+  --radius-lg          → 8px
+  --spacer-1           → .25rem
+  --spacer-2           → .5rem
+  --spacer-3           → 1rem
+  --color-bg-dark-mode → #0d1117
+
+Clases renombradas:
+  wizard.css → components/wizard-stepper.css
+
+Reglas borradas por no usarse:
+  estilos dropdown duplicados eliminados de material.css y strategy.css
+  archivo step1_manual.css eliminado
+
+Cosas a revisar a mano:
+  stylelint reporta ids en step5.css y step6.css no kebab-case
+  revisar CSP en vistas si se agregan scripts externos

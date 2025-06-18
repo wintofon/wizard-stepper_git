@@ -1,7 +1,7 @@
 /* Estilos comunes para la selección de estrategia */
 body {
-  background-color: #0d1117;
-  color: #e0e0e0;
+  background-color: var(--color-bg-dark);
+  color: var(--color-body-text);
   font-family: 'Segoe UI', Roboto, sans-serif;
 }
 
@@ -9,6 +9,7 @@ body {
   margin: .35rem .45rem;
   white-space: nowrap;
 }
+
 .btn-cat.active {
   background: #0d6efd !important;
   color: #fff !important;
@@ -18,6 +19,7 @@ body {
   margin: .25rem 0;
   width: 100%;
 }
+
 .btn-strat.active {
   background: #198754 !important;
   color: #fff !important;
@@ -25,25 +27,25 @@ body {
 
 .alert-custom {
   background-color: #4c1d1d;
-  color: #f8d7da;
   border: 1px solid #f5c2c7;
+  color: #f8d7da;
   margin-bottom: 1rem;
   padding: 0.75rem 1rem;
 }
 
 .debug-box {
   background: #102735;
+  border-radius: 6px;
+  border-top: 1px solid #2e5b78;
   color: #a7d3e9;
   font-family: monospace;
   font-size: 0.85rem;
-  padding: 1rem;
-  max-width: 1000px;
-  margin: 2rem auto 0;
-  white-space: pre-wrap;
   height: 160px;
+  margin: 2rem auto 0;
+  max-width: 1000px;
   overflow-y: auto;
-  border-top: 1px solid #2e5b78;
-  border-radius: 6px;
+  padding: 1rem;
+  white-space: pre-wrap;
 }
 
 h2, h5 {
@@ -51,38 +53,11 @@ h2, h5 {
 }
 
 /* Dropdown de búsqueda */
-.dropdown-search {
-  position: absolute;
-  width: 100%;
-  max-height: 200px;
-  overflow-y: auto;
-  background: #000;
-  border: 1px solid #444;
-  z-index: 1000;
-  display: none;
-}
-.dropdown-search .item {
-  padding: .5rem .75rem;
-  color: #f1f1f1;
-  cursor: pointer;
-}
-.dropdown-search .item:hover {
-  background: #333;
-}
-.dropdown-search .hl {
-  background: #ffd54f;
-  color: #000;
-}
-#noMatchMsg {
-  color: #dc3545;
-  font-size: .875rem;
-  display: none;
-  margin-top: .25rem;
-}
-
 @media (max-width: 768px) {
   .btn-cat,
   .btn-strat {
     width: 100%;
   }
 }
+
+/* dropdown-search en components/dropdown-search.css */

@@ -22,7 +22,7 @@ header("Referrer-Policy: no-referrer");
 header("Permissions-Policy: geolocation=(), microphone=()");
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Pragma: no-cache");
-header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';");
+header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;");
 
 /* ──────────────────────────────────────────────────────
  * [B]  Errores & debug
@@ -192,8 +192,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Estilos compartidos -->
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/step-common.css">
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/strategy.css">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/components/step-common.css">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/components/strategy.css">
 </head>
 <body>
 <main class="container py-4">

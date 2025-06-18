@@ -1,16 +1,135 @@
-/* CSS extraído de views/steps/manual/step1.php */
+/* File: assets/css/step1_manual.css */
+
+/* Estilo v6.0 trapezoidal, adaptado al stepper azul oscuro */
+
+.sidebar {
+  min-width: 100%;
+  padding-bottom: 1rem;
+}
+
+@media (width >= 768px) {
+  .sidebar {
+    max-width: 260px;
+    min-width: 260px;
+  }
+}
+
+.facet-header {
+  background: #1e293b;
+  border-bottom: 1px solid #334155;
+  color: #cbd5e1;
+  cursor: pointer;
+  font-size: .85rem;
+  font-weight: 600;
+  padding: .4rem .5rem;
+}
+
+.facet-body {
+  background: #0f172a;
+  border-left: 1px solid #334155;
+  border-right: 1px solid #334155;
+  display: none;
+  max-height: 220px;
+  overflow-y: auto;
+  padding: .25rem .5rem;
+}
+
+.facet-body.show {
+  display: block;
+}
+
+.facet-body label {
+  color: #cbd5e1;
+  display: block;
+  font-size: .8rem;
+  margin-bottom: 2px;
+  white-space: nowrap;
+}
+
+.facet-search {
+  background: #1e293b;
+  border: 1px solid #334155;
+  color: #cbd5e1;
+  font-size: 0.75rem;
+  margin-bottom: .25rem;
+  width: 100%;
+}
+
+.thumb {
+  border: 1px solid #ddd;
+  height: 40px;
+  object-fit: contain;
+  width: 40px;
+}
+
+.thumb:hover {
+  box-shadow: 0 0 4px #0ea5e9;
+  position: relative;
+  transform: scale(2);
+  z-index: 10;
+}
+
+.alert-no-brand {
+  color: #f87171;
+  font-weight: 600;
+  margin: .5rem;
+  text-align: center;
+}
+
+.alert-js-missing {
+  background: #dc2626;
+  border-radius: 6px;
+  bottom: 8px;
+  box-shadow: 0 0 10px rgb(0 0 0 / 30%);
+  color: #fff;
+  padding: .75rem 1rem;
+  position: fixed;
+  right: 8px;
+  z-index: 9999;
+}
+
+.table-dark {
+  --bs-table-bg: #1e293b;
+  --bs-table-color: #e2e8f0;
+}
+
+.badge.bg-info.text-dark {
+  background-color: #38bdf8 !important;
+  color: #0c4a6e !important;
+}
+
+.stars {
+  color: #0ea5e9;
+  font-size: 0.95em;
+}
+
+/* Ajuste responsivo y padding visual del contenido */
+.container-fluid {
+  max-width: 1200px;
+}
+
+h2.fw-bold {
+  color: #e2e8f0;
+  font-size: 1.8rem;
+}
+
+.btn-primary {
+  font-size: 1rem;
+  padding: 0.6rem 1.2rem;
+}
+
 /* Opcional: estilos para box de debugging */
 .debug-box {
   background: #102735;
+  border-radius: 6px;
+  border-top: 1px solid #2e5b78;
   color: #a7d3e9;
   font-family: monospace;
   font-size: 0.85rem;
-  padding: 1rem;
-  max-width: 1000px;
-  margin: 2rem auto 0;
-  white-space: pre-wrap;
   height: 160px;
+  margin: 2rem auto 0;
+  max-width: 1000px;
   overflow-y: auto;
-  border-top: 1px solid #2e5b78;
-  border-radius: 6px;
+  padding: 1rem;
+  white-space: pre-wrap;
 }

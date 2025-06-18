@@ -1,0 +1,24 @@
+/* Common material selection styles */
+
+body {
+  background-color: var(--color-bg-dark);
+  color: var(--color-body-text);
+  font-family: 'Segoe UI', Roboto, sans-serif;
+}
+
+.btn-cat {
+  margin: .35rem .45rem;
+  white-space: nowrap;
+}
+
+.btn-cat.active {
+  background: #0d6efd !important;
+  color: #fff !important;
+}
+
+.btn-mat {
+  margin: .25rem 0;
+  width: 100%;
+}
+
+/* dropdown-search en components/dropdown-search.css */
