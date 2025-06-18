@@ -347,3 +347,9 @@ body.debug-mode .card {
     background: var(--bg-card);
   }
 }
+
+/* Collapse header pointer */
+.card-header[data-bs-toggle="collapse"] {
+  cursor: pointer;
+}
+

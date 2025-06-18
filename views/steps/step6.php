@@ -470,14 +470,15 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
 
       <div class="col-12 col-lg-4 mb-3">
         <div class="card h-100 shadow-sm">
-          <div class="card-header text-center p-3">
+          <div class="card-header text-center p-3" data-bs-toggle="collapse" data-bs-target="#specCollapse" aria-expanded="true" aria-controls="specCollapse">
             <h5 class="mb-0">Especificaciones Técnicas</h5>
           </div>
-          <div class="card-body p-4">
-            <div class="row gx-0 align-items-center">
-              <!-- Izquierda: especificaciones -->
-              <div class="col-12 col-lg-6 px-2 mb-4 mb-lg-0">
-                <ul class="spec-list mb-0 px-2">
+          <div id="specCollapse" class="collapse show">
+            <div class="card-body p-4">
+              <div class="row gx-0 align-items-center">
+                <!-- Izquierda: especificaciones -->
+                <div class="col-12 col-lg-7 px-2 mb-4 mb-lg-0">
+                  <ul class="spec-list mb-0 px-2">
                   <li><span>Diámetro de corte (d1):</span>
                       <span><?= number_format($diameterMb,3,'.','') ?> <span class="param-unit">mm</span></span>
                   </li>
@@ -513,10 +514,8 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
                   </li>
                 </ul>
               </div>
-              <!-- Divider vertical en desktop -->
-              <div class="d-none d-lg-block divider-vertical"></div>
-              <!-- Derecha: imagen vectorial -->
-              <div class="col-12 col-lg-5 px-2 d-flex justify-content-center align-items-center">
+                <!-- Derecha: imagen vectorial -->
+                <div class="col-12 col-lg-5 px-2 d-flex justify-content-center align-items-center">
                 <?php if ($vectorURL): ?>
                   <img
                     src="<?= htmlspecialchars($vectorURL,ENT_QUOTES) ?>"
@@ -535,10 +534,11 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
       <!-- CONFIGURACIÓN DE USUARIO -->
       <div class="col-12 col-lg-4 mb-3">
         <div class="card h-100 shadow-sm">
-          <div class="card-header text-center p-3">
+          <div class="card-header text-center p-3" data-bs-toggle="collapse" data-bs-target="#configCollapse" aria-expanded="true" aria-controls="configCollapse">
             <h5 class="mb-0">Configuración de Usuario</h5>
           </div>
-          <div class="card-body p-4">
+          <div id="configCollapse" class="collapse show">
+            <div class="card-body p-4">
             <div class="config-section mb-3">
               <div class="config-section-title">Material</div>
               <div class="config-item">
@@ -628,6 +628,7 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
   window.step6Csrf   = '<?= $csrfToken ?>';
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.umd.min.js"></script>
 <script src="/wizard-stepper_git/assets/js/step6.js"></script>
   </div>
