@@ -40,8 +40,7 @@
     <button class="btn btn-primary btn-lg mt-4">Continuar</button>
   </form>
 </main>
-<script type="module" crossorigin
-        src="https://cdn.jsdelivr.net/npm/lucide@latest/+esm"></script>
-<script type="module">import {createIcons} from 'https://cdn.jsdelivr.net/npm/lucide@latest/+esm';createIcons();</script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>lucide.createIcons();</script>
 </body>
 </html>

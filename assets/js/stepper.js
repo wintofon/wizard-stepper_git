@@ -1,5 +1,4 @@
-import { createIcons } from 'lucide';
-/* global bootstrap */
+/* global feather, bootstrap */
 (() => {
   'use strict';
 
@@ -94,8 +93,8 @@ import { createIcons } from 'lucide';
         stepHolder.innerHTML = html;
         runStepScripts(stepHolder);
 
-        // Inicializadores JS globales (Lucide, Bootstrap tooltips)
-        if (typeof createIcons === 'function') createIcons();
+        // Inicializadores JS globales (Feather, Bootstrap tooltips)
+        if (window.feather) feather.replace();
         if (window.bootstrap && bootstrap.Tooltip) {
           document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
             new bootstrap.Tooltip(el);
@@ -209,6 +208,5 @@ import { createIcons } from 'lucide';
   if (!localStorage.getItem(LS_KEY)) localStorage.setItem(LS_KEY, 1);
   renderBar(getProg());
   loadStep(getProg());
-  createIcons();
 
 })();

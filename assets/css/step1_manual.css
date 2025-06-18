@@ -1,5 +1,4 @@
 /* File: assets/css/step1_manual.css */
-@import url('base/theme.css');
 
 /* Estilo v6.0 trapezoidal, adaptado al stepper azul oscuro */
 
@@ -16,9 +15,9 @@
 }
 
 .facet-header {
-  background: var(--clr-card);
-  border-bottom: 1px solid var(--clr-accent);
-  color: var(--clr-text);
+  background: #1e293b;
+  border-bottom: 1px solid #334155;
+  color: #cbd5e1;
   cursor: pointer;
   font-size: .85rem;
   font-weight: 600;
@@ -26,9 +25,9 @@
 }
 
 .facet-body {
-  background: var(--clr-bg);
-  border-left: 1px solid var(--clr-accent);
-  border-right: 1px solid var(--clr-accent);
+  background: #0f172a;
+  border-left: 1px solid #334155;
+  border-right: 1px solid #334155;
   display: none;
   max-height: 220px;
   overflow-y: auto;
@@ -40,7 +39,7 @@
 }
 
 .facet-body label {
-  color: var(--clr-text);
+  color: #cbd5e1;
   display: block;
   font-size: .8rem;
   margin-bottom: 2px;
@@ -48,9 +47,9 @@
 }
 
 .facet-search {
-  background: var(--clr-card);
-  border: 1px solid var(--clr-accent);
-  color: var(--clr-text);
+  background: #1e293b;
+  border: 1px solid #334155;
+  color: #cbd5e1;
   font-size: 0.75rem;
   margin-bottom: .25rem;
   width: 100%;
