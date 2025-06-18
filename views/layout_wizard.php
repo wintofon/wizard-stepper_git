@@ -15,12 +15,10 @@
 
   <!-- Barra de pasos -->
   <header class="stepper-header d-flex align-items-center">
-    <div class="logo-stepper-container">
-      <img
-        src="<?= BASE_URL ?>assets/img/logos/logo_stepper.png"
-        alt="Logo Stepper"
-        class="logo-stepper">
-    </div>
+    <img
+      src="assets/img/logos/logo_stepper.png"
+      alt="Logo Stepper"
+      class="logo-stepper">
     <nav class="stepper-bar flex-grow-1">
       <ul class="stepper">
         <?php foreach ($flow as $n): ?>

@@ -11,19 +11,10 @@
   border: none;
 }
 
-.logo-stepper-container {
+.logo-stepper {
   width: 120px;
   height: auto;
-  background: white;
-  clip-path: polygon(0 0, 100% 0, 85% 100%, 0% 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   margin-right: 1rem;
-}
-.logo-stepper {
-  width: 100%;
-  height: auto;
 }
 
 .stepper-bar {
@@ -33,7 +24,7 @@
 
 /* Responsivo: ocultar logo en pantallas <768px */
 @media (width <= 767.98px) {
-  .logo-stepper-container {
+  .logo-stepper {
     display: none !important;
   }
 
