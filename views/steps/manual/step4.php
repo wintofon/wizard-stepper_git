@@ -1,15 +1,15 @@
 <?php
 declare(strict_types=1);
 /**
- * Paso 4 (Manual) – Madera compatible
- * Validaciones clonadas de step1 (auto):
- *   – material_id > 0
- *   – thickness  > 0  (≠ 0)
- *   – CSRF, rate-limit, sesión segura
+ * File: views/steps/manual/step4.php
+ * Paso 4 (Manual) – Elegí la madera compatible
+ * -------------------------------------------------
+ * Validaciones, textos de error y JS **calcados** del
+ * Paso 1 (auto) para que el comportamiento sea idéntico.
  */
 
 //
-// [A] Cabeceras de seguridad / anti-caching
+// [A] Cabeceras seguras y anti-caching (mismas de step1 auto)
 //
 header('Content-Type: text/html; charset=UTF-8');
 header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
@@ -33,7 +33,7 @@ if ($DEBUG && function_exists('dbg')) dbg('🔧 step4.php iniciado');
 //
 // [C] Sesión segura
 //
-if (session_status()!==PHP_SESSION_ACTIVE){
+if (session_status()!==PHP_SESSION_ACTIVE) {
     session_set_cookie_params([
         'lifetime'=>0,
         'path'    =>'/wizard-stepper_git/',
@@ -62,28 +62,28 @@ $_SESSION['rate_limit'] ??= [];
 $_SESSION['rate_limit'][$ip] = array_filter(
     $_SESSION['rate_limit'][$ip]??[], fn(int $t)=>($t+300)>time()
 );
-if ($_SERVER['REQUEST_METHOD']==='POST' && count($_SESSION['rate_limit'][$ip])>=10){
+if ($_SERVER['REQUEST_METHOD']==='POST' && count($_SESSION['rate_limit'][$ip])>=10) {
     http_response_code(429);
     exit('<h1 style="color:red;text-align:center;margin-top:2rem;">429 – Demasiados intentos.</h1>');
 }
 
 //
-// [F] CSRF token
+// [F] CSRF-token
 //
 $_SESSION['csrf_token'] ??= bin2hex(random_bytes(32));
 $csrf = $_SESSION['csrf_token'];
 
 //
-// [G] BD + herramienta previa
+// [G] Verificar herramienta seleccionada y cargar BD
 //
 require_once __DIR__.'/../../../includes/db.php';
 require_once __DIR__.'/../../../includes/debug.php';
 
-if (empty($_SESSION['tool_id'])||empty($_SESSION['tool_table'])){
+if (empty($_SESSION['tool_id']) || empty($_SESSION['tool_table'])) {
     header('Location:/wizard-stepper_git/views/steps/auto/step2.php'); exit;
 }
-$toolId  =(int)$_SESSION['tool_id'];
-$toolTbl =preg_replace('/[^a-z0-9_]/i','',$_SESSION['tool_table']);
+$toolId  = (int)$_SESSION['tool_id'];
+$toolTbl = preg_replace('/[^a-z0-9_]/i','',$_SESSION['tool_table']);
 
 //
 // [H] Maderas compatibles
@@ -108,16 +108,16 @@ foreach($rows as $r){
 }
 
 //
-// [I] POST
+// [I] Procesar POST (misma lógica que step1 auto)
 //
 $errors=[];
-if ($_SERVER['REQUEST_METHOD']==='POST'){
-    if(!hash_equals($csrf,$_POST['csrf_token']??''))           $errors[]='Token inválido.';
-    if((int)($_POST['step']??0)!==4)                           $errors[]='Paso inválido.';
+if ($_SERVER['REQUEST_METHOD']==='POST') {
+    if(!hash_equals($csrf,$_POST['csrf_token']??''))           $errors[]='Token de seguridad inválido.';
+    if((int)($_POST['step']??0)!==4)                           $errors[]='Paso inválido. Reiniciá el asistente.';
     $mat=filter_input(INPUT_POST,'material_id',FILTER_VALIDATE_INT);
-    $thk=filter_input(INPUT_POST,'thickness',  FILTER_VALIDATE_FLOAT);
-    if(!$mat||$mat<=0)                                         $errors[]='Seleccioná una madera válida.';
-    if($thk===false||$thk===null||$thk<=0)                     $errors[]='El espesor no puede ser 0.';
+    $thk=filter_input(INPUT_POST,'thickness'  ,FILTER_VALIDATE_FLOAT);
+    if($mat===false||$mat===null||$mat<1)                      $errors[]='Material no válido.';
+    if($thk===false||$thk===null||$thk<=0)                     $errors[]='Espesor no válido.';
     if(!$errors && !in_array($mat,array_column($flat,'id'),true))
         $errors[]='La madera seleccionada no es compatible con esta fresa.';
 
@@ -131,7 +131,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
 }
 
 //
-// [J] Previos
+// [J] Datos previos para la UI
 //
 $prevMat=$_SESSION['material_id']??'';
 $prevThk=$_SESSION['thickness']??'';
@@ -160,7 +160,7 @@ $hasPrev=$prevMat!=='' && $prevThk!=='';
   <input type="hidden" name="csrf_token" value="<?=htmlspecialchars($csrf)?>">
   <input type="hidden" name="material_id" id="material_id" value="<?=$prevMat?>">
 
-  <!-- Buscador -->
+  <!-- 1) Buscador -->
   <div class="mb-3 position-relative">
     <label for="matSearch" class="form-label">Buscar madera (2+ letras)</label>
     <input id="matSearch" class="form-control" autocomplete="off" placeholder="Ej.: MDF…" <?=$rows?'':'disabled'?>>
@@ -168,7 +168,7 @@ $hasPrev=$prevMat!=='' && $prevThk!=='';
     <div id="searchDropdown" class="dropdown-search"></div>
   </div>
 
-  <!-- Categorías -->
+  <!-- 2) Categorías -->
   <h5>Categoría</h5>
   <div id="catRow" class="d-flex flex-wrap mb-3">
     <?php foreach($cats as $cid=>$c):?>
@@ -179,29 +179,29 @@ $hasPrev=$prevMat!=='' && $prevThk!=='';
     <?php endforeach;?>
   </div>
 
-  <!-- Materiales -->
+  <!-- 3) Materiales -->
   <div id="matBox" class="mb-3" style="display:none">
     <h5>Madera</h5><div id="matCol"></div>
     <div id="emptyMsg" class="text-warning mt-2" style="display:none">No hay materiales aquí</div>
   </div>
 
-  <!-- Espesor -->
+  <!-- 4) Espesor -->
   <div id="thickGroup" class="mb-3" style="<?=$hasPrev?'':'display:none'?>">
     <label for="thick" class="form-label">Espesor (mm)</label>
     <input type="number" step="0.1" min="0.1" id="thick" name="thickness"
            class="form-control" placeholder="Ingresá el espesor (mm)"
            value="<?=$hasPrev?htmlspecialchars((string)$prevThk):''?>">
-    <div class="invalid-feedback">El espesor no puede ser 0.</div>
+    <div class="invalid-feedback">⚠ Valor inválido.</div>
   </div>
 
-  <!-- Botón -->
+  <!-- 5) Botón “Siguiente” -->
   <div id="nextBox" class="text-end mt-4" style="<?=$hasPrev?'block':'none'?>">
     <button class="btn btn-primary btn-lg">Siguiente →</button>
   </div>
 </form>
 </main>
 
-<!-- JS idéntico a step1 (con >0) -->
+<!-- ===== JS clonado de step1 auto (validación >0) ===== -->
 <script>
 const norm=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const cats=<?=json_encode($cats,JSON_UNESCAPED_UNICODE)?>;
@@ -220,14 +220,12 @@ const matCol=document.getElementById('matCol');
 const emptyMsg=document.getElementById('emptyMsg');
 
 function validate(){
-  const ok = matInp.value && parseFloat(thick.value)>0;
+  const ok = matInp.value && parseFloat(thick.value) > 0;
   thick.classList.toggle('is-invalid', !(parseFloat(thick.value)>0));
-  nextBox.style.display = ok ? 'block':'none';
+  nextBox.style.display = ok ? 'block' : 'none';
 }
-function showNoMatch(state){
-  if(thickGrp.style.display==='none') return;
-  search.classList.toggle('is-invalid',state);
-  noMatch.style.display=state?'block':'none';
+function showNoMatch(st){
+  search.classList.toggle('is-invalid',st); noMatch.style.display=st?'block':'none';
 }
 function hideDD(){ddwn.style.display='none'; ddwn.innerHTML='';}
 function resetMat(){
@@ -236,6 +234,7 @@ function resetMat(){
   nextBox.style.display='none'; showNoMatch(false); emptyMsg.style.display='none'; hideDD();
 }
 
+/* Categorías */
 document.querySelectorAll('.btn-cat').forEach(btn=>{
   btn.onclick=()=>{
     document.querySelectorAll('.btn-cat').forEach(b=>b.classList.remove('active'));
@@ -258,6 +257,7 @@ document.querySelectorAll('.btn-cat').forEach(btn=>{
   };
 });
 
+/* Buscador */
 search.addEventListener('input',e=>{
   const v=e.target.value.trim();
   if(v.length<2){showNoMatch(false);hideDD();return;}
@@ -284,9 +284,17 @@ thick?.addEventListener('input',validate);
 
 document.getElementById('formWood').addEventListener('submit',e=>{
   if(!(matInp.value && parseFloat(thick.value)>0)){
-    e.preventDefault(); alert('Elegí madera y un espesor mayor a 0.'); }
+    e.preventDefault();
+    alert('Debés elegir una madera válida y un espesor mayor a 0 antes de continuar.');
+  }
 });
-window.addEventListener('pageshow',()=>{ if(matInp.value && parseFloat(thick.value)>0){ thickGrp.style.display='block'; validate(); }});
+
+window.addEventListener('pageshow',()=>{
+  if(matInp.value && parseFloat(thick.value)>0){
+    thickGrp.style.display='block'; validate();
+  }
+});
+
 validate();
 </script>
 </body></html>
