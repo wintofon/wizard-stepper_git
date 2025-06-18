@@ -273,7 +273,7 @@ dbg('children', $children);
     <!-- 5) Botón “Siguiente” -->
     <div id="next-button-container" class="text-end mt-4" style="display: none;">
       <button type="submit" id="btn-next" class="btn btn-primary btn-lg">
-        Siguiente →
+        Siguiente <i data-feather="arrow-right" class="ms-1"></i>
       </button>
     </div>
   </form>

@@ -236,7 +236,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <!-- Siguiente -->
     <div id="nextContainer" class="text-end mt-4" style="display:none">
-      <button type="submit" class="btn btn-primary btn-lg">Siguiente →</button>
+      <button type="submit" class="btn btn-primary btn-lg">
+        Siguiente <i data-feather="arrow-right" class="ms-1"></i>
+      </button>
     </div>
   </form>
   <?php endif; ?>
