@@ -2,21 +2,18 @@
 declare(strict_types=1);
 /**
  * File: C:\xampp\htdocs\wizard-stepper_git\views\steps\manual\step4.php
- *
+ * ------------------------------------------------------------------
  * Paso 4 (Manual) – Selección de madera compatible
- * • Solo accesible si wizard_progress ≥ 3 (se completaron los pasos previos)
- * • Headers de seguridad + anti-caching
- * • Sesión segura (Secure, HttpOnly, SameSite=Strict)
- * • Rate-limit (10 POST / 5 min) – heredado opcional
- * • CSRF-token
- * • Carga solo las maderas compatibles con la fresa ya seleccionada
- * • Valida que material_id exista en esa lista y que thickness > 0
- * • Avanza a step5.php
+ * • Protegido con HSTS, CSP, SameSite, CSRF y rate-limit
+ * • Flujo: requiere wizard_progress ≥ 3 (ya se eligió estrategia)
+ * • Muestra solo las maderas compatibles con la fresa seleccionada
+ * • Guarda {material_id, thickness} y avanza a step5.php
+ * ------------------------------------------------------------------
  */
 
-//────────────────────────────────────────────────────────────────────
-// [A] Headers de seguridad / anti-caching
-//────────────────────────────────────────────────────────────────────
+/* ──────────────────────────────────────────────────────
+ * [A]  Cabeceras de seguridad & anti-cache
+ * ──────────────────────────────────────────────────── */
 header('Content-Type: text/html; charset=UTF-8');
 header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
 header("X-Frame-Options: DENY");
@@ -25,13 +22,11 @@ header("Referrer-Policy: no-referrer");
 header("Permissions-Policy: geolocation=(), microphone=()");
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Pragma: no-cache");
-header("Content-Security-Policy: default-src 'self'; "
-     . "script-src 'self' 'unsafe-inline'; "            // ← inline JS presente
-     . "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;");
+header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;");
 
-//────────────────────────────────────────────────────────────────────
-// [B] Errores y debug
-//────────────────────────────────────────────────────────────────────
+/* ──────────────────────────────────────────────────────
+ * [B]  Errores & debug
+ * ──────────────────────────────────────────────────── */
 $DEBUG = filter_input(INPUT_GET, 'debug', FILTER_VALIDATE_BOOLEAN);
 if ($DEBUG) {
     error_reporting(E_ALL);
@@ -41,8 +36,7 @@ if ($DEBUG) {
     ini_set('display_errors', '0');
 }
 if (!function_exists('dbg')) {
-    function dbg(string $msg, $data = null): void
-    {
+    function dbg(string $msg, $data = null): void {
         global $DEBUG;
         if ($DEBUG) {
             error_log('[step4.php] ' . $msg . ' ' . json_encode($data, JSON_UNESCAPED_UNICODE));
@@ -51,9 +45,9 @@ if (!function_exists('dbg')) {
 }
 dbg('🔧 step4.php iniciado');
 
-//────────────────────────────────────────────────────────────────────
-// [C] Sesión segura
-//────────────────────────────────────────────────────────────────────
+/* ──────────────────────────────────────────────────────
+ * [C]  Sesión segura
+ * ──────────────────────────────────────────────────── */
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_set_cookie_params([
         'lifetime' => 0,
@@ -67,149 +61,118 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     dbg('🔒 Sesión iniciada');
 }
 
-//────────────────────────────────────────────────────────────────────
-// [D] Flujo: asegurar paso anterior completado
-//────────────────────────────────────────────────────────────────────
+/* ──────────────────────────────────────────────────────
+ * [D]  Flujo – se necesita wizard_progress ≥ 3
+ * ──────────────────────────────────────────────────── */
 if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 3) {
-    dbg('❌ wizard_progress < 3 → redirigiendo a step1.php');
+    dbg('❌ wizard_progress<3 – redirigiendo a step1');
     header('Location: /wizard-stepper_git/views/steps/auto/step1.php');
     exit;
 }
 
-//────────────────────────────────────────────────────────────────────
-// [E] Cargar dependencias
-//────────────────────────────────────────────────────────────────────
-require_once __DIR__ . '/../../../includes/db.php';
-require_once __DIR__ . '/../../../includes/debug.php';
+/* ──────────────────────────────────────────────────────
+ * [E]  Rate-limit 10 POST / 5 min por IP
+ * ──────────────────────────────────────────────────── */
+$ip = $_SERVER['REMOTE_ADDR'] ?? 'unk';
+$_SESSION['rate_limit'] ??= [];
+$_SESSION['rate_limit'][$ip] = array_filter(
+    $_SESSION['rate_limit'][$ip] ?? [],
+    fn($ts) => $ts + 300 > time()
+);
+if ($_SERVER['REQUEST_METHOD'] === 'POST' &&
+    count($_SESSION['rate_limit'][$ip]) >= 10) {
+    http_response_code(429);
+    exit('<h1 style="color:red;text-align:center;margin-top:2rem;">429 – Demasiados intentos, probá en unos minutos.</h1>');
+}
 
-//────────────────────────────────────────────────────────────────────
-// [F] CSRF-token
-//────────────────────────────────────────────────────────────────────
+/* ──────────────────────────────────────────────────────
+ * [F]  CSRF-token
+ * ──────────────────────────────────────────────────── */
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 $csrf = $_SESSION['csrf_token'];
 
-//────────────────────────────────────────────────────────────────────
-// [G] Verificar que exista herramienta seleccionada
-//────────────────────────────────────────────────────────────────────
+/* ──────────────────────────────────────────────────────
+ * [G]  Herramienta seleccionada en pasos previos
+ * ──────────────────────────────────────────────────── */
 if (empty($_SESSION['tool_id']) || empty($_SESSION['tool_table'])) {
-    dbg('❌ Sin tool_id / tool_table en sesión → step2');
-    header('Location: /wizard-stepper_git/views/steps/auto/step2.php');
+    header('Location: /wizard-stepper_git/views/steps/manual/step2.php');
     exit;
 }
 $toolId    = (int)$_SESSION['tool_id'];
-$toolTable = preg_replace('/[^a-z0-9_]/i', '', $_SESSION['tool_table']); // sanitizado
+$toolTable = preg_replace('/[^a-z0-9_]/i', '', $_SESSION['tool_table']);
 
-//────────────────────────────────────────────────────────────────────
-// [H] Cargar lista de maderas compatibles con esta fresa
-//      – materialcategories.name LIKE 'Madera%'
-//────────────────────────────────────────────────────────────────────
+/* ──────────────────────────────────────────────────────
+ * [H]  BD & lista de maderas compatibles
+ * ──────────────────────────────────────────────────── */
+require_once __DIR__ . '/../../../includes/db.php';
+require_once __DIR__ . '/../../../includes/debug.php';
+
 $compatTbl = 'toolsmaterial_' . str_replace('tools_', '', $toolTable);
-
 $sql = "
-  SELECT  m.material_id,
-          m.name        AS mat,
-          c.category_id,
-          c.name        AS cat
-    FROM  {$compatTbl} tm
-    JOIN  materials m          ON m.material_id = tm.material_id
-    JOIN  materialcategories c ON c.category_id = m.category_id
-   WHERE  tm.tool_id = :tid
-     AND  c.name LIKE 'Madera%'
+  SELECT m.material_id, m.name   AS mat,
+         c.category_id, c.name   AS cat
+    FROM {$compatTbl} tm
+    JOIN materials          m ON m.material_id = tm.material_id
+    JOIN materialcategories c ON c.category_id = m.category_id
+   WHERE tm.tool_id = :tid AND c.name LIKE 'Madera%'
    ORDER BY c.name, m.name
 ";
 $stmt = $pdo->prepare($sql);
 $stmt->execute([':tid' => $toolId]);
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
 dbg('Compat rows', $rows);
 
-//────────────────────────────────────────────────────────────────────
-// [I] Agrupar para UI
-//────────────────────────────────────────────────────────────────────
-$cats = [];    // cid → ['name'=>…, 'mats'=>[…]]
-$flat = [];    // lista plana para validación POST
+/* Agrupar para UI */
+$cats = $flat = [];
 foreach ($rows as $r) {
     $cid = (int)$r['category_id'];
-    if (!isset($cats[$cid])) {
-        $cats[$cid] = ['name' => $r['cat'], 'mats' => []];
-    }
-    $cats[$cid]['mats'][] = [
-        'id'   => (int)$r['material_id'],
-        'name' => $r['mat']
-    ];
-    $flat[] = [
-        'id'   => (int)$r['material_id'],
-        'cid'  => $cid,
-        'name' => $r['mat']
-    ];
+    $cats[$cid]['name']  = $r['cat'];
+    $cats[$cid]['mats'][] = ['id' => (int)$r['material_id'], 'name' => $r['mat']];
+    $flat[] = ['id' => (int)$r['material_id'], 'cid' => $cid, 'name' => $r['mat']];
 }
-dbg('cats',  $cats);
-dbg('flat',  $flat);
 
-//────────────────────────────────────────────────────────────────────
-// [J] Procesar POST
-//────────────────────────────────────────────────────────────────────
+/* ──────────────────────────────────────────────────────
+ * [I]  Procesar POST
+ * ──────────────────────────────────────────────────── */
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    // J-1) CSRF
+    /* I-1  CSRF */
     if (!hash_equals($csrf, (string)($_POST['csrf_token'] ?? ''))) {
-        $errors[] = 'Token de seguridad inválido. Refrescá la página.';
+        $errors[] = 'Token de seguridad inválido.';
     }
 
-    // J-2) Paso correcto
-    $step = filter_input(INPUT_POST, 'step', FILTER_VALIDATE_INT);
-    if ($step !== 4) {
-        $errors[] = 'Paso inválido. Reiniciá el asistente.';
+    /* I-2  Validar datos */
+    $mat = filter_input(INPUT_POST, 'material_id', FILTER_VALIDATE_INT);
+    $thk = filter_input(INPUT_POST, 'thickness',   FILTER_VALIDATE_FLOAT);
+
+    if (!$mat || $mat <= 0)      $errors[] = 'Seleccioná una madera válida.';
+    if (!$thk || $thk <= 0)      $errors[] = 'Ingresá un espesor válido (> 0).';
+
+    /* I-3  Verificar compatibilidad */
+    if (!$errors && !in_array($mat, array_column($flat, 'id'), true)) {
+        $errors[] = 'La madera elegida no es compatible con esta fresa.';
     }
 
-    // J-3) Inputs
-    $matId = filter_input(INPUT_POST, 'material_id', FILTER_VALIDATE_INT);
-    $thick = filter_input(INPUT_POST, 'thickness',   FILTER_VALIDATE_FLOAT);
-
-    if ($matId === false || $matId === null || $matId <= 0) {
-        $errors[] = 'Seleccioná una madera válida.';
-    }
-    if ($thick === false || $thick === null || $thick <= 0) {
-        $errors[] = 'Ingresá un espesor válido (> 0).';
-    }
-
-    // J-4) Verificar que material_id esté en $flat
-    if (empty($errors)) {
-        $found = false;
-        foreach ($flat as $f) {
-            if ($f['id'] === $matId) {
-                $found = true;
-                break;
-            }
-        }
-        if (!$found) {
-            $errors[] = 'La madera seleccionada no es compatible con esta fresa.';
-        }
-    }
-
-    // J-5) OK → guardar y avanzar
-    if (empty($errors)) {
-        $_SESSION['material_id']     = $matId;
-        $_SESSION['thickness']       = $thick;
+    /* I-4  OK → guardar y avanzar */
+    if (!$errors) {
+        $_SESSION['material_id']     = $mat;
+        $_SESSION['thickness']       = $thk;
         $_SESSION['wizard_progress'] = 4;
-        session_write_close();
-        dbg("✅ Paso 4 completado: material={$matId}, thickness={$thick}");
-        header('Location: /wizard-stepper_git/views/steps/auto/step5.php');
+        $_SESSION['rate_limit'][$ip][] = time();
+        header('Location: /wizard-stepper_git/views/steps/manual/step5.php');
         exit;
     }
 }
 
-//────────────────────────────────────────────────────────────────────
-// [K] Valores previos (si vuelve “atrás”)
-//────────────────────────────────────────────────────────────────────
-$prevMat   = $_SESSION['material_id'] ?? '';
-$prevThick = $_SESSION['thickness']   ?? '';
-$hasPrevM  = is_int($prevMat) && $prevMat > 0;
-$hasPrevT  = is_numeric($prevThick) && $prevThick > 0;
-$imgUrl    = $_SESSION['tool_image_url'] ?? '';
+/* ──────────────────────────────────────────────────────
+ * [J]  Valores previos (si vuelve atrás)
+ * ──────────────────────────────────────────────────── */
+$prevMat = $_SESSION['material_id'] ?? '';
+$prevThk = $_SESSION['thickness']   ?? '';
+$imgUrl  = $_SESSION['tool_image_url'] ?? '';
+
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -217,33 +180,31 @@ $imgUrl    = $_SESSION['tool_image_url'] ?? '';
   <meta charset="utf-8">
   <title>Paso 4 – Madera compatible</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Bootstrap local o CDN -->
+  <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Estilos comunes + específicos -->
+  <!-- Estilos compartidos -->
   <link rel="stylesheet" href="/wizard-stepper_git/assets/css/step-common.css">
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/step2_manual.css">
+
   <link rel="stylesheet" href="/wizard-stepper_git/assets/css/material.css">
 </head>
 <body>
-
 <main class="container py-4">
+
   <h2 class="mb-3">Paso 4 – Elegí la madera compatible</h2>
 
-  <?php if (!empty($imgUrl)): ?>
+  <?php if ($imgUrl): ?>
     <div class="card bg-dark text-white mb-3">
       <figure class="text-center p-3 mb-0">
-        <img
-          src="<?= htmlspecialchars($imgUrl, ENT_QUOTES) ?>"
-          alt="Imagen de la herramienta seleccionada"
-          class="tool-image"
-          onerror="this.style.display='none'"
-        >
+        <img src="<?= htmlspecialchars($imgUrl, ENT_QUOTES) ?>"
+             class="tool-image"
+             alt="Imagen de la fresa seleccionada"
+             onerror="this.remove()">
         <figcaption class="text-muted mt-2">Fresa seleccionada</figcaption>
       </figure>
     </div>
   <?php endif; ?>
 
-  <?php if (empty($rows)): ?>
+  <?php if (!$rows): ?>
     <div class="alert alert-warning">Esta fresa no tiene maderas compatibles registradas.</div>
   <?php endif; ?>
 
@@ -258,12 +219,12 @@ $imgUrl    = $_SESSION['tool_image_url'] ?? '';
   <?php endif; ?>
 
   <form id="formWood" method="post" novalidate>
-    <input type="hidden" name="step" value="4">
-    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf, ENT_QUOTES) ?>">
+    <input type="hidden" name="step"        value="4">
+    <input type="hidden" name="csrf_token"  value="<?= htmlspecialchars($csrf, ENT_QUOTES) ?>">
     <input type="hidden" name="material_id" id="material_id"
-           value="<?= $hasPrevM ? htmlspecialchars((string)$prevMat, ENT_QUOTES) : '' ?>">
+           value="<?= $prevMat ?: '' ?>">
 
-    <!-- 1) Buscador -->
+    <!-- Buscador -->
     <div class="mb-3 position-relative">
       <label for="matSearch" class="form-label">Buscar madera (2+ letras)</label>
       <input id="matSearch" class="form-control" autocomplete="off"
@@ -272,148 +233,125 @@ $imgUrl    = $_SESSION['tool_image_url'] ?? '';
       <div id="searchDropdown" class="dropdown-search"></div>
     </div>
 
-    <!-- 2) Categorías -->
+    <!-- Categorías -->
     <h5>Categoría</h5>
     <div id="catRow" class="d-flex flex-wrap mb-3">
       <?php foreach ($cats as $cid => $c): ?>
         <button type="button"
-                class="btn btn-outline-primary btn-cat"
-                data-cid="<?= $cid ?>"
-                <?= $rows ? '' : 'disabled' ?>>
+                class="btn btn-outline-primary btn-cat me-2 mb-2"
+                data-cid="<?= $cid ?>" <?= $rows ? '' : 'disabled' ?>>
           <?= htmlspecialchars($c['name'], ENT_QUOTES) ?>
         </button>
       <?php endforeach; ?>
     </div>
 
-    <!-- 3) Materiales -->
+    <!-- Materiales -->
     <div id="matBox" class="mb-3" style="display:none">
       <h5>Madera</h5>
       <div id="matCol"></div>
       <div id="emptyMsg" class="text-warning mt-2" style="display:none">No hay materiales aquí</div>
     </div>
 
-    <!-- 4) Espesor -->
+    <!-- Espesor -->
     <div id="thickGroup" class="mb-3" style="display:none">
       <label for="thick" class="form-label">Espesor (mm)</label>
       <input type="number" step="0.1" min="0.1" id="thick" name="thickness"
              class="form-control"
-             <?= $hasPrevT ? 'value="' . htmlspecialchars((string)$prevThick, ENT_QUOTES) . '"' : '' ?>>
+             value="<?= $prevThk ?: '' ?>">
     </div>
 
-    <!-- 5) Botón “Siguiente” -->
-    <div id="next-button-container" class="text-end mt-4" style="display:none">
-      <button type="submit" id="btn-next" class="btn btn-primary btn-lg w-100 w-md-auto">
+    <!-- Siguiente -->
+    <div id="nextBox" class="text-end mt-4" style="display:none">
+      <button type="submit" class="btn btn-primary btn-lg w-100 w-md-auto">
         Siguiente →
       </button>
     </div>
   </form>
 
-  <pre id="debug" class="bg-dark text-info p-2 mt-4 d-none d-md-block"></pre>
+  <pre id="debug" class="debug-box d-none d-md-block"></pre>
 </main>
 
-<!--──────────────────────────────────────────────────────────────────
-     JS inline (requiere 'unsafe-inline' en CSP o mover a archivo externo)
-──────────────────────────────────────────────────────────────────-->
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Lógica de UI (idéntica a versión “auto”) -->
 <script>
-/* Helpers ──────────────────────────────────────────────────────────*/
-function normalizeText(s){return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();}
-function qs(sel,ctx=document){return ctx.querySelector(sel);}
-function qsa(sel,ctx=document){return [...ctx.querySelectorAll(sel)];}
+/* Helpers */
+const norm  = s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const cats  = <?= json_encode($cats,  JSON_UNESCAPED_UNICODE) ?>;
+const flat  = <?= json_encode($flat,  JSON_UNESCAPED_UNICODE) ?>;
+const mat2c = {}; Object.entries(cats).forEach(([cid,o])=>o.mats.forEach(m=>mat2c[m.id]=cid));
 
-/* Datos PHP → JS */
-const cats   = <?= json_encode($cats, JSON_UNESCAPED_UNICODE) ?>;
-const flat   = <?= json_encode($flat, JSON_UNESCAPED_UNICODE) ?>;
+const qs  = (s,ctx=document)=>ctx.querySelector(s);
+const qsa = (s,ctx=document)=>[...ctx.querySelectorAll(s)];
 
-/* Refs DOM */
 const matInp   = qs('#material_id');
-const thickIn  = qs('#thick');
-const nextBox  = qs('#next-button-container');
-const search   = qs('#matSearch');
-const noMatch  = qs('#noMatchMsg');
-const ddwn     = qs('#searchDropdown');
+const thickInp = qs('#thick');
+const nextBox  = qs('#nextBox');
+const catRow   = qs('#catRow');
 const matBox   = qs('#matBox');
 const matCol   = qs('#matCol');
 const emptyMsg = qs('#emptyMsg');
-const debugBox = qs('#debug');
+const search   = qs('#matSearch');
+const ddwn     = qs('#searchDropdown');
+const noMatch  = qs('#noMatchMsg');
 
-/* Mapa id → cid */
-const mat2cid = {}; Object.entries(cats).forEach(([cid,o])=>o.mats.forEach(m=>mat2cid[m.id]=cid));
+/* Validar */
+function validate(){ nextBox.style.display = (matInp.value && +thickInp.value > 0)?'block':'none';}
 
-/* Estado inicial */
-validate();
-
-/*──────────────────────────────────────────────────────────────────*/
-function validate(){
-  const ok = matInp.value && parseFloat(thickIn?.value||0)>0;
-  nextBox.style.display = ok? 'block':'none';
-}
-function hideDD(){ddwn.style.display='none'; ddwn.innerHTML='';}
-function noMatchMsg(state){search.classList.toggle('is-invalid',state); noMatch.style.display=state?'block':'none';}
-function resetMat(){
-  matCol.innerHTML=''; matBox.style.display='none';
-  matInp.value=''; thickIn.value=''; qs('#thickGroup').style.display='none';
-  nextBox.style.display='none'; noMatchMsg(false); emptyMsg.style.display='none'; hideDD();
+/* Reset */
+function resetSelection(){
+  matCol.innerHTML=''; matBox.style.display='none'; matInp.value='';
+  thickInp.value=''; qs('#thickGroup').style.display='none';
+  nextBox.style.display='none'; noMatch.style.display='none'; ddwn.style.display='none';
 }
 
-/* Categorías ─ click */
-qsa('.btn-cat').forEach(b=>{
-  b.onclick=()=>{
-    qsa('.btn-cat').forEach(x=>x.classList.remove('active')); b.classList.add('active');
-    const cid=+b.dataset.cid; resetMat();
-    const list=cats[cid]?.mats||[];
-    list.forEach(m=>{
-      const btn=document.createElement('button');
-      btn.type='button'; btn.className='btn btn-outline-secondary btn-mat';
-      btn.textContent=m.name; btn.dataset.mid=m.id;
-      btn.onclick=()=>{
-        qsa('.btn-mat').forEach(x=>x.classList.remove('active')); btn.classList.add('active');
-        matInp.value=m.id; search.value=m.name; noMatchMsg(false);
-        qs('#thickGroup').style.display='block'; validate(); hideDD();
-      };
-      matCol.appendChild(btn);
+/* Categorías */
+qsa('.btn-cat').forEach(btn=>{
+  btn.onclick=()=>{
+    qsa('.btn-cat').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
+    const cid=btn.dataset.cid; resetSelection();
+    (cats[cid]?.mats||[]).forEach(m=>{
+      const b=document.createElement('button');
+      b.type='button'; b.className='btn btn-outline-secondary btn-mat me-2 mb-2';
+      b.dataset.mid=m.id; b.textContent=m.name;
+      b.onclick=()=>{ qsa('.btn-mat').forEach(x=>x.classList.remove('active'));
+                      b.classList.add('active'); matInp.value=m.id;
+                      search.value=m.name; qs('#thickGroup').style.display='block';
+                      validate(); ddwn.style.display='none'; };
+      matCol.appendChild(b);
     });
-    emptyMsg.style.display=list.length?'none':'block';
+    emptyMsg.style.display = (cats[cid]?.mats||[]).length ? 'none':'block';
     matBox.style.display='block';
   };
 });
 
 /* Buscador */
 search.addEventListener('input',e=>{
-  const val=e.target.value.trim(); if(val.length<2){noMatchMsg(false);hideDD();return;}
-  const term=normalizeText(val);
-  const matches=flat.filter(m=>normalizeText(m.name).includes(term));
-  if(!matches.length){resetMat();noMatchMsg(true);return;}
-  noMatchMsg(false); ddwn.innerHTML='';
+  const v=e.target.value.trim(); if(v.length<2){ddwn.style.display='none';return;}
+  const term=norm(v);
+  const matches=flat.filter(m=>norm(m.name).includes(term));
+  if(!matches.length){noMatch.style.display='block'; return;}
+  noMatch.style.display='none'; ddwn.innerHTML=''; ddwn.style.display='block';
   matches.forEach(m=>{
-    const div=document.createElement('div'); div.className='item'; div.dataset.mid=m.id;
-    const raw=m.name, idx=normalizeText(raw).indexOf(term);
-    div.innerHTML=idx==-1?raw:raw.slice(0,idx)+'<span class="hl">'+raw.slice(idx,idx+term.length)+'</span>'+raw.slice(idx+term.length);
-    div.onclick=()=>{qs(`.btn-cat[data-cid="${mat2cid[m.id]}"]`)?.click();
-                     setTimeout(()=>qs(`.btn-mat[data-mid="${m.id}"]`)?.click(),0); hideDD();};
-    ddwn.appendChild(div);
+    const item=document.createElement('div'); item.className='item'; item.dataset.mid=m.id;
+    const idx=norm(m.name).indexOf(term);
+    item.innerHTML = idx===-1?m.name:
+        m.name.slice(0,idx)+'<span class="hl">'+m.name.slice(idx,idx+term.length)+'</span>'+m.name.slice(idx+term.length);
+    item.onclick=()=>{ qs(`.btn-cat[data-cid='${mat2c[m.id]}']`)?.click();
+                       setTimeout(()=>qs(`.btn-mat[data-mid='${m.id}']`)?.click(),0); ddwn.style.display='none'; };
+    ddwn.appendChild(item);
   });
-  ddwn.style.display='block';
 });
-search.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();attemptExact();}});
-search.addEventListener('blur',()=>setTimeout(attemptExact,0));
-function attemptExact(){
-  const val=search.value.trim(); if(val.length<2)return;
-  const ex=flat.find(m=>normalizeText(m.name)===normalizeText(val)); if(!ex)return;
-  qs(`.btn-cat[data-cid="${mat2cid[ex.id]}"]`)?.click();
-  setTimeout(()=>qs(`.btn-mat[data-mid="${ex.id}"]`)?.click(),0); hideDD();
-}
+search.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); ddwn.style.display='none';}});
 
-/* Espesor */
-thickIn?.addEventListener('input',validate);
+/* Espesor input */
+thickInp.addEventListener('input',validate);
 
-/* Validación submit */
+/* Submit guard */
 qs('#formWood').addEventListener('submit',e=>{
-  if(!matInp.value||parseFloat(thickIn.value)<=0){
-    e.preventDefault(); alert('Elegí madera y espesor válido.'); }
+  if(!matInp.value || !(+thickInp.value>0)){ e.preventDefault(); alert('Seleccioná madera y espesor válido.'); }
 });
-
-/* Debug opcional */
-if(debugBox){debugBox.textContent=Object.values(cats).map(c=>`${c.name}: ${c.mats.length}`).join('\n');}
 </script>
 </body>
 </html>
