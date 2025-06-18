@@ -1,0 +1,24 @@
+:root {
+  --color-primary: #0ea5e9;
+  --color-dark-bg: #0b1e2d;
+  --color-light-bg: #f6f8fa;
+  --color-text-light: #ffffff;
+  --color-text-dark: #0d1117;
+  --radius-lg: 0.75rem;
+  --spacer-2: 0.5rem;
+  --color-stepper-inactive: #64748b;
+  --color-box-bg: #132330;
+  --color-border: #264b63;
+--color-border-dark: #2e5b78;
+  --color-button-bg: #2b8ac6;
+  --color-button-border: #256fa1;
+  --color-button-hover: #3aa0db;
+  --color-debug-bg: #102735;
+  --color-debug-text: #a7d3e9;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg-dark: #0b1e2d;
+    --color-text-dark: #dceefb;
+  }
+}
