@@ -14,8 +14,6 @@ function initExpertResult(P) {
     return;
   }
 
-  const { noUiSlider } = window;
-
   const required = ['vc0', 'fzMinEff', 'fzMaxEff', 'D', 'Z', 'thickness', 'ae', 'rpmMin', 'rpmMax', 'frMax', 'Kc11', 'mc', 'eta', 'strategy'];
   const missing = required.filter(k => P[k] === undefined);
   if (missing.length > 0) {
@@ -79,35 +77,15 @@ function initExpertResult(P) {
   const mmrBase = (apBase * aeReal * feedBase) / 1000;
 
   function initSliders() {
-    noUiSlider.create(vcS, {
-      start: [vcBase],
-      connect: [true, false],
-      range: {
-        min: +(vcBase * 0.75).toFixed(1),
-        max: +(vcBase * 1.25).toFixed(1)
-      },
-      step: 0.1,
-      tooltips: true,
-      format: {
-        to: v => (+v).toFixed(1),
-        from: v => parseFloat(v)
-      }
-    });
+    vcS.step = 0.1;
+    vcS.min = +(vcBase * 0.75).toFixed(1);
+    vcS.max = +(vcBase * 1.25).toFixed(1);
+    vcS.value = vcBase;
     vcV.textContent = `${vcBase} m/min`;
-    vcMinL.textContent = `${(vcBase * 0.75).toFixed(1)} m/min`;
-    vcMaxL.textContent = `${(vcBase * 1.25).toFixed(1)} m/min`;
+    vcMinL.textContent = `${vcS.min} m/min`;
+    vcMaxL.textContent = `${vcS.max} m/min`;
 
-    noUiSlider.create(fzS, {
-      start: [fzMin0],
-      connect: [true, false],
-      range: { min: fzMin0, max: fzMax0 },
-      step: 0.0001,
-      tooltips: true,
-      format: {
-        to: v => (+v).toFixed(4),
-        from: v => parseFloat(v)
-      }
-    });
+    fzS.step = 0.0001;
 
     passS.min = 1;
     passS.max = 10;
@@ -140,28 +118,28 @@ function initExpertResult(P) {
     const apAct = apBase / EP;
     const minFz = +(fzMin0 * apBase / apAct * seg).toFixed(4);
     const maxFz = +(fzMax0 * apBase / apAct * seg).toFixed(4);
-    fzS.noUiSlider.updateOptions({ range: { min: minFz, max: maxFz } });
+    fzS.min = minFz;
+    fzS.max = maxFz;
     fzMinL.textContent = `${minFz} mm`;
     fzMaxL.textContent = `${maxFz} mm`;
-    const vc = +vcS.noUiSlider.get();
+    const vc = +vcS.value;
     const rpm = (vc * 1000) / (Math.PI * D);
     const fzIdeal = (mmrBase * 1000) / (apAct * aeReal * rpm * Z);
-    const clamped = Math.min(Math.max(fzIdeal, minFz), maxFz).toFixed(4);
-    fzS.noUiSlider.set(clamped);
-    fzV.textContent = `${clamped} mm`;
+    fzS.value = Math.min(Math.max(fzIdeal, minFz), maxFz).toFixed(4);
+    fzV.textContent = `${fzS.value} mm`;
   }
 
   function displayValues() {
-    vcV.textContent = `${vcS.noUiSlider.get()} m/min`;
-    fzV.textContent = `${fzS.noUiSlider.get()} mm`;
+    vcV.textContent = `${vcS.value} m/min`;
+    fzV.textContent = `${fzS.value} mm`;
     aeV.textContent = `${aeS.value} mm`;
     const paso = apBase / +passS.value;
     passV.textContent = `${passS.value} pasada${passS.value > 1 ? 's' : ''} de ${paso.toFixed(2)} mm`;
   }
 
   function calculateAll() {
-    const fz = +fzS.noUiSlider.get(),
-          vc = +vcS.noUiSlider.get(),
+    const fz = +fzS.value,
+          vc = +vcS.value,
           EP = +passS.value;
     const ap = apBase / EP;
     aeReal = +aeS.value;
@@ -206,8 +184,8 @@ function initExpertResult(P) {
     displayValues();
   }
 
-  vcS.noUiSlider.on('update', calculateAll);
-  fzS.noUiSlider.on('update', calculateAll);
+  vcS.addEventListener('input', calculateAll);
+  fzS.addEventListener('input', calculateAll);
   aeS.addEventListener('input', () => {
     aeReal = +aeS.value;
     aeV.textContent = `${aeReal} mm`;
