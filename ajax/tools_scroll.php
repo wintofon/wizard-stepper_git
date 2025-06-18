@@ -48,9 +48,23 @@ if (!$cacheAvailable || !$hit) {
     $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
     $stmt->execute();
     $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // Compute image URLs for freshly fetched data
+    foreach ($data as &$row) {
+        $img = $row['image'] ?? '';
+        $row['img_url'] = $img !== '' ? '/wizard-stepper_git/' . ltrim((string)$img, '/') : '';
+    }
+    unset($row);
     if ($cacheAvailable) {
         apcu_store($key, $data, 60);
     }
+} else { // Ensure cached data also includes image URLs
+    foreach ($data as &$row) {
+        if (!isset($row['img_url'])) {
+            $img = $row['image'] ?? '';
+            $row['img_url'] = $img !== '' ? '/wizard-stepper_git/' . ltrim((string)$img, '/') : '';
+        }
+    }
+    unset($row);
 } // Fallback to direct query when APCu functions are missing
 
 $hasMore = count($data) === $pageSize;
