@@ -27,4 +27,3 @@ function respond_json($data) {
 function session_get(string $key) {
     return $_SESSION[$key] ?? null;
 }
-?>
