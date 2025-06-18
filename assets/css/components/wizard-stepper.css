@@ -1,0 +1,11 @@
+.stepper-logo{
+  background:#fff;
+  padding:0 1.25rem;
+  clip-path:polygon(0 0,100% 0,86% 100%,0 100%);
+  display:flex; align-items:center;
+}
+.stepper-logo img{height:40px;width:auto;}
+@media(max-width:576px){
+  .stepper-logo{padding:0 .75rem;}
+  .stepper-logo img{height:32px;}
+}
