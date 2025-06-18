@@ -185,9 +185,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                    placeholder="Buscar…">
           </div>
 
-          <div class="table-responsive">
-            <table id="toolTbl"
-                   class="table table-dark table-hover align-middle">
+          <div class="list-scroll-container">
+            <div class="table-responsive">
+              <table id="toolTbl"
+                     class="table table-dark table-hover align-middle">
               <thead class="table-light">
                 <tr>
                   <th>Sel.</th>
@@ -201,13 +202,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                   <th data-col="tool_type">Tipo</th>
                 </tr>
               </thead>
-              <tbody>
-                <!-- El JS externo se encargará de poblar las filas -->
-              </tbody>
-            </table>
+                <tbody>
+                </tbody>
+              </table>
+            </div>
+            <div id="sentinel"></div>
           </div>
-          <div id="tool-list" class="row g-3"></div>
-          <div id="sentinel"></div>
         </main>
       </div>
 
