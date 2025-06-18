@@ -1,18 +1,25 @@
 .stepper-header {
-  background: var(--bs-body-bg);
-  border-bottom: 1px solid var(--bs-border-color);
-  padding: 0.5rem 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background-color: var(--bs-dark);
+  padding: 0;
+  margin: 0;
+  border: none;
 }
 
 .logo-stepper {
+  width: 120px;
   height: auto;
   margin-right: 1rem;
-  width: 80px;
 }
 
 .stepper-bar {
-  align-items: center;
   display: flex;
+  flex-wrap: nowrap;
 }
 
 /* Responsivo: ocultar logo en pantallas <768px */
@@ -25,7 +32,4 @@
     justify-content: center;
   }
 
-  .stepper-bar {
-    width: 100%;
-  }
 }

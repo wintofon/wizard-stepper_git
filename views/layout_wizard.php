@@ -14,20 +14,21 @@
 <body>
 
   <!-- Barra de pasos -->
-  <div class="stepper-header d-flex align-items-center">
-    <img src="assets/img/logos/logo_stepper.png" alt="Logo Stepper" class="logo-stepper">
-    <div class="stepper-bar flex-grow-1">
-      <nav class="stepper-container">
-        <ul class="stepper">
-          <?php foreach ($flow as $n): ?>
-            <li
-              data-step="<?= $n ?>"
-              data-label="<?= htmlspecialchars($labels[$n], ENT_QUOTES) ?>"></li>
-          <?php endforeach; ?>
-        </ul>
-      </nav>
-    </div>
-  </div>
+  <header class="stepper-header d-flex align-items-center">
+    <img
+      src="assets/img/logos/logo_stepper.png"
+      alt="Logo Stepper"
+      class="logo-stepper">
+    <nav class="stepper-bar flex-grow-1">
+      <ul class="stepper">
+        <?php foreach ($flow as $n): ?>
+          <li
+            data-step="<?= $n ?>"
+            data-label="<?= htmlspecialchars($labels[$n], ENT_QUOTES) ?>"></li>
+        <?php endforeach; ?>
+      </ul>
+    </nav>
+  </header>
 
   <!-- Botón reset -->
   <div style="text-align:right; padding:.5rem 1rem;">
