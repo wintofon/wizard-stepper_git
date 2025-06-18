@@ -9,12 +9,12 @@ use IndustrialWizard\StepperFlow;
 header('Content-Type: application/json');
 
 $step = filter_input(INPUT_POST,'step',FILTER_VALIDATE_INT);
-if (!$step || !StepperFlow::isAllowed($step)) {
+$mode = $_SESSION['tool_mode'] ?? ($_POST['tool_mode'] ?? 'manual');
+if (!$step || !StepperFlow::isAllowed($step, $mode)) {
     echo json_encode(['success'=>false,'error'=>'Paso inválido']);
     exit;
 }
 
-$mode = $_SESSION['tool_mode'] ?? ($_POST['tool_mode'] ?? 'manual');
 
 // Guardar modo si es paso 1
 if ($step === 1 && isset($_POST['tool_mode'])) {
