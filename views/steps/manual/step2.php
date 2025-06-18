@@ -132,21 +132,19 @@ if ($tool) {
       <!-- Botón eliminado por nuevo flujo sin regreso -->
 
   <?php else: ?>
-      <?php if (!empty($tool['image_url'])): ?>
-        <figure class="text-center mb-4">
-          <img
-            src="<?= htmlspecialchars($tool['image_url']) ?>"
-            alt="Imagen de la herramienta seleccionada"
-            class="img-fluid rounded shadow-sm"
-            style="max-width: 100%; height: auto;"
-            onerror="this.style.display='none'"
-          >
-          <figcaption class="text-muted mt-2">Fresa seleccionada</figcaption>
-        </figure>
-      <?php endif; ?>
-
       <div class="card bg-dark text-white mt-3">
-        <div class="card-body d-flex gap-4 align-items-start">
+        <?php if (!empty($tool['image_url'])): ?>
+          <figure class="text-center p-3 mb-0">
+            <img
+              src="<?= htmlspecialchars($tool['image_url']) ?>"
+              alt="Imagen de la herramienta seleccionada"
+              class="tool-image"
+              onerror="this.style.display='none'"
+            >
+            <figcaption class="text-muted mt-2">Fresa seleccionada</figcaption>
+          </figure>
+        <?php endif; ?>
+        <div class="card-body">
           <div>
             <h4><?= htmlspecialchars($tool['tool_code']) ?> – <?= htmlspecialchars($tool['name']) ?></h4>
             <p class="mb-1"><strong>Marca:</strong> <?= htmlspecialchars($tool['brand']) ?>
