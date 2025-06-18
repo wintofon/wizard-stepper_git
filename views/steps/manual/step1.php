@@ -238,6 +238,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           onload="window._TOOL_BROWSER_LOADED=true"
           onerror="console.error('❌ step1_manual_browser.js no cargó');">
   </script>
+  <script>
+    window.csrfToken = '<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>';
+  </script>
   <script type="module" src="/wizard-stepper_git/assets/js/step1_lazy.js"></script>
 
   <!-- Alerta si no cargó el JS externo -->
