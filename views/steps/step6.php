@@ -2,6 +2,8 @@
 // File: C:\xampp\htdocs\wizard-stepper_git\views\steps\step6.php
 declare(strict_types=1);
 
+use App\Controller\ExpertResultController;
+
 // ──────────────────────────────────────────────────────────────
 // ¿Se carga directo o embebido en load-step.php?
 // Si index.php incluyó esta vista → define('WIZARD_EMBEDDED', true)
