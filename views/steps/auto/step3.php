@@ -52,6 +52,24 @@ require_once __DIR__ . '/../../../includes/db.php';          // Debe definir $pd
 require_once __DIR__ . '/../../../src/Controller/AutoToolRecommenderController.php';
 
 ////////////////////////////////////////////////////////////////////////////////
+// [F] Helpers
+////////////////////////////////////////////////////////////////////////////////
+/** Formatea milímetros sin ceros sobrantes. */
+function fmt_mm($val): string
+{
+    if ($val === null || $val === '') {
+        return '-';
+    }
+    $num = (float) $val;
+    if (fmod($num, 1.0) === 0.0) { // es entero
+        return (int) $num . ' mm';
+    }
+    $txt = number_format($num, 3, '.', '');
+    $txt = rtrim(rtrim($txt, '0'), '.'); // "6.350" → "6.35"
+    return $txt . ' mm';
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // 3) VERIFICAR QUE SE COMPLETARON PASOS 1 y 2 (material + estrategia)
 ////////////////////////////////////////////////////////////////////////////////
 try {
@@ -198,6 +216,16 @@ try {
 
     dbg('ℹ [step3.js] materialId=', materialId, 'strategyId=', strategyId, 'thickness=', thickness);
 
+    const fmtMM = val => {
+      if (val === null || val === '') return '-';
+      const num = parseFloat(val);
+      if (Number.isNaN(num)) return '-';
+      if (Math.round(num) === num) return `${num.toFixed(0)} mm`;
+      let txt = num.toFixed(3);
+      txt = txt.replace(/\.0+$|(?<=\.\d)0+$/, '');
+      return `${txt} mm`;
+    };
+
     const diaFilter    = document.getElementById('diaFilter');
     const container    = document.getElementById('toolContainer');
     const selectForm   = document.getElementById('selectForm');
@@ -255,7 +283,7 @@ try {
       diameters.forEach(d => {
         const opt = document.createElement('option');
         opt.value = d;
-        opt.textContent = `${d} mm`;
+        opt.textContent = fmtMM(d);
         diaFilter.appendChild(opt);
       });
       dbg('ℹ [step3.js] Opciones de diámetro añadidas al select.');
@@ -309,9 +337,9 @@ try {
           Serie ${tool.serie} —
           Código ${tool.tool_code}<br>
           <small>
-            Ø${tool.diameter_mm} mm ·
-            Mango ${tool.shank_diameter_mm} mm ·
-            L. útil ${tool.cut_length_mm} mm ·
+            Ø${fmtMM(tool.diameter_mm)} ·
+            Mango ${fmtMM(tool.shank_diameter_mm)} ·
+            L. útil ${fmtMM(tool.cut_length_mm)} ·
             Z = ${tool.flute_count || '-'}
           </small><br>
           <span class="estrella">${'★'.repeat(parseInt(tool.rating, 10))}</span>
@@ -319,7 +347,7 @@ try {
         if (thickness > parseFloat(tool.cut_length_mm)) {
           const warn = document.createElement('div');
           warn.className = 'warning mt-1';
-          warn.innerHTML = `⚠ El espesor (${thickness} mm) supera el largo útil (${tool.cut_length_mm} mm)`;
+          warn.innerHTML = `⚠ El espesor (${fmtMM(thickness)}) supera el largo útil (${fmtMM(tool.cut_length_mm)})`;
           infoCol.appendChild(warn);
         }
         card.appendChild(infoCol);
