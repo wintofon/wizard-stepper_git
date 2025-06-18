@@ -131,10 +131,10 @@ if ($jsonParams === false) {
 
 // [J] PREPARAR VARIABLES PARA LA VISTA
 // Datos herramienta
-$serialNumber  = htmlspecialchars($toolData['serie']       ?? '', ENT_QUOTES);
-$toolCode      = htmlspecialchars($toolData['tool_code']   ?? '', ENT_QUOTES);
-$toolName      = htmlspecialchars($toolData['name']        ?? 'N/A', ENT_QUOTES);
-$toolType      = htmlspecialchars($toolData['tool_type']   ?? 'N/A', ENT_QUOTES);
+$serialNumber  = h($toolData['serie']       ?? '');
+$toolCode      = h($toolData['tool_code']   ?? '');
+$toolName      = h($toolData['name']        ?? 'N/A');
+$toolType      = h($toolData['tool_type']   ?? 'N/A');
 
 // Imágenes
 
@@ -157,10 +157,10 @@ $fluteLenMb    = (float)($toolData['flute_length_mm']   ?? 0);
 $cutLenMb      = (float)($toolData['cut_length_mm']     ?? 0);
 $fullLenMb     = (float)($toolData['full_length_mm']    ?? 0);
 $fluteCountMb  = (int)  ($toolData['flute_count']        ?? 0);
-$coatingMb     = htmlspecialchars($toolData['coated']    ?? 'N/A', ENT_QUOTES);
-$materialMb    = htmlspecialchars($toolData['material']  ?? 'N/A', ENT_QUOTES);
-$brandMb       = htmlspecialchars($toolData['brand']     ?? 'N/A', ENT_QUOTES);
-$madeInMb      = htmlspecialchars($toolData['made_in']   ?? 'N/A', ENT_QUOTES);
+$coatingMb     = h($toolData['coated']    ?? 'N/A');
+$materialMb    = h($toolData['material']  ?? 'N/A');
+$brandMb       = h($toolData['brand']     ?? 'N/A');
+$madeInMb      = h($toolData['made_in']   ?? 'N/A');
 
 // Parámetros técnicos base
 $baseVc        = (float)$params['vc0'];
@@ -244,7 +244,7 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
     <strong>⚠️ Archivos faltantes (se usarán CDNs):</strong>
     <ul>
       <?php foreach ($assetErrors as $err): ?>
-        <li><?= htmlspecialchars($err ?? '', ENT_QUOTES) ?></li>
+        <li><?= h($err ?? '') ?></li>
       <?php endforeach; ?>
     </ul>
   </div>

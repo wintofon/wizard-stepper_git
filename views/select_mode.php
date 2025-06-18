@@ -22,7 +22,7 @@
     Elegí uno de los dos modos según tu experiencia previa:
   </p>
   <form method="post" action="index.php">
-    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>">
+    <input type="hidden" name="csrf_token" value="<?= h($csrfToken) ?>">
     <div class="mode-options">
       <label class="mode-option">
         <input type="radio" name="tool_mode" value="manual" required>
