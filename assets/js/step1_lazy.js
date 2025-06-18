@@ -76,6 +76,7 @@ export function initLazy() {
     loading = false;
     hasMore = true;
     tbody.innerHTML = "";
+    observer.disconnect();
     observer.observe(sentinel);
     loadPage();
   }
