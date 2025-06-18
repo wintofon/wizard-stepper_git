@@ -1,11 +1,17 @@
 <?php
 /**
  * Paso 5 (Auto) – Configurar router
- * Lee transmisiones, valida datos y avanza al Paso 6.
+ * Protegido con CSRF, controla flujo y valida:
+ *   – rpm_min > 0
+ *   – rpm_max > 0
+ *   – rpm_min < rpm_max
+ *   – feed_max > 0
+ *   – hp       > 0
+ * Después guarda en sesión y avanza a step6.php
  */
 declare(strict_types=1);
 
-/* ──────────────────────────── 1) Sesión segura ──────────────────────────── */
+/* 1) Sesión segura y flujo */
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start([
         'cookie_secure'   => true,
@@ -14,29 +20,30 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     ]);
 }
 if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 4) {
-    header('Location: step1.php'); exit;
+    header('Location: step1.php');
+    exit;
 }
 
-/* ─────────────────────────── 2) Dependencias BD ─────────────────────────── */
+/* 2) Dependencias */
 require_once __DIR__ . '/../../includes/db.php';
 require_once __DIR__ . '/../../includes/debug.php';
 
-/* ─────────────────────────── 3) CSRF token ──────────────────────────────── */
+/* 3) CSRF token */
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 $csrfToken = $_SESSION['csrf_token'];
 
-/* ─────────────────────────── 4) Transmisiones ───────────────────────────── */
+/* 4) Transmisiones desde BD */
 $txList = $pdo->query("
     SELECT id, name, rpm_min, rpm_max, feed_max, hp_default
       FROM transmissions
     ORDER BY name
 ")->fetchAll(PDO::FETCH_ASSOC);
 
-$validTransmissions = [];
+$validTx = [];
 foreach ($txList as $t) {
-    $validTransmissions[(int)$t['id']] = [
+    $validTx[(int)$t['id']] = [
         'rpm_min'  => (int)$t['rpm_min'],
         'rpm_max'  => (int)$t['rpm_max'],
         'feed_max' => (float)$t['feed_max'],
@@ -44,33 +51,29 @@ foreach ($txList as $t) {
     ];
 }
 
-/* ─────────────────────────── 5) Procesar POST ───────────────────────────── */
+/* 5) Procesar POST */
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    /* 5.1) CSRF */
     if (!hash_equals($csrfToken, (string)($_POST['csrf_token'] ?? ''))) {
         $errors[] = 'Token de seguridad inválido. Recargá la página e intentá de nuevo.';
     }
-    /* 5.2) Paso correcto */
     if ((int)($_POST['step'] ?? 0) !== 5) {
-        $errors[] = 'Paso inválido. Reiniciá el wizard.';
+        $errors[] = 'Paso inválido. Reiniciá el asistente.';
     }
-    /* 5.3) Inputs */
+
     $id   = filter_input(INPUT_POST, 'transmission_id', FILTER_VALIDATE_INT);
     $rpmn = filter_input(INPUT_POST, 'rpm_min',         FILTER_VALIDATE_INT);
     $rpmm = filter_input(INPUT_POST, 'rpm_max',         FILTER_VALIDATE_INT);
     $feed = filter_input(INPUT_POST, 'feed_max',        FILTER_VALIDATE_FLOAT);
     $hp   = filter_input(INPUT_POST, 'hp',              FILTER_VALIDATE_FLOAT);
 
-    /* 5.4) Reglas */
-    if (!isset($validTransmissions[$id]))              $errors[] = 'Elegí una transmisión válida.';
-    if (!$rpmn || $rpmn <= 0)                          $errors[] = 'La RPM mínima debe ser > 0.';
-    if (!$rpmm || $rpmm <= 0)                          $errors[] = 'La RPM máxima debe ser > 0.';
-    if ($rpmn && $rpmm && $rpmn >= $rpmm)              $errors[] = 'La RPM mínima debe ser menor que la máxima.';
-    if (!$feed || $feed <= 0)                          $errors[] = 'El avance máximo debe ser > 0.';
-    if (!$hp   || $hp   <= 0)                          $errors[] = 'La potencia debe ser > 0.';
+    if (!isset($validTx[$id]))           $errors[] = 'Elegí una transmisión válida.';
+    if (!$rpmn || $rpmn <= 0)            $errors[] = 'La RPM mínima debe ser > 0.';
+    if (!$rpmm || $rpmm <= 0)            $errors[] = 'La RPM máxima debe ser > 0.';
+    if ($rpmn && $rpmm && $rpmn >= $rpmm)$errors[] = 'La RPM mínima debe ser menor que la máxima.';
+    if (!$feed || $feed <= 0)            $errors[] = 'El avance máximo debe ser > 0.';
+    if (!$hp   || $hp   <= 0)            $errors[] = 'La potencia debe ser > 0.';
 
-    /* 5.5) Guardar y seguir */
     if (!$errors) {
         $_SESSION += [
             'transmission_id' => $id,
@@ -81,11 +84,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'wizard_progress' => 5,
         ];
         session_write_close();
-        header('Location: step6.php'); exit;
+        header('Location: step6.php');
+        exit;
     }
 }
 
-/* ─────────────────────── 6) Valores previos (si hay) ────────────────────── */
+/* 6) Valores previos */
 $prev = [
     'transmission_id' => $_SESSION['transmission_id'] ?? '',
     'rpm_min'         => $_SESSION['rpm_min']        ?? '',
@@ -95,10 +99,11 @@ $prev = [
 ];
 $hasPrev = (int)$prev['transmission_id'] > 0;
 ?>
-<!DOCTYPE html><html lang="es"><head>
+<!DOCTYPE html>
+<html lang="es"><head>
 <meta charset="utf-8">
 <title>Paso 5 – Configurá tu router</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="/wizard-stepper_git/assets/css/steps/step5.css">
 </head><body>
@@ -115,13 +120,14 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
     <input type="hidden" name="step" value="5">
     <input type="hidden" name="csrf_token" value="<?=htmlspecialchars($csrfToken)?>">
 
-    <!-- 1) Transmisión -->
+    <!-- Transmisión -->
     <div class="mb-4">
       <label class="form-label d-block">Transmisión</label>
       <div class="btn-group" role="group">
       <?php foreach ($txList as $t):
             $tid=(int)$t['id']; $chk=$tid===$prev['transmission_id']; ?>
-        <input class="btn-check" type="radio" name="transmission_id" id="tx<?=$tid?>" value="<?=$tid?>" <?=$chk?'checked':''?>>
+        <input class="btn-check" type="radio" name="transmission_id"
+               id="tx<?=$tid?>" value="<?=$tid?>" <?=$chk?'checked':''?>>
         <label class="btn btn-outline-primary" for="tx<?=$tid?>"
                data-rpmmin="<?=$t['rpm_min']?>" data-rpmmax="<?=$t['rpm_max']?>"
                data-feedmax="<?=$t['feed_max']?>" data-hpdef="<?=$t['hp_default']?>">
@@ -131,7 +137,7 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
       </div>
     </div>
 
-    <!-- 2) Parámetros -->
+    <!-- Parámetros -->
     <div id="paramSection">
       <div class="row g-3">
         <?php
@@ -141,38 +147,38 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
             ['feed_max','Avance máx (mm/min)',0.1],
             ['hp','Potencia (HP)',0.1],
           ];
-          foreach($fields as [$id,$label,$step]):
-            $val=htmlspecialchars((string)$prev[$id]); ?>
+          foreach($fields as [$id,$label,$step]): ?>
         <div class="col-md-3">
           <label for="<?=$id?>" class="form-label"><?=$label?></label>
-          <input type="number" class="form-control" id="<?=$id?>" name="<?=$id?>" step="<?=$step?>" min="1" value="<?=$val?>" required>
+          <input type="number" class="form-control" id="<?=$id?>" name="<?=$id?>"
+                 step="<?=$step?>" min="1" value="<?=htmlspecialchars((string)$prev[$id])?>" required>
           <div class="invalid-feedback"></div>
         </div>
         <?php endforeach; ?>
       </div>
     </div>
 
-    <!-- 3) Siguiente -->
-    <div id="nextBtnWrap" class="text-end mt-4" style="display:<?=$hasPrev?'block':'none'?>">
-      <button id="btn-next" class="btn btn-primary btn-lg">Siguiente →</button>
+    <!-- Botón -->
+    <div id="nextWrap" class="text-end mt-4" style="display:<?=$hasPrev?'block':'none'?>">
+      <button class="btn btn-primary btn-lg">Siguiente →</button>
     </div>
   </form>
 </main>
 
 <script>
 (() => {
-  const radios      = document.querySelectorAll('.btn-check');
-  const paramSec    = document.getElementById('paramSection');
-  const nextWrap    = document.getElementById('nextBtnWrap');
-  const form        = document.getElementById('routerForm');
-  const inputs = {
-    rpm_min:  document.getElementById('rpm_min'),
-    rpm_max:  document.getElementById('rpm_max'),
+  const radios   = document.querySelectorAll('.btn-check');
+  const paramSec = document.getElementById('paramSection');
+  const nextWrap = document.getElementById('nextWrap');
+  const form     = document.getElementById('routerForm');
+  const inputs   = {
+    rpm_min : document.getElementById('rpm_min'),
+    rpm_max : document.getElementById('rpm_max'),
     feed_max: document.getElementById('feed_max'),
-    hp:       document.getElementById('hp')
+    hp      : document.getElementById('hp')
   };
 
-  /* Mostrar/ocultar sección al elegir transmisión */
+  /* Ocultar todo hasta elegir transmisión */
   const hideParams = () => {
     paramSec.style.display = 'none';
     nextWrap.style.display = 'none';
@@ -180,9 +186,9 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
   };
   <?php if(!$hasPrev): ?> hideParams(); <?php endif; ?>
 
+  /* Mostrar parámetros y validar */
   radios.forEach(r => r.addEventListener('change', () => {
-    const lbl = document.querySelector(`label[for="${r.id}"]`);
-    const d   = lbl.dataset;
+    const d = document.querySelector(`label[for="${r.id}"]`).dataset;
     inputs.rpm_min.value  = d.rpmmin;
     inputs.rpm_max.value  = d.rpmmax;
     inputs.feed_max.value = d.feedmax;
@@ -190,36 +196,34 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
 
     Object.values(inputs).forEach(i => i.disabled=false);
     paramSec.style.display = 'block';
-    nextWrap.style.display = 'block';
-    validate();                // chequea en vivo
+    validate();
   }));
 
   /* Validación en vivo */
   function validate() {
     let ok = true;
-
-    const v = k => parseFloat(inputs[k].value);
-    const setErr = (inp,msg) => {
-      const fb = inp.nextElementSibling;
-      fb.textContent = msg;
-      if(msg){ inp.classList.add('is-invalid'); ok=false; }
-      else   { inp.classList.remove('is-invalid'); }
+    const v  = k => parseFloat(inputs[k].value) || 0;
+    const fb = (inp,msg) => {
+      inp.nextElementSibling.textContent = msg;
+      inp.classList.toggle('is-invalid', !!msg);
+      if (msg) ok = false;
     };
 
-    setErr(inputs.rpm_min , v('rpm_min')  > 0 ? '' : 'Debe ser > 0');
-    setErr(inputs.rpm_max , v('rpm_max')  > 0 ? '' : 'Debe ser > 0');
-    setErr(inputs.feed_max, v('feed_max') > 0 ? '' : 'Debe ser > 0');
-    setErr(inputs.hp      , v('hp')       > 0 ? '' : 'Debe ser > 0');
+    fb(inputs.rpm_min , v('rpm_min')  > 0 ? '' : 'Debe ser > 0');
+    fb(inputs.rpm_max , v('rpm_max')  > 0 ? '' : 'Debe ser > 0');
+    fb(inputs.feed_max, v('feed_max') > 0 ? '' : 'Debe ser > 0');
+    fb(inputs.hp      , v('hp')       > 0 ? '' : 'Debe ser > 0');
 
-    if(v('rpm_min') && v('rpm_max') && v('rpm_min') >= v('rpm_max')) {
-      setErr(inputs.rpm_min,'RPM min < max');
-      setErr(inputs.rpm_max,'RPM min < max');
+    if (v('rpm_min') && v('rpm_max') && v('rpm_min') >= v('rpm_max')) {
+      fb(inputs.rpm_min,'RPM min < max');
+      fb(inputs.rpm_max,'RPM min < max');
     }
+
+    nextWrap.style.display = ok ? 'block' : 'none';
     return ok;
   }
 
   Object.values(inputs).forEach(i => i.addEventListener('input', validate));
-
   form.addEventListener('submit', e => { if(!validate()){ e.preventDefault(); e.stopPropagation(); } });
 })();
 </script>
