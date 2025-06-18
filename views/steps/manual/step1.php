@@ -196,6 +196,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               </tbody>
             </table>
           </div>
+          <div id="tool-list" class="row g-3"></div>
+          <div id="sentinel"></div>
         </main>
       </div>
 
@@ -225,6 +227,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           onload="window._TOOL_BROWSER_LOADED=true"
           onerror="console.error('❌ step1_manual_browser.js no cargó');">
   </script>
+  <script type="module" src="/wizard-stepper_git/assets/js/step1_lazy.js"></script>
 
   <!-- Alerta si no cargó el JS externo -->
   <script>
