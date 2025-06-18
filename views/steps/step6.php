@@ -38,7 +38,6 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 }
 
 // [C] DEBUG OPCIONAL
-detectDebug:
 $DEBUG = filter_input(INPUT_GET, 'debug', FILTER_VALIDATE_BOOLEAN);
 if ($DEBUG && is_readable(__DIR__ . '/../../includes/debug.php')) {
     require_once __DIR__ . '/../../includes/debug.php';
