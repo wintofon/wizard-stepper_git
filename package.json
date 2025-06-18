@@ -1,0 +1,27 @@
+{
+  "name": "wizard-stepper_git",
+  "version": "1.0.0",
+  "description": "This project contains a PHP wizard for configuring CNC operations.",
+  "main": "index.js",
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "chokidar-cli": "^3.0.0",
+    "concurrently": "^9.1.2",
+    "postcss": "^8.5.6",
+    "postcss-cli": "^11.0.1",
+    "postcss-preset-env": "^10.2.3",
+    "stylelint": "^16.20.0",
+    "stylelint-config-prettier": "^9.0.5",
+    "stylelint-config-standard": "^38.0.0",
+    "stylelint-order": "^7.0.0"
+  },
+  "scripts": {
+    "build": "postcss 'assets/css/**/*.css' -r",
+    "watch": "chokidar 'assets/css/**/*.css' -c \"npm run build\"",
+    "lint:css": "stylelint 'assets/css/**/*.css' --fix"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
