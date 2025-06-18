@@ -7,6 +7,10 @@ This project contains a PHP wizard for configuring CNC operations.
 - **PHP 7.4+** (Composer uses `php >=7.4`)
 - **Composer** for autoloading
 - **MySQL/MariaDB** to import the provided database
+- **APCu PHP extension** – required for caching. The application still runs
+  without APCu but loses caching benefits. See
+  [README_scroll_fix.md#pruebas](README_scroll_fix.md#pruebas) for instructions
+  on clearing the cache.
 
 ## Setup
 
