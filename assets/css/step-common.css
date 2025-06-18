@@ -1,6 +1,8 @@
+@import url('base/theme.css');
+
 body {
-  background-color: #0d1117;
-  color: #e0e0e0;
+  background-color: var(--clr-bg);
+  color: var(--clr-text);
   font-family: 'Segoe UI', Roboto, sans-serif;
 }
 
