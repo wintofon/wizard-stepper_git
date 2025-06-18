@@ -257,10 +257,10 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
 
 
 <!-- BLOQUE CENTRAL HTML -->
-<div class="container-fluid py-3 content-main dashboard-grid">
+<div class="container-fluid py-3 content-main">
   <!-- ENCABEZADO DE HERRAMIENTA -->
   <div class="container py-3">
-    <div class="row gx-3 mb-4">
+    <div class="row gx-3 mb-4 cards-grid">
       <div class="col-12 col-lg-4 mb-3 area-tool">
         <div class="card h-100 shadow-sm">
           <div class="card-header text-center p-3">
@@ -286,7 +286,7 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
 
   <!-- FILA: Sliders / Resultados / Radar -->
   <div class="container py-3">
-    <div class="row gx-3 mb-4">
+    <div class="row gx-3 mb-4 cards-grid">
 
       <!-- 1) Ajustes (Sliders) -->
       <div class="col-12 col-lg-4 mb-3 area-sliders">
@@ -465,7 +465,7 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
 
   <!-- ESPECIFICACIONES TÉCNICAS & IMAGEN VECTORIAL -->
   <div class="container py-3">
-    <div class="row gx-3 mb-4">
+    <div class="row gx-3 mb-4 cards-grid">
 
       <div class="col-12 col-lg-4 mb-3">
         <div class="card h-100 shadow-sm">
