@@ -18,9 +18,13 @@
     <div class="disclaimer">
       <p><strong>📌 Importante:</strong> Este sistema está pensado para routers CNC de gama media-baja. Si usás maquinaria industrial o fresas especiales, validá los parámetros con el fabricante.</p>
     </div>
-    <button id="btn-start" class="btn btn-primary btn-lg mt-4">Iniciar</button>
+    <button id="btn-start" class="btn btn-primary btn-lg mt-4">
+      <i data-feather="play" class="me-1"></i>Iniciar
+    </button>
   </main>
   <script src="assets/js/main.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <script>feather.replace();</script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>lucide.createIcons();</script>
 </body>

@@ -245,7 +245,7 @@ $hasPrev   = is_int($prevType) && array_key_exists((int)$prevType, $types)
     <!-- 3) Botón “Siguiente” -->
     <div id="next-button-container" class="text-end mt-4" style="display: <?= $hasPrev ? 'block' : 'none' ?>;">
       <button type="submit" id="btn-next" class="btn btn-primary btn-lg">
-        Siguiente →
+        <i data-feather="arrow-right" class="me-1"></i>Siguiente
       </button>
     </div>
   </form>
