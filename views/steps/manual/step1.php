@@ -122,12 +122,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         rel="stylesheet">
 
   <!-- Estilos propios -->
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/base/reset.css">
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/base/variables.css">
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/base/layout.css">
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/base/theme.css">
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/components/wizard-stepper.css">
   <link rel="stylesheet" href="/wizard-stepper_git/assets/css/step1_manual.css">
+
   <link rel="stylesheet" href="/wizard-stepper_git/assets/css/steps/manual/step1.css">
 </head>
 <body>
