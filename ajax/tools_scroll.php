@@ -45,16 +45,19 @@ $offset = ($page - 1) * $pageSize;
 $sql = 'SELECT * FROM tools_generico ORDER BY diameter_mm ASC LIMIT :limit OFFSET :offset';
 
 $key = 'tools_scroll_' . md5($sql . '|' . $page . '|' . $pageSize);
-$data = apcu_fetch($key, $hit);
-if (!$hit) {
+$cacheAvailable = function_exists('apcu_fetch');
+$data = $cacheAvailable ? apcu_fetch($key, $hit) : false;
+if (!$cacheAvailable || !$hit) {
     $pdo = db();
     $stmt = $pdo->prepare($sql);
     $stmt->bindValue(':limit', $pageSize, PDO::PARAM_INT);
     $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
     $stmt->execute();
     $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    apcu_store($key, $data, 60);
-}
+    if ($cacheAvailable) {
+        apcu_store($key, $data, 60);
+    }
+} // Fallback to direct query when APCu functions are missing
 
 $hasMore = count($data) === $pageSize;
 
