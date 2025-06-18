@@ -1,0 +1,17 @@
+v1.1 CSS modularization
+
+- created base/variables.css with tokens:
+  --color-bg-dark: #0d1117
+  --color-text: #e0e0e0
+  --color-accent: #4fc3f7
+  --color-border: #2c2f33
+  --color-bg-darker: #0f172a
+  --color-bg-alt: #1e293b
+  --radius-lg: 0.75rem
+  --spacer-1: 0.5rem
+  --spacer-2: 1rem
+- new base/layout.css with flex and gap helpers
+- new base/theme.css centralizing body and .btn-primary styles
+- moved wizard.css to components/wizard-stepper.css
+- deduplicated dropdown-search rules from material.css and strategy.css into components/dropdown-search.css
+- updated paths in layout_wizard.php and sample steps (step6.php, manual/step1.php)
