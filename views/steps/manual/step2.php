@@ -123,12 +123,12 @@ if ($tool) {
 <link rel="stylesheet" href="assets/css/step2_manual.css">
 
 <div class="container py-4">
-  <h2 class="step-title"><i class="bi bi-tools"></i> Paso 2 – Confirmar herramienta</h2>
+  <h2 class="step-title"><i data-lucide="wrench"></i> Paso 2 – Confirmar herramienta</h2>
   <p class="step-desc">Revisá los datos de la fresa elegida.</p>
 
   <?php if ($error): ?>
       <div class="alert alert-danger mt-3">
-        <i class="bi bi-exclamation-triangle"></i> <?= htmlspecialchars($error) ?>
+        <i data-lucide="alert-triangle"></i> <?= htmlspecialchars($error) ?>
       </div>
       <!-- Botón eliminado por nuevo flujo sin regreso -->
 

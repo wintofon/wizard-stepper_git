@@ -9,6 +9,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Wizard CNC</title>
   <link rel="stylesheet" href="assets/css/wizard.css">
+  <script type="module" crossorigin
+          src="https://cdn.jsdelivr.net/npm/lucide@latest/+esm"></script>
 </head>
 <body>
 
@@ -22,6 +24,8 @@
       <?php endforeach; ?>
     </ul>
   </nav>
+
+  <h1 class="visually-hidden">Asistente CNC</h1>
 
   <!-- Botón reset -->
   <div style="text-align:right; padding:.5rem 1rem;">
@@ -45,10 +49,8 @@
     window.csrfToken = '<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>';
   </script>
   <?php endif; ?>
-  <script src="assets/js/stepper.js" defer></script>
+  <script type="module" src="assets/js/stepper.js"></script>
   <script src="assets/js/dashboard.js" defer></script>
-<link rel="stylesheet" href="assets/css/wizard.css">
-<link rel="stylesheet" href="assets/css/step6.css"><!-- <---- AGREGALO ACÁ -->
 
 </body>
 </html>

@@ -1,11 +1,12 @@
 /* wizard/assets/css/wizard.css */
+@import url('base/theme.css');
 
 /* ────────────────────────────────────────────────────────────────
    GENERAL
    ──────────────────────────────────────────────────────────────── */
 body {
-  background: #0b1e2d;              /* tono azul-oscuro global   */
-  color: #dceefb;                   /* texto casi blanco-celeste */
+  background: var(--clr-bg);        /* fondo global */
+  color: var(--clr-text);           /* texto principal */
   font-family: 'Segoe UI', Roboto, sans-serif; /* tipografía base */
   margin: 0;                        /* quitamos margen browser   */
   padding: 0;                       /* …y padding por defecto    */
@@ -13,7 +14,7 @@ body {
 
 /* Contenedor del stepper (barra de pasos) */
 .stepper-container {
-  background: #0f172a;              /* fondo azul más oscuro     */
+  background: var(--clr-card);      /* fondo barra de pasos */
   overflow-x: auto;                 /* scroll horizontal móvil   */
   padding: 0;                       /* sin padding extra         */
   position: relative;               /* base para ::after/etc.    */
@@ -32,7 +33,7 @@ body {
 }
 
 .stepper li {
-  background: #0f172a;              /* mismo fondo contenedor    */
+  background: var(--clr-card);      /* igual al contenedor       */
   border-right: 1px solid rgb(255 255 255 / 10%); /* línea divisoria */
   clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0% 100%);
   color: #64748b;                   /* gris-azulado apagado      */
@@ -58,7 +59,7 @@ body {
 /* estado completado o activo */
 .stepper li.done,
 .stepper li.active {
-  background: #1e293b;              /* fondo azul intermedio     */
+  background: var(--clr-bg);        /* fondo activo */
   color: #fff;                   /* texto blanco              */
   z-index: 2;                       /* por encima de inactivos   */
 }
@@ -67,7 +68,7 @@ body {
 .stepper li.active::before,
 .stepper li.done::before {
   animation: fill-line-left .6s ease-in forwards; /* efecto de llenado */
-  background: #0ea5e9;              /* azul brillante            */
+  background: var(--clr-accent);    /* azul brillante            */
   content: "";
   height: 4px;                      /* grosor de la barra        */ left: 0;
   position: absolute;
@@ -95,8 +96,8 @@ body {
    CONTENEDOR CENTRAL
    ──────────────────────────────────────────────────────────────── */
 .wizard-body {
-  background: #132330;              /* caja azul oscuro          */
-  border: 1px solid #264b63;        /* contorno sutil            */
+  background: var(--clr-card);      /* caja azul oscuro          */
+  border: 1px solid var(--clr-accent); /* contorno sutil        */
   border-radius: .75rem;            /* bordes redondeados        */
   box-shadow: 0 0 24px rgb(0 0 0 / 50%); /* sombra envolvente      */
   margin: 3rem auto;                /* centrado y margen sup.    */
