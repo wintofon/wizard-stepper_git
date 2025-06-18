@@ -1,0 +1,11 @@
+:root {
+  --color-primary: #4fc3f7;
+  --color-body-bg: #0d1117;
+  --color-card-bg: #161b22;
+  --color-text: #e0e0e0;
+  --color-text-muted: #a7b1bb;
+  --color-border: #2c2f33;
+  --radius-lg: 0.75rem;
+  --spacer-2: 0.5rem;
+  --color-bg-dark: #0d1117;
+}

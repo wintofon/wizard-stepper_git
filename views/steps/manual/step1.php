@@ -120,8 +120,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         rel="stylesheet">
 
   <!-- Estilos propios -->
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/step1_manual.css">
-
   <link rel="stylesheet" href="/wizard-stepper_git/assets/css/steps/manual/step1.css">
 </head>
 <body>
