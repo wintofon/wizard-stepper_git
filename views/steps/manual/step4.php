@@ -101,6 +101,23 @@ if (empty($_SESSION['tool_id']) || empty($_SESSION['tool_table'])) {
 $toolId    = (int)$_SESSION['tool_id'];
 $toolTable = preg_replace('/[^a-z0-9_]/i', '', $_SESSION['tool_table']); // sanitizado
 
+// Obtener datos de la fresa seleccionada
+$sqlTool = "SELECT t.*, s.code AS serie, b.name AS brand
+              FROM {$toolTable} t
+              JOIN series  s ON t.series_id = s.id
+              JOIN brands  b ON s.brand_id  = b.id
+             WHERE t.tool_id = :tid";
+$stTool = $pdo->prepare($sqlTool);
+$stTool->execute([':tid' => $toolId]);
+$tool = $stTool->fetch(PDO::FETCH_ASSOC) ?: [];
+$tool['length_total_mm'] ??= $tool['full_length_mm'] ?? 0;
+$imgUrl = '';
+if (!empty($_SESSION['tool_image_url'])) {
+    $imgUrl = rtrim((string)$_SESSION['tool_image_url'], '/');
+} elseif (!empty($tool['image'])) {
+    $imgUrl = '/wizard-stepper_git/' . ltrim((string)$tool['image'], '/');
+}
+
 //────────────────────────────────────────────────────────────────────
 // [H] Cargar lista de maderas compatibles con esta fresa
 //      – materialcategories.name LIKE 'Madera%'
@@ -221,11 +238,38 @@ $hasPrevT  = is_numeric($prevThick) && $prevThick > 0;
   <!-- Estilos comunes + específicos -->
   <link rel="stylesheet" href="/wizard-stepper_git/assets/css/step-common.css">
   <link rel="stylesheet" href="/wizard-stepper_git/assets/css/material.css">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/step2_manual.css">
 </head>
 <body>
 
 <main class="container py-4">
   <h2 class="mb-3">Paso 4 – Elegí la madera compatible</h2>
+
+  <div class="card bg-dark text-white mt-3">
+    <?php if (!empty($imgUrl)): ?>
+      <figure class="text-center p-3 mb-0">
+        <img
+          src="<?= htmlspecialchars($imgUrl, ENT_QUOTES) ?>"
+          alt="Imagen de la herramienta seleccionada"
+          class="tool-image"
+          onerror="this.style.display='none'"
+        >
+        <figcaption class="text-muted mt-2">Fresa seleccionada</figcaption>
+      </figure>
+    <?php endif; ?>
+    <div class="card-body">
+      <div>
+        <h4><?= htmlspecialchars($tool['tool_code'] ?? '') ?> – <?= htmlspecialchars($tool['name'] ?? '') ?></h4>
+        <p class="mb-1"><strong>Marca:</strong> <?= htmlspecialchars($tool['brand'] ?? '') ?>
+           &nbsp;|&nbsp; <strong>Serie:</strong> <?= htmlspecialchars($tool['serie'] ?? '') ?></p>
+        <p class="mb-1"><strong>Ø:</strong> <?= isset($tool['diameter_mm']) ? (float)$tool['diameter_mm'] : '' ?> mm
+           &nbsp;|&nbsp; <strong>Filos:</strong> <?= isset($tool['flute_count']) ? (int)$tool['flute_count'] : '' ?></p>
+        <p class="mb-1"><strong>Tipo:</strong> <?= htmlspecialchars($tool['tool_type'] ?? '') ?></p>
+        <p class="mb-0"><strong>Long. corte:</strong> <?= isset($tool['cut_length_mm']) ? (float)$tool['cut_length_mm'] : '' ?> mm
+           &nbsp;|&nbsp; <strong>Total:</strong> <?= isset($tool['length_total_mm']) ? (float)$tool['length_total_mm'] : '' ?> mm</p>
+      </div>
+    </div>
+  </div>
 
   <?php if (empty($rows)): ?>
     <div class="alert alert-warning">Esta fresa no tiene maderas compatibles registradas.</div>
