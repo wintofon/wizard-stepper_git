@@ -120,7 +120,13 @@ if ($tool) {
 ?>
 <link rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-<link rel="stylesheet" href="assets/css/step2_manual.css">
+<link rel="stylesheet" href="/wizard-stepper_git/assets/css/base/reset.css">
+<link rel="stylesheet" href="/wizard-stepper_git/assets/css/base/variables.css">
+<link rel="stylesheet" href="/wizard-stepper_git/assets/css/base/layout.css">
+<link rel="stylesheet" href="/wizard-stepper_git/assets/css/base/theme.css">
+<link rel="stylesheet" href="/wizard-stepper_git/assets/css/components/wizard-stepper.css">
+<link rel="stylesheet" href="/wizard-stepper_git/assets/css/components/tool-card.css">
+<link rel="stylesheet" href="/wizard-stepper_git/assets/css/steps/manual/step2_manual.css">
 
 <div class="container py-4">
   <h2 class="text-info"><i class="bi bi-tools"></i> Confirmar herramienta</h2>

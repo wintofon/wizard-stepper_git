@@ -1,10 +1,12 @@
 /* File: assets/css/step1_manual.css */
+
 /* Estilo v6.0 trapezoidal, adaptado al stepper azul oscuro */
 
 .sidebar {
   min-width: 100%;
   padding-bottom: 1rem;
 }
+
 @media (min-width: 768px) {
   .sidebar {
     min-width: 260px;
@@ -56,7 +58,8 @@
 .thumb {
   width: 40px;
   height: 40px;
-  object-fit: contain;
+  -o-object-fit: contain;
+     object-fit: contain;
   border: 1px solid #ddd;
 }
 
@@ -83,7 +86,7 @@
   color: #fff;
   padding: .75rem 1rem;
   border-radius: 6px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
 
 .table-dark {

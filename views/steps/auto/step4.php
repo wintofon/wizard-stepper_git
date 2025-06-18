@@ -21,7 +21,7 @@ header("Referrer-Policy: no-referrer");
 header("Permissions-Policy: geolocation=(), microphone=()");
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Pragma: no-cache");
-header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';");
+header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;");
 
 //
 // [B] Errores y Debug
@@ -258,6 +258,12 @@ if ($tool && !empty($tool['image'])) {
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
     rel="stylesheet"
   >
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/base/reset.css">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/base/variables.css">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/base/layout.css">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/base/theme.css">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/components/wizard-stepper.css">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/components/tool-card.css">
   <link rel="stylesheet" href="/wizard-stepper_git/assets/css/steps/auto/step4.css">
 </head>
 <body>

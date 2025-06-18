@@ -142,7 +142,12 @@ try {
   <!-- Bootstrap 5 (CDN) -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         rel="stylesheet">
-
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/base/reset.css">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/base/variables.css">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/base/layout.css">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/base/theme.css">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/components/wizard-stepper.css">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/components/tool-card.css">
   <link rel="stylesheet" href="/wizard-stepper_git/assets/css/steps/auto/step3.css">
 </head>
 <body>

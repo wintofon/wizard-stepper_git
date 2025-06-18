@@ -24,7 +24,7 @@ header("Referrer-Policy: no-referrer");
 header("Permissions-Policy: geolocation=(), microphone=()");
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Pragma: no-cache");
-header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';");
+header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;");
 
 //
 // [B] Errores y Debug
@@ -201,7 +201,12 @@ dbg('children', $children);
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
     rel="stylesheet"
   >
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/material.css">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/base/reset.css">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/base/variables.css">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/base/layout.css">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/base/theme.css">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/components/wizard-stepper.css">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/components/material.css">
 </head>
 <body>
   <main class="container py-4">
