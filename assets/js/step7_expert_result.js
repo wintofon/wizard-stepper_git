@@ -76,6 +76,43 @@ function initExpertResult(P) {
   const feedBase = rpmBase * fzMin0 * Z;
   const mmrBase = (apBase * aeReal * feedBase) / 1000;
 
+  function enhanceSlider(slider) {
+    const wrap = slider.closest('.slider-wrap');
+    if (!wrap) return;
+    const bubble = wrap.querySelector('.slider-bubble');
+    const min = parseFloat(slider.min || 0);
+    const max = parseFloat(slider.max || 1);
+    const step = parseFloat(slider.step || 1);
+
+    function update(val) {
+      const pct = ((val - min) / (max - min)) * 100;
+      wrap.style.setProperty('--val', pct);
+      if (bubble) bubble.textContent = parseFloat(val).toFixed(3);
+    }
+
+    slider.addEventListener('input', e => {
+      update(parseFloat(e.target.value));
+    });
+
+    slider.addEventListener('keydown', e => {
+      let delta = 0;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowUp') delta = step;
+      else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') delta = -step;
+      else if (e.key === 'PageUp') delta = step * 10;
+      else if (e.key === 'PageDown') delta = -step * 10;
+      if (delta !== 0) {
+        e.preventDefault();
+        let newVal = parseFloat(slider.value) + delta;
+        newVal = Math.min(max, Math.max(min, newVal));
+        slider.value = newVal;
+        slider.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    });
+
+    wrap.style.setProperty('--step-pct', (step / (max - min)) * 100);
+    update(parseFloat(slider.value));
+  }
+
   function initSliders() {
     vcS.step = 0.1;
     vcS.min = +(vcBase * 0.75).toFixed(1);
@@ -111,6 +148,8 @@ function initExpertResult(P) {
     aeReal = +aeS.value;
     updateFzRange();
     calculateAll();
+    enhanceSlider(fzS);
+    enhanceSlider(vcS);
   }
 
   function updateFzRange() {

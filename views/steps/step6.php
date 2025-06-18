@@ -296,15 +296,18 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
             <!-- fz -->
             <div class="mb-4 px-2">
               <label for="sliderFz" class="form-label">fz (mm/tooth)</label>
-              <input
-                type="range"
-                id="sliderFz"
-                class="form-range"
-                min="<?= number_format($fzMinDb,4,'.','') ?>"
-                max="<?= number_format($fzMaxDb,4,'.','') ?>"
-                step="0.0001"
-                value="<?= number_format($baseFz,4,'.','') ?>"
-              >
+              <div class="slider-wrap">
+                <input
+                  type="range"
+                  id="sliderFz"
+                  class="form-range"
+                  min="<?= number_format($fzMinDb,4,'.','') ?>"
+                  max="<?= number_format($fzMaxDb,4,'.','') ?>"
+                  step="0.0001"
+                  value="<?= number_format($baseFz,4,'.','') ?>"
+                >
+                <span class="slider-bubble"></span>
+              </div>
               <div class="text-end small text-secondary mt-1">
                 <span><?= number_format($fzMinDb,4,'.','') ?></span> –
                 <strong id="valFz"><?= number_format($baseFz,4,'.','') ?></strong> –
@@ -314,15 +317,18 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
             <!-- Vc -->
             <div class="mb-4 px-2">
               <label for="sliderVc" class="form-label">Vc (m/min)</label>
-              <input
-                type="range"
-                id="sliderVc"
-                class="form-range"
-                min="<?= number_format($vcMinDb,1,'.','') ?>"
-                max="<?= number_format($vcMaxDb,1,'.','') ?>"
-                step="0.1"
-                value="<?= number_format($baseVc,1,'.','') ?>"
-              >
+              <div class="slider-wrap">
+                <input
+                  type="range"
+                  id="sliderVc"
+                  class="form-range"
+                  min="<?= number_format($vcMinDb,1,'.','') ?>"
+                  max="<?= number_format($vcMaxDb,1,'.','') ?>"
+                  step="0.1"
+                  value="<?= number_format($baseVc,1,'.','') ?>"
+                >
+                <span class="slider-bubble"></span>
+              </div>
               <div class="text-end small text-secondary mt-1">
                 <span><?= number_format($vcMinDb,1,'.','') ?></span> –
                 <strong id="valVc"><?= number_format($baseVc,1,'.','') ?></strong> –
@@ -334,15 +340,18 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
               <label for="sliderAe" class="form-label">
                 ae (mm) <small>(ancho de pasada)</small>
               </label>
-              <input
-                type="range"
-                id="sliderAe"
-                class="form-range"
-                min="0.1"
-                max="<?= number_format($diameterMb,1,'.','') ?>"
-                step="0.1"
-                value="<?= number_format($diameterMb*0.5,1,'.','') ?>"
-              >
+              <div class="slider-wrap">
+                <input
+                  type="range"
+                  id="sliderAe"
+                  class="form-range"
+                  min="0.1"
+                  max="<?= number_format($diameterMb,1,'.','') ?>"
+                  step="0.1"
+                  value="<?= number_format($diameterMb*0.5,1,'.','') ?>"
+                >
+                <span class="slider-bubble"></span>
+              </div>
               <div class="text-end small text-secondary mt-1">
                 <span>0.1</span> –
                 <strong id="valAe"><?= number_format($diameterMb*0.5,1,'.','') ?></strong> –
@@ -352,16 +361,19 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
             <!-- Pasadas -->
             <div class="mb-4 px-2">
               <label for="sliderPasadas" class="form-label">Pasadas</label>
-              <input
-                type="range"
-                id="sliderPasadas"
-                class="form-range"
-                min="1"
-                max="1"
-                step="1"
-                value="1"
-                data-thickness="<?= htmlspecialchars((string)$thickness, ENT_QUOTES) ?>"
-              >
+              <div class="slider-wrap">
+                <input
+                  type="range"
+                  id="sliderPasadas"
+                  class="form-range"
+                  min="1"
+                  max="1"
+                  step="1"
+                  value="1"
+                  data-thickness="<?= htmlspecialchars((string)$thickness, ENT_QUOTES) ?>"
+                >
+                <span class="slider-bubble"></span>
+              </div>
               <div id="textPasadasInfo" class="small text-secondary mt-1">
                 1 pasada de <?= number_format($thickness, 2) ?> mm
               </div>
