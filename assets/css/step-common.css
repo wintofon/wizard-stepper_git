@@ -1,7 +1,10 @@
+@import url('abstracts/_variables.css');
+@import url('base/_reset.css');
+@import url('base/_typography.css');
+
 body {
   background-color: #0d1117;
   color: #e0e0e0;
-  font-family: 'Segoe UI', Roboto, sans-serif;
 }
 
 .btn-type,

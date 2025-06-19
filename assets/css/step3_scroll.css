@@ -1,10 +1,13 @@
 /* Infinite scroll styles for step3 */
+@import url('abstracts/_variables.css');
+@import url('base/_reset.css');
+@import url('base/_typography.css');
+
 body {
   --bs-body-bg: #0d1117;
   --bs-body-color: #e0e0e0;
   background-color: var(--bs-body-bg);
   color: var(--bs-body-color);
-  font-family: 'Segoe UI', Roboto, sans-serif;
 }
 
 .fresa-card {

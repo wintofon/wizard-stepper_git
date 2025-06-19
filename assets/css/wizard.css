@@ -3,12 +3,13 @@
 /* ────────────────────────────────────────────────────────────────
    GENERAL
    ──────────────────────────────────────────────────────────────── */
+@import url('abstracts/_variables.css');
+@import url('base/_reset.css');
+@import url('base/_typography.css');
+
 body {
   background: #0b1e2d;              /* tono azul-oscuro global   */
   color: #dceefb;                   /* texto casi blanco-celeste */
-  font-family: 'Segoe UI', Roboto, sans-serif; /* tipografía base */
-  margin: 0;                        /* quitamos margen browser   */
-  padding: 0;                       /* …y padding por defecto    */
 }
 
 /* Contenedor del stepper (barra de pasos) */
