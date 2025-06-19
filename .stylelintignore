@@ -1,3 +1,3 @@
 vendor/**
 dist/**
-assets/css/bootstrap.min.css
+assets/css/vendors/_bootstrap-overrides.css

@@ -1,0 +1,13 @@
+/* Light theme overrides */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-body: #f6f8fa;
+    --bg-card: #fff;
+    --bg-header: #eaf2f8;
+    --border-color: #d0d7de;
+    --text-color: #24292e;
+    --text-color-sec: #57606a;
+    --accent-color: #0077b6;
+    --accent-color-light: #329dd1;
+  }
+}

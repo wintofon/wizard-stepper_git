@@ -120,7 +120,7 @@ if ($tool) {
 ?>
 <link rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-<link rel="stylesheet" href="assets/css/step2_manual.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/main.css">
 
 <div class="container py-4">
   <h2 class="step-title"><i data-feather="check-circle"></i> Confirmar herramienta</h2>
