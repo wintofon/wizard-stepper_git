@@ -93,9 +93,6 @@
   --bs-table-color: #e2e8f0;
 }
 
-.badge.bg-info.text-dark {
-  background-color: #38bdf8 !important;
-  color: #0c4a6e !important;
 }
 
 .stars {
@@ -113,9 +110,6 @@ h2.fw-bold {
   font-size: 1.8rem;
 }
 
-.btn-primary {
-  font-size: 1rem;
-  padding: 0.6rem 1.2rem;
 }
 
 .table-responsive {

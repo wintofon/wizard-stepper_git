@@ -107,25 +107,6 @@ body {
   padding: 2.5rem;                  /* espacio interno generoso  */
 }
 
-/* ────────────────────────────────────────────────────────────────
-   BOTONES
-   ──────────────────────────────────────────────────────────────── */
-.btn-primary {
-  background-color: #2b8ac6;        /* azul principal            */
-  border-color: #256fa1;            /* borde más oscuro          */
-  border-radius: .4rem;             /* bordes redondeados        */
-  color: #fff;                      /* texto blanco              */
-  font-size: 1rem;                  /* texto estándar            */
-  padding: .7rem 1.4rem;            /* tamaño cómodo             */
-  transition: background .3s, border-color .3s; /* hover suave    */
-}
-
-.btn-primary:hover {
-  background-color: #3aa0db;        /* aclaramos al hover        */
-  border-color: #2b8ac6;            /* borde acompaña            */
-}
-
-/* ────────────────────────────────────────────────────────────────
    DEBUG BOX
    ──────────────────────────────────────────────────────────────── */
 .debug-box {

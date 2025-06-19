@@ -1,0 +1,8 @@
+/* Global imports */
+@import url('abstracts/_variables.css');
+@import url('base/_reset.css');
+@import url('base/_typography.css');
+@import url('components/_common.css');
+@import url('components/_button.css');
+@import url('components/_slider.css');
+@import url('components/_fresa-card.css');

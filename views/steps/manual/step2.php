@@ -120,6 +120,7 @@ if ($tool) {
 ?>
 <link rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="/wizard-stepper_git/assets/css/main.css">
 <link rel="stylesheet" href="assets/css/step2_manual.css">
 
 <div class="container py-4">
