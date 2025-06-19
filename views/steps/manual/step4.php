@@ -31,7 +31,7 @@ if ($DEBUG && function_exists('dbg')) dbg('🔧 step4.php iniciado');
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_set_cookie_params([
         'lifetime'=>0,
-        'path'    =>'/wizard-stepper_git/',
+        'path'    => BASE_URL . '/',
         'secure'  =>true,
         'httponly'=>true,
         'samesite'=>'Strict'
@@ -44,10 +44,10 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 // [D] Control de flujo
 //
 if (empty($_SESSION['wizard_state']) || $_SESSION['wizard_state']!=='wizard') {
-    header('Location:/wizard-stepper_git/index.php'); exit;
+    header('Location:' . asset('index.php')); exit;
 }
 if ((int)($_SESSION['wizard_progress']??0) < 3) {
-    header('Location:/wizard-stepper_git/views/steps/auto/step'.(int)$_SESSION['wizard_progress'].'.php'); exit;
+    header('Location:' . asset('views/steps/auto/step' . (int)$_SESSION['wizard_progress'] . '.php')); exit;
 }
 
 //
@@ -77,7 +77,7 @@ require_once __DIR__.'/../../../includes/db.php';
 require_once __DIR__.'/../../../includes/debug.php';
 
 if (empty($_SESSION['tool_id']) || empty($_SESSION['tool_table'])) {
-    header('Location:/wizard-stepper_git/views/steps/auto/step2.php'); exit;
+    header('Location:' . asset('views/steps/auto/step2.php')); exit;
 }
 $toolId   = (int)$_SESSION['tool_id'];
 $toolTbl  = preg_replace('/[^a-z0-9_]/i','',$_SESSION['tool_table']);
@@ -129,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
         $_SESSION['material_id']=$mat;
         $_SESSION['thickness'] =(float)$thk;
         $_SESSION['wizard_progress']=4;
-        header('Location:/wizard-stepper_git/views/steps/manual/step5.php'); exit;
+        header('Location:' . asset('views/steps/manual/step5.php')); exit;
     }
 }
 ?>
@@ -138,8 +138,9 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
 <title>Paso 4 – Material</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="/wizard-stepper_git/assets/css/main.css">
-<link rel="stylesheet" href="/wizard-stepper_git/assets/css/material.css">
+<link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
+<link rel="stylesheet" href="<?= asset('assets/css/material.css') ?>">
+<script>window.BASE_URL = '<?= BASE_URL ?>';</script>
 </head><body>
 <main class="container py-4">
 <h2 class="step-title"><i data-feather="layers"></i> Material y espesor</h2>

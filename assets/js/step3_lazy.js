@@ -57,9 +57,9 @@ function createCard(t) {
   imgCol.className = 'col-md-2 mb-2 mb-md-0';
   const img = document.createElement('img');
   img.className = 'img-fluid tool-thumb';
-  img.src = t.image_url || '/wizard-stepper_git/assets/img/logos/logo_stepper.png';
+  img.src = t.image_url || `${window.BASE_URL}/assets/img/logos/logo_stepper.png`;
   img.onerror = () => {
-    img.src = '/wizard-stepper_git/assets/img/logos/logo_stepper.png';
+    img.src = `${window.BASE_URL}/assets/img/logos/logo_stepper.png`;
   };
   imgCol.appendChild(img);
   card.appendChild(imgCol);
@@ -95,7 +95,7 @@ async function fetchPage() {
   if (loading || !hasMore) return;
   loading = true;
   try {
-    const url = `/wizard-stepper_git/ajax/tools_scroll.php?material_id=${materialId}&strategy_id=${strategyId}&page=${page}&per_page=12`;
+    const url = `${window.BASE_URL}/ajax/tools_scroll.php?material_id=${materialId}&strategy_id=${strategyId}&page=${page}&per_page=12`;
     dbg('fetch', url);
     const res = await fetch(url, { headers: csrf ? { 'X-CSRF-Token': csrf } : {}, cache: 'no-store' });
     if (!res.ok) throw new Error('HTTP ' + res.status);

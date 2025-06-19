@@ -10,6 +10,7 @@ declare(strict_types=1);
  */
 
 header('Content-Type: application/json; charset=UTF-8');
+require_once __DIR__ . '/../src/Config/AppConfig.php';
 require_once __DIR__ . '/../includes/debug.php';
 
 function dbgLocal(string $msg): void {
@@ -20,7 +21,7 @@ function dbgLocal(string $msg): void {
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_set_cookie_params([
         'lifetime' => 0,
-        'path'     => '/wizard-stepper_git/',
+        'path'     => BASE_URL . '/',
         'secure'   => true,
         'httponly' => true,
         'samesite' => 'Strict',

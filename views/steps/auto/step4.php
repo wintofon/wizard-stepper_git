@@ -33,7 +33,7 @@ if ($DEBUG && function_exists('dbg')) dbg('🔧 step4.php iniciado');
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_set_cookie_params([
         'lifetime' => 0,
-        'path'     => '/wizard-stepper_git/',
+        'path'     => BASE_URL . '/',
         'secure'   => true,
         'httponly' => true,
         'samesite' => 'Strict'
@@ -46,10 +46,10 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 // [D] Validar flujo (wizard_progress ≥ 3)
 // ──────────────────────────────────────────────────────────────
 if (empty($_SESSION['wizard_state']) || $_SESSION['wizard_state'] !== 'wizard') {
-    header('Location: /wizard-stepper_git/index.php'); exit;
+    header('Location: ' . asset('index.php')); exit;
 }
 if (($_SESSION['wizard_progress'] ?? 0) < 3) {
-    header('Location: /wizard-stepper_git/views/steps/auto/step3.php'); exit;
+    header('Location: ' . asset('views/steps/auto/step3.php')); exit;
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -125,7 +125,7 @@ else $error='Faltan parámetros para confirmar la herramienta.';
 // ──────────────────────────────────────────────────────────────
 if($tool){
     $tool['length_total_mm']??=$tool['full_length_mm']??0;
-    if(!empty($tool['image'])) $tool['image_url']='/wizard-stepper_git/'.ltrim($tool['image'],'/');
+    if(!empty($tool['image'])) $tool['image_url'] = asset($tool['image']);
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -142,8 +142,9 @@ if($tool){
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <!-- Reutilizamos el mismo CSS del paso manual para un look idéntico -->
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/main.css">
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/pages/_step2.css">
+  <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/pages/_step2.css') ?>">
+  <script>window.BASE_URL = '<?= BASE_URL ?>';</script>
 </head>
 <body class="bg-dark text-white">
 

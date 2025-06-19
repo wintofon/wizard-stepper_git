@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="assets/css/main.css">
   <link rel="stylesheet" href="assets/css/wizard.css">
   <link rel="stylesheet" href="assets/css/onboarding.css">
+  <script>window.BASE_URL = '<?= BASE_URL ?>';</script>
 </head>
 <body>
   <main class="wizard-welcome">

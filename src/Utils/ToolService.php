@@ -43,7 +43,7 @@ class ToolService
             return '';
         }
 
-        $path = '/wizard-stepper_git/' . ltrim((string)$img, "\\/");
+        $path = asset((string)$img);
         $_SESSION['tool_images'][$table][$toolId] = $path;
         return $path;
     }

@@ -1,5 +1,6 @@
 <?php
 // tools_search.php
+require_once __DIR__ . '/../src/Config/AppConfig.php';
 require_once __DIR__ . '/../includes/db.php';
 
 header('Content-Type: application/json; charset=utf-8');

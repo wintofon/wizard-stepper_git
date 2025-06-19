@@ -114,14 +114,15 @@ if ($tool) {
     if (!empty($_SESSION['tool_image_url'])) {
         $tool['image_url'] = rtrim((string)$_SESSION['tool_image_url'], '/');
     } elseif (!empty($tool['image'])) {
-        $tool['image_url'] = '/wizard-stepper_git/' . ltrim((string)$tool['image'], '/');
+        $tool['image_url'] = asset((string)$tool['image']);
     }
 }
 ?>
 <link rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-<link rel="stylesheet" href="/wizard-stepper_git/assets/css/main.css">
+<link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
 <link rel="stylesheet" href="assets/css/pages/_step2.css">
+<script>window.BASE_URL = '<?= BASE_URL ?>';</script>
 
 <div class="container py-4">
   <h2 class="step-title"><i data-feather="check-circle"></i> Confirmar herramienta</h2>

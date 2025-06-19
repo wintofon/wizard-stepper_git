@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/../src/Config/AppConfig.php';
+
 // (1) Sesión y seguridad
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start([

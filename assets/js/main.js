@@ -1,6 +1,6 @@
 // File: wizard/assets/js/main.js
 // Controla el botón de inicio y limpia sesión/localStorage
-const BASE_URL = window.BASE_URL || '/wizard-stepper_git';
+const BASE_URL = window.BASE_URL;
 document.addEventListener('DOMContentLoaded', () => {
   const btnStart = document.getElementById('btn-start');
   if (!btnStart) return;

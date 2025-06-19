@@ -1,5 +1,6 @@
 <?php
 // strategy_ajax.php
+require_once __DIR__ . '/../src/Config/AppConfig.php';
 require_once __DIR__ . '/../includes/db.php';
 
 if (!isset($_GET['ajax']) || $_GET['ajax'] !== '1') {
