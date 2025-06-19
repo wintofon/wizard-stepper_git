@@ -1,26 +1,58 @@
-/* CSS extraído de views/steps/manual/step1.php */
+/* CSS extraído de views/steps/auto/step3.php */
+body {
+  --bs-body-bg: #0d1117;
+  --bs-body-color: #e0e0e0;
 
-/* Opcional: estilos para box de debugging */
-.debug-box {
-  background: #102735;
-  border-radius: 6px;
-  border-top: 1px solid #2e5b78;
-  color: #a7d3e9;
-  font-family: monospace;
-  font-size: 0.85rem;
-  height: 160px;
-  margin: 2rem auto 0;
-  max-width: 1000px;
-  overflow-y: auto;
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  font-family: 'Segoe UI', Roboto, sans-serif;
+}
+
+h2 {
+  color: #cbd5e0;
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  color: #a7b1bb;
+  font-weight: 600;
+}
+
+.fresa-card {
+  background: #161b22;
+  border: 1px solid #2c2f33;
+  border-radius: 8px;
+  margin-bottom: 1rem;
   padding: 1rem;
-  white-space: pre-wrap;
+  transition: background-color 0.2s;
 }
 
-.list-scroll-container {
-  max-height: 65vh;
-  overflow-y: auto;
+.fresa-card:hover {
+  background-color: #1f2a36;
 }
 
-#sentinel {
-  height: 1px;
+.estrella {
+  color: #f0ad4e;
+}
+
+.warning {
+  color: #f66;
+  font-weight: bold;
+}
+
+.tool-thumb {
+  height: auto;
+  max-width: 80px;
+  object-fit: contain;
+}
+
+.btn-select {
+  background-color: #4fc3f7;
+  border: none;
+  color: #0d1117;
+}
+
+.btn-select:hover {
+  background-color: #0d6efd;
+  color: #fff;
 }
