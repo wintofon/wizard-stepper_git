@@ -166,7 +166,7 @@ try {
 <body>
   <main class="container py-4">
 
-  <h2 class="step-title">Paso 3 – Herramientas compatibles</h2>
+  <h2 class="step-title"><i data-feather="tool"></i> Herramientas compatibles</h2>
   <p class="step-desc">Seleccioná una fresa según el material y la estrategia.</p>
 
   <!-- 7.1) FILTRO POR DIÁMETRO -->

@@ -189,7 +189,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
 <main class="container py-4">
 
-  <h2 class="step-title">Paso 3 – Mecanizado y estrategia</h2>
+  <h2 class="step-title"><i data-feather="settings"></i> Mecanizado y estrategia</h2>
   <p class="step-desc">Definí el tipo de mecanizado y la estrategia a usar.</p>
 
   <?php if ($errors): ?>
