@@ -137,7 +137,6 @@ body {
 .slider-wrap {
   --val: 0;
   --step-pct: 10;
-
   position: relative;
 }
 
@@ -153,6 +152,9 @@ input[type="range"].form-range:focus {
   outline: none;
 }
 
+input[type="range"].form-range:focus::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px rgb(79 195 247 / 40%);
+}
 
 input[type="range"].form-range::-webkit-slider-thumb {
   appearance: none;
@@ -163,10 +165,6 @@ input[type="range"].form-range::-webkit-slider-thumb {
   height: var(--slider-thumb-size);
   margin-top: -5px;
   width: var(--slider-thumb-size);
-}
-
-input[type="range"].form-range:focus::-webkit-slider-thumb {
-  box-shadow: 0 0 0 3px rgb(79 195 247 / 40%);
 }
 
 input[type="range"].form-range::-moz-range-thumb,
@@ -216,10 +214,10 @@ input[type="range"].form-range::-ms-track {
   border-radius: 4px;
   color: var(--bg-body);
   font-size: 0.75rem;
-  left: calc(var(--val) * 1%);
   padding: 0.1rem 0.35rem;
   position: absolute;
   top: -1.6rem;
+  left: calc(var(--val) * 1%);
   transform: translateX(-50%);
   white-space: nowrap;
 }
