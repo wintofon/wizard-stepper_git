@@ -2,7 +2,6 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../../../src/Utils/Session.php';
-require_once __DIR__ . '/../../../src/Utils/Path.php';
 require_once __DIR__ . '/../../../includes/wizard_helpers.php';
 
 startSecureSession();
@@ -19,8 +18,8 @@ $thickness  = $_SESSION['thickness']  ?? null;
   <title>Herramientas compatibles</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="csrf-token" content="<?= htmlspecialchars($csrf) ?>">
-  <link rel="stylesheet" href="<?= asset_url('css/main.css') ?>">
-  <link rel="stylesheet" href="<?= asset_url('css/pages/_step3.css') ?>">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/main.css">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/pages/_step3.css">
 </head>
 <body>
   <main class="container py-4">
@@ -39,7 +38,6 @@ $thickness  = $_SESSION['thickness']  ?? null;
     <div id="scrollSentinel"></div>
     <pre id="debug" class="bg-dark text-info p-2 mt-4"></pre>
   </main>
-  <script>window.BASE_URL = '<?= BASE_URL ?>';</script>
-  <script type="module" src="<?= asset_url('js/step3_lazy.js') ?>"></script>
+  <script type="module" src="/wizard-stepper_git/assets/js/step3_lazy.js"></script>
 </body>
 </html>
