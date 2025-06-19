@@ -8,10 +8,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Wizard CNC</title>
-  <link rel="stylesheet" href="assets/css/main.css">
-  <link rel="stylesheet" href="assets/css/wizard.css">
-  <link rel="stylesheet" href="assets/css/stepper.css">
-  <link rel="stylesheet" href="assets/css/footer-schneider.css">
+  <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/main.css">
 </head>
 <body>
 
@@ -59,8 +56,6 @@
   <script>feather.replace();</script>
   <script src="assets/js/stepper.js" defer></script>
   <script src="assets/js/dashboard.js" defer></script>
-<link rel="stylesheet" href="assets/css/wizard.css">
-<link rel="stylesheet" href="assets/css/step6.css"><!-- <---- AGREGALO ACÁ -->
 
   <footer class="footer-schneider text-white mt-5">
     <div class="container py-4">
