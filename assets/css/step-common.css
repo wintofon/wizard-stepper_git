@@ -50,67 +50,22 @@ body {
 
 /* Encabezados uniformes de los pasos */
 .step-title {
-  align-items: center;
-  color: #d1d1d1;
-  display: flex;
   font-size: 1.5rem;
   font-weight: 600;
+  color: #d1d1d1;
+  display: flex;
+  align-items: center;
   gap: 0.5rem;
   margin-bottom: 0.75rem;
 }
 
 .step-title i[data-feather] {
+  width: 24px;
   height: 24px;
   stroke: #17a2b8;
-  width: 24px;
 }
 
 .step-desc {
   color: #adb5bd;
   margin-bottom: 1.5rem;
-}
-
-h2, h5 {
-  color: #4fc3f7;
-}
-
-/* Dropdown de búsqueda */
-.dropdown-search {
-  background: #000;
-  border: 1px solid #444;
-  display: none;
-  max-height: 200px;
-  overflow-y: auto;
-  position: absolute;
-  width: 100%;
-  z-index: 1000;
-}
-
-.dropdown-search .item {
-  color: #f1f1f1;
-  cursor: pointer;
-  padding: .5rem .75rem;
-}
-
-.dropdown-search .item:hover {
-  background: #333;
-}
-
-.dropdown-search .hl {
-  background: #ffd54f;
-  color: #000;
-}
-
-#no-match-msg {
-  color: #dc3545;
-  display: none;
-  font-size: .875rem;
-  margin-top: .25rem;
-}
-
-@media (width <= 768px) {
-  .btn-cat,
-  .btn-strat {
-    width: 100%;
-  }
 }
