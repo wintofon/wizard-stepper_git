@@ -56,10 +56,3 @@ h2 {
   background-color: #0d6efd;
   color: #fff;
 }
-#scrollContainer {
-  max-height: 65vh;
-  overflow-y: auto;
-}
-#sentinel {
-  height: 1px;
-}
