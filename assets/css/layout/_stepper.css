@@ -1,20 +1,20 @@
 .stepper-header {
+  align-items: center;
+  background-color: var(--bs-dark);
+  border: none;
+  display: flex;
+  margin: 0;
+  padding: 0;
   position: sticky;
   top: 0;
-  z-index: 1050;
-  display: flex;
-  align-items: center;
   width: 100%;
-  background-color: var(--bs-dark);
-  padding: 0;
-  margin: 0;
-  border: none;
+  z-index: 1050;
 }
 
 .logo-stepper {
-  width: 120px;
   height: auto;
   margin-right: 1rem;
+  width: 120px;
 }
 
 .stepper-bar {
