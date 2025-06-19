@@ -1,15 +1,16 @@
 .footer-schneider {
   background: linear-gradient(to bottom, #0a0f14, #101820);
   border-top: 1px solid rgb(255 255 255 / 10%);
-  font-family: var(--font-family-base, 'Segoe UI', sans-serif);
+  color: #bbb;
+  font-family: var(--font-family-base, "Segoe UI", sans-serif);
   font-size: 0.9rem;
 }
 
-.footer-schneider h4 {
-  color: #00bfff;
+.footer-title {
+  color: #0ea5e9;
 }
 
-.footer-schneider h6 {
+.footer-subtitle {
   color: #17a2b8;
   margin-bottom: 0.75rem;
 }
@@ -23,11 +24,5 @@
 }
 
 .footer-link:hover {
-  color: #00d8ff;
-}
-
-.footer-logo {
-  height: auto;
-  margin-bottom: 0.75rem;
-  width: 120px;
+  color: #0ea5e9;
 }

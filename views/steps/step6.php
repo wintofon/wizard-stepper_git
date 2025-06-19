@@ -287,7 +287,7 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
     <div class="row gx-3 mb-4 cards-grid">
 
       <!-- 1) Ajustes (Sliders) -->
-      <div class="col-12 col-lg-4 mb-3 area-sliders">
+      <div id="sliders-box" class="col-12 col-lg-6 mb-3 area-sliders">
         <div class="card h-100 shadow-sm">
           <div class="card-header text-center p-3">
             <h5 class="mb-0">Ajustes</h5>
@@ -384,7 +384,7 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
       </div>
 
       <!-- 2) Resultados -->
-      <div class="col-12 col-lg-4 mb-3 area-results">
+      <div id="resultados-box" class="col-12 col-lg-6 mb-3 area-results">
         <div class="card h-100 shadow-sm">
           <div class="card-header text-center p-3">
             <h5 class="mb-0">Resultados</h5>
@@ -435,7 +435,7 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
 
             
             <!-- Métricas secundarias -->
-            <div class="rd-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
         
                 <div class="param-label">MMR<br><small>(<span class="param-unit">mm³/min</span>)</small></div>
                 <div id="valueMrr" class="fw-bold">--</div>
@@ -444,7 +444,7 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
                 <div class="param-label">Fc<br><small>(<span class="param-unit">N</span>)</small></div>
                 <div id="valueFc" class="fw-bold">--</div>
               </div>
-              <div class="rd-flex justify-content-between align-items-center mb-3">
+              <div class="d-flex justify-content-between align-items-center mb-3">
                 <div class="param-label">Potencia<br><small>(<span class="param-unit">W</span>)</small></div>
                 <div id="valueW" class="fw-bold">--</div>
               </div>
@@ -457,17 +457,6 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
         </div>
       </div>
 
-      <!-- 3) Radar Chart -->
-      <div class="col-12 col-lg-4 mb-3 area-radar">
-        <div class="card h-100 shadow-sm">
-          <div class="card-header text-center p-3">
-            <h5 class="mb-0">Distribución Radar</h5>
-          </div>
-          <div class="card-body p-4 d-flex justify-content-center align-items-center">
-            <canvas id="radarChart" width="10%" height="50"></canvas>
-          </div>
-        </div>
-      </div>
 
 
 
@@ -477,14 +466,16 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
   <div class="container py-3">
     <div class="row gx-3 mb-4 cards-grid">
 
-      <div class="col-12 col-lg-4 mb-3">
-        <div class="card h-100 shadow-sm">
-          <div class="card-header text-center p-3" data-bs-toggle="collapse" data-bs-target="#specCollapse" aria-expanded="true" aria-controls="specCollapse">
-            <h5 class="mb-0">Especificaciones Técnicas</h5>
-          </div>
-          <div id="specCollapse" class="collapse show">
-            <div class="card-body p-4">
-              <div class="row gx-0 align-items-center">
+      <div id="info-tecnica-box" class="col-12 col-lg-6 mb-3">
+        <div class="row gx-3">
+          <div class="col-12 mb-3">
+            <div class="card h-100 shadow-sm">
+              <div class="card-header text-center p-3" data-bs-toggle="collapse" data-bs-target="#specCollapse" aria-expanded="true" aria-controls="specCollapse">
+                <h5 class="mb-0">Especificaciones Técnicas</h5>
+              </div>
+              <div id="specCollapse" class="collapse show">
+                <div class="card-body p-4">
+                  <div class="row gx-0 align-items-center">
                 <!-- Izquierda: especificaciones -->
                 <div class="col-12 col-lg-7 px-2 mb-4 mb-lg-0">
                   <ul class="spec-list mb-0 px-2">
@@ -541,7 +532,7 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
       </div>
 
       <!-- CONFIGURACIÓN DE USUARIO -->
-      <div class="col-12 col-lg-4 mb-3">
+      <div class="col-12 mb-3">
         <div class="card h-100 shadow-sm">
           <div class="card-header text-center p-3" data-bs-toggle="collapse" data-bs-target="#configCollapse" aria-expanded="true" aria-controls="configCollapse">
             <h5 class="mb-0">Configuración de Usuario</h5>
@@ -603,7 +594,7 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
       </div>
 
       <!-- NOTAS ADICIONALES -->
-      <div class="col-12 col-lg-4 mb-3">
+      <div class="col-12 mb-3">
         <div class="card h-100 shadow-sm">
           <div class="card-header text-center p-3">
             <h5 class="mb-0">Notas Adicionales</h5>
@@ -624,7 +615,18 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
           </div>
         </div>
       </div>
-</div>
+
+      <div id="radar-box" class="col-12 col-lg-6 mb-3 area-radar">
+        <div class="card h-100 shadow-sm">
+          <div class="card-header text-center p-3">
+            <h5 class="mb-0">Distribución Radar</h5>
+          </div>
+          <div class="card-body p-4 d-flex justify-content-center align-items-center">
+            <canvas id="radarChart" width="10%" height="50"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
  
 
 
