@@ -1,3 +1,65 @@
+/* Common material selection styles */
+
+body {
+  background-color: #0d1117;
+  color: #e0e0e0;
+  font-family: 'Segoe UI', Roboto, sans-serif;
+}
+
+.btn-cat {
+  margin: .35rem .45rem;
+  white-space: nowrap;
+}
+
+.btn-cat.active {
+  background: #0d6efd !important;
+  color: #fff !important;
+}
+
+.btn-mat {
+  margin: .25rem 0;
+  width: 100%;
+}
+
+.btn-mat.active {
+  background: #198754 !important;
+  color: #fff !important;
+}
+
+/* Dropdown búsqueda */
+.dropdown-search {
+  background: #000;
+  border: 1px solid #444;
+  display: none;
+  max-height: 200px;
+  overflow-y: auto;
+  position: absolute;
+  width: 100%;
+  z-index: 1000;
+}
+
+.dropdown-search .item {
+  color: #f1f1f1;
+  cursor: pointer;
+  padding: .5rem .75rem;
+}
+
+.dropdown-search .item:hover {
+  background: #333;
+}
+
+.dropdown-search .hl {
+  background: #ffd54f;
+  color: #000;
+}
+
+#no-match-msg {
+  color: #dc3545;
+  display: none;
+  font-size: .875rem;
+  margin-top: .25rem;
+}
+
 .wizard-welcome {
   color: #e2e8f0;
   margin: 3rem auto;

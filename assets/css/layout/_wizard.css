@@ -3,13 +3,6 @@
 /* ────────────────────────────────────────────────────────────────
    GENERAL
    ──────────────────────────────────────────────────────────────── */
-body {
-  background: #0b1e2d;              /* tono azul-oscuro global   */
-  color: #dceefb;                   /* texto casi blanco-celeste */
-  font-family: 'Segoe UI', Roboto, sans-serif; /* tipografía base */
-  margin: 0;                        /* quitamos margen browser   */
-  padding: 0;                       /* …y padding por defecto    */
-}
 
 /* Contenedor del stepper (barra de pasos) */
 .stepper-container {
@@ -17,10 +10,10 @@ body {
   overflow-x: auto;                 /* scroll horizontal móvil   */
   padding: 0;                       /* sin padding extra         */
   position: sticky;                 /* se fija al hacer scroll   */
-  top: 0;                           /* siempre pegado arriba     */
-  z-index: 100;                     /* sobre el contenido        */
   scrollbar-width: none;            /* oculta scroll en Firefox  */
+  top: 0;                           /* siempre pegado arriba     */
   width: 100%;                      /* ocupa todo el ancho       */
+  z-index: 100;                     /* sobre el contenido        */
 }
 .stepper-container::-webkit-scrollbar { display: none; } /* oculta en Chrome */
 
@@ -109,20 +102,6 @@ body {
 /* ────────────────────────────────────────────────────────────────
    BOTONES
    ──────────────────────────────────────────────────────────────── */
-.btn-primary {
-  background-color: #2b8ac6;        /* azul principal            */
-  border-color: #256fa1;            /* borde más oscuro          */
-  border-radius: .4rem;             /* bordes redondeados        */
-  color: #fff;                      /* texto blanco              */
-  font-size: 1rem;                  /* texto estándar            */
-  padding: .7rem 1.4rem;            /* tamaño cómodo             */
-  transition: background .3s, border-color .3s; /* hover suave    */
-}
-
-.btn-primary:hover {
-  background-color: #3aa0db;        /* aclaramos al hover        */
-  border-color: #2b8ac6;            /* borde acompaña            */
-}
 
 /* ────────────────────────────────────────────────────────────────
    DEBUG BOX
