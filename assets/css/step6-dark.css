@@ -2,7 +2,11 @@
     Hoja oscura para Paso 6 (extraída de la etiqueta <style>)
    ██████████████████████████████████████████████████████████████ */
 
-body{background:#0d1117;color:#e0e0e0;font-family:'Segoe UI',Roboto,sans-serif}
+@import url('abstracts/_variables.css');
+@import url('base/_reset.css');
+@import url('base/_typography.css');
+
+body{background:#0d1117;color:#e0e0e0}
 
 /* ─── Reglas generales ───────────────────────────────────────── */
 .card{background:#161b22;border:1px solid #2c2f33;border-radius:.5rem;margin-bottom:1rem}
