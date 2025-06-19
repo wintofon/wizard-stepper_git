@@ -14,13 +14,12 @@ $thickness  = $_SESSION['thickness']  ?? null;
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/main.css">
   <meta charset="utf-8">
   <title>Herramientas compatibles</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="csrf-token" content="<?= htmlspecialchars($csrf) ?>">
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/main.css">
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/pages/_step3.css">
-</head>
+  </head>
 <body>
   <main class="container py-4">
     <h2>Herramientas compatibles</h2>

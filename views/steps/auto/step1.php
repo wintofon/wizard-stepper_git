@@ -85,7 +85,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
     && count($_SESSION['rate_limit'][$clientIp]) >= 10) {
     http_response_code(429);
     echo "<!DOCTYPE html>
-<html lang=\"es\"><head><meta charset=\"UTF-8\"><title>429 Too Many Requests</title></head>
+<html lang=\"es\"><head>
+  <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/main.css"><meta charset=\"UTF-8\"><title>429 Too Many Requests</title></head>
 <body style=\"background:#000;color:#f00;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;\">
   <h1>429 – Demasiados intentos. Esperá unos minutos.</h1>
 </body></html>";
@@ -189,17 +190,12 @@ dbg('children', $children);
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/main.css">
   <meta charset="utf-8">
   <title>Paso 1 – Material</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Bootstrap 5 CSS -->
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  >
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/main.css">
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/material.css">
-</head>
+  </head>
 <body>
   <main class="container py-4">
 
