@@ -255,377 +255,297 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
 
 
 <!-- BLOQUE CENTRAL HTML -->
-<div class="container-fluid py-3 content-main">
-  <!-- ENCABEZADO DE HERRAMIENTA -->
-  <div class="container py-3">
-    <div class="row gx-3 mb-4 cards-grid">
-      <div class="col-12 col-lg-4 mb-3 area-tool">
-        <div class="card h-100 shadow-sm">
-          <div class="card-header text-center p-3">
-            <span>#<?= $serialNumber ?> – <?= $toolCode ?></span>
-          </div>
-          <div class="card-body text-center p-4">
-            <?php if (!empty($toolData['image'])): ?>
-              <img 
-                src="/wizard-stepper_git/<?= ltrim($toolData['image'], '/\\') ?>" 
-                alt="Imagen principal de la herramienta" 
-                class="tool-image mx-auto d-block"
-              >
-            <?php else: ?>
-              <div class="text-secondary">Sin imagen disponible</div>
-            <?php endif; ?>
-            <div class="tool-name mt-3"><?= $toolName ?></div>
-            <div class="tool-type"><?= $toolType ?></div>
-          </div>
+<div class="step6-layout container-fluid">
+ 
+  <div class="row mb-4">
+    <div class="col-lg-4 mx-auto area-tool">
+      <div class="card h-100 shadow-sm">
+        <div class="card-header text-center p-3">
+          <span>#<?= $serialNumber ?> – <?= $toolCode ?></span>
+        </div>
+        <div class="card-body text-center p-4">
+          <?php if (!empty($toolData['image'])): ?>
+            <img
+              src="/wizard-stepper_git/<?= ltrim($toolData['image'], '/\\') ?>"
+              alt="Imagen principal de la herramienta"
+              class="tool-image mx-auto d-block"
+            >
+          <?php else: ?>
+            <div class="text-secondary">Sin imagen disponible</div>
+          <?php endif; ?>
+          <div class="tool-name mt-3"><?= $toolName ?></div>
+          <div class="tool-type"><?= $toolType ?></div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- FILA: Sliders / Resultados / Radar -->
-  <div class="container py-3">
-    <div class="row gx-3 mb-4 cards-grid">
-
-      <!-- 1) Ajustes (Sliders) -->
-      <div class="col-12 col-lg-4 mb-3 area-sliders">
-        <div class="card h-100 shadow-sm">
-          <div class="card-header text-center p-3">
-            <h5 class="mb-0">Ajustes</h5>
+  <div class="row">
+    <div class="col-lg-6 mb-4" id="slidersBox">
+      <div class="card h-100 shadow-sm">
+        <div class="card-header text-center p-3">
+          <h5 class="mb-0">Ajustes</h5>
+        </div>
+        <div class="card-body p-4">
+          <!-- fz -->
+          <div class="mb-4 px-2">
+            <label for="sliderFz" class="form-label">fz (mm/tooth)</label>
+            <div class="slider-wrap">
+              <input
+                type="range"
+                id="sliderFz"
+                class="form-range"
+                min="<?= number_format($fzMinDb,4,'.','') ?>"
+                max="<?= number_format($fzMaxDb,4,'.','') ?>"
+                step="0.0001"
+                value="<?= number_format($baseFz,4,'.','') ?>"
+              >
+              <span class="slider-bubble"></span>
+            </div>
+            <div class="text-end small text-secondary mt-1">
+              <span><?= number_format($fzMinDb,4,'.','') ?></span> –
+              <strong id="valFz"><?= number_format($baseFz,4,'.','') ?></strong> –
+              <span><?= number_format($fzMaxDb,4,'.','') ?></span>
+            </div>
           </div>
-          <div class="card-body p-4">
-            <!-- fz -->
-            <div class="mb-4 px-2">
-              <label for="sliderFz" class="form-label">fz (mm/tooth)</label>
-              <div class="slider-wrap">
-                <input
-                  type="range"
-                  id="sliderFz"
-                  class="form-range"
-                  min="<?= number_format($fzMinDb,4,'.','') ?>"
-                  max="<?= number_format($fzMaxDb,4,'.','') ?>"
-                  step="0.0001"
-                  value="<?= number_format($baseFz,4,'.','') ?>"
-                >
-                <span class="slider-bubble"></span>
-              </div>
-              <div class="text-end small text-secondary mt-1">
-                <span><?= number_format($fzMinDb,4,'.','') ?></span> –
-                <strong id="valFz"><?= number_format($baseFz,4,'.','') ?></strong> –
-                <span><?= number_format($fzMaxDb,4,'.','') ?></span>
-              </div>
+          <!-- Vc -->
+          <div class="mb-4 px-2">
+            <label for="sliderVc" class="form-label">Vc (m/min)</label>
+            <div class="slider-wrap">
+              <input
+                type="range"
+                id="sliderVc"
+                class="form-range"
+                min="<?= number_format($vcMinDb,1,'.','') ?>"
+                max="<?= number_format($vcMaxDb,1,'.','') ?>"
+                step="0.1"
+                value="<?= number_format($baseVc,1,'.','') ?>"
+              >
+              <span class="slider-bubble"></span>
             </div>
-            <!-- Vc -->
-            <div class="mb-4 px-2">
-              <label for="sliderVc" class="form-label">Vc (m/min)</label>
-              <div class="slider-wrap">
-                <input
-                  type="range"
-                  id="sliderVc"
-                  class="form-range"
-                  min="<?= number_format($vcMinDb,1,'.','') ?>"
-                  max="<?= number_format($vcMaxDb,1,'.','') ?>"
-                  step="0.1"
-                  value="<?= number_format($baseVc,1,'.','') ?>"
-                >
-                <span class="slider-bubble"></span>
-              </div>
-              <div class="text-end small text-secondary mt-1">
-                <span><?= number_format($vcMinDb,1,'.','') ?></span> –
-                <strong id="valVc"><?= number_format($baseVc,1,'.','') ?></strong> –
-                <span><?= number_format($vcMaxDb,1,'.','') ?></span>
-              </div>
+            <div class="text-end small text-secondary mt-1">
+              <span><?= number_format($vcMinDb,1,'.','') ?></span> –
+              <strong id="valVc"><?= number_format($baseVc,1,'.','') ?></strong> –
+              <span><?= number_format($vcMaxDb,1,'.','') ?></span>
             </div>
-            <!-- ae -->
-            <div class="mb-4 px-2">
-              <label for="sliderAe" class="form-label">
-                ae (mm) <small>(ancho de pasada)</small>
-              </label>
-              <div class="slider-wrap">
-                <input
-                  type="range"
-                  id="sliderAe"
-                  class="form-range"
-                  min="0.1"
-                  max="<?= number_format($diameterMb,1,'.','') ?>"
-                  step="0.1"
-                  value="<?= number_format($diameterMb*0.5,1,'.','') ?>"
-                >
-                <span class="slider-bubble"></span>
-              </div>
-              <div class="text-end small text-secondary mt-1">
-                <span>0.1</span> –
-                <strong id="valAe"><?= number_format($diameterMb*0.5,1,'.','') ?></strong> –
-                <span><?= number_format($diameterMb,1,'.','') ?></span>
-              </div>
+          </div>
+          <!-- ae -->
+          <div class="mb-4 px-2">
+            <label for="sliderAe" class="form-label">
+              ae (mm) <small>(ancho de pasada)</small>
+            </label>
+            <div class="slider-wrap">
+              <input
+                type="range"
+                id="sliderAe"
+                class="form-range"
+                min="0.1"
+                max="<?= number_format($diameterMb,1,'.','') ?>"
+                step="0.1"
+                value="<?= number_format($diameterMb*0.5,1,'.','') ?>"
+              >
+              <span class="slider-bubble"></span>
             </div>
-            <!-- Pasadas -->
-            <div class="mb-4 px-2">
-              <label for="sliderPasadas" class="form-label">Pasadas</label>
-              <div class="slider-wrap">
-                <input
-                  type="range"
-                  id="sliderPasadas"
-                  class="form-range"
-                  min="1"
-                  max="1"
-                  step="1"
-                  value="1"
-                  data-thickness="<?= htmlspecialchars((string)$thickness, ENT_QUOTES) ?>"
-                >
-                <span class="slider-bubble"></span>
-              </div>
-              <div id="textPasadasInfo" class="small text-secondary mt-1">
-                1 pasada de <?= number_format($thickness, 2) ?> mm
-              </div>
-              <div id="errorMsg" class="text-danger mt-2 small" style="display:none"></div>
+            <div class="text-end small text-secondary mt-1">
+              <span>0.1</span> –
+              <strong id="valAe"><?= number_format($diameterMb*0.5,1,'.','') ?></strong> –
+              <span><?= number_format($diameterMb,1,'.','') ?></span>
             </div>
+          </div>
+          <!-- Pasadas -->
+          <div class="mb-4 px-2">
+            <label for="sliderPasadas" class="form-label">Pasadas</label>
+            <div class="slider-wrap">
+              <input
+                type="range"
+                id="sliderPasadas"
+                class="form-range"
+                min="1"
+                max="1"
+                step="1"
+                value="1"
+                data-thickness="<?= htmlspecialchars((string)$thickness, ENT_QUOTES) ?>"
+              >
+              <span class="slider-bubble"></span>
+            </div>
+            <div id="textPasadasInfo" class="small text-secondary mt-1">
+              1 pasada de <?= number_format($thickness, 2) ?> mm
+            </div>
+            <div id="errorMsg" class="text-danger mt-2 small" style="display:none"></div>
           </div>
         </div>
       </div>
-
-      <!-- 2) Resultados -->
-      <div class="col-12 col-lg-4 mb-3 area-results">
-        <div class="card h-100 shadow-sm">
-          <div class="card-header text-center p-3">
-            <h5 class="mb-0">Resultados</h5>
+    </div>
+    <div class="col-lg-6 mb-4">
+      <div id="resultadosBox" class="bg-dark p-3 rounded shadow-sm text-white">
+        <h2 class="display-6 text-center mb-3">Resultados</h2>
+        <div class="text-center mb-3">
+          <div class="h5 text-muted">Feedrate</div>
+          <div class="display-4 fw-bold text-info" id="outVf"><?= $outVf ?? '--' ?></div>
+        </div>
+        <div class="text-center mb-3">
+          <div class="h5 text-muted">Cutting speed</div>
+          <div class="display-4 fw-bold text-info" id="outVc">--</div>
+        </div>
+        <div class="row mt-4 text-center" id="otrosResultados">
+          <div class="col">
+            <div class="text-muted small">fz</div>
+            <div id="outFz" class="fw-bold">--</div>
           </div>
-          <div class="card-body p-4">
-            <!-- Compact feedrate & speed -->
-            <div class="results-compact mb-4 d-flex gap-2">
-              <div class="result-box text-center flex-fill">
-                <div class="param-label">
-                  Feedrate<br><small>(<span class="param-unit">mm/min</span>)</small>
-                </div>
-                <div id="outVf" class="fw-bold display-6"><?= $outVf ?? '--' ?></div>
-              </div>
-              <div class="result-box text-center flex-fill">
-                <div class="param-label">
-                  Cutting speed<br><small>(<span class="param-unit">RPM</span>)</small>
-                </div>
-                <div id="outN" class="fw-bold display-6"><?= $outVc ?? '--' ?></div>
-              </div>
-            </div>
-            <!-- Detalle métricas -->
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <small>Vc</small>
-              <div><span id="outVc" class="fw-bold">--</span> <span class="param-unit">m/min</span></div>
-            </div>
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <small>fz</small>
-              <div><span id="outFz" class="fw-bold">--</span> <span class="param-unit">mm/tooth</span></div>
-            </div>
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <small>Ap</small>
-              <div><span id="outAp" class="fw-bold">--</span> <span class="param-unit">mm</span></div>
-            </div>
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-              <small>Ae</small>
-              <div><span id="outAe" class="fw-bold">--</span> <span class="param-unit">mm</span></div>
-            </div>
-
-
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <small>hm</small>
-              <div><span id="outHm" class="fw-bold">--</span> <span class="param-unit">mm</span></div>
-            </div>
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <small>Hp</small>
-              <div><span id="outHp" class="fw-bold">--</span> <span class="param-unit">HP</span></div>
-            </div>
-
-            
-            <!-- Métricas secundarias -->
-            <div class="rd-flex justify-content-between align-items-center mb-3">
-        
-                <div class="param-label">MMR<br><small>(<span class="param-unit">mm³/min</span>)</small></div>
-                <div id="valueMrr" class="fw-bold">--</div>
-       
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <div class="param-label">Fc<br><small>(<span class="param-unit">N</span>)</small></div>
-                <div id="valueFc" class="fw-bold">--</div>
-              </div>
-              <div class="rd-flex justify-content-between align-items-center mb-3">
-                <div class="param-label">Potencia<br><small>(<span class="param-unit">W</span>)</small></div>
-                <div id="valueW" class="fw-bold">--</div>
-              </div>
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <div class="param-label">η<br><small>(<span class="param-unit">%</span>)</small></div>
-                <div id="valueEta" class="fw-bold">--</div>
-              </div>
-            </div>
+          <div class="col">
+            <div class="text-muted small">Ap</div>
+            <div id="outAp" class="fw-bold">--</div>
+          </div>
+          <div class="col">
+            <div class="text-muted small">Ae</div>
+            <div id="outAe" class="fw-bold">--</div>
+          </div>
+          <div class="col">
+            <div class="text-muted small">hm</div>
+            <div id="outHm" class="fw-bold">--</div>
+          </div>
+          <div class="col">
+            <div class="text-muted small">RPM</div>
+            <div id="outN" class="fw-bold">--</div>
+          </div>
+          <div class="col">
+            <div class="text-muted small">Hp</div>
+            <div id="outHp" class="fw-bold">--</div>
           </div>
         </div>
       </div>
-
-      <!-- 3) Radar Chart -->
-      <div class="col-12 col-lg-4 mb-3 area-radar">
-        <div class="card h-100 shadow-sm">
-          <div class="card-header text-center p-3">
-            <h5 class="mb-0">Distribución Radar</h5>
-          </div>
-          <div class="card-body p-4 d-flex justify-content-center align-items-center">
-            <canvas id="radarChart" width="10%" height="50"></canvas>
-          </div>
-        </div>
+      <div id="radarBox" class="mt-4 text-center">
+        <canvas id="radarChart" width="10%" height="50"></canvas>
       </div>
+    </div>
+  </div>
 
-
-
-
-
-  <!-- ESPECIFICACIONES TÉCNICAS & IMAGEN VECTORIAL -->
-  <div class="container py-3">
-    <div class="row gx-3 mb-4 cards-grid">
-
-      <div class="col-12 col-lg-4 mb-3">
-        <div class="card h-100 shadow-sm">
-          <div class="card-header text-center p-3" data-bs-toggle="collapse" data-bs-target="#specCollapse" aria-expanded="true" aria-controls="specCollapse">
-            <h5 class="mb-0">Especificaciones Técnicas</h5>
+  <div class="row mt-5">
+    <div class="col-lg-10 mx-auto">
+      <div id="infoTecnicaBox" class="mb-4 p-3 rounded bg-dark text-white shadow-sm">
+        <div class="row gx-0 align-items-center">
+          <div class="col-12 col-lg-7 px-2 mb-4 mb-lg-0">
+            <ul class="spec-list mb-0 px-2">
+              <li><span>Diámetro de corte (d1):</span>
+                  <span><?= number_format($diameterMb,3,'.','') ?> <span class="param-unit">mm</span></span>
+              </li>
+              <li><span>Diámetro del vástago:</span>
+                  <span><?= number_format($shankMb,3,'.','') ?> <span class="param-unit">mm</span></span>
+              </li>
+              <li><span>Longitud de corte:</span>
+                  <span><?= number_format($cutLenMb,3,'.','') ?> <span class="param-unit">mm</span></span>
+              </li>
+              <li><span>Longitud de filo:</span>
+                  <span><?= number_format($fluteLenMb,3,'.','') ?> <span class="param-unit">mm</span></span>
+              </li>
+              <li><span>Longitud total:</span>
+                  <span><?= number_format($fullLenMb,3,'.','') ?> <span class="param-unit">mm</span></span>
+              </li>
+              <li><span>Número de filos (Z):</span>
+                  <span><?= $fluteCountMb ?></span>
+              </li>
+              <li><span>Tipo de punta:</span>
+                  <span><?= htmlspecialchars($toolType,ENT_QUOTES) ?></span>
+              </li>
+              <li><span>Recubrimiento:</span>
+                  <span><?= htmlspecialchars($coatingMb,ENT_QUOTES) ?></span>
+              </li>
+              <li><span>Material fabricación:</span>
+                  <span><?= htmlspecialchars($materialMb,ENT_QUOTES) ?></span>
+              </li>
+              <li><span>Marca:</span>
+                  <span><?= htmlspecialchars($brandMb,ENT_QUOTES) ?></span>
+              </li>
+              <li><span>País de origen:</span>
+                  <span><?= htmlspecialchars($madeInMb,ENT_QUOTES) ?></span>
+              </li>
+            </ul>
           </div>
-          <div id="specCollapse" class="collapse show">
-            <div class="card-body p-4">
-              <div class="row gx-0 align-items-center">
-                <!-- Izquierda: especificaciones -->
-                <div class="col-12 col-lg-7 px-2 mb-4 mb-lg-0">
-                  <ul class="spec-list mb-0 px-2">
-                  <li><span>Diámetro de corte (d1):</span>
-                      <span><?= number_format($diameterMb,3,'.','') ?> <span class="param-unit">mm</span></span>
-                  </li>
-                  <li><span>Diámetro del vástago:</span>
-                      <span><?= number_format($shankMb,3,'.','') ?> <span class="param-unit">mm</span></span>
-                  </li>
-                  <li><span>Longitud de corte:</span>
-                      <span><?= number_format($cutLenMb,3,'.','') ?> <span class="param-unit">mm</span></span>
-                  </li>
-                  <li><span>Longitud de filo:</span>
-                      <span><?= number_format($fluteLenMb,3,'.','') ?> <span class="param-unit">mm</span></span>
-                  </li>
-                  <li><span>Longitud total:</span>
-                      <span><?= number_format($fullLenMb,3,'.','') ?> <span class="param-unit">mm</span></span>
-                  </li>
-                  <li><span>Número de filos (Z):</span>
-                      <span><?= $fluteCountMb ?></span>
-                  </li>
-                  <li><span>Tipo de punta:</span>
-                      <span><?= htmlspecialchars($toolType,ENT_QUOTES) ?></span>
-                  </li>
-                  <li><span>Recubrimiento:</span>
-                      <span><?= htmlspecialchars($coatingMb,ENT_QUOTES) ?></span>
-                  </li>
-                  <li><span>Material fabricación:</span>
-                      <span><?= htmlspecialchars($materialMb,ENT_QUOTES) ?></span>
-                  </li>
-                  <li><span>Marca:</span>
-                      <span><?= htmlspecialchars($brandMb,ENT_QUOTES) ?></span>
-                  </li>
-                  <li><span>País de origen:</span>
-                      <span><?= htmlspecialchars($madeInMb,ENT_QUOTES) ?></span>
-                  </li>
-                </ul>
-              </div>
-                <!-- Derecha: imagen vectorial -->
-                <div class="col-12 col-lg-5 px-2 d-flex justify-content-center align-items-center">
-                <?php if ($vectorURL): ?>
-                  <img
-                    src="<?= htmlspecialchars($vectorURL,ENT_QUOTES) ?>"
-                    alt="Imagen vectorial de la herramienta"
-                    class="vector-image mx-auto d-block"
-                  >
-                <?php else: ?>
-                  <div class="text-secondary">Sin imagen vectorial</div>
-                <?php endif; ?>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- CONFIGURACIÓN DE USUARIO -->
-      <div class="col-12 col-lg-4 mb-3">
-        <div class="card h-100 shadow-sm">
-          <div class="card-header text-center p-3" data-bs-toggle="collapse" data-bs-target="#configCollapse" aria-expanded="true" aria-controls="configCollapse">
-            <h5 class="mb-0">Configuración de Usuario</h5>
-          </div>
-          <div id="configCollapse" class="collapse show">
-            <div class="card-body p-4">
-            <div class="config-section mb-3">
-              <div class="config-section-title">Material</div>
-              <div class="config-item">
-                <div class="label-static">Categoría padre:</div>
-                <div class="value-static"><?= htmlspecialchars($materialParent ?? '', ENT_QUOTES) ?></div>
-              </div>
-              <div class="config-item">
-                <div class="label-static">Material a mecanizar:</div>
-                <div class="value-static"><?= htmlspecialchars($materialName ?? '', ENT_QUOTES) ?></div>
-              </div>
-            </div>
-            <div class="section-divider"></div>
-            <div class="config-section mb-3">
-              <div class="config-section-title">Estrategia</div>
-              <div class="config-item">
-                <div class="label-static">Categoría padre estr.:</div>
-                <div class="value-static"><?= htmlspecialchars($strategyParent ?? '', ENT_QUOTES) ?></div>
-              </div>
-              <div class="config-item">
-                <div class="label-static">Estrategia de corte:</div>
-                <div class="value-static"><?= htmlspecialchars($strategyName ?? '', ENT_QUOTES) ?></div>
-              </div>
-            </div>
-            <div class="section-divider"></div>
-            <div class="config-section">
-              <div class="config-section-title">Máquina</div>
-              <div class="config-item">
-                <div class="label-static">Espesor del material:</div>
-                <div class="value-static"><?= htmlspecialchars((string)$thickness,ENT_QUOTES) ?> <span class="param-unit">mm</span></div>
-              </div>
-              <div class="config-item"><div class="label-static">Tipo de transmisión:</div>
-                <div class="value-static"><?= htmlspecialchars($transName ?? '',ENT_QUOTES) ?></div>
-              </div>
-              <div class="config-item">
-                <div class="label-static">Feedrate máximo:</div>
-                <div class="value-static"><?= htmlspecialchars((string)$frMax,ENT_QUOTES) ?> <span class="param-unit">mm/min</span></div>
-              </div>
-              <div class="config-item">
-                <div class="label-static">RPM mínima:</div>
-                <div class="value-static"><?= htmlspecialchars((string)$rpmMin,ENT_QUOTES) ?> <span class="param-unit">rev/min</span></div>
-              </div>
-              <div class="config-item">
-                <div class="label-static">RPM máxima:</div>
-                <div class="value-static"><?= htmlspecialchars((string)$rpmMax,ENT_QUOTES) ?> <span class="param-unit">rev/min</span></div>
-              </div>
-              <div class="config-item">
-                <div class="label-static">Potencia disponible:</div>
-                <div class="value-static"><?= htmlspecialchars((string)$powerAvail,ENT_QUOTES) ?> <span class="param-unit">HP</span></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- NOTAS ADICIONALES -->
-      <div class="col-12 col-lg-4 mb-3">
-        <div class="card h-100 shadow-sm">
-          <div class="card-header text-center p-3">
-            <h5 class="mb-0">Notas Adicionales</h5>
-          </div>
-          <div class="card-body p-4">
-            <?php if (!empty($notesArray)): ?>
-              <ul class="notes-list mb-0">
-                <?php foreach ($notesArray as $note): ?>
-                  <li class="mb-2 d-flex align-items-start">
-                    <i data-feather="file-text" class="me-2"></i>
-                    <div><?= htmlspecialchars($note, ENT_QUOTES) ?></div>
-                  </li>
-                <?php endforeach; ?>
-              </ul>
+          <div class="col-12 col-lg-5 px-2 d-flex justify-content-center align-items-center">
+            <?php if ($vectorURL): ?>
+              <img
+                src="<?= htmlspecialchars($vectorURL,ENT_QUOTES) ?>"
+                alt="Imagen vectorial de la herramienta"
+                class="vector-image mx-auto d-block"
+              >
             <?php else: ?>
-              <div class="text-secondary">No hay notas adicionales para esta herramienta.</div>
+              <div class="text-secondary">Sin imagen vectorial</div>
             <?php endif; ?>
           </div>
         </div>
+        <?php if (!empty($notesArray)): ?>
+          <hr class="my-3">
+          <h5 class="mb-2">Notas Adicionales</h5>
+          <ul class="notes-list mb-0">
+            <?php foreach ($notesArray as $note): ?>
+              <li class="mb-2 d-flex align-items-start">
+                <i data-feather="file-text" class="me-2"></i>
+                <div><?= htmlspecialchars($note, ENT_QUOTES) ?></div>
+              </li>
+            <?php endforeach; ?>
+          </ul>
+        <?php else: ?>
+          <hr class="my-3">
+          <div class="text-secondary">No hay notas adicionales para esta herramienta.</div>
+        <?php endif; ?>
       </div>
+
+      <div id="infoUsuarioBox" class="p-3 rounded bg-dark text-white shadow-sm">
+        <div class="config-section mb-3">
+          <div class="config-section-title">Material</div>
+          <div class="config-item">
+            <div class="label-static">Categoría padre:</div>
+            <div class="value-static"><?= htmlspecialchars($materialParent ?? '', ENT_QUOTES) ?></div>
+          </div>
+          <div class="config-item">
+            <div class="label-static">Material a mecanizar:</div>
+            <div class="value-static"><?= htmlspecialchars($materialName ?? '', ENT_QUOTES) ?></div>
+          </div>
+        </div>
+        <div class="section-divider"></div>
+        <div class="config-section mb-3">
+          <div class="config-section-title">Estrategia</div>
+          <div class="config-item">
+            <div class="label-static">Categoría padre estr.:</div>
+            <div class="value-static"><?= htmlspecialchars($strategyParent ?? '', ENT_QUOTES) ?></div>
+          </div>
+          <div class="config-item">
+            <div class="label-static">Estrategia de corte:</div>
+            <div class="value-static"><?= htmlspecialchars($strategyName ?? '', ENT_QUOTES) ?></div>
+          </div>
+        </div>
+        <div class="section-divider"></div>
+        <div class="config-section">
+          <div class="config-section-title">Máquina</div>
+          <div class="config-item">
+            <div class="label-static">Espesor del material:</div>
+            <div class="value-static"><?= htmlspecialchars((string)$thickness,ENT_QUOTES) ?> <span class="param-unit">mm</span></div>
+          </div>
+          <div class="config-item">
+            <div class="label-static">Tipo de transmisión:</div>
+            <div class="value-static"><?= htmlspecialchars($transName ?? '',ENT_QUOTES) ?></div>
+          </div>
+          <div class="config-item">
+            <div class="label-static">Feedrate máximo:</div>
+            <div class="value-static"><?= htmlspecialchars((string)$frMax,ENT_QUOTES) ?> <span class="param-unit">mm/min</span></div>
+          </div>
+          <div class="config-item">
+            <div class="label-static">RPM mínima:</div>
+            <div class="value-static"><?= htmlspecialchars((string)$rpmMin,ENT_QUOTES) ?> <span class="param-unit">rev/min</span></div>
+          </div>
+          <div class="config-item">
+            <div class="label-static">RPM máxima:</div>
+            <div class="value-static"><?= htmlspecialchars((string)$rpmMax,ENT_QUOTES) ?> <span class="param-unit">rev/min</span></div>
+          </div>
+          <div class="config-item">
+            <div class="label-static">Potencia disponible:</div>
+            <div class="value-static"><?= htmlspecialchars((string)$powerAvail,ENT_QUOTES) ?> <span class="param-unit">HP</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
- 
 
 
 <!--  🔻  ⬇︎  Añade esto JUSTO ANTES de cargar step6.js  ⬇︎  🔻 -->
