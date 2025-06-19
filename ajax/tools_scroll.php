@@ -33,68 +33,38 @@ if (isset($_SESSION['tools_permission']) && !$_SESSION['tools_permission']) {
 
 $page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) ?: 1;
 $pageSize = filter_input(INPUT_GET, 'page_size', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 100]]) ?: 30;
-$mode = $_GET['mode'] ?? 'manual';
 
 $offset = ($page - 1) * $pageSize;
+$sql = 'SELECT * FROM tools_generico ORDER BY diameter_mm ASC LIMIT :limit OFFSET :offset';
 
-$pdo = db();
-
-if ($mode === 'auto') {
-    $materialId = (int)($_SESSION['material_id'] ?? 0);
-    $strategyId = (int)($_SESSION['strategy_id'] ?? 0);
-    if ($materialId <= 0 || $strategyId <= 0) {
-        echo json_encode(['status' => 'error', 'message' => 'missing_data']);
-        exit;
-    }
-
-    $toolTables = [
-        'tools_sgs'       => 'toolsmaterial_sgs',
-        'tools_maykestag' => 'toolsmaterial_maykestag',
-        'tools_schneider' => 'toolsmaterial_schneider',
-        'tools_generico'  => 'toolsmaterial_generico',
-    ];
-
-    $parts = [];
-    $bind  = [];
-    foreach ($toolTables as $toolTbl => $matTbl) {
-        $parts[] = "SELECT t.*, s.code AS series_code, b.name AS brand, m.rating, '{$toolTbl}' AS tbl
-                    FROM {$toolTbl} t
-                    JOIN {$matTbl} m ON t.tool_id = m.tool_id
-                    JOIN series s ON t.series_id = s.id
-                    JOIN brands b ON s.brand_id = b.id
-                    JOIN toolstrategy ts ON ts.tool_id = t.tool_id AND ts.tool_table = '{$toolTbl}'
-                   WHERE m.material_id = ? AND ts.strategy_id = ? AND m.rating > 0";
-        $bind[] = $materialId;
-        $bind[] = $strategyId;
-    }
-    $sql = implode(' UNION ALL ', $parts) . ' ORDER BY rating DESC LIMIT ? OFFSET ?';
-    $bind[] = $pageSize;
-    $bind[] = $offset;
+$key = 'tools_scroll_' . md5($sql . '|' . $page . '|' . $pageSize);
+$cacheAvailable = function_exists('apcu_fetch');
+$data = $cacheAvailable ? apcu_fetch($key, $hit) : false;
+if (!$cacheAvailable || !$hit) {
+    $pdo = db();
     $stmt = $pdo->prepare($sql);
-    $stmt->execute($bind);
+    $stmt->bindValue(':limit', $pageSize, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+    $stmt->execute();
     $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} else {
-    $sql = 'SELECT * FROM tools_generico ORDER BY diameter_mm ASC LIMIT :limit OFFSET :offset';
-    $key = 'tools_scroll_' . md5($sql . '|' . $page . '|' . $pageSize);
-    $cacheAvailable = function_exists('apcu_fetch');
-    $data = $cacheAvailable ? apcu_fetch($key, $hit) : false;
-    if (!$cacheAvailable || !$hit) {
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindValue(':limit', $pageSize, PDO::PARAM_INT);
-        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-        $stmt->execute();
-        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        if ($cacheAvailable) {
-            apcu_store($key, $data, 60);
+    // Compute image URLs for freshly fetched data
+    foreach ($data as &$row) {
+        $img = $row['image'] ?? '';
+        $row['img_url'] = $img !== '' ? '/wizard-stepper_git/' . ltrim((string)$img, '/') : '';
+    }
+    unset($row);
+    if ($cacheAvailable) {
+        apcu_store($key, $data, 60);
+    }
+} else { // Ensure cached data also includes image URLs
+    foreach ($data as &$row) {
+        if (!isset($row['img_url'])) {
+            $img = $row['image'] ?? '';
+            $row['img_url'] = $img !== '' ? '/wizard-stepper_git/' . ltrim((string)$img, '/') : '';
         }
     }
-}
-
-foreach ($data as &$row) {
-    $img = $row['image'] ?? '';
-    $row['img_url'] = $img !== '' ? '/wizard-stepper_git/' . ltrim((string)$img, '/') : '';
-}
-unset($row);
+    unset($row);
+} // Fallback to direct query when APCu functions are missing
 
 $hasMore = count($data) === $pageSize;
 
