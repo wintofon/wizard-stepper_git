@@ -186,7 +186,7 @@ $hasPrev   = is_int($prevType) && array_key_exists((int)$prevType, $types)
 <body>
   <main class="container py-4">
 
-  <h2 class="step-title">Paso 2 – Mecanizado y estrategia</h2>
+  <h2 class="step-title"><i data-feather="settings"></i> Mecanizado y estrategia</h2>
   <p class="step-desc">Elegí el tipo de mecanizado y la estrategia recomendada.</p>
 
   <?php if (!empty($errors)): ?>

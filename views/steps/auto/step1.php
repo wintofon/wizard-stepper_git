@@ -202,7 +202,7 @@ dbg('children', $children);
 <body>
   <main class="container py-4">
 
-  <h2 class="step-title">Paso 1 – Material y espesor</h2>
+  <h2 class="step-title"><i data-feather="layers"></i> Material y espesor</h2>
   <p class="step-desc">Seleccioná el material a mecanizar y su espesor.</p>
 
   <?php if (!empty($err)): ?>

@@ -233,7 +233,7 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
 </head>
 <body>
   <div class="container py-4">
-    <h2 class="step-title">Paso 6 – Resultados finales</h2>
+    <h2 class="step-title"><i data-feather="bar-chart-2"></i> Resultados finales</h2>
     <p class="step-desc">Revisá los valores recomendados para el corte.</p>
 <?php endif; ?>
 
