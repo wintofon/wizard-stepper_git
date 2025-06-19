@@ -38,6 +38,7 @@ if (!function_exists('dbg')) {
 dbg('🔧 index.php iniciado');
 
 require_once __DIR__ . '/src/Utils/Session.php';
+require_once __DIR__ . '/src/Utils/Path.php';
 
 // -------------------------------------------
 // [B] CABECERAS DE SEGURIDAD HTTP

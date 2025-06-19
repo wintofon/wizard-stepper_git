@@ -36,6 +36,7 @@ if (!function_exists('dbg')) {
 }
 dbg('🔧 reset.php iniciado');
 require_once __DIR__ . '/../src/Utils/Session.php';
+require_once __DIR__ . '/../src/Utils/Path.php';
 
 // -------------------------------------------
 // [2] CABECERAS DE SEGURIDAD Y NO-CACHING
@@ -115,7 +116,7 @@ echo <<<'HTML'
   <meta charset="UTF-8">
   <title>Reiniciando Wizard CNC...</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/base/reset.css">
+  <link rel="stylesheet" href="<?= asset_url('css/base/reset.css') ?>">
 </head>
 <body>
   <div class="message-box">

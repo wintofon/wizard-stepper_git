@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . '/../src/Utils/Session.php';
+require_once __DIR__ . '/../src/Utils/Path.php';
 /**
  * File: C:\xampp\htdocs\wizard-stepper_git\load-step.php
  * ---------------------------------------------------------------
