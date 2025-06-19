@@ -59,5 +59,47 @@
 <link rel="stylesheet" href="assets/css/wizard.css">
 <link rel="stylesheet" href="assets/css/step6.css"><!-- <---- AGREGALO ACÁ -->
 
+  <!-- Footer SchneiderCNC -->
+  <footer class="footer-schneider text-white mt-5">
+    <div class="container py-4">
+      <div class="row align-items-center">
+
+        <!-- Marca y contacto -->
+        <div class="col-md-6 mb-4 mb-md-0">
+          <img src="assets/img/logos/logo_stepper.png" alt="Logo SchneiderCNC" class="footer-logo mb-2">
+          <h4 class="fw-bold mb-2">SchneiderCNC</h4>
+          <p class="mb-1">Alejandro Martín Schneider</p>
+          <p class="mb-1">Córdoba, Argentina</p>
+          <p class="mb-1">📞 +54 9 351 000 0000</p>
+          <p class="mb-1">💌 contacto@schneidercnc.com</p>
+          <p class="small text-secondary mt-2">&copy; SchneiderCNC <?= date('Y') ?> · Todos los derechos reservados</p>
+        </div>
+
+        <!-- Accesos rápidos -->
+        <div class="col-md-3 mb-4 mb-md-0">
+          <h6 class="text-uppercase fw-semibold">Productos</h6>
+          <ul class="list-unstyled small">
+            <li><a href="/libros" class="footer-link">📘 Mis libros</a></li>
+            <li><a href="/cursos-presenciales" class="footer-link">🏫 Cursos presenciales</a></li>
+            <li><a href="/cursos-online" class="footer-link">💻 Cursos online</a></li>
+            <li><a href="/herramental" class="footer-link">🛠️ Venta de herramental</a></li>
+          </ul>
+        </div>
+
+        <!-- Legal o navegación -->
+        <div class="col-md-3">
+          <h6 class="text-uppercase fw-semibold">Sitio</h6>
+          <ul class="list-unstyled small">
+            <li><a href="/contacto" class="footer-link">Contacto</a></li>
+            <li><a href="/terminos" class="footer-link">Términos y condiciones</a></li>
+            <li><a href="/cookies" class="footer-link">Cookies</a></li>
+            <li><a href="/privacidad" class="footer-link">Política de privacidad</a></li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </footer>
+
 </body>
 </html>
