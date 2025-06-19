@@ -147,6 +147,11 @@ try {
     exit;
 }
 
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+$csrfToken = $_SESSION['csrf_token'];
+
 ////////////////////////////////////////////////////////////////////////////////
 // 7) IMPRIMIR HTML + JavaScript (AJAX) para cargar y filtrar dinámicamente.
 ////////////////////////////////////////////////////////////////////////////////
@@ -156,6 +161,7 @@ try {
   <meta charset="utf-8">
   <title>Paso 3 – Herramientas compatibles (Auto)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="<?= htmlspecialchars($csrfToken) ?>">
 
   <!-- Bootstrap 5 (CDN) -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -179,8 +185,11 @@ try {
   </div>
 
   <!-- 7.2) Contenedor donde se agregarán las tarjetas -->
-  <div id="toolContainer">
-    <!-- ↓ Aquí se pintarán dinámicamente las “fresa-card” por JS ↓ -->
+  <div id="scrollContainer">
+    <div id="toolContainer">
+      <!-- ↓ Aquí se pintarán dinámicamente las “fresa-card” por JS ↓ -->
+    </div>
+    <div id="sentinel"></div>
   </div>
 
   <!-- 7.3) Formulario oculto que se usará al pulsar “Seleccionar” -->
@@ -232,88 +241,41 @@ try {
     const selectForm   = document.getElementById('selectForm');
     const inputToolId  = document.getElementById('tool_id');
     const inputToolTbl = document.getElementById('tool_table');
+    const csrfToken    = document.querySelector('meta[name="csrf-token"]')?.content || '';
 
-    let allTools = [];     // Aquí se guardará el array de fresas recibido
-    let diameters = [];    // Diámetros únicos (array de strings con 3 decimales)
+    let currentPage = 1;
+    let hasMore = true;
+    const diaSet = new Set();
+    window.fetchTools = fetchTools;
+    window.currentPage = currentPage;
 
-    /**
-     * 1) Hacer fetch AJAX a get_tools.php para obtener JSON de fresas.
-     */
-    async function fetchTools() {
-      try {
-        const url = `/wizard-stepper_git/ajax/get_tools.php?material_id=${encodeURIComponent(materialId)}&strategy_id=${encodeURIComponent(strategyId)}`;
-        dbg('⬇ [step3.js] Fetch →', url);
-        const resp = await fetch(url, { cache: 'no-store' });
-        if (!resp.ok) {
-          throw new Error(`HTTP ${resp.status}`);
-        }
-        const data = await resp.json();
-        if (!Array.isArray(data)) {
-          throw new Error('Respuesta no es un array JSON');
-        }
-        dbg('ℹ [step3.js] Respuesta recibida:', data);
-        allTools = data;
-        renderTools();
-      } catch (err) {
-        dbg('❌ [step3.js] Error en fetchTools →', err);
-        container.innerHTML = `<div class="alert alert-danger">Error al cargar herramientas: ${err.message}</div>`;
-      }
-    }
-
-    /**
-     * 2) Extrae diámetros únicos de allTools y los ordena.
-     */
-    function extractDiameters() {
-      const set = new Set();
-      allTools.forEach(t => {
-        const d = parseFloat(t.diameter_mm);
-        if (!isNaN(d)) {
-          // Aseguramos 3 decimales consistentes
-          set.add(d.toFixed(3));
-        }
-      });
-      diameters = Array.from(set).sort((a, b) => parseFloat(a) - parseFloat(b));
-      dbg('ℹ [step3.js] Diámetros únicos extraídos →', diameters);
-    }
-
-    /**
-     * 3) Rellena el <select id="diaFilter"> con las opciones de diámetro.
-     */
-    function fillDiameterOptions() {
-      // Dejamos la opción “— Todos —” con valor ""
-      diameters.forEach(d => {
+    function updateDiaOptions() {
+      const opts = Array.from(diaSet).sort((a, b) => parseFloat(a) - parseFloat(b));
+      const current = diaFilter.value;
+      diaFilter.innerHTML = '<option value="">— Todos —</option>';
+      opts.forEach(d => {
         const opt = document.createElement('option');
         opt.value = d;
         opt.textContent = fmtMM(d);
         diaFilter.appendChild(opt);
       });
-      dbg('ℹ [step3.js] Opciones de diámetro añadidas al select.');
+      diaFilter.value = current;
     }
 
-    /**
-     * 4) Renderiza todas las tarjetas de fresas dentro de #toolContainer.
-     */
-    function renderTools() {
-      container.innerHTML = ''; // Limpiamos contenedor
-
-      if (allTools.length === 0) {
-        container.innerHTML = `<div class="alert alert-warning">No se encontraron herramientas compatibles.</div>`;
+    function appendTools(tools) {
+      if (tools.length === 0 && container.children.length === 0) {
+        container.innerHTML = '<div class="alert alert-warning">No se encontraron herramientas compatibles.</div>';
         return;
       }
 
-      extractDiameters();
-      fillDiameterOptions();
-
-      allTools.forEach(tool => {
-        // Normalizamos diámetro a string de 3 decimales
+      tools.forEach(tool => {
         const diaNorm = parseFloat(tool.diameter_mm).toFixed(3);
+        diaSet.add(diaNorm);
 
-        // Construimos la tarjeta
         const card = document.createElement('div');
         card.className = 'fresa-card row align-items-center tool-card';
-        card.setAttribute('data-dia', diaNorm);
+        card.dataset.dia = diaNorm;
 
-        // Celdas internas (imagen / detalles / botón)
         const imgCol = document.createElement('div');
         imgCol.className = 'col-md-2 mb-2 mb-md-0';
         const baseUrl = '/wizard-stepper_git/';
@@ -359,19 +321,44 @@ try {
         selectBtn.type = 'button';
         selectBtn.className = 'btn btn-select';
         selectBtn.textContent = 'Seleccionar';
-        // Pasamos datos tool_id y source_table para el POST
-        selectBtn.dataset.tool_id   = tool.tool_id;
-        selectBtn.dataset.tool_tbl  = tool.source_table;
-        selectBtn.dataset.dia       = diaNorm;
-
+        selectBtn.dataset.tool_id = tool.tool_id;
+        selectBtn.dataset.tool_tbl = tool.source_table;
+        selectBtn.dataset.dia = diaNorm;
         btnCol.appendChild(selectBtn);
         card.appendChild(btnCol);
 
         container.appendChild(card);
       });
 
+      updateDiaOptions();
       attachCardListeners();
-      dbg('ℹ [step3.js] Se han generado ' + allTools.length + ' tarjetas.');
+    }
+
+    async function fetchTools(page = 1) {
+      if (!hasMore) return;
+      try {
+        const url = `/wizard-stepper_git/ajax/tools_scroll.php?page=${page}&mode=auto`;
+        dbg('⬇ [step3.js] Fetch →', url);
+        const resp = await fetch(url, {
+          cache: 'no-store',
+          headers: csrfToken ? { 'X-CSRF-Token': csrfToken } : {}
+        });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const data = await resp.json();
+        if (!Array.isArray(data.tools)) throw new Error('Respuesta inválida');
+        appendTools(data.tools);
+        hasMore = data.hasMore;
+        currentPage = page;
+        window.currentPage = currentPage;
+        if (!hasMore) {
+          const end = document.createElement('div');
+          end.className = 'text-center text-secondary my-2';
+          end.textContent = 'Fin de lista';
+          container.appendChild(end);
+        }
+      } catch (err) {
+        dbg('❌ [step3.js] Error en fetchTools →', err);
+      }
     }
 
     /**
@@ -406,8 +393,12 @@ try {
       });
     });
 
-    // Al final, disparar la carga inicial
-    fetchTools();
+    // Al final, disparar la carga inicial y activar lazy load
+    fetchTools().then(() => {
+      import('/wizard-stepper_git/assets/js/step3_lazy.js')
+        .then(m => m.initLazy())
+        .catch(console.error);
+    });
   })();
   </script>
   </main>
