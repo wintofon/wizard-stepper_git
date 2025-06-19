@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . '/../../../src/Utils/Session.php';
+require_once __DIR__ . '/../../../src/Utils/Path.php';
 /**
  * File: views/steps/manual/step4.php
  * Paso 4 (Manual) – Selección de madera compatible
@@ -138,8 +139,8 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
 <title>Paso 4 – Material</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="/wizard-stepper_git/assets/css/main.css">
-<link rel="stylesheet" href="/wizard-stepper_git/assets/css/material.css">
+<link rel="stylesheet" href="<?= asset_url('css/main.css') ?>">
+<link rel="stylesheet" href="<?= asset_url('css/material.css') ?>">
 </head><body>
 <main class="container py-4">
 <h2 class="step-title"><i data-feather="layers"></i> Material y espesor</h2>

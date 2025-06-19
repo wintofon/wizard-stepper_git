@@ -161,8 +161,8 @@ try {
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         rel="stylesheet">
 
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/main.css">
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/pages/_step3_auto.css">
+  <link rel="stylesheet" href="<?= asset_url('css/main.css') ?>">
+  <link rel="stylesheet" href="<?= asset_url('css/pages/_step3_auto.css') ?>">
 </head>
 <body>
   <main class="container py-4">

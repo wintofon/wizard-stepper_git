@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . '/../../../src/Utils/Session.php';
+require_once __DIR__ . '/../../../src/Utils/Path.php';
 /**
  * File: C:\xampp\htdocs\wizard-stepper_git\views\steps\auto\step4.php
  *
@@ -142,8 +143,8 @@ if($tool){
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <!-- Reutilizamos el mismo CSS del paso manual para un look idéntico -->
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/main.css">
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/pages/_step2.css">
+  <link rel="stylesheet" href="<?= asset_url('css/main.css') ?>">
+  <link rel="stylesheet" href="<?= asset_url('css/pages/_step2.css') ?>">
 </head>
 <body class="bg-dark text-white">
 

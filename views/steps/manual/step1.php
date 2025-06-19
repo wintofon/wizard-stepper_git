@@ -7,6 +7,7 @@
 
 declare(strict_types=1);
 require_once __DIR__ . '/../../../src/Utils/Session.php';
+require_once __DIR__ . '/../../../src/Utils/Path.php';
 
 // ──────────────── 1) Sesión y configuración segura ──────────────────
 if (session_status() !== PHP_SESSION_ACTIVE) {
@@ -125,14 +126,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <!-- Bootstrap 5 y Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         rel="stylesheet">
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/main.css">
+  <link rel="stylesheet" href="<?= asset_url('css/main.css') ?>">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
         rel="stylesheet">
 
   <!-- Estilos propios -->
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/pages/_step1.css">
+  <link rel="stylesheet" href="<?= asset_url('css/pages/_step1.css') ?>">
 
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/pages/_manual.css">
+  <link rel="stylesheet" href="<?= asset_url('css/pages/_manual.css') ?>">
 </head>
 <body>
   <noscript>
@@ -155,7 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <h2 class="step-title"><i data-feather="search"></i> Explorador de fresas</h2>
           <p class="step-desc">Elegí la herramienta inicial para el trabajo.</p>
         </div>
-        <img src="/wizard-stepper_git/assets/img/logo_nexgen.png"
+        <img src="<?= asset_url('img/logo_nexgen.png') ?>"
              height="46"
              alt="logo"
              onerror="this.remove()">
@@ -234,14 +235,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
   <!-- Script principal del paso (se encarga de rellenar la tabla y habilitar radios) -->
-  <script src="/wizard-stepper_git/assets/js/step1_manual_browser.js"
+  <script>window.BASE_URL = '<?= BASE_URL ?>';</script>
+  <script src="<?= asset_url('js/step1_manual_browser.js') ?>"
           onload="window._TOOL_BROWSER_LOADED=true"
           onerror="console.error('❌ step1_manual_browser.js no cargó');">
   </script>
-  <script type="module" src="/wizard-stepper_git/assets/js/step1_lazy.js"></script>
+  <script type="module" src="<?= asset_url('js/step1_lazy.js') ?>"></script>
 
   <script type="module" nonce="<?= $nonce ?>">
-    import { initToolTable } from '/wizard-stepper_git/assets/js/step1_manual_hook.js';
+    import { initToolTable } from `${window.BASE_URL}/assets/js/step1_manual_hook.js`;
     initToolTable();
   </script>
 </body>
