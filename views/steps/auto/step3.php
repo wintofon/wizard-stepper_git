@@ -89,12 +89,6 @@ if ($currentProgress < 2) {
     exit;
 }
 
-// 4.1) CSRF token para llamadas AJAX
-if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
-$csrfToken = $_SESSION['csrf_token'];
-
 ////////////////////////////////////////////////////////////////////////////////
 // 5) PROCESAR POST (Se pulsó “Seleccionar” en alguna tarjeta)
 ////////////////////////////////////////////////////////////////////////////////
@@ -160,7 +154,6 @@ try {
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="csrf-token" content="<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>">
   <title>Paso 3 – Herramientas compatibles (Auto)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -186,11 +179,8 @@ try {
   </div>
 
   <!-- 7.2) Contenedor donde se agregarán las tarjetas -->
-  <div id="scrollContainer">
-    <div id="toolContainer">
-      <!-- ↓ Aquí se pintarán dinámicamente las “fresa-card” por JS ↓ -->
-    </div>
-    <div id="sentinel"></div>
+  <div id="toolContainer">
+    <!-- ↓ Aquí se pintarán dinámicamente las “fresa-card” por JS ↓ -->
   </div>
 
   <!-- 7.3) Formulario oculto que se usará al pulsar “Seleccionar” -->
@@ -224,7 +214,6 @@ try {
     const materialId = <?= json_encode($data['material_id'], JSON_THROW_ON_ERROR) ?>;
     const strategyId = <?= json_encode($data['strategy_id'], JSON_THROW_ON_ERROR) ?>;
     const thickness  = <?= json_encode($data['thickness'], JSON_THROW_ON_ERROR) ?>;
-    const csrfToken  = <?= json_encode($csrfToken, JSON_THROW_ON_ERROR) ?>;
 
     dbg('ℹ [step3.js] materialId=', materialId, 'strategyId=', strategyId, 'thickness=', thickness);
 
@@ -237,7 +226,6 @@ try {
       txt = txt.replace(/\.0+$|(?<=\.\d)0+$/, '');
       return `${txt} mm`;
     };
-    window.fmtMM = fmtMM;
 
     const diaFilter    = document.getElementById('diaFilter');
     const container    = document.getElementById('toolContainer');
@@ -253,29 +241,19 @@ try {
      */
     async function fetchTools() {
       try {
-        const url = `/wizard-stepper_git/ajax/tools_scroll.php?mode=auto&page=1`;
+        const url = `/wizard-stepper_git/ajax/get_tools.php?material_id=${encodeURIComponent(materialId)}&strategy_id=${encodeURIComponent(strategyId)}`;
         dbg('⬇ [step3.js] Fetch →', url);
-        const resp = await fetch(url, {
-          cache: 'no-store',
-          headers: { 'X-CSRF-Token': csrfToken }
-        });
+        const resp = await fetch(url, { cache: 'no-store' });
         if (!resp.ok) {
           throw new Error(`HTTP ${resp.status}`);
         }
         const data = await resp.json();
-        if (!Array.isArray(data.tools)) {
-          throw new Error('Respuesta no es válida');
+        if (!Array.isArray(data)) {
+          throw new Error('Respuesta no es un array JSON');
         }
         dbg('ℹ [step3.js] Respuesta recibida:', data);
-        allTools = data.tools;
+        allTools = data;
         renderTools();
-        if (data.hasMore) {
-          import('/wizard-stepper_git/assets/js/step3_lazy.js')
-            .then(m => m.initLazy())
-            .catch(console.error);
-        } else {
-          document.getElementById('sentinel').remove();
-        }
       } catch (err) {
         dbg('❌ [step3.js] Error en fetchTools →', err);
         container.innerHTML = `<div class="alert alert-danger">Error al cargar herramientas: ${err.message}</div>`;
@@ -302,7 +280,7 @@ try {
      * 3) Rellena el <select id="diaFilter"> con las opciones de diámetro.
      */
     function fillDiameterOptions() {
-      diaFilter.querySelectorAll('option').forEach(o => { if (o.value !== '') o.remove(); });
+      // Dejamos la opción “— Todos —” con valor ""
       diameters.forEach(d => {
         const opt = document.createElement('option');
         opt.value = d;
@@ -396,74 +374,6 @@ try {
       dbg('ℹ [step3.js] Se han generado ' + allTools.length + ' tarjetas.');
     }
 
-    function appendTools(extra) {
-      if (!Array.isArray(extra) || extra.length === 0) return;
-      allTools = allTools.concat(extra);
-      extractDiameters();
-      fillDiameterOptions();
-      extra.forEach(tool => {
-        const diaNorm = parseFloat(tool.diameter_mm).toFixed(3);
-        const card = document.createElement('div');
-        card.className = 'fresa-card row align-items-center tool-card';
-        card.setAttribute('data-dia', diaNorm);
-
-        const imgCol = document.createElement('div');
-        imgCol.className = 'col-md-2 mb-2 mb-md-0';
-        const baseUrl = '/wizard-stepper_git/';
-        const img = document.createElement('img');
-        img.className = 'img-fluid tool-thumb';
-        if (tool.image) {
-          const clean = String(tool.image).replace(/^\\/+/, '');
-          img.src = baseUrl + clean;
-        } else {
-          img.src = baseUrl + 'assets/img/logos/logo_stepper.png';
-        }
-        img.alt = 'Imagen de la fresa';
-        img.onerror = () => { img.src = baseUrl + 'assets/img/logos/logo_stepper.png'; };
-        imgCol.appendChild(img);
-        card.appendChild(imgCol);
-
-        const infoCol = document.createElement('div');
-        infoCol.className = 'col-md-7';
-        infoCol.innerHTML = `
-          <strong>${tool.brand}</strong><br>
-          ${tool.name} —
-          Serie ${tool.serie} —
-          Código ${tool.tool_code}<br>
-          <small>
-            Ø${fmtMM(tool.diameter_mm)} ·
-            Mango ${fmtMM(tool.shank_diameter_mm)} ·
-            L. útil ${fmtMM(tool.cut_length_mm)} ·
-            Z = ${tool.flute_count || '-'}
-          </small><br>
-          <span class="estrella">${'★'.repeat(parseInt(tool.rating, 10))}</span>
-        `;
-        if (thickness > parseFloat(tool.cut_length_mm)) {
-          const warn = document.createElement('div');
-          warn.className = 'warning mt-1';
-          warn.innerHTML = `⚠ El espesor (${fmtMM(thickness)}) supera el largo útil (${fmtMM(tool.cut_length_mm)})`;
-          infoCol.appendChild(warn);
-        }
-        card.appendChild(infoCol);
-
-        const btnCol = document.createElement('div');
-        btnCol.className = 'col-md-3 text-md-end mt-2 mt-md-0';
-        const selectBtn = document.createElement('button');
-        selectBtn.type = 'button';
-        selectBtn.className = 'btn btn-select';
-        selectBtn.textContent = 'Seleccionar';
-        selectBtn.dataset.tool_id  = tool.tool_id;
-        selectBtn.dataset.tool_tbl = tool.source_table;
-        selectBtn.dataset.dia      = diaNorm;
-        btnCol.appendChild(selectBtn);
-        card.appendChild(btnCol);
-
-        container.appendChild(card);
-      });
-      attachCardListeners();
-    }
-    window.appendTools = appendTools;
-
     /**
      * 5) Agrega listener a cada botón “Seleccionar” para enviar el formulario.
      */
@@ -479,7 +389,6 @@ try {
         });
       });
     }
-    window.attachCardListeners = attachCardListeners;
 
     /**
      * 6) Filtrar tarjetas por diámetro
