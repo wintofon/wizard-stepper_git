@@ -44,7 +44,7 @@ if ($DEBUG && function_exists('dbg')) {
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_set_cookie_params([
         'lifetime' => 0,
-        'path'     => '/wizard-stepper_git/',    // Fuerza la ruta base
+        'path'     => BASE_URL . '/',    // Fuerza la ruta base
         'domain'   => '',                    // Ajusta si usas dominio
         'secure'   => true,                  // Solo HTTPS
         'httponly' => true,                  // Inaccesible a JavaScript
@@ -59,8 +59,8 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 // -------------------------------------------
 // Si no venimos del index.php que fijó wizard_state='wizard', volvemos a index.php.
 if (empty($_SESSION['wizard_state']) || $_SESSION['wizard_state'] !== 'wizard') {
-    dbg('❌ wizard_state no válido → redirigiendo a /wizard-stepper_git/index.php');
-    header('Location: /wizard-stepper_git/index.php');
+    dbg('❌ wizard_state no válido → redirigiendo a ' . BASE_URL . '/index.php');
+    header('Location: ' . asset('index.php'));
     exit;
 }
 
@@ -137,8 +137,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         dbg("✅ Paso 1 completado: material={$mat}, thickness={$thk}");
         session_write_close();
 
-        // Redirigir a Paso 2 (ruta absoluta dentro de /wizard-stepper_git/)
-        header('Location: /wizard-stepper_git/views/steps/auto/step2.php');
+        // Redirigir a Paso 2 (ruta absoluta dentro de la app)
+        header('Location: ' . asset('views/steps/auto/step2.php'));
         exit;
     }
 }
@@ -197,8 +197,8 @@ dbg('children', $children);
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
     rel="stylesheet"
   >
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/main.css">
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/material.css">
+  <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/material.css') ?>">
 </head>
 <body>
   <main class="container py-4">

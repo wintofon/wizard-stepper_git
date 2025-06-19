@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="assets/css/wizard.css">
   <link rel="stylesheet" href="assets/css/stepper.css">
   <link rel="stylesheet" href="assets/css/footer-schneider.css">
+  <script>window.BASE_URL = '<?= BASE_URL ?>';</script>
 </head>
 <body>
 

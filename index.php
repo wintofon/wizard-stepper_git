@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__ . '/src/Config/AppConfig.php';
 /**
  * File: index.php
  * Router principal del Wizard CNC

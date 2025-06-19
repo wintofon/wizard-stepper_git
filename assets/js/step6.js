@@ -1,7 +1,7 @@
 /** Ubicación: C:\xampp\htdocs\wizard-stepper_git\assets\js\step6.js */
 /* global Chart */
 (() => {
-  const BASE_URL = window.BASE_URL || '/wizard-stepper_git';
+  const BASE_URL = window.BASE_URL;
   // 1. Parámetros inyectados por PHP
   const {
     diameter: D,

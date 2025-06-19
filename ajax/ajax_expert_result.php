@@ -1,5 +1,6 @@
 <?php
 header('Content-Type: application/json');
+require_once __DIR__ . '/../src/Config/AppConfig.php';
 require_once __DIR__ . '/../src/Utils/CNCCalculator.php';
 
 $data = json_decode(file_get_contents('php://input'), true);

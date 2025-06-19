@@ -6,7 +6,7 @@
  * ▸ Modo DEBUG: loguea TODO en consola + window.dbg()
  * ------------------------------------------------------------ */
 (() => {
-  const BASE_URL = window.BASE_URL || '/wizard-stepper_git';
+  const BASE_URL = window.BASE_URL;
   /* -------- utilidades comunes ------------------------------------ */
   const dbg = (...m) => {          // visible en consola + #debug
     console.log('[STEP-1]', ...m);
@@ -99,7 +99,7 @@
       brandWarning.hidden=true;
       cargarTabla();
     }
-    import('/wizard-stepper_git/assets/js/step1_lazy.js')
+    import(`${BASE_URL}/assets/js/step1_lazy.js`)
       .then(m => m.initLazy())
       .catch(console.error);
   }
@@ -128,7 +128,7 @@
                  data-tool_id="${t.tool_id}" data-tbl="${t.tbl}">✓</button></td>
           <td><span class="badge bg-info text-dark">${t.brand}</span></td>
           <td>${t.series_code}</td>
-          <td>${t.details.image?`<img src="/wizard-stepper_git/${t.details.image}" class="thumb">`:''}</td>
+          <td>${t.details.image?`<img src="${BASE_URL}/${t.details.image}" class="thumb">`:''}</td>
           <td>${t.tool_code}</td>
           <td class="text-truncate" style="max-width:200px">${t.name}</td>
           <td>${t.diameter_mm}</td><td>${t.flute_count||'-'}</td><td>${t.tool_type}</td>

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 use PDO;
 
+require_once __DIR__ . '/../src/Config/AppConfig.php';
 require_once __DIR__ . '/../src/Utils/Session.php';
 require_once __DIR__ . '/../includes/db.php';
 
@@ -75,7 +76,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 foreach ($rows as &$r) {
     $img = $r['image'] ?? '';
-    $r['image_url'] = $img ? '/wizard-stepper_git/' . ltrim((string)$img, '/') : '';
+    $r['image_url'] = $img ? asset($img) : '';
 }
 unset($r);
 
