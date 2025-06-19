@@ -27,7 +27,7 @@ require_once __DIR__ . '/../../includes/wizard_helpers.php';
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_set_cookie_params([
         'lifetime' => 0,
-        'path'     => '/',
+        'path'     => BASE_URL . '/',
         'secure'   => true,
         'httponly' => true,
         'samesite' => 'Strict'

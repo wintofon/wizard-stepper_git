@@ -8,10 +8,10 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Wizard CNC</title>
-  <link rel="stylesheet" href="assets/css/main.css">
-  <link rel="stylesheet" href="assets/css/wizard.css">
-  <link rel="stylesheet" href="assets/css/stepper.css">
-  <link rel="stylesheet" href="assets/css/footer-schneider.css">
+  <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/wizard.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/stepper.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/footer-schneider.css') ?>">
   <script>window.BASE_URL = '<?= BASE_URL ?>';</script>
 </head>
 <body>
@@ -19,7 +19,7 @@
   <!-- Barra de pasos -->
   <header class="stepper-header d-flex align-items-center">
     <img
-      src="assets/img/logos/logo_stepper.png"
+      src="<?= asset('assets/img/logos/logo_stepper.png') ?>"
       alt="Logo Stepper"
       class="logo-stepper">
     <nav class="stepper-bar flex-grow-1">
@@ -58,17 +58,17 @@
   <?php endif; ?>
   <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
   <script>feather.replace();</script>
-  <script src="assets/js/stepper.js" defer></script>
-  <script src="assets/js/dashboard.js" defer></script>
-<link rel="stylesheet" href="assets/css/wizard.css">
-<link rel="stylesheet" href="assets/css/step6.css"><!-- <---- AGREGALO ACÁ -->
+  <script src="<?= asset('assets/js/stepper.js') ?>" defer></script>
+  <script src="<?= asset('assets/js/dashboard.js') ?>" defer></script>
+<link rel="stylesheet" href="<?= asset('assets/css/wizard.css') ?>">
+<link rel="stylesheet" href="<?= asset('assets/css/step6.css') ?>"><!-- <---- AGREGALO ACÁ -->
 
   <footer class="footer-schneider text-white mt-5">
     <div class="container py-4">
       <div class="row align-items-center">
 
         <div class="col-md-6 mb-4 mb-md-0">
-          <img src="assets/img/logos/logo_stepper.png" alt="SchneiderCNC logo" class="footer-logo">
+          <img src="<?= asset('assets/img/logos/logo_stepper.png') ?>" alt="SchneiderCNC logo" class="footer-logo">
           <h4 class="fw-bold mb-2">SchneiderCNC</h4>
           <p class="mb-1">Alejandro Martín Schneider</p>
           <p class="mb-1">Córdoba, Argentina</p>

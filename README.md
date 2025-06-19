@@ -25,10 +25,13 @@ This project contains a PHP wizard for configuring CNC operations.
    ```
 4. Adjust database credentials in `includes/db.php` if needed.
 5. Start the application using PHP's built‑in server:
-   ```bash
-   php -S localhost:8000
-   ```
-   Then visit [http://localhost:8000](http://localhost:8000).
+ ```bash
+  php -S localhost:8000
+  ```
+  Then visit [http://localhost:8000](http://localhost:8000).
+
+6. When adding links to CSS, JavaScript or image files in your views, generate the
+   path with the `asset()` helper so URLs work from any base path.
 
 ## Debug Endpoints
 

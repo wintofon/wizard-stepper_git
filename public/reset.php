@@ -51,7 +51,7 @@ header('Pragma: no-cache');
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_set_cookie_params([
         'lifetime' => 0,
-        'path'     => '/',
+        'path'     => BASE_URL . '/',
         'domain'   => '',        // Ajustar si se requiere dominio específico
         'secure'   => true,
         'httponly' => true,
