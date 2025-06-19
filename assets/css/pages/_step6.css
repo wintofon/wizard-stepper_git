@@ -5,9 +5,9 @@
  * modo debug con outlines, y estilos refinados para sliders, resultados y debug panel.
  */
 
-@import url('abstracts/_variables.css');
-@import url('base/_reset.css');
-@import url('base/_typography.css');
+@import url('../abstracts/_variables.css');
+@import url('../base/_reset.css');
+@import url('../base/_typography.css');
 
 body {
   background: var(--bg-body);

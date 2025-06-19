@@ -143,7 +143,7 @@ if($tool){
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <!-- Reutilizamos el mismo CSS del paso manual para un look idéntico -->
   <link rel="stylesheet" href="/wizard-stepper_git/assets/css/main.css">
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/step2_manual.css">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/pages/_step2.css">
 </head>
 <body class="bg-dark text-white">
 

@@ -1,7 +1,7 @@
 /* CSS extraído de views/steps/auto/step3.php */
-@import url('../../abstracts/_variables.css');
-@import url('../../base/_reset.css');
-@import url('../../base/_typography.css');
+@import url('../abstracts/_variables.css');
+@import url('../base/_reset.css');
+@import url('../base/_typography.css');
 
 body {
   --bs-body-bg: #0d1117;
@@ -21,4 +21,3 @@ h2 {
   font-weight: 600;
 }
 
-}

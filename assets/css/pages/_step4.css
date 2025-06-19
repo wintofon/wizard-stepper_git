@@ -1,7 +1,7 @@
 /* CSS extraído de views/steps/auto/step4.php */
-@import url('../../abstracts/_variables.css');
-@import url('../../base/_reset.css');
-@import url('../../base/_typography.css');
+@import url('../abstracts/_variables.css');
+@import url('../base/_reset.css');
+@import url('../base/_typography.css');
 
 body {
   background-color: #0d1117;

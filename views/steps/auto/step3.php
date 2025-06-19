@@ -162,7 +162,7 @@ try {
         rel="stylesheet">
 
   <link rel="stylesheet" href="/wizard-stepper_git/assets/css/main.css">
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/steps/auto/step3.css">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/pages/_step3_auto.css">
 </head>
 <body>
   <main class="container py-4">
