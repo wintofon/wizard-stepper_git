@@ -14,7 +14,7 @@ if (!function_exists('startSecureSession')) {
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_set_cookie_params([
                 'lifetime' => 0,
-                'path'     => '/',
+                'path'     => BASE_URL . '/',
                 'domain'   => '',
                 'secure'   => true,
                 'httponly' => true,
