@@ -224,11 +224,14 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/main.css">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Datos de corte – Paso 6</title>
-  </head>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/main.css">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/pages/_step6.css">
+  
+</head>
 <body>
   <div class="container py-4">
     <h2 class="step-title"><i data-feather="bar-chart-2"></i> Resultados finales</h2>
