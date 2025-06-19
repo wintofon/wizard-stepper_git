@@ -138,12 +138,7 @@ if($tool){
   <meta charset="utf-8">
   <title>Paso 4 – Confirmar herramienta</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Bootstrap 5 + Icons -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-  <!-- Reutilizamos el mismo CSS del paso manual para un look idéntico -->
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/main.css">
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/pages/_step2.css">
+  <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/main.css">
 </head>
 <body class="bg-dark text-white">
 
