@@ -1,47 +1,44 @@
 # CSS structure
 
-This folder follows the **ITCSS (Inverted Triangle CSS)** methodology. Styles are organised from generic to specific so cascade conflicts are minimised.
+This folder follows the **ITCSS (Inverted Triangle CSS)** methodology. Styles are organised from the most generic layers to the most specific so that later rules can safely override earlier ones.
 
 ## Directory mapping
 
-- **abstracts** – global variables and mixins (top of the triangle, similar to *Settings*).
-- **base** – resets and basic element styles (*Elements* layer).
-- **components** – reusable UI pieces such as buttons or sliders (*Components* layer).
-- **pages** – styles scoped to individual steps or pages.
-- **steps** – legacy step files kept for reference.
-- **utilities** – helper classes (bottom of the triangle, comparable to *Trumps*).
+- **settings** – global variables such as colours and fonts.
+- **tools** – mixins and functions used across files.
+- **generic** – resets and generic stylesheets (e.g. normalisation).
+- **elements** – base styles for HTML elements.
+- **objects** – layout patterns and non-cosmetic wrappers.
+- **components** – discrete UI modules.
+- **utilities** – helper and override classes.
+- **pages** – styles scoped to individual wizard pages.
+- **steps** – legacy step directories kept for reference.
 
 ## Adding new styles
 
-1. Choose the folder that matches the scope of your styles.
-   - Global variables go into `abstracts/`.
-   - Element-level rules belong in `base/`.
-   - Reusable widgets go into `components/`.
-   - Page‑specific rules live under `pages/`.
-2. Name partials with a leading underscore (`_example.css`) and import them from a parent file such as `main.css` or the relevant page CSS.
-3. Keep import order from generic to specific, as in `main.css`:
+1. Place your CSS partial in the directory that matches its layer. Prefix file names with an underscore, for example `_table.css`.
+2. Import the partial from `main.css` after the preceding layers so that the cascade flows from `settings` down to `utilities`:
 
 ```css
-@import url('abstracts/_variables.css');
-@import url('base/_reset.css');
-@import url('base/_typography.css');
-@import url('components/_common.css');
+@import url('settings/_variables.css');
+@import url('tools/_mixins.css');
+@import url('generic/_reset.css');
+@import url('elements/_typography.css');
+@import url('objects/_layout.css');
+@import url('components/_button.css');
+@import url('utilities/_helpers.css');
 ```
 
 ## Linting
 
-Run `npm run lint:css` to check the code style. The rules come from `.stylelintrc.json` and enforce the standard configuration plus alphabetical property order.
+Check code style using Stylelint:
+
+```bash
+npm run lint:css
+```
+
+Stylelint reads the configuration from `.stylelintrc.json`.
 
 ## Wizard step files
 
-Each wizard step loads a dedicated stylesheet:
-
-- Step 1 (manual) – `pages/_step1.css` and `pages/_manual.css`.
-- Step 1 (auto) – `material.css`.
-- Step 2 – `pages/_step2.css` (`strategy.css` and `step-common.css` are also included in auto mode).
-- Step 3 (manual) – `strategy.css` and `step-common.css`.
-- Step 3 (auto) – `pages/_step3_auto.css` (`pages/_step3.css` when using the lazy/scroll view).
-- Step 4 (manual) – `material.css`.
-- Step 4 (auto) – `pages/_step2.css`.
-- Step 5 – `step-common.css` and `pages/_step5.css`.
-- Step 6 – `pages/_step6.css` (plus `pages/_step6-dark.css` for the dark theme).
+Each wizard step’s view loads its specific styles from `assets/css/pages` or the legacy `assets/css/steps` folder.
