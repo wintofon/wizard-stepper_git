@@ -160,7 +160,8 @@ try {
   <!-- Bootstrap 5 (CDN) -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         rel="stylesheet">
-  <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/main.css">
+
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/steps/auto/step3.css">
 </head>
 <body>
   <main class="container py-4">
