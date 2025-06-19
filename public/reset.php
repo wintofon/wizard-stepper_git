@@ -115,7 +115,7 @@ echo <<<'HTML'
   <meta charset="UTF-8">
   <title>Reiniciando Wizard CNC...</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/main.css">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/base/reset.css">
 </head>
 <body>
   <div class="message-box">
