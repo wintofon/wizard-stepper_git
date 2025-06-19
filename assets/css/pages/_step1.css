@@ -119,10 +119,11 @@ h2.fw-bold {
 }
 
 .table-responsive {
+  max-height: none !important;
   overflow-x: auto;
   overflow-y: visible !important;
-  max-height: none !important;
 }
+
 .list-scroll-container {
   max-height: 65vh; /* ajustá si hace falta */
   overflow-y: auto;

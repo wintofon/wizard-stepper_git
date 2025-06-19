@@ -182,9 +182,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Estilos compartidos -->
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/step-common.css">
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/strategy.css">
+  <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/main.css">
 </head>
 <body>
 <main class="container py-4">
