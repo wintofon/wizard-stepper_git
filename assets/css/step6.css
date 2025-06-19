@@ -429,3 +429,21 @@ body.debug-mode .card {
   cursor: pointer;
 }
 
+#resultadosBox .display-4 {
+  font-size: 3rem;
+}
+
+#radarBox canvas {
+  max-width: 300px;
+  margin: auto;
+}
+
+#otrosResultados .col {
+  font-size: 0.9rem;
+}
+
+#infoTecnicaBox,
+#infoUsuarioBox {
+  background-color: #101820;
+  border-left: 4px solid #17a2b8;
+}
