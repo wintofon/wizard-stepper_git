@@ -2,7 +2,7 @@
 (() => {
   'use strict';
 
-  const BASE_URL = window.BASE_URL || '';
+  const BASE_URL = window.BASE_URL || '/wizard-stepper_git';
   const DEBUG = true;
   const LS_KEY = 'wizard_progress';
   const LOAD_ENDPOINT = `${BASE_URL}/public/load-step.php`;
@@ -106,7 +106,7 @@
         if (step === 6) {
           if (!window.step6Loaded) {
             const script = document.createElement('script');
-            script.src = `${BASE_URL}/assets/js/step6.js`;
+            script.src = '/wizard-stepper_git/assets/js/step6.js';
             script.defer = true;
             script.onload = () => { 
               window.step6Loaded = true;

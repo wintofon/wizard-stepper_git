@@ -5,7 +5,6 @@ const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
 const materialId = parseInt(container.dataset.material, 10);
 const strategyId = parseInt(container.dataset.strategy, 10);
 const thickness = parseFloat(container.dataset.thickness || '0');
-const BASE_URL = window.BASE_URL || '';
 
 window.dbg = function (...m) {
   console.log('[STEP3]', ...m);
@@ -58,9 +57,9 @@ function createCard(t) {
   imgCol.className = 'col-md-2 mb-2 mb-md-0';
   const img = document.createElement('img');
   img.className = 'img-fluid tool-thumb';
-  img.src = t.image_url || `${BASE_URL}/assets/img/logos/logo_stepper.png`;
+  img.src = t.image_url || '/wizard-stepper_git/assets/img/logos/logo_stepper.png';
   img.onerror = () => {
-    img.src = `${BASE_URL}/assets/img/logos/logo_stepper.png`;
+    img.src = '/wizard-stepper_git/assets/img/logos/logo_stepper.png';
   };
   imgCol.appendChild(img);
   card.appendChild(imgCol);
@@ -96,7 +95,7 @@ async function fetchPage() {
   if (loading || !hasMore) return;
   loading = true;
   try {
-    const url = `${BASE_URL}/ajax/tools_scroll.php?material_id=${materialId}&strategy_id=${strategyId}&page=${page}&per_page=12`;
+    const url = `/wizard-stepper_git/ajax/tools_scroll.php?material_id=${materialId}&strategy_id=${strategyId}&page=${page}&per_page=12`;
     dbg('fetch', url);
     const res = await fetch(url, { headers: csrf ? { 'X-CSRF-Token': csrf } : {}, cache: 'no-store' });
     if (!res.ok) throw new Error('HTTP ' + res.status);

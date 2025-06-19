@@ -105,9 +105,9 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
 <title>Paso 5 – Configurá tu router</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="<?= asset_url('css/main.css') ?>">
-<link rel="stylesheet" href="<?= asset_url('css/step-common.css') ?>">
-<link rel="stylesheet" href="<?= asset_url('css/pages/_step5.css') ?>">
+<link rel="stylesheet" href="/wizard-stepper_git/assets/css/main.css">
+<link rel="stylesheet" href="/wizard-stepper_git/assets/css/step-common.css">
+<link rel="stylesheet" href="/wizard-stepper_git/assets/css/pages/_step5.css">
 </head><body>
 <main class="container py-4">
   <h2 class="step-title"><i data-feather="cpu"></i> Configurá tu router</h2>

@@ -2,7 +2,7 @@
     Refuerzo contra respuestas “casi-JSON” (cabecera JSON
     pero texto contaminado con warnings, BOM, etc.).        */
 
-const BASE_URL = window.BASE_URL || '';
+const BASE_URL = window.BASE_URL || '/wizard-stepper_git';
 document.addEventListener('DOMContentLoaded', () => {
   const dash = document.getElementById('wizard-dashboard');
   if (!dash) return;

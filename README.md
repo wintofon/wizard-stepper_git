@@ -30,14 +30,6 @@ This project contains a PHP wizard for configuring CNC operations.
    ```
    Then visit [http://localhost:8000](http://localhost:8000).
 
-## Asset URLs
-
-All CSS, JS and image paths should be generated using the helper
-`asset_url()` from `src/Utils/Path.php`. This function prepends the
-current `BASE_URL` to the provided relative path. In the browser the same
-value is exposed as `window.BASE_URL` so that JavaScript modules can build
-their fetch URLs consistently.
-
 ## Debug Endpoints
 
 When running with `?debug=1` in the URL you can access additional debug helpers:
