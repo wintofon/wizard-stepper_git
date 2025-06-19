@@ -21,41 +21,4 @@ h2 {
   font-weight: 600;
 }
 
-.fresa-card {
-  background: #161b22;
-  border: 1px solid #2c2f33;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  padding: 1rem;
-  transition: background-color 0.2s;
-}
-
-.fresa-card:hover {
-  background-color: #1f2a36;
-}
-
-.estrella {
-  color: #f0ad4e;
-}
-
-.warning {
-  color: #f66;
-  font-weight: bold;
-}
-
-.tool-thumb {
-  height: auto;
-  max-width: 80px;
-  object-fit: contain;
-}
-
-.btn-select {
-  background-color: #4fc3f7;
-  border: none;
-  color: #0d1117;
-}
-
-.btn-select:hover {
-  background-color: #0d6efd;
-  color: #fff;
 }

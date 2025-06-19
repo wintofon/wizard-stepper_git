@@ -6,24 +6,6 @@
   text-align: center;
 }
 
-.icon-xl {
-  color: #60a5fa;
-  height: 64px;
-  margin-bottom: 1rem;
-  width: 64px;
-}
-
-.title {
-  font-size: 2.5rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-}
-
-.lead {
-  color: #cbd5e1;
-  font-size: 1.2rem;
-  margin-bottom: 2rem;
-}
 
 .disclaimer {
   background: #1e293b;
@@ -82,9 +64,3 @@
   font-size: 0.95rem;
 }
 
-.icon-sm {
-  color: #60a5fa;
-  height: 24px;
-  margin-top: 0.2rem;
-  width: 24px;
-}

@@ -1,0 +1,44 @@
+/* Reusable button styles */
+
+.btn-primary {
+  background-color: #2b8ac6;
+  border-color: #256fa1;
+  border-radius: .4rem;
+  color: #fff;
+  font-size: 1rem;
+  padding: .7rem 1.4rem;
+  transition: background .3s, border-color .3s;
+}
+
+.btn-primary:hover {
+  background-color: #3aa0db;
+  border-color: #2b8ac6;
+}
+
+.btn-select {
+  background-color: #4fc3f7;
+  border: none;
+  color: #0d1117;
+}
+
+.btn-select:hover {
+  background-color: #0d6efd;
+  color: #fff;
+}
+
+.btn-outline-primary {
+  border-color: #4fc3f7;
+  color: #4fc3f7;
+  margin: .25rem;
+}
+
+.btn-outline-primary:hover {
+  background-color: #4fc3f7;
+  color: #0d1117;
+}
+
+.btn-check:checked + label.btn-outline-primary {
+  background-color: #0d6efd !important;
+  border-color: #0d6efd !important;
+  color: #fff !important;
+}
