@@ -117,15 +117,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/main.css">
   <meta charset="utf-8">
   <meta name="csrf-token" content="<?= htmlspecialchars($csrfToken) ?>">
   <title>Paso 1 – Explorador de fresas (Manual)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- Bootstrap 5 y Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/main.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+        rel="stylesheet">
+
   <!-- Estilos propios -->
-  </head>
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/pages/_step1.css">
+
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/pages/_manual.css">
+</head>
 <body>
   <noscript>
     <div class="alert alert-danger m-3">
