@@ -157,3 +157,39 @@ body {
 
   .stepper li:not(:last-child)::after { display: none; } /* sin línea */
 }
+
+/* ────────────────────────────────────────────────────────────────
+   Footer SchneiderCNC
+   ──────────────────────────────────────────────────────────────── */
+.footer-schneider {
+  background: linear-gradient(to bottom, #0a0f14, #101820);
+  font-family: var(--font-family-base, 'Segoe UI', sans-serif);
+  font-size: 0.9rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-schneider h4 {
+  color: #00bfff;
+}
+
+.footer-schneider h6 {
+  color: #17a2b8;
+  margin-bottom: 0.75rem;
+}
+
+.footer-link {
+  color: #bbb;
+  text-decoration: none;
+  display: block;
+  padding: 0.2rem 0;
+  transition: color 0.2s;
+}
+
+.footer-link:hover {
+  color: #00d8ff;
+}
+
+.footer-logo {
+  width: 140px;
+  height: auto;
+}
