@@ -127,11 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
         rel="stylesheet">
-
-  <!-- Estilos propios -->
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/step1_manual.css">
-
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/steps/manual/step1.css">
+  <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/main.css">
 </head>
 <body>
   <noscript>

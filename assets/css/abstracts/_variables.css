@@ -1,0 +1,27 @@
+/* Design tokens and color palette */
+:root {
+  --bg-body: #0d1117;
+  --bg-card: #161b22;
+  --bg-header: #0d1117;
+  --border-color: #2c2f33;
+  --text-color: #e0e0e0;
+  --text-color-sec: #a7b1bb;
+  --accent-color: #4fc3f7;
+  --accent-color-light: #7fdcff;
+  --slider-thumb-size: 16px;
+  --spinner-size: 2.5rem;
+  --border-radius-xxl: 1rem;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-body: #f6f8fa;
+    --bg-card: #fff;
+    --bg-header: #eaf2f8;
+    --border-color: #d0d7de;
+    --text-color: #24292e;
+    --text-color-sec: #57606a;
+    --accent-color: #0077b6;
+    --accent-color-light: #329dd1;
+  }
+}
