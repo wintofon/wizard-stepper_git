@@ -1,7 +1,7 @@
 /* Infinite scroll styles for step3 */
-@import url('abstracts/_variables.css');
-@import url('base/_reset.css');
-@import url('base/_typography.css');
+@import url('../abstracts/_variables.css');
+@import url('../base/_reset.css');
+@import url('../base/_typography.css');
 
 body {
   --bs-body-bg: #0d1117;
@@ -10,8 +10,6 @@ body {
   color: var(--bs-body-color);
 }
 
-  color: #fff;
-}
 
 #scrollSentinel {
   height: 1px;
