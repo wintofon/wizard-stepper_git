@@ -1,4 +1,4 @@
-/** Ubicación: C:\xampp\htdocs\wizard-stepper_git\assets\js\step6.js */
+/** Ubicación: C:\xampp\htdocs\wizard-stepper_git\assets\js\step6_expert_chart.js */
 /* global Chart */
 (() => {
   const BASE_URL = window.BASE_URL;
@@ -154,7 +154,7 @@
     };
 
     try {
-      const res = await fetch(`${BASE_URL}/ajax/step_minimo_ajax.php`, {
+      const res = await fetch(`${BASE_URL}/ajax/step6_compute.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

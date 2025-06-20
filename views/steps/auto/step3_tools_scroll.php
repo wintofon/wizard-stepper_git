@@ -18,7 +18,7 @@ $thickness  = $_SESSION['thickness']  ?? null;
   <title>Herramientas compatibles</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="csrf-token" content="<?= htmlspecialchars($csrf) ?>">
-  <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/global.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/pages/_step3.css') ?>">
   <script>window.BASE_URL = '<?= BASE_URL ?>';</script>
 </head>
@@ -39,6 +39,6 @@ $thickness  = $_SESSION['thickness']  ?? null;
     <div id="scrollSentinel"></div>
     <pre id="debug" class="bg-dark text-info p-2 mt-4"></pre>
   </main>
-  <script type="module" src="<?= asset('assets/js/step3_lazy.js') ?>"></script>
+  <script type="module" src="<?= asset('assets/js/lazy_tools_scroll.js') ?>"></script>
 </body>
 </html>

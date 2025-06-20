@@ -7,7 +7,7 @@ declare(strict_types=1);
  * • Arranca sesión y valida estado/progreso.
  * • Si es POST, procesa la selección de fresa y redirige al Paso 4.
  * • Si es GET, imprime HTML + JavaScript para:
- *    – Hacer fetch AJAX a get_tools.php y cargar dinámicamente las tarjetas.
+ *    – Hacer fetch AJAX a fetch_compatible_tools.php y cargar dinámicamente las tarjetas.
  *    – Filtrar por diámetro.
  *    – Manejar la selección y enviar POST de vuelta a este mismo archivo.
  * • Incluye puntos dbg() en cada paso para poder ver la sesión, datos recibidos,
@@ -17,7 +17,7 @@ declare(strict_types=1);
  *   /includes/debug.php        → define dbg(...)
  *   /includes/db.php           → expone $pdo = db();
  *   /src/Controller/AutoToolRecommenderController.php
- *   /ajax/get_tools.php        → devuelve JSON de fresas compatibles.
+ *   /ajax/fetch_compatible_tools.php        → devuelve JSON de fresas compatibles.
  */
 
 use App\Controller\AutoToolRecommenderController;
@@ -77,7 +77,7 @@ try {
 } catch (\RuntimeException $e) {
     dbg("❌ [step3] checkStep lanzó excepción: " . $e->getMessage());
     // Si falla la precondición, forzamos redirección a inicio del wizard
-    header('Location: ' . asset('index.php'));
+    header('Location: ' . asset('wizard.php'));
     exit;
 }
 
@@ -85,7 +85,7 @@ try {
 $currentProgress = (int)($_SESSION['wizard_progress'] ?? 0);
 if ($currentProgress < 2) {
     dbg("⚠ [step3] Progreso insuficiente ({$currentProgress}) → redirigir a paso 2");
-    header('Location: ' . asset('public/load-step.php?step=2'));
+    header('Location: ' . asset('public/load_step.php?step=2'));
     exit;
 }
 
@@ -102,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // 5.1) Validar “step” = 3
     if ($stepRaw !== 3) {
         dbg("❌ [step3][POST] step inválido: {$stepRaw}");
-        echo "<script>alert('Paso inválido. Reinicia el wizard.'); window.location='step3.php';</script>";
+        echo "<script>alert('Paso inválido. Reinicia el wizard.'); window.location='step3_choose_tool.php';</script>";
         exit;
     }
 
@@ -115,12 +115,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!is_int($toolIdRaw) || $toolIdRaw <= 0) {
         dbg("❌ [step3][POST] tool_id inválido: " . var_export($toolIdRaw, true));
-        echo "<script>alert('ID de herramienta inválido.'); window.location='step3.php';</script>";
+        echo "<script>alert('ID de herramienta inválido.'); window.location='step3_choose_tool.php';</script>";
         exit;
     }
     if (!in_array($toolTblClean, $allowed, true)) {
         dbg("❌ [step3][POST] tool_table inválido: {$toolTblRaw} → limpio: {$toolTblClean}");
-        echo "<script>alert('Tabla de herramienta inválida.'); window.location='step3.php';</script>";
+        echo "<script>alert('Tabla de herramienta inválida.'); window.location='step3_choose_tool.php';</script>";
         exit;
     }
 
@@ -130,7 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $_SESSION['wizard_progress'] = 3;
     session_regenerate_id(true);
     dbg("✅ [step3][POST] Herramienta guardada en sesión → tool_id={$toolIdRaw} tool_table={$toolTblClean}");
-    header('Location: ' . asset('public/load-step.php?step=4'));
+    header('Location: ' . asset('public/load_step.php?step=4'));
     exit;
 }
 
@@ -143,7 +143,7 @@ try {
 } catch (\RuntimeException $e) {
     dbg("❌ [step3][GET] getSessionData lanzó excepción: " . $e->getMessage());
     // Si por algún motivo falta material/estrategia, redirigimos a paso 2
-    header('Location: ' . asset('public/load-step.php?step=2'));
+    header('Location: ' . asset('public/load_step.php?step=2'));
     exit;
 }
 
@@ -161,7 +161,7 @@ try {
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         rel="stylesheet">
 
-  <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/global.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/pages/_step3_auto.css') ?>">
   <script>window.BASE_URL = '<?= BASE_URL ?>';</script>
 </head>
@@ -239,11 +239,11 @@ try {
     let diameters = [];    // Diámetros únicos (array de strings con 3 decimales)
 
     /**
-     * 1) Hacer fetch AJAX a get_tools.php para obtener JSON de fresas.
+     * 1) Hacer fetch AJAX a fetch_compatible_tools.php para obtener JSON de fresas.
      */
     async function fetchTools() {
       try {
-        const url = `${window.BASE_URL}/ajax/get_tools.php?material_id=${encodeURIComponent(materialId)}&strategy_id=${encodeURIComponent(strategyId)}`;
+        const url = `${window.BASE_URL}/ajax/fetch_compatible_tools.php?material_id=${encodeURIComponent(materialId)}&strategy_id=${encodeURIComponent(strategyId)}`;
         dbg('⬇ [step3.js] Fetch →', url);
         const resp = await fetch(url, { cache: 'no-store' });
         if (!resp.ok) {

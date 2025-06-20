@@ -2,12 +2,12 @@
 declare(strict_types=1);
 require_once __DIR__ . '/../src/Config/AppConfig.php';
 /**
- * File: reset.php
+ * File: reset_wizard.php
  * ---------------------------------------------------------------
  * ▸ Destruye completamente la sesión del Wizard CNC
  * ▸ Elimina todas las variables de sesión y cookies asociadas
  * ▸ Envía cabeceras de seguridad y anti-caching
- * ▸ Limpia localStorage en el cliente y redirige a index.php
+ * ▸ Limpia localStorage en el cliente y redirige a wizard.php
  * ---------------------------------------------------------------
  */
 
@@ -31,7 +31,7 @@ if (!function_exists('dbg')) {
     function dbg(string $msg): void {
         global $DEBUG;
         if ($DEBUG) {
-            error_log("[reset.php] " . $msg);
+            error_log("[reset_wizard.php] " . $msg);
         }
     }
 }
@@ -130,9 +130,9 @@ echo <<<'HTML'
     } catch(e) {
       console.warn('No se pudo limpiar localStorage:', e);
     }
-    // Redirigir a index.php tras un breve retardo (200ms)
+    // Redirigir a wizard.php tras un breve retardo (200ms)
     setTimeout(function() {
-      window.location.replace('../index.php');
+      window.location.replace('../wizard.php');
     }, 200);
   </script>
 </body>

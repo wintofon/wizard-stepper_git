@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       const headers = window.csrfToken ? { 'X-CSRF-Token': window.csrfToken } : {};
-      const res  = await fetch(`${BASE_URL}/public/session-api.php?debug=1`, {
+      const res  = await fetch(`${BASE_URL}/public/session_dump.php?debug=1`, {
         cache: 'no-store',
         headers
       });

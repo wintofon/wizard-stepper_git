@@ -44,7 +44,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 // [D] Control de flujo
 //
 if (empty($_SESSION['wizard_state']) || $_SESSION['wizard_state']!=='wizard') {
-    header('Location:' . asset('index.php')); exit;
+    header('Location:' . asset('wizard.php')); exit;
 }
 if ((int)($_SESSION['wizard_progress']??0) < 3) {
     header('Location:' . asset('views/steps/auto/step' . (int)$_SESSION['wizard_progress'] . '.php')); exit;
@@ -77,7 +77,7 @@ require_once __DIR__.'/../../../includes/db.php';
 require_once __DIR__.'/../../../includes/debug.php';
 
 if (empty($_SESSION['tool_id']) || empty($_SESSION['tool_table'])) {
-    header('Location:' . asset('views/steps/auto/step2.php')); exit;
+    header('Location:' . asset('views/steps/auto/step2_select_strategy.php')); exit;
 }
 $toolId   = (int)$_SESSION['tool_id'];
 $toolTbl  = preg_replace('/[^a-z0-9_]/i','',$_SESSION['tool_table']);
@@ -138,8 +138,8 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
 <title>Paso 4 – Material</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
-<link rel="stylesheet" href="<?= asset('assets/css/material.css') ?>">
+<link rel="stylesheet" href="<?= asset('assets/css/global.css') ?>">
+<link rel="stylesheet" href="<?= asset('assets/css/material_form.css') ?>">
 <script>window.BASE_URL = '<?= BASE_URL ?>';</script>
 </head><body>
 <main class="container py-4">

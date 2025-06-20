@@ -7,7 +7,7 @@
  *   – rpm_min < rpm_max
  *   – feed_max > 0
  *   – hp       > 0
- * Después guarda en sesión y avanza a step6.php
+ * Después guarda en sesión y avanza a step6_expert_result.php
  */
 declare(strict_types=1);
 
@@ -20,7 +20,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     ]);
 }
 if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 4) {
-    header('Location: step1.php');
+    header('Location: step1_select_material.php');
     exit;
 }
 
@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'wizard_progress' => 5,
         ];
         session_write_close();
-        header('Location: step6.php');
+        header('Location: step6_expert_result.php');
         exit;
     }
 }
@@ -105,7 +105,7 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
 <title>Paso 5 – Configurá tu router</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
+<link rel="stylesheet" href="<?= asset('assets/css/global.css') ?>">
 <link rel="stylesheet" href="<?= asset('assets/css/step-common.css') ?>">
 <link rel="stylesheet" href="<?= asset('assets/css/pages/_step5.css') ?>">
 <script>window.BASE_URL = '<?= BASE_URL ?>';</script>
