@@ -1,4 +1,4 @@
-/** Ubicación: C:\xampp\htdocs\wizard-stepper_git\assets\js\step6_auto_expert_result.js */
+/** Ubicación: C:\xampp\htdocs\wizard-stepper_git\assets\js\step6.js */
 /* global Chart */
 (() => {
   const BASE_URL = window.BASE_URL;
