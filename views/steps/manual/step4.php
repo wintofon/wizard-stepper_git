@@ -77,7 +77,7 @@ require_once __DIR__.'/../../../includes/db.php';
 require_once __DIR__.'/../../../includes/debug.php';
 
 if (empty($_SESSION['tool_id']) || empty($_SESSION['tool_table'])) {
-    header('Location:' . asset('views/steps/auto/step2.php')); exit;
+    header('Location:' . asset('views/steps/auto/step2_auto_choose_strategy.php')); exit;
 }
 $toolId   = (int)$_SESSION['tool_id'];
 $toolTbl  = preg_replace('/[^a-z0-9_]/i','',$_SESSION['tool_table']);

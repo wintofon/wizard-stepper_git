@@ -2,7 +2,7 @@
 declare(strict_types=1);
 require_once __DIR__ . '/../../../src/Utils/Session.php';
 /**
- * File: C:\xampp\htdocs\wizard-stepper_git\views\steps\auto\step1.php
+ * File: C:\xampp\htdocs\wizard-stepper_git\views\steps\auto\step1_auto_select_material.php
  *
  * Paso 1 (Auto) – Selección de material y espesor
  * • Rate-limiting (10 POST / 5 minutos)
@@ -11,7 +11,7 @@ require_once __DIR__ . '/../../../src/Utils/Session.php';
  * • CSRF-token
  * • Validación de material_id y thickness
  * • Control de flujo: wizard_state y wizard_progress
- * • Avanza a step2.php
+ * • Avanza a step2_auto_choose_strategy.php
  */
 
 //
@@ -35,7 +35,7 @@ if ($DEBUG) {
 }
 require_once __DIR__ . '/../../../includes/wizard_helpers.php';
 if ($DEBUG && function_exists('dbg')) {
-    dbg('🔧 step1.php iniciado');
+    dbg('🔧 step1_auto_select_material.php iniciado');
 }
 
 // -------------------------------------------
@@ -138,7 +138,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         session_write_close();
 
         // Redirigir a Paso 2 (ruta absoluta dentro de la app)
-        header('Location: ' . asset('views/steps/auto/step2.php'));
+        header('Location: ' . asset('views/steps/auto/step2_auto_choose_strategy.php'));
         exit;
     }
 }
