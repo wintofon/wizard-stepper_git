@@ -7,7 +7,7 @@ require_once __DIR__ . '/../../../src/Utils/Session.php';
  * Paso 4 (Auto) – Confirmar herramienta seleccionada
  * • POST desde step3.php o GET con brand+code
  * • Validación de CSRF y flujo (wizard_progress ≥ 3)
- * • Guarda tool_id, tool_table en sesión y avanza a step5.php
+ * • Guarda tool_id, tool_table en sesión y avanza a step5_auto_config_router.php
  */
 
 // ──────────────────────────────────────────────────────────────
@@ -184,7 +184,7 @@ if($tool){
       </div>
 
       <!-- Campo oculto step=4 para que el Stepper no marque error -->
-      <form action="step5.php" method="post" class="mt-4 text-end">
+      <form action="step5_auto_config_router.php" method="post" class="mt-4 text-end">
         <input type="hidden" name="step"       value="4">
         <input type="hidden" name="tool_id"    value="<?= $tool['tool_id'] ?>">
         <input type="hidden" name="tool_table" value="<?= htmlspecialchars($_SESSION['tool_table']) ?>">

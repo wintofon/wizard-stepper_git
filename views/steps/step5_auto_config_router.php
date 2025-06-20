@@ -7,7 +7,7 @@
  *   – rpm_min < rpm_max
  *   – feed_max > 0
  *   – hp       > 0
- * Después guarda en sesión y avanza a step6.php
+ * Después guarda en sesión y avanza a step6_auto_expert_result.php
  */
 declare(strict_types=1);
 
@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'wizard_progress' => 5,
         ];
         session_write_close();
-        header('Location: step6.php');
+        header('Location: step6_auto_expert_result.php');
         exit;
     }
 }
@@ -107,7 +107,7 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
 <link rel="stylesheet" href="<?= asset('assets/css/step-common.css') ?>">
-<link rel="stylesheet" href="<?= asset('assets/css/pages/_step5.css') ?>">
+<link rel="stylesheet" href="<?= asset('assets/css/pages/_step5_auto_config_router.css') ?>">
 <script>window.BASE_URL = '<?= BASE_URL ?>';</script>
 </head><body>
 <main class="container py-4">

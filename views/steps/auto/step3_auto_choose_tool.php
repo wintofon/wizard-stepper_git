@@ -102,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // 5.1) Validar “step” = 3
     if ($stepRaw !== 3) {
         dbg("❌ [step3][POST] step inválido: {$stepRaw}");
-        echo "<script>alert('Paso inválido. Reinicia el wizard.'); window.location='step3.php';</script>";
+        echo "<script>alert('Paso inválido. Reinicia el wizard.'); window.location='step3_auto_choose_tool.php';</script>";
         exit;
     }
 
@@ -115,12 +115,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!is_int($toolIdRaw) || $toolIdRaw <= 0) {
         dbg("❌ [step3][POST] tool_id inválido: " . var_export($toolIdRaw, true));
-        echo "<script>alert('ID de herramienta inválido.'); window.location='step3.php';</script>";
+        echo "<script>alert('ID de herramienta inválido.'); window.location='step3_auto_choose_tool.php';</script>";
         exit;
     }
     if (!in_array($toolTblClean, $allowed, true)) {
         dbg("❌ [step3][POST] tool_table inválido: {$toolTblRaw} → limpio: {$toolTblClean}");
-        echo "<script>alert('Tabla de herramienta inválida.'); window.location='step3.php';</script>";
+        echo "<script>alert('Tabla de herramienta inválida.'); window.location='step3_auto_choose_tool.php';</script>";
         exit;
     }
 
@@ -162,7 +162,7 @@ try {
         rel="stylesheet">
 
   <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
-  <link rel="stylesheet" href="<?= asset('assets/css/pages/_step3_auto.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/pages/_step3_auto_choose_tool.css') ?>">
   <script>window.BASE_URL = '<?= BASE_URL ?>';</script>
 </head>
 <body>
