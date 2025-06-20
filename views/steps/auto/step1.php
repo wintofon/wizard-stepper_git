@@ -11,7 +11,7 @@ require_once __DIR__ . '/../../../src/Utils/Session.php';
  * • CSRF-token
  * • Validación de material_id y thickness
  * • Control de flujo: wizard_state y wizard_progress
- * • Avanza a step2_auto_select_strategy.php
+ * • Avanza a step2.php
  */
 
 //
@@ -138,7 +138,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         session_write_close();
 
         // Redirigir a Paso 2 (ruta absoluta dentro de la app)
-        header('Location: ' . asset('views/steps/auto/step2_auto_select_strategy.php'));
+        header('Location: ' . asset('views/steps/auto/step2.php'));
         exit;
     }
 }
