@@ -6,7 +6,7 @@ use App\Controller\ExpertResultController;
 
 // ──────────────────────────────────────────────────────────────
 // ¿Se carga directo o embebido en load-step.php?
-// Si index.php incluyó esta vista → define('WIZARD_EMBEDDED', true)
+// Si wizard.php incluyó esta vista → define('WIZARD_EMBEDDED', true)
 // Si se abre en el navegador directamente → la constante NO existe
 // ──────────────────────────────────────────────────────────────
 $embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;

@@ -2,7 +2,7 @@
 /**
  * File: views/select_mode.php
  * Vista para elegir “Manual” o “Automático”.
- * Se asume que $csrfToken ha sido definido por index.php antes de incluir.
+ * Se asume que $csrfToken ha sido definido por wizard.php antes de incluir.
  */
 ?>
 <!DOCTYPE html>
@@ -23,7 +23,7 @@
   <p class="explanation">
     Elegí uno de los dos modos según tu experiencia previa:
   </p>
-  <form method="post" action="index.php">
+  <form method="post" action="wizard.php">
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>">
     <div class="mode-options">
       <label class="mode-option">

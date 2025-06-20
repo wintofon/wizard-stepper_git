@@ -102,7 +102,7 @@ class AutoToolRecommenderController
         $progress = (int)($_SESSION['wizard_progress'] ?? 0);
 
         if ($state !== 'wizard' || $progress < $minProgress) {
-            header('Location: ' . asset('index.php'));
+            header('Location: ' . asset('wizard.php'));
             exit;
         }
     }

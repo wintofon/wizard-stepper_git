@@ -7,7 +7,7 @@ require_once __DIR__ . '/../src/Config/AppConfig.php';
  * ▸ Destruye completamente la sesión del Wizard CNC
  * ▸ Elimina todas las variables de sesión y cookies asociadas
  * ▸ Envía cabeceras de seguridad y anti-caching
- * ▸ Limpia localStorage en el cliente y redirige a index.php
+ * ▸ Limpia localStorage en el cliente y redirige a wizard.php
  * ---------------------------------------------------------------
  */
 
@@ -130,9 +130,9 @@ echo <<<'HTML'
     } catch(e) {
       console.warn('No se pudo limpiar localStorage:', e);
     }
-    // Redirigir a index.php tras un breve retardo (200ms)
+    // Redirigir a wizard.php tras un breve retardo (200ms)
     setTimeout(function() {
-      window.location.replace('../index.php');
+      window.location.replace('../wizard.php');
     }, 200);
   </script>
 </body>

@@ -44,7 +44,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 // [D] Control de flujo
 //
 if (empty($_SESSION['wizard_state']) || $_SESSION['wizard_state']!=='wizard') {
-    header('Location:' . asset('index.php')); exit;
+    header('Location:' . asset('wizard.php')); exit;
 }
 if ((int)($_SESSION['wizard_progress']??0) < 3) {
     header('Location:' . asset('views/steps/auto/step' . (int)$_SESSION['wizard_progress'] . '.php')); exit;

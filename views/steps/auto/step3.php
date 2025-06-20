@@ -77,7 +77,7 @@ try {
 } catch (\RuntimeException $e) {
     dbg("❌ [step3] checkStep lanzó excepción: " . $e->getMessage());
     // Si falla la precondición, forzamos redirección a inicio del wizard
-    header('Location: ' . asset('index.php'));
+    header('Location: ' . asset('wizard.php'));
     exit;
 }
 
