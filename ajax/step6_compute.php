@@ -1,6 +1,6 @@
 <?php
 /**
- * Ubicación: C:\xampp\htdocs\wizard-stepper_git\step_minimo_ajax.php
+ * Ubicación: C:\xampp\htdocs\wizard-stepper_git\step6_compute.php
  *
  * Endpoint AJAX legacy (paso 6). Ahora:
  * - Valida CSRF vía header X-CSRF-Token

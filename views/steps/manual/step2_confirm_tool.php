@@ -120,7 +120,7 @@ if ($tool) {
 ?>
 <link rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-<link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
+<link rel="stylesheet" href="<?= asset('assets/css/global.css') ?>">
 <link rel="stylesheet" href="<?= asset('assets/css/pages/_step2.css') ?>">
 <script>window.BASE_URL = '<?= BASE_URL ?>';</script>
 

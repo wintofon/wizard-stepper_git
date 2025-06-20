@@ -37,9 +37,9 @@ This project contains a PHP wizard for configuring CNC operations.
 
 When running with `?debug=1` in the URL you can access additional debug helpers:
 
-- `public/session-api.php` – dumps the session as JSON.
-- `public/export.php` – downloads session data as text.
-- `public/export_json.php` – downloads session data as JSON.
+- `public/session_dump.php` – dumps the session as JSON.
+- `public/export_session_txt.php` – downloads session data as text.
+- `public/export_session_json.php` – downloads session data as JSON.
 
 All these endpoints require debug mode.
 

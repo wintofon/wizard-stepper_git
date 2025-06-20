@@ -2,13 +2,13 @@
 declare(strict_types=1);
 require_once __DIR__ . '/../../../src/Utils/Session.php';
 /**
- * File: step2.php
+ * File: step2_select_strategy.php
  * ---------------------------------------------------------------
  * Paso 2 (Auto) – Selección del tipo de mecanizado y la estrategia
  * • Protegido contra CSRF y validación de flujo
- * • Chequea que wizard_progress>=1 (sino redirige a step1.php)
+ * • Chequea que wizard_progress>=1 (sino redirige a step1_select_material.php)
  * • Carga dinámicamente estrategias según tipo
- * • Guarda {machining_type_id, strategy_id} en sesión y avanza a step3.php
+ * • Guarda {machining_type_id, strategy_id} en sesión y avanza a step3_choose_tool.php
  * ---------------------------------------------------------------
  */
 
@@ -33,7 +33,7 @@ if ($DEBUG) {
 }
 require_once __DIR__ . '/../../../includes/wizard_helpers.php';
 if ($DEBUG && function_exists('dbg')) {
-    dbg('🔧 step2.php iniciado');
+    dbg('🔧 step2_select_strategy.php iniciado');
 }
 
 // -------------------------------------------
@@ -56,8 +56,8 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 // [D] Validar flujo: se debe haber completado Paso 1
 // -------------------------------------------
 if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 1) {
-    dbg('❌ wizard_progress<1, redirigiendo a step1.php');
-    header('Location: step1.php');
+    dbg('❌ wizard_progress<1, redirigiendo a step1_select_material.php');
+    header('Location: step1_select_material.php');
     exit;
 }
 $_SESSION['wizard_state'] = 'wizard'; // Asegurar estado
@@ -159,7 +159,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['wizard_progress']   = 2;
         dbg("✅ Paso 2 completado: type={$typeRaw}, strat={$stratRaw}");
         session_write_close();
-        header('Location: step3.php');
+        header('Location: step3_choose_tool.php');
         exit;
     }
 }
@@ -180,8 +180,8 @@ $hasPrev   = is_int($prevType) && array_key_exists((int)$prevType, $types)
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
-  <link rel="stylesheet" href="<?= asset('assets/css/strategy.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/global.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/strategy_form.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/step-common.css') ?>">
 </head>
 <body>
