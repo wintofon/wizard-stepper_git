@@ -56,8 +56,8 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
  * [D]  Flujo de wizard – debe haberse completado paso 2
  * ──────────────────────────────────────────────────── */
 if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 2) {
-    dbg('❌ wizard_progress<2 – redirigiendo a step1_tool_browser.php');
-    header('Location: step1_tool_browser.php');
+    dbg('❌ wizard_progress<2 – redirigiendo a step1.php');
+    header('Location: step1.php');
     exit;
 }
 $_SESSION['wizard_state'] = 'wizard';
@@ -95,7 +95,7 @@ require_once __DIR__ . '/../../../includes/debug.php';
  * [H]  Validar que existe herramienta seleccionada
  * ──────────────────────────────────────────────────── */
 if (empty($_SESSION['tool_id']) || empty($_SESSION['tool_table'])) {
-    header('Location: step1_tool_browser.php'); /* flujo roto */
+    header('Location: step1.php'); /* flujo roto */
     exit;
 }
 $toolId    = (int)$_SESSION['tool_id'];
@@ -182,10 +182,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="<?= asset('assets/css/global.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
   <!-- Estilos compartidos -->
   <link rel="stylesheet" href="<?= asset('assets/css/step-common.css') ?>">
-  <link rel="stylesheet" href="<?= asset('assets/css/strategy_form.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/strategy.css') ?>">
   <script>window.BASE_URL = '<?= BASE_URL ?>';</script>
 </head>
 <body>

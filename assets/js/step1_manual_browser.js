@@ -30,7 +30,7 @@
   let currentSort = { col:null, dir:null };
 
   /* ========== CARGAR FACETAS ====================================== */
-  fetch(`${BASE_URL}/public/tool_facets_api.php`,{cache:'no-store'})
+  fetch(`${BASE_URL}/public/tools_facets.php`,{cache:'no-store'})
     .then(r => r.ok ? r.json() : Promise.reject(r.statusText))
     .then(renderFacets)
     .then(() => {        // Marcas seleccionadas por default
@@ -39,7 +39,7 @@
       dbg('facets cargadas');
     })
     .catch(err => {
-      console.error('❌ tool_facets_api.php:', err);
+      console.error('❌ tools_facets.php:', err);
       facetBox.innerHTML = '<div class="text-danger p-2">Error al cargar filtros</div>';
     });
 
@@ -99,19 +99,19 @@
       brandWarning.hidden=true;
       cargarTabla();
     }
-    import(`${BASE_URL}/assets/js/lazy_tools_loader.js`)
+    import(`${BASE_URL}/assets/js/step1_lazy.js`)
       .then(m => m.initLazy())
       .catch(console.error);
   }
 
-  /* ========== AJAX → filter_tools_ajax.php =============================== */
+  /* ========== AJAX → tools_ajax.php =============================== */
   async function cargarTabla(){
     const fd=new FormData();
     facetBox.querySelectorAll('input[type=checkbox]:checked')
             .forEach(cb=>fd.append(cb.name+'[]',cb.value));
     fd.append('q',qBox.value.trim());
 
-    const url=`${BASE_URL}/ajax/filter_tools_ajax.php?`+new URLSearchParams(fd);
+    const url=`${BASE_URL}/ajax/tools_ajax.php?`+new URLSearchParams(fd);
     dbg('fetch',url);
     const r = await fetch(url,{cache:'no-store'});
     toolsData = await r.json();
@@ -180,8 +180,8 @@
     const u=new URL(location.href), b=u.searchParams.get('brand'), c=u.searchParams.get('code');
     if(!b||!c) return;
     dbg('GET external',b,c);
-    fetch(`${BASE_URL}/views/steps/manual/step2_confirm_tool.php?brand=${encodeURIComponent(b)}&code=${encodeURIComponent(c)}`)
-      .then(r=>r.ok?location.assign('wizard.php?step=2'):Promise.reject('404'))
+    fetch(`${BASE_URL}/views/steps/manual/step2.php?brand=${encodeURIComponent(b)}&code=${encodeURIComponent(c)}`)
+      .then(r=>r.ok?location.assign('index.php?step=2'):Promise.reject('404'))
       .catch(err=>alert('⚠️ No se pudo cargar '+c+': '+err));
   });
 })();

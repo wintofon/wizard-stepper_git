@@ -1,4 +1,4 @@
-// File: wizard/assets/js/welcome_init.js
+// File: wizard/assets/js/main.js
 // Controla el botón de inicio y limpia sesión/localStorage
 const BASE_URL = window.BASE_URL;
 document.addEventListener('DOMContentLoaded', () => {
@@ -7,11 +7,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   btnStart.addEventListener('click', () => {
     // Destruye sesión PHP y localStorage antes de ir a selección de modo
-    fetch(`${BASE_URL}/public/reset_wizard.php`, { method: 'GET' })
+    fetch(`${BASE_URL}/public/reset.php`, { method: 'GET' })
       .finally(() => {
         localStorage.removeItem('wizard_progress');
         // Redirige a la selección de modo
-        window.location.href = `${BASE_URL}/wizard.php?state=mode`;
+        window.location.href = `${BASE_URL}/index.php?state=mode`;
       });
   });
 });

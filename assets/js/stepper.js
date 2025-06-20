@@ -5,8 +5,8 @@
   const BASE_URL = window.BASE_URL;
   const DEBUG = true;
   const LS_KEY = 'wizard_progress';
-  const LOAD_ENDPOINT = `${BASE_URL}/public/load_step.php`;
-  const HANDLE_ENDPOINT = `${BASE_URL}/public/handle_step.php`;
+  const LOAD_ENDPOINT = `${BASE_URL}/public/load-step.php`;
+  const HANDLE_ENDPOINT = `${BASE_URL}/public/handle-step.php`;
 
   const $qs  = sel => document.querySelector(sel);
   const $qsa = sel => [...document.querySelectorAll(sel)];
@@ -106,14 +106,14 @@
         if (step === 6) {
           if (!window.step6Loaded) {
             const script = document.createElement('script');
-            script.src = `${BASE_URL}/assets/js/step6_expert_chart.js`;
+            script.src = `${BASE_URL}/assets/js/step6.js`;
             script.defer = true;
             script.onload = () => { 
               window.step6Loaded = true;
-              log('[stepper.js] 🔢 step6_expert_chart.js cargado OK');
+              log('[stepper.js] 🔢 step6.js cargado OK');
               if (typeof window.initStep6 === 'function') window.initStep6();
             };
-            script.onerror = () => console.error('[stepper.js] ⚠️ Error cargando step6_expert_chart.js');
+            script.onerror = () => console.error('[stepper.js] ⚠️ Error cargando step6.js');
             document.body.appendChild(script);
           } else {
             if (typeof window.initStep6 === 'function') window.initStep6();

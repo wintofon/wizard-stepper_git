@@ -2,7 +2,7 @@
 /**
  * File: views/select_mode.php
  * Vista para elegir “Manual” o “Automático”.
- * Se asume que $csrfToken ha sido definido por wizard.php antes de incluir.
+ * Se asume que $csrfToken ha sido definido por index.php antes de incluir.
  */
 ?>
 <!DOCTYPE html>
@@ -12,7 +12,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Seleccionar Modo – Wizard CNC</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="<?= asset('assets/css/global.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/wizard.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/onboarding.css') ?>">
   <script>window.BASE_URL = '<?= BASE_URL ?>';</script>
@@ -23,7 +23,7 @@
   <p class="explanation">
     Elegí uno de los dos modos según tu experiencia previa:
   </p>
-  <form method="post" action="wizard.php">
+  <form method="post" action="index.php">
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>">
     <div class="mode-options">
       <label class="mode-option">

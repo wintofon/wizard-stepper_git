@@ -2,7 +2,7 @@
 declare(strict_types=1);
 require_once __DIR__ . '/src/Config/AppConfig.php';
 /**
- * File: wizard.php
+ * File: index.php
  * Router principal del Wizard CNC
  * ---------------------------------------------------------------
  * ▸ Flujo: welcome → select_mode → wizard
@@ -32,11 +32,11 @@ if (!function_exists('dbg')) {
     function dbg(string $msg): void {
         global $DEBUG;
         if ($DEBUG) {
-            error_log("[wizard.php] " . $msg);
+            error_log("[index.php] " . $msg);
         }
     }
 }
-dbg('🔧 wizard.php iniciado');
+dbg('🔧 index.php iniciado');
 
 require_once __DIR__ . '/src/Utils/Session.php';
 
@@ -101,8 +101,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tool_mode'])) {
     session_regenerate_id(true);
 
     dbg("✅ Modo seleccionado: {$mode}");
-    // Redireccionamos a wizard.php para evitar reenvío de POST
-    header('Location: wizard.php');
+    // Redireccionamos a index.php para evitar reenvío de POST
+    header('Location: index.php');
     exit;
 }
 
@@ -123,7 +123,7 @@ switch ($state) {
     // 1) WELCOME: Página inicial (bienvenida)
     // ---------------------------------------
     case 'welcome':
-        include __DIR__ . '/views/welcome_page.php';
+        include __DIR__ . '/views/welcome.php';
         break;
 
     // ---------------------------------------
@@ -131,7 +131,7 @@ switch ($state) {
     // ---------------------------------------
     case 'mode':
         $csrfToken = generateCsrfToken(); 
-        include __DIR__ . '/views/mode_select.php';
+        include __DIR__ . '/views/select_mode.php';
         break;
 
     // ---------------------------------------
@@ -156,7 +156,7 @@ switch ($state) {
         $flow = StepperFlow::get($mode);
 
         dbg("🧭 Ejecutando wizard con modo = {$mode}");
-        include __DIR__ . '/views/wizard_layout.php';
+        include __DIR__ . '/views/layout_wizard.php';
         
         break;
 }

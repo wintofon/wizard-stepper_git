@@ -8,10 +8,10 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Wizard CNC</title>
-  <link rel="stylesheet" href="<?= asset('assets/css/global.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/wizard.css') ?>">
-  <link rel="stylesheet" href="<?= asset('assets/css/progress_bar.css') ?>">
-  <link rel="stylesheet" href="<?= asset('assets/css/footer_brand.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/stepper.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/footer-schneider.css') ?>">
   <script>window.BASE_URL = '<?= BASE_URL ?>';</script>
 </head>
 <body>
@@ -35,7 +35,7 @@
 
   <!-- Botón reset -->
   <div style="text-align:right; padding:.5rem 1rem;">
-    <a href="public/reset_wizard.php" class="btn btn-outline-light">
+    <a href="public/reset.php" class="btn btn-outline-light">
       <i data-feather="refresh-ccw" class="me-1"></i>
       Volver al inicio
     </a>
@@ -58,8 +58,8 @@
   <?php endif; ?>
   <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
   <script>feather.replace();</script>
-  <script src="<?= asset('assets/js/wizard_stepper.js') ?>" defer></script>
-  <script src="<?= asset('assets/js/wizard_dashboard.js') ?>" defer></script>
+  <script src="<?= asset('assets/js/stepper.js') ?>" defer></script>
+  <script src="<?= asset('assets/js/dashboard.js') ?>" defer></script>
 <link rel="stylesheet" href="<?= asset('assets/css/wizard.css') ?>">
 <link rel="stylesheet" href="<?= asset('assets/css/step6.css') ?>"><!-- <---- AGREGALO ACÁ -->
 

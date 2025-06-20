@@ -1,6 +1,6 @@
 <?php
 /**
- * File: tool_facets_api.php
+ * File: tools_facets.php
  * Genera filtros únicos para explorador de fresas
  * --------------------------------------------------------------
  * ▸ Devuelve JSON con todos los campos únicos necesarios
