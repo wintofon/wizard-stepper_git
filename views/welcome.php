@@ -22,7 +22,7 @@
     </div>
     <button id="btn-start" class="btn btn-primary btn-lg mt-4">Iniciar</button>
   </main>
-  <script src="<?= asset('assets/js/main.js') ?>"></script>
+  <script src="<?= asset('assets/js/welcome_init.js') ?>"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>lucide.createIcons();</script>
 </body>

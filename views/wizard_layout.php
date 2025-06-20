@@ -1,5 +1,5 @@
 <?php
-/* File: wizard/views/layout_wizard.php */
+/* File: wizard/views/wizard_layout.php */
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -58,7 +58,7 @@
   <?php endif; ?>
   <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
   <script>feather.replace();</script>
-  <script src="<?= asset('assets/js/stepper.js') ?>" defer></script>
+  <script src="<?= asset('assets/js/wizard_stepper.js') ?>" defer></script>
   <script src="<?= asset('assets/js/dashboard.js') ?>" defer></script>
 <link rel="stylesheet" href="<?= asset('assets/css/wizard.css') ?>">
 <link rel="stylesheet" href="<?= asset('assets/css/step6.css') ?>"><!-- <---- AGREGALO ACÁ -->

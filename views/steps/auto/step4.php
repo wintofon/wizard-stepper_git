@@ -46,7 +46,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 // [D] Validar flujo (wizard_progress ≥ 3)
 // ──────────────────────────────────────────────────────────────
 if (empty($_SESSION['wizard_state']) || $_SESSION['wizard_state'] !== 'wizard') {
-    header('Location: ' . asset('index.php')); exit;
+    header('Location: ' . asset('wizard.php')); exit;
 }
 if (($_SESSION['wizard_progress'] ?? 0) < 3) {
     header('Location: ' . asset('views/steps/auto/step3.php')); exit;

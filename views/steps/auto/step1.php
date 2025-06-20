@@ -57,10 +57,10 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 // -------------------------------------------
 // [D] Control de flujo: wizard_state = 'wizard'
 // -------------------------------------------
-// Si no venimos del index.php que fijó wizard_state='wizard', volvemos a index.php.
+// Si no venimos del wizard.php que fijó wizard_state='wizard', volvemos a wizard.php.
 if (empty($_SESSION['wizard_state']) || $_SESSION['wizard_state'] !== 'wizard') {
-    dbg('❌ wizard_state no válido → redirigiendo a ' . BASE_URL . '/index.php');
-    header('Location: ' . asset('index.php'));
+    dbg('❌ wizard_state no válido → redirigiendo a ' . BASE_URL . '/wizard.php');
+    header('Location: ' . asset('wizard.php'));
     exit;
 }
 
