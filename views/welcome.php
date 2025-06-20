@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Bienvenido – Wizard CNC</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="<?= asset('assets/css/global.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/wizard.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/onboarding.css') ?>">
   <script>window.BASE_URL = '<?= BASE_URL ?>';</script>
@@ -22,7 +22,7 @@
     </div>
     <button id="btn-start" class="btn btn-primary btn-lg mt-4">Iniciar</button>
   </main>
-  <script src="<?= asset('assets/js/welcome_init.js') ?>"></script>
+  <script src="<?= asset('assets/js/main.js') ?>"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>lucide.createIcons();</script>
 </body>

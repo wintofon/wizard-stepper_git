@@ -1,5 +1,5 @@
 <?php
-/** File: handle_step.php */
+/** File: handle-step.php */
 require_once __DIR__ . '/../src/Config/AppConfig.php';
 session_start();
 require_once __DIR__ . '/../vendor/autoload.php';

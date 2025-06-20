@@ -5,7 +5,7 @@ require_once __DIR__ . '/../../../src/Utils/Session.php';
  * File: C:\xampp\htdocs\wizard-stepper_git\views\steps\auto\step4.php
  *
  * Paso 4 (Auto) – Confirmar herramienta seleccionada
- * • POST desde step3_choose_tool.php o GET con brand+code
+ * • POST desde step3.php o GET con brand+code
  * • Validación de CSRF y flujo (wizard_progress ≥ 3)
  * • Guarda tool_id, tool_table en sesión y avanza a step5.php
  */
@@ -46,10 +46,10 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 // [D] Validar flujo (wizard_progress ≥ 3)
 // ──────────────────────────────────────────────────────────────
 if (empty($_SESSION['wizard_state']) || $_SESSION['wizard_state'] !== 'wizard') {
-    header('Location: ' . asset('wizard.php')); exit;
+    header('Location: ' . asset('index.php')); exit;
 }
 if (($_SESSION['wizard_progress'] ?? 0) < 3) {
-    header('Location: ' . asset('views/steps/auto/step3_choose_tool.php')); exit;
+    header('Location: ' . asset('views/steps/auto/step3.php')); exit;
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -142,7 +142,7 @@ if($tool){
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <!-- Reutilizamos el mismo CSS del paso manual para un look idéntico -->
-  <link rel="stylesheet" href="<?= asset('assets/css/global.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/pages/_step2.css') ?>">
   <script>window.BASE_URL = '<?= BASE_URL ?>';</script>
 </head>

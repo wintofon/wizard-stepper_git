@@ -3,7 +3,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../src/Config/AppConfig.php';
 require_once __DIR__ . '/../src/Utils/Session.php';
 /**
- * File: C:\xampp\htdocs\wizard-stepper_git\load_step.php
+ * File: C:\xampp\htdocs\wizard-stepper_git\load-step.php
  * ---------------------------------------------------------------
  * Cargador asincrónico de cada paso del wizard
  */
@@ -26,7 +26,7 @@ startSecureSession();
 $DEBUG = filter_input(INPUT_GET, 'debug', FILTER_VALIDATE_BOOLEAN);
 if ($DEBUG && is_readable(__DIR__ . '/../includes/debug.php')) {
     require_once __DIR__ . '/../includes/debug.php';
-    dbg('🔧 load_step.php iniciado (modo DEBUG)');
+    dbg('🔧 load-step.php iniciado (modo DEBUG)');
 } else {
     if (!function_exists('dbg')) {
         function dbg(...$args) { /* stub vacío */ }
@@ -49,7 +49,7 @@ dbg('✔ Conexión a la BD establecida');
 // [5] VERIFICAR ESTADO DE SESIÓN
 // ─────────────────────────────────────────────────────────────
 if (($_SESSION['wizard_state'] ?? '') !== 'wizard') {
-    dbg('❌ Acceso a load_step.php sin estado "wizard" en sesión');
+    dbg('❌ Acceso a load-step.php sin estado "wizard" en sesión');
     http_response_code(403);
     exit('Acceso prohibido: no estás en el wizard.');
 }
@@ -77,7 +77,7 @@ dbg("🔢 Progreso actual (sesión): {$currentProgress}");
 $maxAllowedStep = $currentProgress + 1;
 if ($step > $maxAllowedStep) {
     dbg("🚫 Paso solicitado ({$step}) excede el permitido ({$maxAllowedStep}), redirigiendo...");
-    header("Location: load_step.php?step={$maxAllowedStep}");
+    header("Location: load-step.php?step={$maxAllowedStep}");
     exit;
 }
 
@@ -116,4 +116,4 @@ dbg("✔ Usando view: {$view}");
 define('WIZARD_EMBEDDED', true);
 include $view;
 
-// Fin de load_step.php
+// Fin de load-step.php

@@ -1,5 +1,5 @@
 <?php
-// filter_tools_ajax.php - Devuelve lista de herramientas filtradas (sin autenticación)
+// tools_ajax.php - Devuelve lista de herramientas filtradas (sin autenticación)
 require_once __DIR__ . '/../src/Config/AppConfig.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../src/Utils/ToolService.php';

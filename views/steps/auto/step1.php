@@ -2,7 +2,7 @@
 declare(strict_types=1);
 require_once __DIR__ . '/../../../src/Utils/Session.php';
 /**
- * File: C:\xampp\htdocs\wizard-stepper_git\views\steps\auto\step1_select_material.php
+ * File: C:\xampp\htdocs\wizard-stepper_git\views\steps\auto\step1.php
  *
  * Paso 1 (Auto) – Selección de material y espesor
  * • Rate-limiting (10 POST / 5 minutos)
@@ -11,7 +11,7 @@ require_once __DIR__ . '/../../../src/Utils/Session.php';
  * • CSRF-token
  * • Validación de material_id y thickness
  * • Control de flujo: wizard_state y wizard_progress
- * • Avanza a step2_select_strategy.php
+ * • Avanza a step2.php
  */
 
 //
@@ -35,7 +35,7 @@ if ($DEBUG) {
 }
 require_once __DIR__ . '/../../../includes/wizard_helpers.php';
 if ($DEBUG && function_exists('dbg')) {
-    dbg('🔧 step1_select_material.php iniciado');
+    dbg('🔧 step1.php iniciado');
 }
 
 // -------------------------------------------
@@ -57,10 +57,10 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 // -------------------------------------------
 // [D] Control de flujo: wizard_state = 'wizard'
 // -------------------------------------------
-// Si no venimos del wizard.php que fijó wizard_state='wizard', volvemos a wizard.php.
+// Si no venimos del index.php que fijó wizard_state='wizard', volvemos a index.php.
 if (empty($_SESSION['wizard_state']) || $_SESSION['wizard_state'] !== 'wizard') {
-    dbg('❌ wizard_state no válido → redirigiendo a ' . BASE_URL . '/wizard.php');
-    header('Location: ' . asset('wizard.php'));
+    dbg('❌ wizard_state no válido → redirigiendo a ' . BASE_URL . '/index.php');
+    header('Location: ' . asset('index.php'));
     exit;
 }
 
@@ -138,7 +138,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         session_write_close();
 
         // Redirigir a Paso 2 (ruta absoluta dentro de la app)
-        header('Location: ' . asset('views/steps/auto/step2_select_strategy.php'));
+        header('Location: ' . asset('views/steps/auto/step2.php'));
         exit;
     }
 }
@@ -197,8 +197,8 @@ dbg('children', $children);
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
     rel="stylesheet"
   >
-  <link rel="stylesheet" href="<?= asset('assets/css/global.css') ?>">
-  <link rel="stylesheet" href="<?= asset('assets/css/material_form.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/material.css') ?>">
 </head>
 <body>
   <main class="container py-4">
