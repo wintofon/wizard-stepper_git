@@ -35,7 +35,7 @@
 
   <!-- Botón reset -->
   <div style="text-align:right; padding:.5rem 1rem;">
-    <a href="public/reset.php" class="btn btn-outline-light" onclick="localStorage.clear()">
+    <a id="reset-btn" href="public/reset.php" class="btn btn-outline-light">
       <i data-feather="refresh-ccw" class="me-1"></i>
       Volver al inicio
     </a>
@@ -60,6 +60,22 @@
   <script>feather.replace();</script>
   <script src="<?= asset('assets/js/wizard_stepper.js') ?>" defer></script>
   <script src="<?= asset('assets/js/dashboard.js') ?>" defer></script>
+  <script>
+    const resetBtn = document.getElementById('reset-btn');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        try {
+          localStorage.clear();
+          sessionStorage.clear();
+          if (window.caches) {
+            caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+          }
+        } catch (err) {
+          console.warn('Error limpiando almacenamiento', err);
+        }
+      });
+    }
+  </script>
 <link rel="stylesheet" href="<?= asset('assets/css/wizard.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/pages/_step6.css') ?>"><!-- <---- AGREGALO ACÁ -->
 
