@@ -13,10 +13,10 @@ body {
   overflow-x: hidden;
 }
 
-/* Contenedor del stepper (sin scroll) */
+/* STEP CONTAINER (siempre visible y sin scroll) */
 .stepper-container {
   background: #0f172a;
-  overflow: hidden; /* jamás scroll horizontal */
+  overflow: hidden;
   padding: 0;
   position: sticky;
   top: 0;
@@ -24,7 +24,7 @@ body {
   z-index: 100;
 }
 
-/* Stepper horizontal que se adapta */
+/* STEP LIST */
 .stepper {
   display: flex;
   list-style: none;
@@ -34,40 +34,37 @@ body {
   flex-wrap: nowrap;
 }
 
-/* Paso trapezoidal autoajustable */
+/* ITEM de paso: se adapta, no corta texto */
 .stepper li {
-  align-items: center;
   background: #0f172a;
-  border-right: 1px solid rgb(255 255 255 / 10%);
-  clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0% 100%);
   color: #64748b;
   display: flex;
-  flex: 1 1 0%;           /* se distribuyen equitativamente */
-  min-width: 0;           /* permite que se achiquen si es necesario */
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
   font-size: 1rem;
   font-weight: 600;
-  justify-content: space-between;
-  margin-left: -10px;
-  overflow: hidden;
-  padding: 1.25rem 1rem;
-  position: relative;
-  text-overflow: ellipsis;
+  text-align: center;
   text-transform: uppercase;
+  white-space: normal;              /* permite salto de línea */
+  padding: 1.25rem 0.5rem;
+  clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0% 100%);
+  position: relative;
   transition: background .3s, color .3s;
-  white-space: nowrap;
-  z-index: 1;
 }
 
+/* PRIMER paso sin solape izquierdo */
 .stepper li:first-child {
   clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 10px 100%);
-  margin-left: 0;
 }
 
+/* Paso activo o hecho */
 .stepper li.done,
 .stepper li.active {
   background: #1e293b;
+  color: #ffffff;
   border-bottom: 3px solid #0ea5e9;
-  color: #fff;
   z-index: 2;
 }
 
@@ -88,6 +85,7 @@ body {
   to   { width: 100%; }
 }
 
+/* División entre pasos */
 .stepper li:not(:last-child)::after {
   background: rgb(255 255 255 / 15%);
   bottom: 10%;
@@ -97,6 +95,23 @@ body {
   top: 10%;
   width: 1px;
   z-index: 3;
+}
+
+/* Estilo del texto interno (incluye ícono si hay) */
+.stepper li span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  line-height: 1.1;
+  word-break: break-word;        /* permite saltos de línea internos */
+  overflow-wrap: anywhere;
+}
+
+/* Íconos feather opcionales */
+.stepper li span .icon {
+  width: 1em;
+  height: 1em;
+  stroke-width: 2.5;
 }
 
 /* ────────────────────────────────────────────────────────────────
