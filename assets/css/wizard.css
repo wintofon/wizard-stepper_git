@@ -87,22 +87,23 @@ html,body{
 .stepper li .icon{margin-left:.35rem;color:#00ff95;font-size:1rem;}
 
 /* ─────────  RESPONSIVE  ───────── */
-@media(max-width:768px){
+/* Compacto en ≤ 1 200 px — aplica a portátiles / ventanas medianas y móviles */
+@media(max-width:1200px){
 
-  /* 1. Reset: convertimos la lista a bloque */
+  /* reset: lista deja de ser flex ➜ no calcula extra-ancho */
   .stepper{
-    display:block;        /* deja de ser flex */
+    display:block;
     width:100%;
-    overflow-x:hidden;    /* mata cualquier scroll */
+    overflow-x:hidden;
     scrollbar-width:none;
   }
   .stepper::-webkit-scrollbar{display:none;}
 
-  /* 2. Ocultamos todo menos el activo */
+  /* ocultamos todo menos el activo */
   .logo-stepper,
-  .stepper li        {display:none;}
+  .stepper li       {display:none;}
 
-  /* 3. Paso activo: full-width y sin recortes */
+  /* paso activo: lleno, sin clip-path */
   .stepper li.active{
     display:block!important;
     width:100%;
@@ -115,9 +116,9 @@ html,body{
     font-weight:500;
   }
 
-  /* 4. Pasos ya completados siguen ocultos */
+  /* pasos completados siguen ocultos */
   .stepper li.done{display:none!important;}
 
-  /* 5. Nada de overflow horizontal en el contenedor */
+  /* contenedor sin scroll horizontal */
   .stepper-container{overflow-x:hidden;}
 }
