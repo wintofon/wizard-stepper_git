@@ -46,19 +46,31 @@ require_once $dbFile;
 dbg('✔ Conexión a la BD establecida');
 
 // ─────────────────────────────────────────────────────────────
-// [5] VERIFICAR ESTADO DE SESIÓN
+// [5] LEER PARÁMETRO “step” ADELANTADO
+// ─────────────────────────────────────────────────────────────
+$requestedStep = filter_input(INPUT_GET, 'step', FILTER_VALIDATE_INT);
+
+// ─────────────────────────────────────────────────────────────
+// [6] VERIFICAR ESTADO DE SESIÓN (PERMITIR PASO 1 INICIAL)
 // ─────────────────────────────────────────────────────────────
 if (($_SESSION['wizard_state'] ?? '') !== 'wizard') {
-    dbg('❌ Acceso a load-step.php sin estado "wizard" en sesión');
-    http_response_code(403);
-    exit('Acceso prohibido: no estás en el wizard.');
+    if ($requestedStep === 1) {
+        $_SESSION['wizard_state']    = 'wizard';
+        $_SESSION['wizard_progress'] = $_SESSION['wizard_progress'] ?? 1;
+        session_regenerate_id(true);
+        dbg('⚙️ Estado wizard inicializado en Paso 1');
+    } else {
+        dbg('❌ Acceso a load-step.php sin estado "wizard" en sesión');
+        http_response_code(403);
+        exit('Acceso prohibido: no estás en el wizard.');
+    }
 }
 dbg('✔ Estado wizard: OK');
 
 // ─────────────────────────────────────────────────────────────
-// [6] VALIDAR PARÁMETRO “step”
+// [7] VALIDAR PARÁMETRO “step”
 // ─────────────────────────────────────────────────────────────
-$step = filter_input(INPUT_GET, 'step', FILTER_VALIDATE_INT, [
+$step = filter_var($requestedStep, FILTER_VALIDATE_INT, [
     'options' => ['min_range' => 1, 'max_range' => 6]
 ]);
 if ($step === false || $step === null) {
@@ -67,7 +79,6 @@ if ($step === false || $step === null) {
     exit('Parámetro inválido.');
 }
 dbg("📥 Paso solicitado: {$step}");
-
 // ─────────────────────────────────────────────────────────────
 // [7] VERIFICAR PROGRESO DEL USUARIO
 // ─────────────────────────────────────────────────────────────
