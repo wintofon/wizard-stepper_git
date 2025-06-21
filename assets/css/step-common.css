@@ -2,35 +2,41 @@
 @import url('base/_reset.css');
 @import url('base/_typography.css');
 
+/* Colores base del diseño */
 body {
   background-color: #0d1117;
   color: #e0e0e0;
 }
 
+/* Botones principales de filtrado */
 .btn-type,
 .btn-cat {
   margin: .35rem .45rem;
   white-space: nowrap;
 }
 
+/* Estado activo de esos filtros */
 .btn-type.active,
 .btn-cat.active {
   background: #0d6efd !important;
   color: #fff !important;
 }
 
+/* Botones de estrategia y material */
 .btn-strat,
 .btn-mat {
   margin: .25rem 0;
   width: 100%;
 }
 
+/* Resaltado cuando están seleccionados */
 .btn-strat.active,
 .btn-mat.active {
   background: #198754 !important;
   color: #fff !important;
 }
 
+/* Caja de alerta customizada */
 .alert-custom {
   background-color: #4c1d1d;
   border: 1px solid #f5c2c7;
@@ -40,6 +46,7 @@ body {
   padding: 0.75rem 1rem;
 }
 
+/* Layout responsivo para móviles */
 @media (width <= 768px) {
   .btn-type,
   .btn-cat,
@@ -51,7 +58,7 @@ body {
 
 /* Títulos y descripciones de pasos */
 
-/* Encabezados uniformes de los pasos */
+/* Encabezados uniformes de cada paso */
 .step-title {
   align-items: center;
   color: #d1d1d1;
@@ -62,12 +69,14 @@ body {
   margin-bottom: 0.75rem;
 }
 
+/* Ícono decorativo dentro del título */
 .step-title i[data-feather] {
   height: 24px;
   stroke: #17a2b8;
   width: 24px;
 }
 
+/* Breve descripción bajo el título */
 .step-desc {
   color: #adb5bd;
   margin-bottom: 1.5rem;

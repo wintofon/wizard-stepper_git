@@ -2,6 +2,8 @@
 
 /* Estilo v6.0 trapezoidal, adaptado al stepper azul oscuro */
 
+/* ----- Barra lateral con filtros ----- */
+
 .sidebar {
   min-width: 100%;
   padding-bottom: 1rem;
@@ -13,6 +15,8 @@
     min-width: 260px;
   }
 }
+
+/* ----- Facetas desplegables ----- */
 
 .facet-header {
   background: #1e293b;
@@ -43,9 +47,10 @@
   display: block;
   font-size: .8rem;
   margin-bottom: 2px;
-  white-space: nowrap;
+  white-space: nowrap; /* evita saltos en marcas largas */
 }
 
+/* Buscador de marcas dentro de la faceta */
 .facet-search {
   background: #1e293b;
   border: 1px solid #334155;
@@ -55,6 +60,7 @@
   width: 100%;
 }
 
+/* Miniatura de previsualización */
 .thumb {
   border: 1px solid #ddd;
   height: 40px;
@@ -62,6 +68,7 @@
   width: 40px;
 }
 
+/* Zoom de la miniatura al pasar el mouse */
 .thumb:hover {
   box-shadow: 0 0 4px #0ea5e9;
   position: relative;
@@ -69,6 +76,7 @@
   z-index: 10;
 }
 
+/* Aviso cuando no se seleccionó una marca */
 .alert-no-brand {
   color: #f87171;
   font-weight: 600;
@@ -76,6 +84,7 @@
   text-align: center;
 }
 
+/* Mensaje fijo si JavaScript está deshabilitado */
 .alert-js-missing {
   background: #dc2626;
   border-radius: 6px;
@@ -88,37 +97,44 @@
   z-index: 9999;
 }
 
+/* Paleta oscura para tablas */
 .table-dark {
   --bs-table-bg: #1e293b;
   --bs-table-color: #e2e8f0;
 }
 
+/* Estrellas de calificación */
 .stars {
   color: #0ea5e9;
   font-size: 0.95em;
 }
 
 /* Ajuste responsivo y padding visual del contenido */
+/* Contenedor principal limitado */
 .container-fluid {
   max-width: 1200px;
 }
 
+/* Título de la página */
 h2.fw-bold {
   color: #e2e8f0;
   font-size: 1.8rem;
 }
 
+/* Scroll horizontal si la tabla se desborda */
 .table-responsive {
   max-height: none !important;
   overflow-x: auto;
   overflow-y: visible !important;
 }
 
+/* Lista con alto limitado y scroll */
 .list-scroll-container {
   max-height: 65vh; /* ajustá si hace falta */
   overflow-y: auto;
 }
 
+/* Punto de referencia para cargar más resultados */
 #sentinel {
   height: 1px;
 }
