@@ -162,7 +162,7 @@ try {
         rel="stylesheet">
 
   <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
-  <link rel="stylesheet" href="<?= asset('assets/css/pages/_step3_auto.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/pages/step3_auto_tool_recommendation.css') ?>">
   <script>window.BASE_URL = '<?= BASE_URL ?>';</script>
 </head>
 <body>
