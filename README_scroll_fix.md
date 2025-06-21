@@ -4,7 +4,7 @@
 El listado de herramientas en `step1.php` se cargaba usando un script inline que inicializaba la lógica de scroll. La política CSP bloqueaba estos scripts inline por no estar firmados y el token CSRF se pasaba también mediante otro script inline. Como resultado el `IntersectionObserver` nunca disparaba porque el JS no se ejecutaba y la primera página quedaba vacía.
 
 ## Solución
-Se movieron los scripts inline a un módulo externo `assets/js/step1_manual_hook.js`. El token CSRF ahora se expone mediante una etiqueta `<meta>` y es leído por los módulos. La CSP se actualizó para permitir únicamente scripts propios y uno firmado con `nonce`. Dentro de `step1_lazy.js` se ajustó la inicialización para que siempre cargue la primera página y se añadió un alto mínimo al *sentinel*.
+Se movieron los scripts inline a un módulo externo `assets/js/step1_manual_table_hook.js`. El token CSRF ahora se expone mediante una etiqueta `<meta>` y es leído por los módulos. La CSP se actualizó para permitir únicamente scripts propios y uno firmado con `nonce`. Dentro de `step1_manual_lazy_loader.js` se ajustó la inicialización para que siempre cargue la primera página y se añadió un alto mínimo al *sentinel*.
 
 ```css
 #sentinel {

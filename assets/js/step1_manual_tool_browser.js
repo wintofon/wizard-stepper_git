@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------
- * step1_manual_browser.js
+ * step1_manual_tool_browser.js
  * Navegador de herramientas con facetas, búsqueda y selección
  * ▸ 100 % compatible con el stepper (envía tool_id & tool_table)
  * ▸ Soporta acceso externo ?brand=&code=  (fallback GET → step 2)
@@ -99,7 +99,7 @@
       brandWarning.hidden=true;
       cargarTabla();
     }
-    import(`${BASE_URL}/assets/js/step1_lazy.js`)
+    import(`${BASE_URL}/assets/js/step1_manual_lazy_loader.js`)
       .then(m => m.initLazy())
       .catch(console.error);
   }
