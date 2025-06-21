@@ -6,10 +6,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Bienvenido – Wizard CNC</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/main.css">
+  <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/wizard.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/onboarding.css') ?>">
-  <script>window.BASE_URL = '<?= BASE_URL ?>';</script>
+  <script>
+    window.BASE_URL = <?= json_encode(BASE_URL) ?>;
+    window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
+  </script>
 </head>
 <body>
   <main class="wizard-welcome">

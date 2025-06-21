@@ -20,7 +20,10 @@ $thickness  = $_SESSION['thickness']  ?? null;
   <meta name="csrf-token" content="<?= htmlspecialchars($csrf) ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/pages/_step3.css') ?>">
-  <script>window.BASE_URL = '<?= BASE_URL ?>';</script>
+  <script>
+    window.BASE_URL = <?= json_encode(BASE_URL) ?>;
+    window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
+  </script>
 </head>
 <body>
   <main class="container py-4">

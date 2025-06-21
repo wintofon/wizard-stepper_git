@@ -183,6 +183,10 @@ $hasPrev   = is_int($prevType) && array_key_exists((int)$prevType, $types)
   <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/strategy.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/step-common.css') ?>">
+  <script>
+    window.BASE_URL = <?= json_encode(BASE_URL) ?>;
+    window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
+  </script>
 </head>
 <body>
   <main class="container py-4">
