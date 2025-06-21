@@ -162,7 +162,7 @@ if ($tool) {
       </div>
 
       <!-- ********  ¡campo step=2 añadido!  ******** -->
-        <form action="<?= BASE_URL ?>step4_select_strategy.php"
+        <form action="step4_select_strategy.php"
               method="post"
               class="mt-4">
         <input type="hidden" name="step"       value="2">
