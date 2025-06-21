@@ -2,7 +2,7 @@
 declare(strict_types=1);
 require_once __DIR__ . '/../../../src/Utils/Session.php';
 /**
- * File: views/steps/manual/step4.php
+ * File: views/steps/manual/step4_manual_material_selection.php
  * Paso 4 (Manual) – Selección de madera compatible
  * Estructura clonada de paso 1 (auto)
  */
@@ -77,7 +77,7 @@ require_once __DIR__.'/../../../includes/db.php';
 require_once __DIR__.'/../../../includes/debug.php';
 
 if (empty($_SESSION['tool_id']) || empty($_SESSION['tool_table'])) {
-    header('Location:' . asset('views/steps/auto/step2.php')); exit;
+    header('Location:' . asset('views/steps/auto/step2_auto_strategy_selection.php')); exit;
 }
 $toolId   = (int)$_SESSION['tool_id'];
 $toolTbl  = preg_replace('/[^a-z0-9_]/i','',$_SESSION['tool_table']);
@@ -129,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
         $_SESSION['material_id']=$mat;
         $_SESSION['thickness'] =(float)$thk;
         $_SESSION['wizard_progress']=4;
-        header('Location:' . asset('views/steps/manual/step5.php')); exit;
+        header('Location:' . asset('views/steps/step5_auto_router_setup.php')); exit;
     }
 }
 ?>

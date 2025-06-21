@@ -7,7 +7,7 @@
  *   – rpm_min < rpm_max
  *   – feed_max > 0
  *   – hp       > 0
- * Después guarda en sesión y avanza a step6.php
+ * Después guarda en sesión y avanza a step6_auto_final_results.php
  */
 declare(strict_types=1);
 
@@ -20,7 +20,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     ]);
 }
 if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 4) {
-    header('Location: step1.php');
+    header('Location: step1_auto_material_selection.php');
     exit;
 }
 
@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'wizard_progress' => 5,
         ];
         session_write_close();
-        header('Location: step6.php');
+        header('Location: step6_auto_final_results.php');
         exit;
     }
 }
