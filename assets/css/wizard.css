@@ -12,29 +12,30 @@ body {
   color: #dceefb;
 }
 
-/* Contenedor del stepper (barra de pasos) */
+/* Contenedor del stepper */
 .stepper-container {
   background: #0f172a;
   overflow-x: auto;
   padding: 0;
   position: sticky;
-  scrollbar-width: none;
   top: 0;
   width: 100%;
   z-index: 100;
+  scrollbar-width: none;
 }
 .stepper-container::-webkit-scrollbar { display: none; }
 
-/* ────────────────────────────────────────────────────────────────
-   STEPPER TRAPEZOIDAL
-   ──────────────────────────────────────────────────────────────── */
+/* Stepper lista */
 .stepper {
   display: flex;
   list-style: none;
   margin: 0;
   padding: 0;
+  flex-wrap: nowrap;
+  overflow: hidden;
 }
 
+/* Paso individual */
 .stepper li {
   align-items: center;
   background: #0f172a;
@@ -42,11 +43,11 @@ body {
   clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0% 100%);
   color: #64748b;
   display: flex;
-  flex: 0 0 auto; /* ya no se fija en porcentaje, es contenido */
+  flex: 0 0 auto;
   font-size: 1rem;
   font-weight: 600;
   justify-content: space-between;
-  margin-left: -10px;
+  transform: translateX(-10px);
   overflow: hidden;
   padding: 1.25rem 2rem;
   position: relative;
@@ -54,14 +55,18 @@ body {
   text-transform: uppercase;
   transition: background .3s, color .3s;
   white-space: nowrap;
+  min-width: 140px;
+  max-width: 220px;
   z-index: 1;
 }
 
+/* Primer paso sin desplazamiento */
 .stepper li:first-child {
   clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 10px 100%);
-  margin-left: 0;
+  transform: none;
 }
 
+/* Paso activo o completo */
 .stepper li.done,
 .stepper li.active {
   background: #1e293b;
@@ -87,6 +92,7 @@ body {
   to   { width: 100%; }
 }
 
+/* Línea divisoria vertical entre pasos */
 .stepper li:not(:last-child)::after {
   background: rgb(255 255 255 / 15%);
   content: "";
@@ -133,17 +139,23 @@ body {
    RESPONSIVE: pantallas < 768 px
    ──────────────────────────────────────────────────────────────── */
 @media (width <= 768px) {
+  .stepper-container {
+    overflow-x: hidden;
+  }
+
   .stepper {
     justify-content: center;
   }
 
   .stepper li {
-    border-right: none;
-    clip-path: none;
     display: none;
+    clip-path: none;
     flex: 0 0 auto;
     margin-left: 0;
-    width: 100vw; /* ancho completo del viewport */
+    transform: none;
+    width: 100vw;
+    max-width: none;
+    min-width: 100vw;
   }
 
   .stepper li.active {
