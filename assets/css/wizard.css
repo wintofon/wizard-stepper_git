@@ -3,7 +3,7 @@
 /* ─────────  BASE  ───────── */
 html,body{
   overflow-x:hidden!important;
-  font-family:"Rajdhani",sans-serif;   /* Rajdhani 500 por defecto */
+  font-family:"Rajdhani",sans-serif;
   background:#0f172a;
   color:#dceefb;
   margin:0;
@@ -89,11 +89,11 @@ html,body{
 /* ─────────  RESPONSIVE  ───────── */
 @media(max-width:768px){
 
-  /* 1. Ocultamos todo menos el activo */
+  /* 1. Ocultamos todo menos el paso activo */
   .logo-stepper,
   .stepper li        {display:none;}
 
-  /* 2. Paso activo: ancho completo sin overflow */
+  /* 2. Paso activo: ancho completo */
   .stepper li.active{
     display:block!important;
     flex:1 0 100%;
@@ -108,12 +108,17 @@ html,body{
     font-weight:500;
   }
 
-  /* 3. Aseguramos que pasos “done” sigan ocultos */
+  /* 3. Pasos “done” siguen ocultos */
   .stepper li.done{display:none!important;}
 
-  /* 4. Eliminamos scroll horizontal */
+  /* 4. Eliminamos cualquier scroll horizontal */
   .stepper-container{overflow-x:hidden;}
+  .stepper{
+    overflow-x:hidden;          /* ← estas tres líneas quitan el “slicer” */
+    scrollbar-width:none;
+  }
+  .stepper::-webkit-scrollbar{display:none;}
 
-  /* (opcional) centrado defensivo */
+  /* centrado defensivo */
   .stepper{justify-content:center;}
 }
