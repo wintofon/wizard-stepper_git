@@ -2,12 +2,12 @@
 declare(strict_types=1);
 require_once __DIR__ . '/../../../src/Utils/Session.php';
 /**
- * File: C:\xampp\htdocs\wizard-stepper_git\views\steps\auto\step4_auto_tool_confirmation.php
+ * File: C:\xampp\htdocs\wizard-stepper_git\views\steps\auto\step4.php
  *
  * Paso 4 (Auto) – Confirmar herramienta seleccionada
- * • POST desde step3_auto_tool_selection.php o GET con brand+code
+ * • POST desde step3.php o GET con brand+code
  * • Validación de CSRF y flujo (wizard_progress ≥ 3)
- * • Guarda tool_id, tool_table en sesión y avanza a step5_auto_router_setup.php
+ * • Guarda tool_id, tool_table en sesión y avanza a step5.php
  */
 
 // ──────────────────────────────────────────────────────────────
@@ -25,7 +25,7 @@ $DEBUG = filter_input(INPUT_GET, 'debug', FILTER_VALIDATE_BOOLEAN);
 (@$DEBUG) ? ini_set('display_errors', '1') : ini_set('display_errors', '0');
 error_reporting($DEBUG ? E_ALL : 0);
 require_once __DIR__ . '/../../../includes/wizard_helpers.php';
-if ($DEBUG && function_exists('dbg')) dbg('🔧 step4_auto_tool_confirmation.php iniciado');
+if ($DEBUG && function_exists('dbg')) dbg('🔧 step4.php iniciado');
 
 // ──────────────────────────────────────────────────────────────
 // [C] Sesión segura
@@ -49,7 +49,7 @@ if (empty($_SESSION['wizard_state']) || $_SESSION['wizard_state'] !== 'wizard') 
     header('Location: ' . asset('wizard.php')); exit;
 }
 if (($_SESSION['wizard_progress'] ?? 0) < 3) {
-    header('Location: ' . asset('views/steps/auto/step3_auto_tool_selection.php')); exit;
+    header('Location: ' . asset('views/steps/auto/step3.php')); exit;
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -184,7 +184,7 @@ if($tool){
       </div>
 
       <!-- Campo oculto step=4 para que el Stepper no marque error -->
-      <form action="step5_auto_router_setup.php" method="post" class="mt-4 text-end">
+      <form action="step5.php" method="post" class="mt-4 text-end">
         <input type="hidden" name="step"       value="4">
         <input type="hidden" name="tool_id"    value="<?= $tool['tool_id'] ?>">
         <input type="hidden" name="tool_table" value="<?= htmlspecialchars($_SESSION['tool_table']) ?>">

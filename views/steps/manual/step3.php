@@ -2,9 +2,9 @@
 declare(strict_types=1);
 require_once __DIR__ . '/../../../src/Utils/Session.php';
 /**
- * File: step3_manual_strategy_selection.php
+ * File: step3.php
  * ------------------------------------------------------------------
- * Paso 3 (Manual) – Elegí el tipo de mecanizado y la estrategia
+ * Paso 3 (Auto) – Elegí el tipo de mecanizado y la estrategia
  * • Protegido contra CSRF, headers seguros y rate-limit básico  
  * • Requiere wizard_progress ≥ 2 (ya se eligió herramienta y estrategia)  
  * • Muestra solo las combinaciones válidas de la fresa seleccionada  
@@ -33,7 +33,7 @@ if ($DEBUG) {
 }
 require_once __DIR__ . '/../../../includes/wizard_helpers.php';
 if ($DEBUG && function_exists('dbg')) {
-    dbg('🔧 step3_manual_strategy_selection.php iniciado');
+    dbg('🔧 step3.php iniciado');
 }
 
 /* ──────────────────────────────────────────────────────
@@ -56,8 +56,8 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
  * [D]  Flujo de wizard – debe haberse completado paso 2
  * ──────────────────────────────────────────────────── */
 if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 2) {
-    dbg('❌ wizard_progress<2 – redirigiendo a step1_manual_tool_browser.php');
-    header('Location: step1_manual_tool_browser.php');
+    dbg('❌ wizard_progress<2 – redirigiendo a step1.php');
+    header('Location: step1.php');
     exit;
 }
 $_SESSION['wizard_state'] = 'wizard';
@@ -95,7 +95,7 @@ require_once __DIR__ . '/../../../includes/debug.php';
  * [H]  Validar que existe herramienta seleccionada
  * ──────────────────────────────────────────────────── */
 if (empty($_SESSION['tool_id']) || empty($_SESSION['tool_table'])) {
-    header('Location: step1_manual_tool_browser.php'); /* flujo roto */
+    header('Location: step1.php'); /* flujo roto */
     exit;
 }
 $toolId    = (int)$_SESSION['tool_id'];
