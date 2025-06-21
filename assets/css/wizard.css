@@ -89,16 +89,23 @@ html,body{
 /* ─────────  RESPONSIVE  ───────── */
 @media(max-width:768px){
 
-  /* 1. Ocultamos todo menos el paso activo */
+  /* 1. Reset: convertimos la lista a bloque */
+  .stepper{
+    display:block;        /* deja de ser flex */
+    width:100%;
+    overflow-x:hidden;    /* mata cualquier scroll */
+    scrollbar-width:none;
+  }
+  .stepper::-webkit-scrollbar{display:none;}
+
+  /* 2. Ocultamos todo menos el activo */
   .logo-stepper,
   .stepper li        {display:none;}
 
-  /* 2. Paso activo: ancho completo */
+  /* 3. Paso activo: full-width y sin recortes */
   .stepper li.active{
     display:block!important;
-    flex:1 0 100%;
     width:100%;
-    max-width:100%;
     margin:0;
     padding:1rem;
     box-sizing:border-box;
@@ -108,17 +115,9 @@ html,body{
     font-weight:500;
   }
 
-  /* 3. Pasos “done” siguen ocultos */
+  /* 4. Pasos ya completados siguen ocultos */
   .stepper li.done{display:none!important;}
 
-  /* 4. Eliminamos cualquier scroll horizontal */
+  /* 5. Nada de overflow horizontal en el contenedor */
   .stepper-container{overflow-x:hidden;}
-  .stepper{
-    overflow-x:hidden;          /* ← estas tres líneas quitan el “slicer” */
-    scrollbar-width:none;
-  }
-  .stepper::-webkit-scrollbar{display:none;}
-
-  /* centrado defensivo */
-  .stepper{justify-content:center;}
 }
