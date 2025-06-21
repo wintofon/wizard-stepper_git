@@ -69,12 +69,6 @@ window.radarChartInstance = window.radarChartInstance || null;
   });
   const radar = window.radarChartInstance;
 
-  // Asegura que la estructura plugins.legend exista antes de modificarla
-  if (!radar.options) radar.options = {};
-  if (!radar.options.plugins) radar.options.plugins = {};
-  radar.options.plugins.legend = radar.options.plugins.legend || {};
-  radar.options.plugins.legend.fullSize = true;
-
   // 5. Mostrar/ocultar errores
   function showError(msg) {
     err.style.display = 'block';
