@@ -234,19 +234,29 @@ if (!file_exists($countUpLocal))   $assetErrors[] = 'CountUp.js faltante.';
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Cutting Data – Paso 6</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cutting Data – Paso&nbsp;6</title>
+
   <?php if ($cssBootstrapRel): ?>
+    <!-- Bootstrap local -->
     <link rel="stylesheet" href="<?= $cssBootstrapRel ?>">
   <?php else: ?>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Bootstrap CDN fallback -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
   <?php endif; ?>
+
+  <!-- Hojas de estilo del proyecto -->
   <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/step-common.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/pages/_step6.css') ?>">
-  <script>window.BASE_URL = <?= json_encode(BASE_URL) ?>; window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;</script>
+
+  <script>
+    window.BASE_URL  = <?= json_encode(BASE_URL) ?>;
+    window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
+  </script>
 </head>
+
 <body>
 <div class="container py-4">
 <?php else: ?>
