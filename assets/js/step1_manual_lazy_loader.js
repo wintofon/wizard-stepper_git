@@ -7,6 +7,8 @@ export let hasMore = true;
 export const sentinel = document.getElementById('sentinel');
 export const tbody = document.querySelector('#toolTbl tbody');
 const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
+const materialId = document.querySelector('meta[name="material-id"]')?.content || '';
+const strategyId = document.querySelector('meta[name="strategy-id"]')?.content || '';
 
 console.log('Sentinel:', sentinel);
 
@@ -28,7 +30,12 @@ export async function loadPage() {
   if (loading || !hasMore || !tbody) return;
   loading = true;
   try {
-    const res = await fetch(`${BASE_URL}/ajax/tools_scroll.php?page=${page}`, {
+    const params = new URLSearchParams({
+      page,
+      material_id: materialId,
+      strategy_id: strategyId,
+    });
+    const res = await fetch(`${BASE_URL}/ajax/tools_scroll.php?${params}`, {
       cache: 'no-store',
       headers: csrf ? { 'X-CSRF-Token': csrf } : {},
     });

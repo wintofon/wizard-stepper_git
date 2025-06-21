@@ -119,6 +119,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
   <meta charset="utf-8">
   <meta name="csrf-token" content="<?= htmlspecialchars($csrfToken) ?>">
+  <?php $matId = $_SESSION['material_id'] ?? ''; ?>
+  <?php $stratId = $_SESSION['strategy_id'] ?? ''; ?>
+  <meta name="material-id" content="<?= htmlspecialchars((string)$matId) ?>">
+  <meta name="strategy-id" content="<?= htmlspecialchars((string)$stratId) ?>">
   <title>Paso 1 – Explorador de fresas (Manual)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
