@@ -99,7 +99,7 @@ body {
 .cards-grid [class*="col-"] {
   flex: 0 0 auto !important;
   margin: 0 !important;
-  width: auto !important;
+  width: 100% !important;
 }
 
 /* Controles deslizantes de configuración */
@@ -266,7 +266,7 @@ body.debug-mode .card {
 }
 
 /* Versión móvil: panel inferior para sliders */
-@media (width <= 991px) {
+@media (max-width: 991px) {
   .content-main {
     margin-bottom: 12rem;
   }
