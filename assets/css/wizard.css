@@ -57,7 +57,8 @@ body, html {
   clip-path: polygon(0% 0%, 100% 0%, calc(100% - 12px) 100%, 12px 100%);
 }
 
-.stepper li.active {
+.stepper li.active,
+.stepper li.done {
   color: #ffffff;
   background-color: #1d3557;
   border-bottom: 3px solid #00bfff;
@@ -65,7 +66,8 @@ body, html {
 }
 
 /* ⚡ Barra celeste animada arriba */
-.stepper li.active::before {
+.stepper li.active::before,
+.stepper li.done::before {
   content: '';
   position: absolute;
   top: 0;
@@ -119,7 +121,8 @@ body, html {
     margin-left: 0;
   }
 
-  .stepper li.active {
+  .stepper li.active,
+  .stepper li.done {
     display: block;
   }
 
