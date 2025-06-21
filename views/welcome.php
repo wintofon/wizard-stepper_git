@@ -1,4 +1,4 @@
-<?php require_once __DIR__ . '/../includes/init.php'; ?>
+<?php require_once __DIR__ . '/../src/Config/AppConfig.php'; ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
