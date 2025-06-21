@@ -141,12 +141,12 @@ $toolType      = htmlspecialchars($toolData['tool_type']   ?? 'N/A', ENT_QUOTES)
 
 // Imagen principal
 $imageURL = !empty($toolData['image'])
-    ? '/wizard-stepper_git/' . ltrim($toolData['image'], '/\\')
+    ? asset($toolData['image'])
     : '';
 
 // Imagen vectorial (usa la columna image_dimensions)
 $vectorURL = !empty($toolData['image_dimensions'])
-    ? '/wizard-stepper_git/' . ltrim($toolData['image_dimensions'], '/\\')
+    ? asset($toolData['image_dimensions'])
     : '';
 
 
@@ -201,9 +201,9 @@ $notesArray = $params['notes'] ?? [];
 
 // Rutas de assets locales vs CDN
 $cssBootstrapRel = file_exists($root . 'assets/css/bootstrap.min.css')
-    ? '/wizard-stepper_git/assets/css/bootstrap.min.css' : '';
+    ? asset('assets/css/bootstrap.min.css') : '';
 $bootstrapJsRel  = file_exists($root . 'assets/js/bootstrap.bundle.min.js')
-    ? '/wizard-stepper_git/assets/js/bootstrap.bundle.min.js' : '';
+    ? asset('assets/js/bootstrap.bundle.min.js') : '';
 $featherLocal    = $root . 'node_modules/feather-icons/dist/feather.min.js';
 $cdnFeather      = 'https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js';
 $chartJsLocal    = $root . 'node_modules/chart.js/dist/chart.umd.min.js';
@@ -211,7 +211,7 @@ $cdnChartJs      = 'https://cdn.jsdelivr.net/npm/chart.js/dist/chart.umd.min.js'
 $countUpLocal    = $root . 'node_modules/countup.js/dist/countUp.umd.js';
 $cdnCountUp      = 'https://cdn.jsdelivr.net/npm/countup.js/dist/countUp.umd.min.js';
 $step6JsRel      = file_exists($root . 'assets/js/step6.js')
-    ? '/wizard-stepper_git/assets/js/step6.js' : '';
+    ? asset('assets/js/step6.js') : '';
 
 
 
@@ -232,7 +232,7 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Cutting Data Épico – Paso 6</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/pages/_step6.css">
+  <link rel="stylesheet" href="<?= asset('assets/css/pages/_step6.css') ?>">
   
 </head>
 <body>
@@ -269,7 +269,7 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
           <div class="card-body text-center p-4">
             <?php if (!empty($toolData['image'])): ?>
               <img 
-                src="/wizard-stepper_git/<?= ltrim($toolData['image'], '/\\') ?>" 
+                src="<?= BASE_URL . '/' . ltrim($toolData['image'], '/\\') ?>"
                 alt="Imagen principal de la herramienta" 
                 class="tool-image mx-auto d-block"
               >
@@ -629,7 +629,7 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.umd.min.js"></script>
-<script src="/wizard-stepper_git/assets/js/step6.js"></script>
+<script src="<?= asset('assets/js/step6.js') ?>"></script>
 <script>
   window.addEventListener('pageshow', (e) => {
     if (e.persisted) {
