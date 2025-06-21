@@ -13,7 +13,7 @@ body {
   overflow-x: hidden;
 }
 
-/* STEP CONTAINER (siempre visible y sin scroll) */
+/* STEP CONTAINER (pegado arriba sin scroll) */
 .stepper-container {
   background: #0f172a;
   overflow: hidden;
@@ -24,7 +24,7 @@ body {
   z-index: 100;
 }
 
-/* STEP LIST */
+/* LISTA DE PASOS */
 .stepper {
   display: flex;
   list-style: none;
@@ -34,40 +34,42 @@ body {
   flex-wrap: nowrap;
 }
 
-/* ITEM de paso: se adapta, no corta texto */
+/* CADA PASO */
 .stepper li {
   background: #0f172a;
+  border-right: 1px solid rgb(255 255 255 / 10%);
+  clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0% 100%);
   color: #64748b;
   display: flex;
   flex: 1 1 auto;
   min-width: 0;
-  align-items: center;
-  justify-content: center;
   font-size: 1rem;
   font-weight: 600;
-  text-align: center;
-  text-transform: uppercase;
-  white-space: normal;              /* permite salto de línea */
-  padding: 1.25rem 0.5rem;
-  clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0% 100%);
+  padding: 1.25rem 0.75rem;
   position: relative;
   transition: background .3s, color .3s;
+  z-index: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  justify-content: center;
+  align-items: center;
 }
 
-/* PRIMER paso sin solape izquierdo */
 .stepper li:first-child {
   clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 10px 100%);
 }
 
-/* Paso activo o hecho */
-.stepper li.done,
-.stepper li.active {
+/* Paso activo o completado */
+.stepper li.active,
+.stepper li.done {
   background: #1e293b;
   color: #ffffff;
   border-bottom: 3px solid #0ea5e9;
   z-index: 2;
 }
 
+/* Línea azul superior */
 .stepper li.active::before,
 .stepper li.done::before {
   animation: fill-line-left .6s ease-in forwards;
@@ -82,10 +84,10 @@ body {
 
 @keyframes fill-line-left {
   from { width: 0; }
-  to   { width: 100%; }
+  to { width: 100%; }
 }
 
-/* División entre pasos */
+/* Línea vertical divisoria */
 .stepper li:not(:last-child)::after {
   background: rgb(255 255 255 / 15%);
   bottom: 10%;
@@ -97,20 +99,43 @@ body {
   z-index: 3;
 }
 
-/* Estilo del texto interno (incluye ícono si hay) */
-.stepper li span {
-  display: inline-flex;
+/* CONTENIDO DENTRO DEL PASO */
+.step-content {
+  display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  line-height: 1.1;
-  word-break: break-word;        /* permite saltos de línea internos */
-  overflow-wrap: anywhere;
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
-/* Íconos feather opcionales */
-.stepper li span .icon {
-  width: 1em;
-  height: 1em;
+/* TEXTO que se adapta */
+.step-content .text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1 1 auto;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+/* BADGE verde */
+.step-content .badge {
+  flex-shrink: 0;
+  width: 0.6rem;
+  height: 0.6rem;
+  background-color: #22c55e;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* OPCIONAL: ícono Feather reemplazando .badge */
+.step-content .icon {
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  stroke: #22c55e;
   stroke-width: 2.5;
 }
 
