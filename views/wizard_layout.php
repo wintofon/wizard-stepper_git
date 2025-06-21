@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="<?= asset('assets/css/wizard.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/stepper.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/footer-schneider.css') ?>">
-  <script>window.BASE_URL = '<?= BASE_URL ?>';</script>
+  <script>const BASE_URL = "<?= BASE_URL ?>"; window.BASE_URL = BASE_URL;</script>
 </head>
 <body>
 

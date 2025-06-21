@@ -186,7 +186,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <!-- Estilos compartidos -->
   <link rel="stylesheet" href="<?= asset('assets/css/step-common.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/strategy.css') ?>">
-  <script>window.BASE_URL = '<?= BASE_URL ?>';</script>
+  <script>const BASE_URL = "<?= BASE_URL ?>"; window.BASE_URL = BASE_URL;</script>
 </head>
 <body>
 <main class="container py-4">
