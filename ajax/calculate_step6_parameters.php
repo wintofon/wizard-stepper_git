@@ -1,5 +1,5 @@
 <?php
-// File: C:\xampp\htdocs\wizard-stepper_git\ajax\step6_ajax_calculate.php
+// File: C:\xampp\htdocs\wizard-stepper_git\ajax\calculate_step6_parameters.php
 declare(strict_types=1);
 require_once __DIR__ . '/../src/Config/AppConfig.php';
 header('Content-Type: application/json; charset=UTF-8');

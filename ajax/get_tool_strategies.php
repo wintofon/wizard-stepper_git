@@ -1,5 +1,5 @@
 <?php
-// strategy_ajax.php
+// get_tool_strategies.php
 require_once __DIR__ . '/../src/Config/AppConfig.php';
 require_once __DIR__ . '/../includes/db.php';
 
