@@ -88,13 +88,21 @@ html,body{
 
 /* ─────────  RESPONSIVE  ───────── */
 @media(max-width:768px){
-  .stepper{justify-content:center}
-  .stepper li,.logo-stepper{display:none}
+  /* Ocultamos todo por defecto… */
+  .logo-stepper,
+  .stepper li{display:none;}
 
-  .stepper li.active,
-  .stepper li.done{
-    display:block;width:100vw!important;max-width:100vw;
-    margin-left:0;clip-path:none;text-align:center;
+  /* …y sólo mostramos el paso activo, 100 % ancho */
+  .stepper li.active{
+    display:block!important;
+    width:100vw;max-width:100vw;margin-left:0;
+    clip-path:none;text-align:center;
     font-size:1.15rem;font-weight:500;
   }
+
+  /* Aseguramos que los pasos completados NO aparezcan */
+  .stepper li.done{display:none!important;}
+
+  /* Centramos el contenedor (por si hubiera desplazamiento) */
+  .stepper{justify-content:center;}
 }
