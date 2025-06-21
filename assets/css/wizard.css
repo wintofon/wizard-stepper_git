@@ -18,10 +18,10 @@ body {
   overflow-x: auto;                 /* scroll horizontal móvil   */
   padding: 0;                       /* sin padding extra         */
   position: sticky;                 /* se fija al hacer scroll   */
-  top: 0;                           /* siempre pegado arriba     */
-  z-index: 100;                     /* sobre el contenido        */
   scrollbar-width: none;            /* oculta scroll en Firefox  */
+  top: 0;                           /* siempre pegado arriba     */
   width: 100%;                      /* ocupa todo el ancho       */
+  z-index: 100;                     /* sobre el contenido        */
 }
 .stepper-container::-webkit-scrollbar { display: none; } /* oculta en Chrome */
 
@@ -35,20 +35,27 @@ body {
 }
 
 .stepper li {
+  align-items: center;
   background: #0f172a;              /* mismo fondo contenedor    */
   border-right: 1px solid rgb(255 255 255 / 10%); /* línea divisoria */
   clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0% 100%);
   color: #64748b;                   /* gris-azulado apagado      */
+  display: flex;                    /* alinear texto e icono     */
+  flex: 0 0 180px;                  /* evita cambios por contenido */
   font-size: 1rem;                  /* tamaño base               */
   font-weight: 600;                 /* semi-bold                 */
+  justify-content: space-between;   /* icono a la derecha        */
 
                                     /* polígono ↗ trapecio       */
   margin-left: -10px;               /* solapado para trapecios   */
-  min-width: 180px;                 /* ancho mínimo de paso      */
+  overflow: hidden;                 /* texto que excede se oculta */
   padding: 1.25rem 2rem;            /* espacio interno           */
   position: relative;               /* referencia para ::before  */
+  text-overflow: ellipsis;          /* muestra ... si es largo   */
   text-transform: uppercase;        /* MAYÚSCULAS                */
   transition: background .3s, color .3s; /* suavidad hover/cambio */
+  white-space: nowrap;              /* no se divide en líneas    */
+  width: 180px;                     /* ancho fijo de paso        */
   z-index: 1;                       /* debajo de activo/done     */
 }
 
@@ -107,6 +114,7 @@ body {
   padding: 2.5rem;                  /* espacio interno generoso  */
 }
 
+/* ────────────────────────────────────────────────────────────────
    DEBUG BOX
    ──────────────────────────────────────────────────────────────── */
 .debug-box {
@@ -131,10 +139,11 @@ body {
   .stepper li {
     border-right: none;             /* quitamos línea divisoria   */
     clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); /* rectángulo */
+    flex: 0 0 100vw;                /* igual ancho para todos     */
     font-size: 1.1rem;              /* texto un poco más grande   */
     margin-left: 0;                 /* sin solapado               */
-    min-width: 100vw;               /* cada paso ocupa la pantalla */
     text-align: center;             /* centramos texto            */
+    width: 100vw;                   /* cada paso ocupa la pantalla */
   }
 
   .stepper li:not(:last-child)::after { display: none; } /* sin línea */
