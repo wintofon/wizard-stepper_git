@@ -1,12 +1,14 @@
-/* Reusable slider styles */
+/* Estilos reutilizables para controles tipo slider */
 
+/* Contenedor del slider y variables de valor */
 .slider-wrap {
-  --val: 0;
-  --step-pct: 10;
+  --val: 0;        /* valor actual 0-100 */
+  --step-pct: 10;  /* porcentaje entre marcas */
 
   position: relative;
 }
 
+/* Barra base del input range */
 input[type="range"].form-range {
   appearance: none;
   background: none;
@@ -15,11 +17,13 @@ input[type="range"].form-range {
   width: 100%;
 }
 
+/* Evita el contorno por defecto */
 input[type="range"].form-range:focus {
   outline: none;
 }
 
 
+/* Estilo del thumb en navegadores WebKit */
 input[type="range"].form-range::-webkit-slider-thumb {
   appearance: none;
   background: var(--accent-color);
@@ -31,10 +35,12 @@ input[type="range"].form-range::-webkit-slider-thumb {
   width: var(--slider-thumb-size);
 }
 
+/* Efecto de foco sobre el thumb */
 input[type="range"].form-range:focus::-webkit-slider-thumb {
   box-shadow: 0 0 0 3px rgb(79 195 247 / 40%);
 }
 
+/* Thumb para Firefox y navegadores MS */
 input[type="range"].form-range::-moz-range-thumb,
 input[type="range"].form-range::-ms-thumb {
   background: var(--accent-color);
@@ -45,6 +51,7 @@ input[type="range"].form-range::-ms-thumb {
   width: var(--slider-thumb-size);
 }
 
+/* Pista con relleno y marcas de división */
 input[type="range"].form-range::-webkit-slider-runnable-track,
 input[type="range"].form-range::-moz-range-track,
 input[type="range"].form-range::-ms-track {
@@ -63,6 +70,7 @@ input[type="range"].form-range::-ms-track {
   height: 6px;
 }
 
+/* Pequeña etiqueta fija con el valor */
 .badge-value {
   background: var(--accent-color);
   border-radius: 0.25rem;
@@ -76,6 +84,7 @@ input[type="range"].form-range::-ms-track {
   white-space: nowrap;
 }
 
+/* Burbuja flotante que sigue al thumb */
 .slider-bubble {
   background: var(--accent-color);
   border-radius: 4px;
@@ -94,10 +103,12 @@ input[type="range"].form-range::-ms-track {
   50% { transform: translateX(-50%) translateY(-2px); }
 }
 
+/* Sacude la burbuja mientras se arrastra */
 .slider-wrap input:active + .slider-bubble {
   animation: shake 0.3s;
 }
 
+/* Texto pequeño de ayuda */
 .text-end.small.text-secondary {
   color: var(--text-color-sec) !important;
 }
