@@ -45,7 +45,10 @@
   if (+sVc.value > vcMaxAllowed) sVc.value = vcMaxAllowed.toFixed(1);
 
   // 4. Radar Chart init
-  const ctx = document.getElementById('radarChart').getContext('2d');
+  const canvas = document.getElementById('radarChart');
+  const existing = Chart.getChart(canvas);
+  if (existing) existing.destroy();
+  const ctx = canvas.getContext('2d');
   const radar = new Chart(ctx, {
     type: 'radar',
     data: {
