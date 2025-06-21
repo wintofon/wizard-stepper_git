@@ -1,37 +1,31 @@
 <?php
 declare(strict_types=1);
-// Garantizar que BASE_URL apunte a la carpeta raíz del proyecto
+
+/**
+ * 🔧 Reinicio total del asistente Wizard CNC
+ * ▸ Destruye la sesión actual y borra cookies
+ * ▸ Limpia el localStorage del cliente (vía JS)
+ * ▸ Redirige automáticamente a wizard.php
+ * ▸ Compatible con entornos locales (XAMPP) y producción
+ */
+
+// ---------------------------------------------------
+// [A] Definir BASE_URL desde el entorno o fallback
+// ---------------------------------------------------
 if (!getenv('BASE_URL')) {
     $base = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/');
     putenv('BASE_URL=' . $base);
 }
 require_once __DIR__ . '/../src/Config/AppConfig.php';
-/**
- * File: reset.php
- * ---------------------------------------------------------------
- * ▸ Destruye completamente la sesión del Wizard CNC
- * ▸ Elimina todas las variables de sesión y cookies asociadas
- * ▸ Envía cabeceras de seguridad y anti-caching
- * ▸ Limpia localStorage en el cliente y redirige a wizard.php
- * ---------------------------------------------------------------
- */
+require_once __DIR__ . '/../src/Utils/Session.php';
 
-// -------------------------------------------
-// [1] CONFIGURACIÓN DE ERRORES Y DEBUG
-// -------------------------------------------
+// ---------------------------------------------------
+// [B] Configuración de errores (debug por query ?debug=1)
+// ---------------------------------------------------
 $DEBUG = filter_input(INPUT_GET, 'debug', FILTER_VALIDATE_BOOLEAN);
-if ($DEBUG) {
-    error_reporting(E_ALL);
-    ini_set('display_errors', '1');
-} else {
-    error_reporting(0);
-    ini_set('display_errors', '0');
-}
+error_reporting($DEBUG ? E_ALL : 0);
+ini_set('display_errors', $DEBUG ? '1' : '0');
 
-/**
- * Función de logging para desarrollo.
- * En producción no mostrará nada.
- */
 if (!function_exists('dbg')) {
     function dbg(string $msg): void {
         global $DEBUG;
@@ -40,80 +34,66 @@ if (!function_exists('dbg')) {
         }
     }
 }
-dbg('🔧 reset.php iniciado');
-require_once __DIR__ . '/../src/Utils/Session.php';
+dbg('🔁 Inicio de reset.php');
 
-// -------------------------------------------
-// [2] CABECERAS DE SEGURIDAD Y NO-CACHING
-// -------------------------------------------
+// ---------------------------------------------------
+// [C] Cabeceras de seguridad y anti-cache
+// ---------------------------------------------------
 sendSecurityHeaders('text/html; charset=UTF-8', 63072000, true);
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 header('Pragma: no-cache');
 
-// -------------------------------------------
-// [3] INICIALIZAR SESIÓN DE FORMA SEGURA
-// -------------------------------------------
+// ---------------------------------------------------
+// [D] Eliminar la sesión actual de forma segura
+// ---------------------------------------------------
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_set_cookie_params([
         'lifetime' => 0,
         'path'     => BASE_URL . '/',
-        'domain'   => '',        // Ajustar si se requiere dominio específico
-        'secure'   => true,
+        'domain'   => '',
+        'secure'   => !empty($_SERVER['HTTPS']),
         'httponly' => true,
         'samesite' => 'Strict'
     ]);
     session_start();
-    dbg('🔒 Sesión iniciada para destrucción');
+    dbg('🔒 Sesión iniciada');
 }
 
-// -------------------------------------------
-// [4] ELIMINAR VARIABLES DE SESIÓN
-// -------------------------------------------
 $_SESSION = [];
-dbg('🗑️ Arreglo $_SESSION borrado');
+dbg('🧹 $_SESSION vaciado');
 
-// -------------------------------------------
-// [5] DESTRUIR COOKIE DE SESIÓN EN EL CLIENTE
-// -------------------------------------------
-if (ini_get("session.use_cookies")) {
+if (ini_get('session.use_cookies')) {
     $params = session_get_cookie_params();
-    setcookie(
-        session_name(),
-        '',
-        [
-            'expires'  => time() - 42000,
-            'path'     => $params["path"]    ?? '/',
-            'domain'   => $params["domain"]  ?? '',
-            'secure'   => $params["secure"]  ?? true,
-            'httponly' => $params["httponly"] ?? true,
-            'samesite' => $params["samesite"] ?? 'Strict',
-        ]
-    );
-    dbg('🍪 Cookie de sesión destruida');
+    setcookie(session_name(), '', [
+        'expires'  => time() - 42000,
+        'path'     => $params['path'] ?? '/',
+        'domain'   => $params['domain'] ?? '',
+        'secure'   => $params['secure'] ?? true,
+        'httponly' => $params['httponly'] ?? true,
+        'samesite' => $params['samesite'] ?? 'Strict'
+    ]);
+    dbg('🍪 Cookie de sesión eliminada');
 }
 
-// -------------------------------------------
-// [6] DESTRUIR LA SESIÓN
-// -------------------------------------------
 session_destroy();
-dbg('💣 Sesión destruida completamente');
+dbg('💥 Sesión destruida');
 
-// -------------------------------------------
-// [7] FORZAR NUEVA SESIÓN (prevención de session fixation)
-// -------------------------------------------
+// ---------------------------------------------------
+// [E] Regenerar sesión para prevenir fixation
+// ---------------------------------------------------
 session_start([
-    'cookie_secure'   => true,
+    'cookie_secure'   => !empty($_SERVER['HTTPS']),
     'cookie_httponly' => true,
     'cookie_samesite' => 'Strict'
 ]);
 session_regenerate_id(true);
 session_unset();
 session_destroy();
-dbg('🔄 Sesión regenerada y destruida nuevamente para mayor seguridad');
+dbg('🔄 Regeneración y destrucción final de sesión');
 
-// -------------------------------------------
-// [8] HTML + JS PARA BORRAR localStorage Y REDIRIGIR
-// -------------------------------------------
+// ---------------------------------------------------
+// [F] HTML de salida con limpieza de localStorage
+// ---------------------------------------------------
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -122,22 +102,26 @@ dbg('🔄 Sesión regenerada y destruida nuevamente para mayor seguridad');
   <title>Reiniciando Wizard CNC...</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="<?= asset('assets/css/base/reset.css') ?>">
+  <script>
+    // Exponer BASE_URL a JS por si es necesario en otros scripts
+    window.BASE_URL = <?= json_encode(BASE_URL) ?>;
+  </script>
 </head>
 <body>
   <div class="message-box">
-    <h1>Reiniciando Wizard CNC...</h1>
-    <p>Espere un instante, por favor.</p>
+    <h1>Reiniciando el asistente CNC...</h1>
+    <p>Limpiando sesión y configuración local, por favor espere...</p>
   </div>
   <script>
     try {
-      // Borrar **todos** los items de localStorage
       localStorage.clear();
-    } catch(e) {
-      console.warn('No se pudo limpiar localStorage:', e);
+      console.info('[reset] ✅ localStorage limpiado');
+    } catch (e) {
+      console.warn('[reset] ⚠️ No se pudo limpiar localStorage:', e);
     }
-    // Redirigir a wizard.php tras un breve retardo (200ms)
-    setTimeout(function() {
-      window.location.replace('<?= asset('wizard.php') ?>');
+
+    setTimeout(() => {
+      window.location.replace(`${window.BASE_URL}/wizard.php`);
     }, 200);
   </script>
 </body>
