@@ -41,7 +41,7 @@ body {
   clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0% 100%);
   color: #64748b;                   /* gris-azulado apagado      */
   display: flex;                    /* alinear texto e icono     */
-  flex: 0 0 180px;                  /* evita cambios por contenido */
+  flex: 0 0 30%;                    /* ancho fijo del 30% del contenedor */
   font-size: 1rem;                  /* tamaño base               */
   font-weight: 600;                 /* semi-bold                 */
   justify-content: space-between;   /* icono a la derecha        */
@@ -55,7 +55,7 @@ body {
   text-transform: uppercase;        /* MAYÚSCULAS                */
   transition: background .3s, color .3s; /* suavidad hover/cambio */
   white-space: nowrap;              /* no se divide en líneas    */
-  width: 180px;                     /* ancho fijo de paso        */
+  width: 30%;                       /* coincide con el ancho del flex */
   z-index: 1;                       /* debajo de activo/done     */
 }
 
@@ -69,6 +69,7 @@ body {
 .stepper li.done,
 .stepper li.active {
   background: #1e293b;              /* fondo azul intermedio     */
+  border-bottom: 3px solid #0ea5e9; /* destaca el paso actual    */
   color: #fff;                   /* texto blanco              */
   z-index: 2;                       /* por encima de inactivos   */
 }
@@ -136,15 +137,23 @@ body {
    RESPONSIVE: pantallas < 768 px
    ──────────────────────────────────────────────────────────────── */
 @media (width <= 768px) {
-  .stepper li {
-    border-right: none;             /* quitamos línea divisoria   */
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); /* rectángulo */
-    flex: 0 0 100vw;                /* igual ancho para todos     */
-    font-size: 1.1rem;              /* texto un poco más grande   */
-    margin-left: 0;                 /* sin solapado               */
-    text-align: center;             /* centramos texto            */
-    width: 100vw;                   /* cada paso ocupa la pantalla */
+  .stepper {
+    justify-content: center; /* centramos la lista */
   }
 
-  .stepper li:not(:last-child)::after { display: none; } /* sin línea */
+  .stepper li {
+    border-right: none;
+    clip-path: none;
+    display: none;            /* ocultamos por defecto */
+    flex: 0 0 auto;
+    margin-left: 0;
+    width: auto;
+  }
+
+  .stepper li.active {
+    display: block;           /* sólo el activo visible */
+    text-align: center;
+  }
+
+  .stepper li:not(:last-child)::after { display: none; }
 }

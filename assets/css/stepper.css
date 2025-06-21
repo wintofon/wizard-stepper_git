@@ -20,6 +20,12 @@
 .stepper-bar {
   display: flex;
   flex-wrap: nowrap;
+  overflow-x: auto; /* permite scrolleo horizontal */
+  scrollbar-width: thin; /* Firefox */
+}
+
+.stepper-bar::-webkit-scrollbar {
+  display: none; /* oculta scrollbar en navegadores WebKit */
 }
 
 /* Responsivo: ocultar logo en pantallas <768px */
