@@ -28,7 +28,7 @@ export async function loadPage() {
   if (loading || !hasMore || !tbody) return;
   loading = true;
   try {
-    const res = await fetch(`${BASE_URL}/ajax/get_paginated_tools.php?page=${page}`, {
+    const res = await fetch(`${BASE_URL}/ajax/tools_scroll.php?page=${page}`, {
       cache: 'no-store',
       headers: csrf ? { 'X-CSRF-Token': csrf } : {},
     });
