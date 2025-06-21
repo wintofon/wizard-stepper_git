@@ -1,59 +1,117 @@
 <?php
-// Simple wrapper for backwards compatibility
+/**
+ * Ubicación: C:\xampp\htdocs\wizard-stepper_git\step_minimo_ajax.php
+ *
+ * Endpoint AJAX legacy (paso 6). Ahora:
+ * - Valida CSRF vía header X-CSRF-Token
+ * - Toma todos los parámetros desde el JSON (no usa defaults internos)
+ * - Responde formato { success, data, error }
+ */
 
 declare(strict_types=1);
-require_once __DIR__ . '/../src/Config/AppConfig.php';
+
+// Cabeceras JSON
 header('Content-Type: application/json; charset=UTF-8');
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 
-$data = json_decode(file_get_contents('php://input'), true);
-if (!isset($data['fz'],$data['vc'],$data['passes'])) {
-    http_response_code(400);
-    echo json_encode(['error'=>'Parámetros inválidos']);
+// Iniciar sesión para CSRF
+session_start();
+
+// 0. CSRF: validar token enviado en header X-CSRF-Token
+$csrfHeader = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+if (empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $csrfHeader)) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'error' => 'Token CSRF inválido']);
     exit;
 }
 
-$fz     = (float)$data['fz'];
-$vc     = (float)$data['vc'];
-$passes = (int)$data['passes'];
+// 1. Leer entrada JSON
+$input = json_decode(file_get_contents('php://input'), true);
+if (!is_array($input)) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'error' => 'JSON inválido']);
+    exit;
+}
 
-// Parámetros de ejemplo
-$D       = (float)($data['D'] ?? 10);
-$Z       = (int)($data['Z'] ?? 1);
-$thick   = (float)($data['thickness'] ?? 1);
-$ae      = (float)($data['ae'] ?? 1);
-$frMax   = (float)($data['frMax'] ?? PHP_INT_MAX);
-$coefSeg = (float)($data['coefSeg'] ?? 0);
-$Kc11    = (float)($data['Kc11'] ?? 1);
-$mc      = (float)($data['mc'] ?? 1);
-$alpha   = (float)($data['alpha'] ?? 0);
-$phi     = (float)($data['phi'] ?? 0);
-$eta     = (float)($data['eta'] ?? 1);
+// 2. Campos obligatorios
+foreach (['fz','vc','ae','passes','thickness','D','Z','params'] as $f) {
+    if (!array_key_exists($f, $input)) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => "Falta parámetro: $f"]);
+        exit;
+    }
+}
 
-// Cálculos inline (igual CNCCalculator)
-$rpm     = round( ($vc*1000)/(pi()*$D) );
-$feed    = min(round($rpm * $fz * $Z), $frMax);
-$ap      = $thick / max(1,$passes);
-$mmr     = round(($ap * $feed * $ae)/1000,2);
-$Fct     = ( $Kc11 * pow($fz,-$mc) * $ap * $fz * $Z * (1 + $coefSeg*tan($alpha)) )
-           / ($phi===0?1:cos($phi));
-$kW      = ($Fct * $vc)/(60000 * $eta);
-$W       = round($kW*1000);
-$HP      = round($kW*1.341,2);
+// 3. Mapear parámetros
+$fz        = (float)$input['fz'];
+$vc        = (float)$input['vc'];
+$ae        = (float)$input['ae'];
+$passes    = (int)  $input['passes'];
+$thickness = (float)$input['thickness'];
+$D         = (float)$input['D'];
+$Z         = (int)  $input['Z'];
 
-// Radar de prueba
-$vida    = min(100,max(0,(int)($data['vidaUtil']    ?? 60)));
-$term    = min(100,max(0,(int)($data['terminacion'] ?? 40)));
-$pot     = min(100,max(0,(int)($data['potencia']    ?? 80)));
+// 3b. Parametros auxiliares dentro de params
+$params  = (array)$input['params'];
+$frMax   = (float)($params['fr_max']   ?? PHP_INT_MAX);
+$coefSeg = (float)($params['coef_seg'] ?? 0.0);
+$Kc11    = (float)($params['Kc11']     ?? 1.0);
+$mc      = (float)($params['mc']       ?? 1.0);
+$alpha   = (float)($params['alpha']    ?? 0.0);
+$eta     = (float)($params['eta']      ?? 1.0);
 
+// 4. Cálculos CNC
+// 4.1 Ángulo φ y espesor hm
+$phi = 2 * asin(min(1.0, $ae / $D));
+$hm  = ($phi !== 0.0)
+     ? ($fz * (1 - cos($phi)) / $phi)
+     : $fz;
+
+// 4.2 RPM y avance Vf
+$rpm  = (int) round(($vc * 1000.0) / (M_PI * $D));
+$feed = min((int) round($rpm * $fz * $Z), $frMax);
+
+// 4.3 Profundidad de pasada y MMR
+$ap  = $thickness / max(1, $passes);
+$mmr = round(($ap * $feed * $ae) / 1000.0, 2);
+
+// 4.4 Fuerza tangencial Fct
+$Fct = $Kc11
+     * pow($hm, -$mc)
+     * $ap
+     * $fz
+     * $Z
+     * (1 + $coefSeg * tan($alpha));
+
+// 4.5 Potencia
+$kW = ($Fct * $vc) / (60000.0 * $eta);
+$W  = (int) round($kW * 1000.0);
+$HP = round($kW * 1.341, 2);
+
+// 5. Radar de ejemplo (o parámetros en params)
+$vida = min(100, max(0, (int)($params['vidaUtil']    ?? 60)));
+$term = min(100, max(0, (int)($params['terminacion'] ?? 40)));
+$pot  = min(100, max(0, (int)($params['potencia']    ?? 80)));
+
+// 6. Respuesta
 echo json_encode([
-    'fz'    => number_format($fz,4),
-    'vc'    => number_format($vc,1),
-    'n'     => $rpm,
-    'vf'    => $feed,
-    'hp'    => $HP,
-    'mmr'   => $mmr,
-    'fc'    => round($Fct,1),
-    'radar' => [$vida, $term, $pot]
-]);
+    'success' => true,
+    'data'    => [
+        'fz'          => number_format($fz,4),
+        'vc'          => number_format($vc,1),
+        'hm'          => number_format($hm,4),
+        'n'           => $rpm,
+        'vf'          => $feed,
+        'hp'          => $HP,
+        'watts'       => $W,
+        'mmr'         => $mmr,
+        'fc'          => round($Fct,1),
 
+        // ← Aquí añadimos ae y ap
+        'ae'          => $ae,
+        'ap'          => round($ap,3),
+
+        'etaPercent'  => round($eta * 100),
+        'radar'       => [$vida, $term, $pot],
+    ],
+], JSON_UNESCAPED_UNICODE);
