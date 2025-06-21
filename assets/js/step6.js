@@ -163,6 +163,9 @@
         body: JSON.stringify(payload),
         cache: 'no-store'
       });
+      if (res.status === 403) {
+        return showError('Sesión expirada. Recargá la página.');
+      }
       if (!res.ok) {
         return showError(`AJAX error ${res.status}`);
       }
