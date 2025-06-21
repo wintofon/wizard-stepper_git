@@ -2,13 +2,13 @@
 declare(strict_types=1);
 require_once __DIR__ . '/../../../src/Utils/Session.php';
 /**
- * File: step2_auto_strategy_selection.php
+ * File: step2.php
  * ---------------------------------------------------------------
  * Paso 2 (Auto) – Selección del tipo de mecanizado y la estrategia
  * • Protegido contra CSRF y validación de flujo
- * • Chequea que wizard_progress>=1 (sino redirige a step1_auto_material_selection.php)
+ * • Chequea que wizard_progress>=1 (sino redirige a step1.php)
  * • Carga dinámicamente estrategias según tipo
- * • Guarda {machining_type_id, strategy_id} en sesión y avanza a step3_auto_tool_selection.php
+ * • Guarda {machining_type_id, strategy_id} en sesión y avanza a step3.php
  * ---------------------------------------------------------------
  */
 
@@ -56,8 +56,8 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 // [D] Validar flujo: se debe haber completado Paso 1
 // -------------------------------------------
 if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 1) {
-    dbg('❌ wizard_progress<1, redirigiendo a step1_auto_material_selection.php');
-    header('Location: step1_auto_material_selection.php');
+    dbg('❌ wizard_progress<1, redirigiendo a step1.php');
+    header('Location: step1.php');
     exit;
 }
 $_SESSION['wizard_state'] = 'wizard'; // Asegurar estado
@@ -159,7 +159,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['wizard_progress']   = 2;
         dbg("✅ Paso 2 completado: type={$typeRaw}, strat={$stratRaw}");
         session_write_close();
-        header('Location: step3_auto_tool_selection.php');
+        header('Location: step3.php');
         exit;
     }
 }

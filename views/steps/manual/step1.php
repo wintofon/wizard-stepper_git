@@ -1,6 +1,6 @@
 <?php
 /**
- * File: views/steps/manual/step1_manual_tool_browser.php
+ * File: views/steps/manual/step1.php
  * Explorador visual de herramientas de corte – Paso 1 (modo manual)
  * Con blindaje de sesión, CSRF, validación y debug opcional
  */
@@ -35,15 +35,8 @@ if (empty($_SESSION['wizard_state']) || $_SESSION['wizard_state'] !== 'wizard') 
 // redirigimos directamente al paso que le corresponda
 $currentProgress = (int)($_SESSION['wizard_progress'] ?? 1);
 if ($currentProgress > 1) {
-    // Redirigir al paso correspondiente según progreso
-    $dest = [
-        2 => 'step2_manual_tool_confirmation.php',
-        3 => 'step3_manual_strategy_selection.php',
-        4 => 'step4_manual_material_selection.php',
-        5 => 'step5_auto_router_setup.php',
-        6 => 'step6_auto_final_results.php'
-    ][$currentProgress] ?? 'wizard.php';
-    header('Location: ' . $dest);
+    // Por ejemplo, si progress == 2, lo mandamos a step2.php
+    header('Location: step' . $currentProgress . '.php');
     exit;
 }
 
@@ -114,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['wizard_progress'] = 2; // Marcamos que ya completó Paso 1
         dbg('Paso 1 validado con éxito. tool_id=' . $toolId . ' tool_table=' . $toolTable);
 
-        header('Location: step2_manual_tool_confirmation.php');
+        header('Location: step2.php');
         exit;
     }
 }
