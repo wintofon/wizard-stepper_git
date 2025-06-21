@@ -446,9 +446,7 @@ if (!file_exists($countUpLocal))   $assetErrors[] = 'CountUp.js faltante.';
 <?php else: ?>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <?php endif; ?>
-<script src="<?= file_exists($featherLocal) ? asset('node_modules/feather-icons/dist/feather.min.js') : 'https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js' ?>"></script>
-<script src="<?= file_exists($chartJsLocal) ? asset('node_modules/chart.js/dist/chart.umd.min.js') : 'https://cdn.jsdelivr.net/npm/chart.js/dist/chart.umd.min.js' ?>"></script>
-<script src="<?= file_exists($countUpLocal) ? asset('node_modules/countup.js/dist/countUp.umd.js') : 'https://cdn.jsdelivr.net/npm/countup.js/dist/countUp.umd.min.js' ?>"></script>
+
 <?php if ($step6JsRel): ?><script src="<?= $step6JsRel ?>"></script><?php endif; ?>
 <script>window.addEventListener('pageshow', e=>{if(e.persisted){location.reload();}});</script>
 <script>feather.replace();</script>
