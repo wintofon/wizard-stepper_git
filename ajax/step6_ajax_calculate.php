@@ -3,7 +3,10 @@
  * File: step6_ajax_calculate.php
  *
  * Main responsibility: Part of the CNC Wizard Stepper.
- * Related files: See others in this project.
+ *
+ * Called by: experimental step6 calculator in JS
+ * Important JSON fields: fzCurrent, vcCurrent, passes and params[*]
+ * Reads no session data
  * @TODO Extend documentation.
  */
 // File: C:\xampp\htdocs\wizard-stepper_git\ajax\step6_ajax_calculate.php
@@ -16,7 +19,7 @@ if (!getenv('BASE_URL')) {
 require_once __DIR__ . '/../src/Config/AppConfig.php';
 header('Content-Type: application/json; charset=UTF-8');
 
-$input = file_get_contents('php://input');
+$input = file_get_contents('php://input'); // JSON payload from step6.js
 if (!$input) {
     http_response_code(400);
     echo json_encode(['error' => 'No data received']);

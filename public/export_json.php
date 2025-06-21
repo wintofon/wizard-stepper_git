@@ -3,7 +3,11 @@
  * File: export_json.php
  *
  * Main responsibility: Part of the CNC Wizard Stepper.
- * Related files: See others in this project.
+ *
+ * Called by: front-end export action (JSON variant)
+ * Important session keys:
+ *   - $_SESSION['csrf_token'] validates this download
+ *   - All current wizard_* values are included in the JSON
  * @TODO Extend documentation.
  */
 declare(strict_types=1);
@@ -19,6 +23,7 @@ session_start();
 require_debug_mode();
 
 $token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+// Validate request with session's CSRF token
 if (!hash_equals($_SESSION['csrf_token'], $token)) {
     http_response_code(403);
     exit('CSRF fail');

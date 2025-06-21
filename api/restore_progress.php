@@ -3,7 +3,12 @@
  * File: restore_progress.php
  *
  * Main responsibility: Part of the CNC Wizard Stepper.
- * Related files: See others in this project.
+ *
+ * Called by: JS helper to restore wizard progress from localStorage
+ * Important POST params:
+ *   - progress  Desired wizard step number
+ * Writes session key:
+ *   - $_SESSION['wizard_progress']
  * @TODO Extend documentation.
  */
 declare(strict_types=1);
@@ -71,6 +76,7 @@ if ($progressRaw < 0 || $progressRaw > 6) {
 }
 
 // (D) Fijar en sesión y devolver éxito
+// store the chosen step so wizard.php can resume correctly
 $_SESSION['wizard_progress'] = $progressRaw;
 dbgLocal("wizard_progress restaurado a $progressRaw");
 echo json_encode([

@@ -3,7 +3,14 @@
  * File: AutoToolRecommenderController.php
  *
  * Main responsibility: Part of the CNC Wizard Stepper.
- * Related files: See others in this project.
+ *
+ * Called by: views/steps/auto/step3.php
+ * Important session keys handled:
+ *   - $_SESSION['wizard_state']    Current wizard state
+ *   - $_SESSION['wizard_progress'] Wizard progress counter
+ *   - $_SESSION['material_id']     Selected material ID
+ *   - $_SESSION['strategy_id']     Selected strategy ID
+ *   - $_SESSION['thickness']       Material thickness
  * @TODO Extend documentation.
  */
 declare(strict_types=1);
@@ -63,14 +70,18 @@ class AutoToolRecommenderController
     {
         self::initSession();
 
+        // $_SESSION['wizard_state'] is set by wizard.php when the user
+        // enters the wizard flow
         if (($_SESSION['wizard_state'] ?? '') !== 'wizard') {
             throw new RuntimeException('Estado de wizard inválido');
         }
 
+        // check that $_SESSION['material_id'] was stored in a previous step
         if (empty($_SESSION['material_id']) || !is_numeric($_SESSION['material_id'])) {
             throw new RuntimeException('Falta material_id en la sesión');
         }
 
+        // $_SESSION['strategy_id'] is defined when selecting the machining strategy
         if (empty($_SESSION['strategy_id']) || !is_numeric($_SESSION['strategy_id'])) {
             throw new RuntimeException('Falta strategy_id en la sesión');
         }
@@ -105,6 +116,7 @@ class AutoToolRecommenderController
     public static function enforceWizardProgress(int $minProgress): void
     {
         self::initSession();
+        // wizard.php stores the current state and progress in session
         $state    = $_SESSION['wizard_state'] ?? '';
         $progress = (int)($_SESSION['wizard_progress'] ?? 0);
 
@@ -125,6 +137,7 @@ class AutoToolRecommenderController
     {
         self::initSession();
 
+        // These keys are written during previous wizard steps
         $required = ['material_id', 'strategy_id', 'thickness'];
         foreach ($required as $key) {
             if (!isset($_SESSION[$key]) || $_SESSION[$key] === '') {

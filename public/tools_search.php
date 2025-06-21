@@ -3,7 +3,10 @@
  * File: tools_search.php
  *
  * Main responsibility: Part of the CNC Wizard Stepper.
- * Related files: See others in this project.
+ *
+ * Called by: JS tool search page
+ * Important GET params: 'q', 'diameter' and various filters
+ * No session data is required
  * @TODO Extend documentation.
  */
 // tools_search.php
@@ -18,6 +21,7 @@ require_once __DIR__ . '/../includes/db.php';
 header('Content-Type: application/json; charset=utf-8');
 
 // Recibir filtros y búsqueda
+// Text search and optional diameter filter
 $q = $_GET['q'] ?? '';
 $diameter = $_GET['diameter'] ?? '';
 

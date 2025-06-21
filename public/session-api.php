@@ -3,7 +3,10 @@
  * File: session-api.php
  *
  * Main responsibility: Part of the CNC Wizard Stepper.
- * Related files: See others in this project.
+ *
+ * Called by: debugging tools to inspect the session
+ * Important session keys returned: entire $_SESSION array
+ * Requires header X-CSRF-Token matching $_SESSION['csrf_token']
  * @TODO Extend documentation.
  */
 declare(strict_types=1);
@@ -20,6 +23,7 @@ require_debug_mode();
 
 // Validate CSRF token sent via header. Avoid undefined index warnings
 $token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+// Only allow reading the session when the CSRF token matches
 if (empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $token)) {
     http_response_code(403);
     exit('CSRF fail');

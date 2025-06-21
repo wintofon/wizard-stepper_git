@@ -3,7 +3,11 @@
  * File: tools_scroll.php
  *
  * Main responsibility: Part of the CNC Wizard Stepper.
- * Related files: See others in this project.
+ *
+ * Called by: infinite scroll tool browser
+ * Important GET params:
+ *   - material_id, strategy_id, page, per_page
+ * Uses session keys for defaults and CSRF token via header
  * @TODO Extend documentation.
  */
 declare(strict_types=1);
@@ -27,6 +31,7 @@ header('Pragma: no-cache');
 startSecureSession();
 
 $token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+// Protect listing with the same CSRF token as the wizard
 if (!validateCsrfToken($token)) {
     http_response_code(403);
     echo json_encode(['error' => 'csrf']);
@@ -39,6 +44,7 @@ $page       = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT) ?: 1;
 $perPage    = filter_input(INPUT_GET, 'per_page', FILTER_VALIDATE_INT) ?: 12;
 
 if ($materialId === false || $materialId === null) {
+    // fallback to session values from previous steps
     $materialId = $_SESSION['material_id'] ?? null;
 }
 if ($strategyId === false || $strategyId === null) {

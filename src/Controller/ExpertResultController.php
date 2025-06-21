@@ -3,7 +3,18 @@
  * File: ExpertResultController.php
  *
  * Main responsibility: Part of the CNC Wizard Stepper.
- * Related files: See others in this project.
+ *
+ * Called by: views/steps/step6.php
+ * Important session keys read:
+ *   - $_SESSION['tool_table']    Current tool table
+ *   - $_SESSION['tool_id']       Selected tool identifier
+ *   - $_SESSION['material']      Material ID
+ *   - $_SESSION['trans_id']      Machine/operation ID
+ *   - $_SESSION['rpm_min']       Minimum RPM allowed
+ *   - $_SESSION['rpm_max']       Maximum RPM allowed
+ *   - $_SESSION['fr_max']        Maximum feed rate
+ *   - $_SESSION['thickness']     Material thickness
+ *   - $_SESSION['hp']            Available machine horsepower
  * @TODO Extend documentation.
  */
 /**
@@ -48,6 +59,7 @@ class ExpertResultController
     public static function getResultData(\PDO $pdo, array $session): array
     {
         // 1) Validar datos de sesión
+        // These session keys are populated across earlier wizard steps
         $required = [
             'tool_table','tool_id','material','trans_id',
             'rpm_min','rpm_max','fr_max','thickness','hp'
@@ -60,15 +72,16 @@ class ExpertResultController
         }
 
         // 2) Extraer parámetros
+        // Values come from $_SESSION as passed by the step 5 form
         $tbl        = (string)$session['tool_table'];
         $toolId     = (int)$session['tool_id'];
         $materialId = (int)$session['material'];
         $transId    = (int)$session['trans_id'];
-        $rpmMin     = (float)$session['rpm_min'];
-        $rpmMax     = (float)$session['rpm_max'];
-        $frMax      = (float)$session['fr_max'];
-        $thickness  = (float)$session['thickness'];
-        $hpAvail    = (float)$session['hp'];
+        $rpmMin     = (float)$session['rpm_min'];   // limits configured on step 5
+        $rpmMax     = (float)$session['rpm_max'];   // limits configured on step 5
+        $frMax      = (float)$session['fr_max'];    // feed rate maximum
+        $thickness  = (float)$session['thickness']; // part thickness
+        $hpAvail    = (float)$session['hp'];        // machine horsepower
 
         try {
             // 3) Datos de la herramienta

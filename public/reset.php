@@ -3,7 +3,9 @@
  * File: reset.php
  *
  * Main responsibility: Part of the CNC Wizard Stepper.
- * Related files: See others in this project.
+ *
+ * Called by: user clicking the "Reset" link
+ * Important session keys affected: all wizard_* values are cleared
  * @TODO Extend documentation.
  */
 declare(strict_types=1);
@@ -42,6 +44,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 header('Pragma: no-cache');
 
 // [C] Iniciar sesión si aún no está activa
+// Create a new session to access and later remove existing data
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_set_cookie_params([
         'lifetime' => 0,
@@ -56,6 +59,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 dbg('🔐 Sesión activa');
 
 // [D] Borrar todo el estado de sesión
+// Clear all wizard-related state
 $_SESSION = [];
 session_unset();
 session_destroy();

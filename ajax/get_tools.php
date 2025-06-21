@@ -3,7 +3,12 @@
  * File: get_tools.php
  *
  * Main responsibility: Part of the CNC Wizard Stepper.
- * Related files: See others in this project.
+ *
+ * Called by: auto mode step 3 to fetch recommended tools
+ * Reads session keys:
+ *   - $_SESSION['material_id']
+ *   - $_SESSION['strategy_id']
+ * Returns JSON list of tools
  * @TODO Extend documentation.
  */
 declare(strict_types=1);
@@ -30,7 +35,7 @@ header('Content-Type: application/json');
 // (3) Cargar BD
 require_once __DIR__ . '/../includes/db.php';  // Ajusta si hiciera falta
 
-// (4) Comprobar sesión
+// (4) Comprobar sesión: valores establecidos en pasos anteriores
 $matRaw = $_SESSION['material_id'] ?? null;
 $strRaw = $_SESSION['strategy_id'] ?? null;
 if (!is_numeric($matRaw) || !is_numeric($strRaw)) {

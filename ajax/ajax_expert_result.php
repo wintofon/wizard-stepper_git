@@ -3,7 +3,12 @@
  * File: ajax_expert_result.php
  *
  * Main responsibility: Part of the CNC Wizard Stepper.
- * Related files: See others in this project.
+ *
+ * Called by: JS calculator on step 6 "Expert" view
+ * Important JSON fields:
+ *   - fz, vc, passes, D, Z, rpmMin, rpmMax, frMax
+ *   - thickness, ae, ap_slot, coefSeg, Kc11, mc, alpha, phi, eta
+ * Writes no session data
  * @TODO Extend documentation.
  */
 header('Content-Type: application/json');
@@ -15,7 +20,7 @@ if (!getenv('BASE_URL')) {
 require_once __DIR__ . '/../src/Config/AppConfig.php';
 require_once __DIR__ . '/../src/Utils/CNCCalculator.php';
 
-$data = json_decode(file_get_contents('php://input'), true);
+$data = json_decode(file_get_contents('php://input'), true); // parameters from JS
 
 try {
     $fz      = (float)$data['fz'];

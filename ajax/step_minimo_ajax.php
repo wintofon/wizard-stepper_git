@@ -3,7 +3,10 @@
  * File: step_minimo_ajax.php
  *
  * Main responsibility: Part of the CNC Wizard Stepper.
- * Related files: See others in this project.
+ *
+ * Called by: legacy "step minimo" calculator
+ * Important JSON fields: fz, vc, ae, passes, thickness, D, Z, params[*]
+ * Uses session key: $_SESSION['csrf_token'] for validation
  * @TODO Extend documentation.
  */
 /**
@@ -22,17 +25,17 @@ header('Content-Type: application/json; charset=UTF-8');
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 
 // Iniciar sesión para CSRF
-session_start();
+session_start(); // needed to access $_SESSION['csrf_token']
 
 // 0. CSRF: validar token enviado en header X-CSRF-Token
-$csrfHeader = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+$csrfHeader = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? ''; // token provided via header
 if (empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $csrfHeader)) {
     http_response_code(403);
     echo json_encode(['success' => false, 'error' => 'Token CSRF inválido']);
     exit;
 }
 
-// 1. Leer entrada JSON
+// 1. Leer entrada JSON enviado por step_minimo.js
 $input = json_decode(file_get_contents('php://input'), true);
 if (!is_array($input)) {
     http_response_code(400);
