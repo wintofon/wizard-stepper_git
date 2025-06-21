@@ -1,139 +1,134 @@
 /* =======================================================================
-   STEPPER CNC 2025 – versión centrada + doble barra azul animada
-   -----------------------------------------------------------------------
-   • Diseñado para integrarse con una UI dark (#0f172a).
-   • Comentado línea por línea (Español rioplatense).
-   • El logo (.logo-stepper) admite PNG con transparencia: su background
-     hereda el color real del contenedor, evitando “halo” o cortes.
-   • Efectos:
-       - Deslizamiento + resplandor leve (una sola vez por paso).
-       - Barra de progreso azul arriba y abajo, ambas animadas.
+   STEPPER CNC 2025  ⟶  Versión centrada
+   ───────────────────────────────────────────────────────────────────────
+   • Fondo dark (#0f172a), tipografía Rajdhani.
+   • PNG transparente en .logo-stepper se integra sin halos.
+   • Dos barras celestes (superior + inferior) animadas por paso activo.
+   • Código hiper-comentado, sección por sección.
    ======================================================================= */
 
 /* 1) FUENTE ------------------------------------------------------------ */
 @import url("https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap");
-/* Rajdhani 500/700 da look técnico, compacto.                           */
 
 /* 2) RESET BÁSICO ------------------------------------------------------ */
 html,
 body{
-  margin: 0;                        /* Sin márgenes externos              */
-  overflow-x: hidden !important;    /* Bloquea scroll horizontal global   */
-  font-family: "Rajdhani", sans-serif;
-  background: #0f172a;              /* Azul noche uniforme                */
-  color: #dceefb;                   /* Azul claro para texto              */
+  margin: 0;                           /* Elimina márgenes default        */
+  overflow-x: hidden !important;       /* Sin scroll horizontal global    */
+  font-family: "Rajdhani", sans-serif; /* Letra técnica                   */
+  background: #0f172a;                 /* Azul oscuro de la aplicación    */
+  color: #dceefb;                      /* Texto base azul claro           */
 }
 
 /* 3) CONTENEDOR FIJO DEL STEPPER -------------------------------------- */
 .stepper-container{
-  position: sticky;     top: 0; z-index: 1000;  /* Pegado arriba         */
-  width: 100%;                           /* Llena el ancho viewport  */
-  background: transparent;               /* Sin fondo extra          */
-  overflow-x: auto;                      /* Scroll horizontal solo si sobra */
-  scrollbar-width: none;                 /* Oculta barra en Firefox  */
-  box-shadow:                            /* Separación visual         */
-    0 8px 16px rgba(0,0,0,.55),          /* Sombra exterior          */
-    inset 0 -1px 0 #1b2537;              /* Línea interna oscura     */
-}
-/* Oculta scrollbar en navegadores WebKit */
-.stepper-container::-webkit-scrollbar{ display:none; }
+  position: sticky;  top: 0;  z-index: 1000;  /* Siempre visible arriba  */
+  width: 100%;                                 /* Abarca ancho completo   */
+  background: transparent;                     /* Deja ver fondo global   */
 
-/* ── Tapas triangulares laterales (rellenan cortes de clip-path) ── */
+  /* Scroll horizontal (solo PC, si sobran pasos) */
+  overflow-x: auto;
+  scrollbar-width: none;                       /* Oculta barra en Firefox */
+  /* Sombra y línea inferior oscura */
+  box-shadow:
+    0 8px 16px rgba(0, 0, 0, .55),
+    inset 0 -1px 0 #1b2537;
+}
+.stepper-container::-webkit-scrollbar{ display: none; } /* Oculta en WebKit */
+
+/* 3a) Tapas triangulares para cerrar el clip-path falso ---------------- */
 .stepper-container::before,
 .stepper-container::after{
   content: "";
   position: absolute;  top: 0;  bottom: 0;
-  width: 14px;                 /* Igual al “dentado” de los pasos       */
-  background: #162235;         /* Mismo color que los pasos             */
-  pointer-events: none;        /* No interfiere con clics               */
+  width: 14px;                         /* Igual al “diente” */
+  background: #162235;                 /* Mismo azul de cada paso */
+  pointer-events: none;                /* No atrapa clics */
   z-index: 5;
 }
 .stepper-container::before{ left: 0;  clip-path: polygon(0 0,100% 0,100% 100%); }
 .stepper-container::after { right: 0; clip-path: polygon(0 0,100% 0,0 100%); }
 
-/* 4) LISTA FLEX QUE CONTIENE LOS PASOS -------------------------------- */
+/* 4) LISTA DE PASOS ---------------------------------------------------- */
 .stepper{
-  display: flex;               /* Fila horizontal                       */
-  width: max-content;          /* → se encoge al contenido total        */
-  margin: 0 auto;              /* → queda centrado en pantalla          */
+  display: flex;                       /* Pasos en fila                    */
+  width: max-content;                  /* Se adapta al ancho real          */
+  margin: 0 auto;                      /* …y se centra                     */
   padding: 0;
-  list-style: none;
+  list-style: none;                    /* Quita bullets                    */
   background: transparent;
-  overflow-x: auto;            /* Permite arrastre si hay muchos pasos  */
-  scroll-behavior: smooth;
+  overflow-x: auto;                    /* Scroll horizontal (si muchos)    */
+  scroll-behavior: smooth;             /* Desplazamiento suave             */
 }
-/* Barra de desplazamiento discreta (solo si aparece) */
+/* Scrollbar fina (se muestra sólo si hay overflow) */
 .stepper::-webkit-scrollbar{ height: 6px; }
-.stepper::-webkit-scrollbar-thumb{ background:#1b2537;border-radius:3px; }
+.stepper::-webkit-scrollbar-thumb{ background: #1b2537; border-radius: 3px; }
 
-/* 5) LOGO OPCIONAL (PNG CON TRANSPARENCIA) ---------------------------- */
+/* 5) LOGO DE MARCA / PNG TRANSPARENTE --------------------------------- */
 .logo-stepper{
   display: flex; align-items: center;
   padding: 0 1.25rem;
-  background: transparent;     /* Transparente → hereda #0f172a detrás  */
+  background: transparent;             /* ==> hereda #0f172a               */
   clip-path: polygon(0 0,100% 0,calc(100% - 12px) 100%,12px 100%);
   font-weight: 500;
 }
 .logo-stepper img{
-  height: 42px; max-height: 48px;     /* Ajuste uniforme                 */
-  object-fit: contain;
-  filter: drop-shadow(0 0 2px rgba(0,0,0,.4)); /* Realza sobre fondo      */
+  height: 42px; max-height: 48px;      /* Tamaño consistente               */
+  object-fit: contain;                 /* Mantiene proporciones            */
+  filter: drop-shadow(0 0 2px rgba(0,0,0,.4)); /* Sutil realce            */
 }
 
 /* 6) CADA PASO (li) --------------------------------------------------- */
 .stepper li{
-  /* Flex: ancho auto, no se estira */
-  flex: 0 0 auto;
+  flex: 0 0 auto;                      /* No se agranda más de su ancho    */
   position: relative;
 
-  /* Espaciado y forma romboide */
-  padding: 0.75rem 1.25rem;
-  margin-left: -12px;      /* Superpone el “diente” 12 px            */
-  background: #162235;     /* Bloque azul intermedio                 */
-  color: #d2d2d2;          /* Gris claro                             */
-  font-size: 1rem; text-transform: uppercase; font-weight: 500;
+  /* Forma romboide con “diente” de 12 px */
+  padding: .75rem 1.25rem;
+  margin-left: -12px;                  /* Superpone sobre el diente prev.  */
+  background: #162235;                 /* Azul base de paso                */
+  color: #d2d2d2;                      /* Texto gris claro                 */
+  font: 500 1rem/1 "Rajdhani", sans-serif;
+  text-transform: uppercase;
 
   clip-path: polygon(12px 0,100% 0,calc(100% - 12px) 100%,0 100%);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  border-bottom: 2px solid transparent; /* Línea base (se anima)        */
+
+  /* Ya NO usamos border-bottom celeste (evita tercera línea) */
+  border-bottom: 2px solid transparent;
+
   transition: background .3s, color .3s;
 }
-/* Primer paso: punta completa → no recorta a la izquierda */
+/* Primer paso: sin “sierra” izquierda */
 .stepper li:first-child{
   margin-left: 0;
   clip-path: polygon(0 0,100% 0,calc(100% - 12px) 100%,12px 100%);
 }
-
-/* Línea divisoria vertical entre pasos (menos el último) */
+/* Línea divisoria vertical entre pasos */
 .stepper li:not(:last-child)::after{
   content: "";
-  position: absolute; right: 0; top: 12%; bottom: 12%;
-  width: 1px; background: rgba(255,255,255,.15);
+  position: absolute;  right: 0;  top: 12%;  bottom: 12%;
+  width: 1px;          background: rgba(255,255,255,.15);
 }
 
-/* 7) ESTADOS “ACTIVO” Y “DONE” --------------------------------------- */
+/* 6a) Estados activo / completado ------------------------------------ */
 .stepper li.active,
 .stepper li.done{
-  background: #1d3557;                 /* Azul más brillante           */
+  background: #1d3557;                 /* Azul algo más brillante          */
   color: #fff;
-  border-bottom: 3px solid #00bfff;    /* Línea celeste (inferior)     */
 }
-.stepper li.active{
-  text-shadow: 0 0 6px rgba(0,191,255,.45);
-}
+.stepper li.active{ text-shadow: 0 0 6px rgba(0,191,255,.45); }
 
-/*  ── Barras de progreso azul (arriba y abajo) animadas ── */
+/* ── Barras celestes (animadas) ── */
 .stepper li.active::before,
 .stepper li.done::before,
 .stepper li.active::after,
 .stepper li.done::after{
   content: "";
-  position: absolute;
-  left: 0;          /* Se animan de izquierda a derecha            */
-  height: 4px;      /* Grosor de la barra                          */
-  width: 0;         /* Inicia oculto y se llena con keyframes      */
-  background: #00bfff;
-  animation: fill-bar 0.45s forwards;
+  position: absolute;   left: 0;
+  height: 4px;          width: 0;           /* Se rellena con keyframe    */
+  background: #00bfff;                      /* Celeste radiante           */
+  animation: fill-bar .45s forwards;        /* Animación común            */
 }
 /* Superior */
 .stepper li.active::before,
@@ -142,60 +137,62 @@ body{
 .stepper li.active::after,
 .stepper li.done::after { bottom: 0; }
 
-/* Animación: llena la barra de 0 → 100 % */
-@keyframes fill-bar{ from{ width: 0; } to{ width: 100%; } }
+/* Barre de 0% a 100% de izquierda a derecha */
+@keyframes fill-bar{
+  from{ width: 0; }
+  to  { width: 100%; }
+}
 
-/* 8) ÍCONO FEATHER / LUCIDE ----------------------------------------- */
+/* 7) ÍCONO FEATHER / LUCIDE ----------------------------------------- */
 .stepper li .icon{
-  margin-left: .35rem;
-  width: 1em; height: 1em;       /* Escalables con fuente               */
-  stroke-width: 2;               /* Grosor estándar Feather/Lucide      */
+  margin-left: .35rem;                 /* Espacio antes del ícono          */
+  width: 1em; height: 1em;
+  stroke-width: 2;
   vertical-align: middle;
 }
 
-/* 9) RESPONSIVE: modo compacto ≤ 1200 px ----------------------------- */
+/* 8) RESPONSIVE ≤ 1 200 px  ----------------------------------------- */
 @media(max-width:1200px){
-  /* 9a) La lista deja de ser flex → bloque ↔ se centra igual */
+  /* La lista deja de ser flex y se muestra sólo paso activo */
   .stepper{
-    display: block; width: 100%; margin: 0 auto;
-    overflow-x: hidden; scrollbar-width: none;
+    display: block;      width: 100%;  margin: 0 auto;
+    overflow-x: hidden;  scrollbar-width: none;
   }
   .stepper::-webkit-scrollbar{ display: none; }
 
-  /* 9b) Ocultamos todo salvo el paso activo */
+  /* Ocultamos logo y pasos que no están activos */
   .logo-stepper, .stepper li{ display: none; }
 
   .stepper li.active{
     display: block !important;
-    width: 100%;  margin: 0; padding: 1rem;
+    width: 100%; margin: 0; padding: 1rem;
     box-sizing: border-box;
     clip-path: none; text-align: center;
     font-size: 1.15rem; font-weight: 500;
   }
   .stepper li.done{ display: none !important; }
 
-  /* El contenedor no necesita scroll horizontal */
-  .stepper-container{ overflow-x: hidden; }
+  .stepper-container{ overflow-x: hidden; }  /* Sin scroll horizontal     */
 }
 
-/* 10) EFECTOS ELEGANTES (slide + glow) ------------------------------ */
-/* -- Keyframes para entrada X (desktop) y Y (móvil) -- */
-@keyframes slideInX{ 0%{ transform:translateX(-14px); opacity:0; }
-                      100%{ transform:translateX(0); opacity:1; } }
-@keyframes slideInY{ 0%{ transform:translateY(-10px); opacity:0; }
-                      100%{ transform:translateY(0); opacity:1; } }
-/* -- Resplandor azul puntual -- */
+/* 9) EFECTOS (slide + glow, 1 sola vez) ----------------------------- */
+/* Entrada horizontal (desktop) y vertical (compacto) */
+@keyframes slideInX{ 0%{ transform: translateX(-14px); opacity:0; }
+                      100%{ transform: translateX(0);   opacity:1; } }
+@keyframes slideInY{ 0%{ transform: translateY(-10px); opacity:0; }
+                      100%{ transform: translateY(0);   opacity:1; } }
+/* Resplandor azul momentáneo */
 @keyframes glowBar{
-  0%   { box-shadow: 0 0 0 0 rgba(0,191,255,0); }
-  60%  { box-shadow: 0 0 8px 2px rgba(0,191,255,.55); }
-  100% { box-shadow: 0 0 0 0 rgba(0,191,255,0); }
+  0%{   box-shadow:0 0 0 0 rgba(0,191,255,0); }
+  60%{  box-shadow:0 0 8px 2px rgba(0,191,255,.55); }
+  100%{ box-shadow:0 0 0 0 rgba(0,191,255,0); }
 }
 
-/* Aplica sólo la 1.ª vez que el paso es activo (sin .anim-done) */
+/* Aplica sólo si el paso NO tiene .anim-done (ejecución única) */
 .stepper li.active:not(.anim-done){
   animation: slideInX .35s ease-out both,
              glowBar 1s .35s ease-out 1;
-  animation-composition: add;  /* No pisa fill-bar */
+  animation-composition: add;          /* No pisa fill-bar               */
 }
 @media(max-width:1200px){
   .stepper li.active:not(.anim-done){
@@ -204,7 +201,7 @@ body{
   }
 }
 
-/* 11) HOVER SUAVE EN ESCRITORIOS ------------------------------------ */
+/* 10) HOVER SUTIL EN ESCRITORIOS ------------------------------------ */
 @media(min-width:1201px){
   .stepper li:hover{
     transform: translateY(-2px);
