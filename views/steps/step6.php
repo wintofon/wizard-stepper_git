@@ -239,10 +239,12 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
     window.BASE_URL = <?= json_encode(BASE_URL) ?>;
     window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
   </script>
-  
+
 </head>
 <body>
   <div class="container py-4">
+<?php else: ?>
+  <link rel="stylesheet" href="<?= asset('assets/css/pages/_step6.css') ?>">
 <?php endif; ?>
 
 <!-- ALERTA DE ASSETS FALTANTES -->
