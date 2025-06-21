@@ -41,7 +41,7 @@ body {
   clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0% 100%);
   color: #64748b;                   /* gris-azulado apagado      */
   display: flex;                    /* alinear texto e icono     */
-  flex: 0 0 10%;                    /* ancho fijo del 30% del contenedor */
+  flex: 0 0 20%;                    /* ancho fijo del 30% del contenedor */
   font-size: 1rem;                  /* tamaño base               */
   font-weight: 600;                 /* semi-bold                 */
   justify-content: space-between;   /* icono a la derecha        */
