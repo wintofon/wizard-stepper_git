@@ -232,6 +232,8 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Cutting Data Épico – Paso 6</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/step-common.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/pages/_step6.css') ?>">
   <script>
     window.BASE_URL = <?= json_encode(BASE_URL) ?>;
