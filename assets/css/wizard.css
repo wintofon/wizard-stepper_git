@@ -26,7 +26,7 @@ body {
 .stepper-container::-webkit-scrollbar { display: none; }
 
 /* ────────────────────────────────────────────────────────────────
-   STEPPER CON PESTAÑAS EN DIAGONAL (ESTILO MODERNO)
+   STEPPER TIPO PESTAÑAS DIAGONALES
    ──────────────────────────────────────────────────────────────── */
 .stepper {
   display: flex;
@@ -52,12 +52,12 @@ body {
   transition: background 0.3s, color 0.3s;
 }
 
-/* Primer paso: sin diagonal izquierda */
+/* Primer paso sin corte a la izquierda */
 .stepper li:first-child {
   clip-path: polygon(0 0, 95% 0, 100% 100%, 0% 100%);
 }
 
-/* Último paso: sin diagonal derecha */
+/* Último paso sin corte a la derecha */
 .stepper li:last-child {
   clip-path: polygon(5% 0, 100% 0, 100% 100%, 0% 100%);
   border-right: none;
@@ -72,7 +72,7 @@ body {
   z-index: 2;
 }
 
-/* Barra superior azul animada */
+/* barra superior azul animada */
 .stepper li.active::before,
 .stepper li.done::before {
   animation: fill-line-left .6s ease-in forwards;
