@@ -13,32 +13,28 @@ body {
   overflow-x: hidden;
 }
 
-/* Contenedor del stepper */
+/* Contenedor del stepper (sin scroll) */
 .stepper-container {
   background: #0f172a;
-  overflow-x: auto;
+  overflow: hidden; /* jamás scroll horizontal */
   padding: 0;
   position: sticky;
   top: 0;
   width: 100%;
-  z-index: 9999;                         /* siempre arriba */
-  scrollbar-width: none;
-  backdrop-filter: blur(2px);            /* suaviza al scrollear */
-}
-.stepper-container::-webkit-scrollbar {
-  display: none;
+  z-index: 100;
 }
 
-/* STEPPER flexible */
+/* Stepper horizontal que se adapta */
 .stepper {
   display: flex;
   list-style: none;
   margin: 0;
   padding: 0;
+  width: 100%;
   flex-wrap: nowrap;
 }
 
-/* PASO flexible, se ajusta al contenido */
+/* Paso trapezoidal autoajustable */
 .stepper li {
   align-items: center;
   background: #0f172a;
@@ -46,19 +42,19 @@ body {
   clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0% 100%);
   color: #64748b;
   display: flex;
-  flex: 1 1 auto;                        /* ahora se adapta */
+  flex: 1 1 0%;           /* se distribuyen equitativamente */
+  min-width: 0;           /* permite que se achiquen si es necesario */
   font-size: 1rem;
   font-weight: 600;
   justify-content: space-between;
   margin-left: -10px;
   overflow: hidden;
-  padding: 1.25rem 2rem;
+  padding: 1.25rem 1rem;
   position: relative;
   text-overflow: ellipsis;
   text-transform: uppercase;
   transition: background .3s, color .3s;
   white-space: nowrap;
-  min-width: fit-content;
   z-index: 1;
 }
 
@@ -148,7 +144,6 @@ body {
 
   .stepper {
     justify-content: center;
-    overflow-x: hidden;
   }
 
   .stepper li {
