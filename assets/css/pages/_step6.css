@@ -266,7 +266,7 @@ body.debug-mode .card {
 }
 
 /* Versión móvil: panel inferior para sliders */
-@media (max-width: 991px) {
+@media (width <= 991px) {
   .content-main {
     margin-bottom: 12rem;
   }
