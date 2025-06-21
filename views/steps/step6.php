@@ -652,11 +652,10 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
     }
   });
 </script>
-  </div>
-
 <?php if (!$embedded): ?>
-</body>
-</html>
+  </div>
+  </body>
+  </html>
 <?php endif; ?>
 
 
