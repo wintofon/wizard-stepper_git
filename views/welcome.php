@@ -1,4 +1,13 @@
-<?php require_once __DIR__ . '/../includes/init.php'; ?>
+<?php
+/**
+ * File: welcome.php
+ *
+ * Brief summary: Landing page for the CNC wizard.
+ * Main responsibility: Displays the welcome screen and loads base styles.
+ * Related files: includes/init.php, assets/css/wizard.css, assets/css/main.css
+ */
+require_once __DIR__ . '/../includes/init.php';
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
