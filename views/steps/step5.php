@@ -146,17 +146,20 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
       <div class="row g-3">
         <?php
           $fields=[
-            ['rpm_min','RPM mínima',1],
-            ['rpm_max','RPM máxima',1],
-            ['feed_max','Avance máx (mm/min)',0.1],
-            ['hp','Potencia (HP)',0.1],
+            ['rpm_min','RPM mínima',1,'rpm'],
+            ['rpm_max','RPM máxima',1,'rpm'],
+            ['feed_max','Avance máx (mm/min)',0.1,'mm/min'],
+            ['hp','Potencia (HP)',0.1,'HP'],
           ];
-          foreach($fields as [$id,$label,$step]): ?>
+          foreach($fields as [$id,$label,$step,$unit]): ?>
         <div class="col-md-3">
           <label for="<?=$id?>" class="form-label"><?=$label?></label>
-          <input type="number" class="form-control" id="<?=$id?>" name="<?=$id?>"
-                 step="<?=$step?>" min="1" value="<?=htmlspecialchars((string)$prev[$id])?>" required>
-          <div class="invalid-feedback"></div>
+          <div class="input-group has-validation">
+            <input type="number" class="form-control" id="<?=$id?>" name="<?=$id?>"
+                   step="<?=$step?>" min="1" value="<?=htmlspecialchars((string)$prev[$id])?>" required>
+            <span class="input-group-text"><?=$unit?></span>
+            <div class="invalid-feedback"></div>
+          </div>
         </div>
         <?php endforeach; ?>
       </div>
@@ -210,7 +213,8 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
     let ok = true;
     const v  = k => parseFloat(inputs[k].value) || 0;
     const fb = (inp,msg) => {
-      inp.nextElementSibling.textContent = msg;
+      const feedback = inp.parentElement.querySelector('.invalid-feedback');
+      feedback.textContent = msg;
       inp.classList.toggle('is-invalid', !!msg);
       if (msg) ok = false;
     };
