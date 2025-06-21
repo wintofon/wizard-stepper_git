@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+require_once __DIR__ . '/../includes/init.php';
 /** File: handle-step.php */
 require_once __DIR__ . '/../src/Config/AppConfig.php';
 session_start();
