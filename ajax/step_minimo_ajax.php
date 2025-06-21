@@ -1,5 +1,12 @@
 <?php
 /**
+ * File: step_minimo_ajax.php
+ *
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * @TODO Extend documentation.
+ */
+/**
  * Ubicación: C:\xampp\htdocs\wizard-stepper_git\step_minimo_ajax.php
  *
  * Endpoint AJAX legacy (paso 6). Ahora:

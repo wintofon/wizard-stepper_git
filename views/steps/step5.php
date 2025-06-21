@@ -1,5 +1,12 @@
 <?php
 /**
+ * File: step5.php
+ *
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * @TODO Extend documentation.
+ */
+/**
  * Paso 5 (Auto) – Configurar router
  * Protegido con CSRF, controla flujo y valida:
  *   – rpm_min > 0

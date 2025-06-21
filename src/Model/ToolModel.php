@@ -1,5 +1,12 @@
 <?php
 /**
+ * File: ToolModel.php
+ *
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * @TODO Extend documentation.
+ */
+/**
  * Modelo ToolModel – Interacción con tablas de herramientas y sus parámetros de corte.
  * - getTool(PDO, tabla, tool_id): obtiene datos básicos de una herramienta.
  * - getMaterialData(PDO, tablaMaterial, tool_id, material_id): obtiene datos de corte recomendados para la combinación herramienta-material.

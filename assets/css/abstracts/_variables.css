@@ -1,3 +1,9 @@
+/*
+ * File: _variables.css
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * TODO: Extend documentation.
+ */
 :root {
   --font-family-base: 'Segoe UI', roboto, sans-serif;
   --bg-body: #0d1117;

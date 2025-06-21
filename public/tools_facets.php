@@ -1,6 +1,13 @@
 <?php
 /**
  * File: tools_facets.php
+ *
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * @TODO Extend documentation.
+ */
+/**
+ * File: tools_facets.php
  * Genera filtros únicos para explorador de fresas
  * --------------------------------------------------------------
  * ▸ Devuelve JSON con todos los campos únicos necesarios

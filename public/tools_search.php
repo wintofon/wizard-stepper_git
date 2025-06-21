@@ -1,4 +1,11 @@
 <?php
+/**
+ * File: tools_search.php
+ *
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * @TODO Extend documentation.
+ */
 // tools_search.php
 // Sincronizar BASE_URL con la ruta usada por el front-end
 if (!getenv('BASE_URL')) {

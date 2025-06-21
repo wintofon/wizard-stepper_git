@@ -1,3 +1,9 @@
+/*
+ * File: stepper.css
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * TODO: Extend documentation.
+ */
 .stepper-header {
   align-items: center;
   background-color: var(--bs-dark);

@@ -1,4 +1,11 @@
 <?php
+/**
+ * File: tools_ajax.php
+ *
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * @TODO Extend documentation.
+ */
 // tools_ajax.php - Devuelve lista de herramientas filtradas (sin autenticación)
 // Corrige BASE_URL al llamar desde /ajax
 if (!getenv('BASE_URL')) {

@@ -1,4 +1,11 @@
 <?php
+/**
+ * File: step3_auto_lazy_browser.php
+ *
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * @TODO Extend documentation.
+ */
 declare(strict_types=1);
 
 require_once __DIR__ . '/../../../src/Utils/Session.php';

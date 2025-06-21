@@ -1,4 +1,11 @@
 <?php
+/**
+ * File: step6_ajax_calculate.php
+ *
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * @TODO Extend documentation.
+ */
 // File: C:\xampp\htdocs\wizard-stepper_git\ajax\step6_ajax_calculate.php
 declare(strict_types=1);
 // Establecer BASE_URL desde /ajax

@@ -1,5 +1,12 @@
 <?php
 /**
+ * File: select_mode.php
+ *
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * @TODO Extend documentation.
+ */
+/**
  * File: views/select_mode.php
  * Vista para elegir “Manual” o “Automático”.
  * Se asume que $csrfToken ha sido definido por wizard.php antes de incluir.

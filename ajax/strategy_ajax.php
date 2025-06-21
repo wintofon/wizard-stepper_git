@@ -1,4 +1,11 @@
 <?php
+/**
+ * File: strategy_ajax.php
+ *
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * @TODO Extend documentation.
+ */
 // strategy_ajax.php
 // BASE_URL debe apuntar a la carpeta raíz, no a /ajax
 if (!getenv('BASE_URL')) {

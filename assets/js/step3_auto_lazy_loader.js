@@ -1,3 +1,9 @@
+/*
+ * File: step3_auto_lazy_loader.js
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * TODO: Extend documentation.
+ */
 const container = document.getElementById('toolContainer');
 const sentinel = document.getElementById('scrollSentinel');
 const diaFilter = document.getElementById('diaFilter');

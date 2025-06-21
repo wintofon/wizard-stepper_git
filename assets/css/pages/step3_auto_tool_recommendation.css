@@ -1,3 +1,9 @@
+/*
+ * File: step3_auto_tool_recommendation.css
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * TODO: Extend documentation.
+ */
 /* CSS extraído de views/steps/auto/step3.php */
 @import url('../abstracts/_variables.css');
 @import url('../base/_reset.css');

@@ -1,4 +1,11 @@
 <?php
+/**
+ * File: wizard_layout.php
+ *
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * @TODO Extend documentation.
+ */
 /* File: wizard/views/wizard_layout.php */
 ?>
 <!DOCTYPE html>

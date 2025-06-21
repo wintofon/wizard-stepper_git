@@ -1,4 +1,11 @@
 <?php
+/**
+ * File: StepperFlow.php
+ *
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * @TODO Extend documentation.
+ */
 /** File: src/StepperFlow.php
  *  Responsibility: define flujos de 6 pasos
  */

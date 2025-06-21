@@ -1,4 +1,11 @@
 <?php
+/**
+ * File: ajax_expert_result.php
+ *
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * @TODO Extend documentation.
+ */
 header('Content-Type: application/json');
 // Igualar BASE_URL al de la app principal
 if (!getenv('BASE_URL')) {

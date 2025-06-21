@@ -1,3 +1,9 @@
+/*
+ * File: step1_manual_lazy_loader.js
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * TODO: Extend documentation.
+ */
 // Lazy loading table rows using IntersectionObserver
 import { BASE_URL } from './config.js';
 export let page = 1;
