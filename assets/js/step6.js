@@ -58,26 +58,16 @@ window.radarChartInstance = window.radarChartInstance || null;
     type: 'radar',
     data: {
       labels: ['Vida útil','Terminación','Potencia'],
-      datasets: [{
-        data: [0, 0, 0],
-        backgroundColor: 'rgba(79,195,247,0.35)',
-        borderColor: 'rgba(79,195,247,0.8)',
-        borderWidth: 2
+      datasets:[{
+        data:[0,0,0],
+        backgroundColor:'rgba(79,195,247,0.35)',
+        borderColor:'rgba(79,195,247,0.8)',
+        borderWidth:2
       }]
     },
-    options: { scales: { r: { max: 100, ticks: { stepSize: 20 } } }, plugins: { legend: { display: false } } }
+    options:{scales:{r:{max:100,ticks:{stepSize:20}}},plugins:{legend:{display:false}}}
   });
   const radar = window.radarChartInstance;
-
-  // Ajuste seguro de la leyenda
-  function setLegendFullSize(chart, full) {
-    if (!chart || !chart.options) return;
-    chart.options.plugins = chart.options.plugins || {};
-    chart.options.plugins.legend = chart.options.plugins.legend || {};
-    chart.options.plugins.legend.fullSize = full;
-  }
-
-  setLegendFullSize(radar, true);
 
   // 5. Mostrar/ocultar errores
   function showError(msg) {
