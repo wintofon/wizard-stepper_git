@@ -1,36 +1,36 @@
 <?php
 declare(strict_types=1);
 
-// 🔒 BASE_URL → sólo el path raíz del proyecto (sin host, sin protocolo)
+// ---------------------------------------------------------------------------
+// 📁 AppConfig.php – Configuración global del proyecto CNC Wizard
+// Define BASE_URL, BASE_HOST, asset() y otras constantes globales
+// ---------------------------------------------------------------------------
+
 if (!defined('BASE_URL')) {
-    // Podés setearlo por .env o variable de entorno del sistema
-    $base = getenv('BASE_URL');
-
-    // Si no existe, lo intenta detectar automáticamente
-    if (!$base) {
-        $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
-        $dir = str_replace('\\', '/', dirname($scriptName));
-        $base = rtrim($dir, '/');
-    }
-
-    define('BASE_URL', $base);
+    // 🌐 BASE_URL → solo path (funciona bien en XAMPP y producción)
+    $basePath = getenv('BASE_URL') ?: dirname($_SERVER['SCRIPT_NAME']);
+    define('BASE_URL', rtrim($basePath, '/'));
 }
 
-// 🎯 asset() → genera una ruta interna absoluta relativa a BASE_URL
+if (!defined('BASE_HOST')) {
+    // 🌍 BASE_HOST → protocolo + dominio (para redirecciones, APIs, etc.)
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+    define('BASE_HOST', $scheme . '://' . $host);
+}
+
+// 🔧 Función helper para generar rutas absolutas a recursos públicos
 if (!function_exists('asset')) {
-    function asset(string $path): string {
+    function asset(string $path): string
+    {
         return BASE_URL . '/' . ltrim($path, '/');
     }
 }
 
-// 🌐 FULL_BASE_URL → BASE_URL con protocolo + host (ideal para APIs, redirecciones, correos)
-if (!defined('FULL_BASE_URL')) {
-    $isSecure = (
-        (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ||
-        $_SERVER['SERVER_PORT'] === '443'
-    );
-    $protocol = $isSecure ? 'https://' : 'http://';
-    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-
-    define('FULL_BASE_URL', rtrim($protocol . $host . BASE_URL, '/'));
+// 🔧 Función helper para generar URLs absolutas completas (con host)
+if (!function_exists('full_url')) {
+    function full_url(string $path): string
+    {
+        return BASE_HOST . asset($path);
+    }
 }
