@@ -64,6 +64,7 @@ class ExpertResultController
             'tool_table','tool_id','material','trans_id',
             'rpm_min','rpm_max','fr_max','thickness','hp'
         ];
+        // Abort if any mandatory session value is missing
         foreach ($required as $key) {
             if (empty($session[$key])) {
                 dbg("Sesión incompleta: falta {$key}");
@@ -114,6 +115,7 @@ class ExpertResultController
             $coefSeg = ConfigModel::getCoefSeg($pdo, $transId);
 
             // 6) Cálculos base
+            // Apply machining formulas to compute initial feed and speed
             $fz0      = (($fzMin0 + $fzMax0) / 2) * $coefSeg;
             $vc0      = $vcMin0;
             $passes0  = 1;

@@ -41,6 +41,7 @@
 
   const renderBar = current => {
     const prog = getProg();
+    // Iterate all steps to mark progress and enable completed ones
     stepsBar.forEach(li => {
       const n = Number(li.dataset.step);
       li.classList.toggle('done',      n < prog);
@@ -54,6 +55,7 @@
 
   /** Ejecuta scripts <script> embebidos en el HTML del paso (necesario para los AJAX). */
   const runStepScripts = container => {
+    // Ensure any <script> tags returned via AJAX are executed
     [...container.querySelectorAll('script')].forEach(tag => {
       if (tag.src) {
         // Scripts externos (sólo si no están cargados aún)
@@ -112,7 +114,7 @@
           });
         }
 
-        // Script extra: si el paso 6 necesita su propio JS
+        // Step 6 has heavy calculations so its JS is loaded on demand
         if (step === 6) {
           if (!window.step6Loaded) {
             const script = document.createElement('script');
@@ -186,11 +188,13 @@
   });
 
   const hookEvents = () => {
+    // Attach validation and navigation handlers for the current step
     const form = stepHolder.querySelector('form');
     if (form) {
       form.addEventListener('submit', e => {
         e.preventDefault(); sendForm(form);
       });
+      // Live validation on every form field
       form.querySelectorAll('input,select,textarea').forEach(el =>
         el.addEventListener('input', () => {
           el.classList.toggle('is-valid', el.checkValidity());
@@ -206,6 +210,7 @@
       };
     }
 
+    // Allow navigation to already-completed steps
     stepsBar.forEach(li => {
       if (!li.classList.contains('clickable')) return;
       li.onclick = () => {
