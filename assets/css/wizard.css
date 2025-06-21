@@ -10,32 +10,35 @@
 body {
   background: #0b1e2d;
   color: #dceefb;
-  overflow-x: hidden; /* ocultamos scroll horizontal global */
+  overflow-x: hidden;
 }
 
-/* Contenedor del stepper (barra de pasos) */
+/* Contenedor del stepper */
 .stepper-container {
   background: #0f172a;
   overflow-x: auto;
   padding: 0;
   position: sticky;
-  scrollbar-width: none;
   top: 0;
   width: 100%;
-  z-index: 100;
+  z-index: 9999;                         /* siempre arriba */
+  scrollbar-width: none;
+  backdrop-filter: blur(2px);            /* suaviza al scrollear */
 }
-.stepper-container::-webkit-scrollbar { display: none; }
+.stepper-container::-webkit-scrollbar {
+  display: none;
+}
 
-/* ────────────────────────────────────────────────────────────────
-   STEPPER TRAPEZOIDAL
-   ──────────────────────────────────────────────────────────────── */
+/* STEPPER flexible */
 .stepper {
   display: flex;
   list-style: none;
   margin: 0;
   padding: 0;
+  flex-wrap: nowrap;
 }
 
+/* PASO flexible, se ajusta al contenido */
 .stepper li {
   align-items: center;
   background: #0f172a;
@@ -43,7 +46,7 @@ body {
   clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0% 100%);
   color: #64748b;
   display: flex;
-  flex: 0 0 25%;
+  flex: 1 1 auto;                        /* ahora se adapta */
   font-size: 1rem;
   font-weight: 600;
   justify-content: space-between;
@@ -55,17 +58,15 @@ body {
   text-transform: uppercase;
   transition: background .3s, color .3s;
   white-space: nowrap;
-  width: 30%;
+  min-width: fit-content;
   z-index: 1;
 }
 
-/* primer paso: trapecio completo */
 .stepper li:first-child {
   clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 10px 100%);
   margin-left: 0;
 }
 
-/* estado completado o activo */
 .stepper li.done,
 .stepper li.active {
   background: #1e293b;
@@ -74,7 +75,6 @@ body {
   z-index: 2;
 }
 
-/* barra superior azul animada */
 .stepper li.active::before,
 .stepper li.done::before {
   animation: fill-line-left .6s ease-in forwards;
@@ -92,7 +92,6 @@ body {
   to   { width: 100%; }
 }
 
-/* línea fina vertical entre pasos */
 .stepper li:not(:last-child)::after {
   background: rgb(255 255 255 / 15%);
   bottom: 10%;
