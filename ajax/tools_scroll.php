@@ -37,7 +37,7 @@ if ($materialId === false || $materialId === null) {
 if ($strategyId === false || $strategyId === null) {
     $strategyId = $_SESSION['strategy_id'] ?? null;
 }
-if ($materialId === null || $strategyId === null) {
+if ($materialId === null) {
     http_response_code(400);
     echo json_encode(['error' => 'missing_params']);
     exit;
@@ -63,7 +63,9 @@ foreach ($defs as $d) {
              . " '{$d['brand']}' AS brand, '{$d['table']}' AS source_table,"
              . " tm.rating, t.image"
              . " FROM {$d['table']} t"
-             . " JOIN toolstrategy ts ON ts.tool_table='{$d['table']}' AND ts.tool_id=t.tool_id AND ts.strategy_id=:sid"
+             . ($strategyId !== null
+                ? " JOIN toolstrategy ts ON ts.tool_table='{$d['table']}' AND ts.tool_id=t.tool_id AND ts.strategy_id=:sid"
+                : '')
              . " JOIN {$d['mat']} tm ON tm.tool_id=t.tool_id AND tm.material_id=:mid"
              . " JOIN series s ON s.id=t.series_id";
 }
@@ -72,7 +74,9 @@ $sql = implode(' UNION ALL ', $parts)
      . ' ORDER BY rating DESC LIMIT :limit OFFSET :offset';
 
 $stmt = $pdo->prepare($sql);
-$stmt->bindValue(':sid', $strategyId, PDO::PARAM_INT);
+if ($strategyId !== null) {
+    $stmt->bindValue(':sid', $strategyId, PDO::PARAM_INT);
+}
 $stmt->bindValue(':mid', $materialId, PDO::PARAM_INT);
 $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);

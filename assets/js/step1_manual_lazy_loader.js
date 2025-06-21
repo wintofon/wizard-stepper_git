@@ -11,10 +11,8 @@ const materialId = parseInt(
   document.querySelector('meta[name="material-id"]')?.content || '',
   10,
 );
-const strategyId = parseInt(
-  document.querySelector('meta[name="strategy-id"]')?.content || '',
-  10,
-);
+const strategyMeta = document.querySelector('meta[name="strategy-id"]');
+const strategyId = strategyMeta ? parseInt(strategyMeta.content, 10) : null;
 
 console.log('Sentinel:', sentinel);
 
@@ -34,8 +32,8 @@ const observer = new IntersectionObserver(
 
 export async function loadPage() {
   if (loading || !hasMore || !tbody) return;
-  if (!Number.isInteger(materialId) || !Number.isInteger(strategyId)) {
-    console.warn('Missing material_id or strategy_id; aborting lazy load');
+  if (!Number.isInteger(materialId)) {
+    console.warn('Missing material_id; aborting lazy load');
     hasMore = false;
     return;
   }
@@ -44,8 +42,10 @@ export async function loadPage() {
     const params = new URLSearchParams({
       page,
       material_id: materialId,
-      strategy_id: strategyId,
     });
+    if (Number.isInteger(strategyId)) {
+      params.append('strategy_id', strategyId);
+    }
     const res = await fetch(`${BASE_URL}/ajax/tools_scroll.php?${params}`, {
       cache: 'no-store',
       headers: csrf ? { 'X-CSRF-Token': csrf } : {},
