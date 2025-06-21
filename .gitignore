@@ -21,4 +21,3 @@ yarn-error.log*
 /dist/
 /build/
 /public/assets/
-.phpunit.result.cache
