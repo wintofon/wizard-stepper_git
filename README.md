@@ -30,7 +30,15 @@ This project contains a PHP wizard for configuring CNC operations.
   ```
   Then visit [http://localhost:8000](http://localhost:8000).
 
-6. When adding links to CSS, JavaScript or image files in your views, generate the
+6. If you host the project under a different path, set the `BASE_URL`
+   environment variable accordingly. For example, to serve it from the
+   root directory:
+   ```bash
+   BASE_URL="" php -S localhost:8000
+   ```
+   This prevents 404 errors when AJAX requests look for `/ajax/*.php`.
+
+7. When adding links to CSS, JavaScript or image files in your views, generate the
    path with the `asset()` helper so URLs work from any base path.
 
 ## Debug Endpoints
