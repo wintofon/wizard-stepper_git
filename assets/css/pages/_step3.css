@@ -6,6 +6,7 @@
 body {
   --bs-body-bg: #0d1117;
   --bs-body-color: #e0e0e0;
+
   background-color: var(--bs-body-bg);
   color: var(--bs-body-color);
 }
@@ -13,6 +14,6 @@ body {
 
 #scrollSentinel {
   height: 1px;
-  width: 100%;
   visibility: hidden;
+  width: 100%;
 }

@@ -93,8 +93,6 @@
   --bs-table-color: #e2e8f0;
 }
 
-}
-
 .stars {
   color: #0ea5e9;
   font-size: 0.95em;
@@ -110,13 +108,12 @@ h2.fw-bold {
   font-size: 1.8rem;
 }
 
-}
-
 .table-responsive {
+  max-height: none !important;
   overflow-x: auto;
   overflow-y: visible !important;
-  max-height: none !important;
 }
+
 .list-scroll-container {
   max-height: 65vh; /* ajustá si hace falta */
   overflow-y: auto;
@@ -125,3 +122,4 @@ h2.fw-bold {
 #sentinel {
   height: 1px;
 }
+
