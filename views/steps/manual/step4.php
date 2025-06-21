@@ -180,8 +180,11 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
 
   <!-- 4) Espesor -->
   <div id="thickGroup" class="mb-3" style="display:none">
-    <label for="thick" class="form-label">Espesor (mm)</label>
-    <input type="number" id="thick" name="thickness" class="form-control" step="0.1" min="0.1" required>
+    <label for="thick" class="form-label">Espesor</label>
+    <div class="input-group">
+      <input type="number" id="thick" name="thickness" class="form-control" step="0.1" min="0.1" required>
+      <span class="input-group-text">mm</span>
+    </div>
   </div>
 
   <!-- 5) Botón “Siguiente” -->
