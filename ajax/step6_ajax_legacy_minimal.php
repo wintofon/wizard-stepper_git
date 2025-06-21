@@ -19,8 +19,9 @@ header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 session_start();
 
 // 0. CSRF: validar token enviado en header X-CSRF-Token
-$token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
-if (!isset($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $token)) {
+$token = (string)($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
+$sessionToken = $_SESSION['csrf_token'] ?? null;
+if ($sessionToken === null || !hash_equals((string)$sessionToken, $token)) {
     http_response_code(403);
     exit('CSRF fail');
 }
