@@ -14,25 +14,32 @@ html,body{
   position:sticky;top:0;z-index:1000;
   width:100%;
   background:transparent;
-  overflow-x:hidden;
+  overflow-x:hidden;          /* ← evita cualquier scroll interno */
   box-shadow:0 8px 14px rgba(0,0,0,.55),
              inset 0 -1px 0 #1b2537;
 }
-/* tapas que rellenan los extremos */
+
+/* tapas triangulares (rellenan cortes) */
 .stepper-container::before,
 .stepper-container::after{
   content:"";
   position:absolute;top:0;bottom:0;
-  width:14px;background:#0f172a;pointer-events:none;
+  width:14px;background:#0f172a;
+  pointer-events:none;
 }
-.stepper-container::before{left:0; clip-path:polygon(0 0,100% 0,100% 100%);}
-.stepper-container::after {right:0;clip-path:polygon(0 0,100% 0,0 100%);}
+.stepper-container::before{
+  left:0;clip-path:polygon(0 0,100% 0,100% 100%);
+}
+.stepper-container::after{
+  right:0;clip-path:polygon(0 0,100% 0,0 100%);
+}
 
 /* ───── LISTA STEPPER ───── */
 .stepper{
-  display:flex;margin:0;padding:0;list-style:none;
+  display:flex;
+  margin:0;padding:0;list-style:none;
   background:transparent;
-  overflow:hidden;            /* anti-scroll adicional */
+  overflow:hidden;            /* nada de scroll interno */
 }
 
 /* LOGO (primer li) */
@@ -46,7 +53,8 @@ html,body{
 
 /* PASOS */
 .stepper li{
-  flex:1 1 0; min-width:0;
+  flex:1 1 0;                /* se encogen si es necesario */
+  min-width:0;               /* permite encogerse */
   position:relative;
   padding:.75rem 1.25rem;
   background:#162235;
@@ -54,31 +62,35 @@ html,body{
   font-weight:500;
   font-size:1rem;
   clip-path:polygon(12px 0,100% 0,calc(100% - 12px) 100%,0 100%);
-  white-space:normal;overflow-wrap:anywhere;
+  white-space:normal;        /* puede saltar de línea */
+  overflow-wrap:anywhere;
+  overflow:hidden;
   border-bottom:2px solid transparent;
-
-  /* ← reemplaza margin-negativo: simula el bisel sin desbordar */
-  border-left:12px solid #0f172a;
   transition:background .3s,color .3s;
 }
-/* primer paso sin borde-izq para que no quede doble */
+/* primer paso sin solape negativo */
 .stepper li:first-child{
-  border-left:none;
   clip-path:polygon(0 0,100% 0,calc(100% - 12px) 100%,12px 100%);
 }
 
-/* divisoria fina */
+/* línea divisoria */
 .stepper li:not(:last-child)::after{
-  content:"";position:absolute;right:0;top:12%;bottom:12%;
+  content:"";
+  position:absolute;
+  right:0;top:12%;bottom:12%;
   width:1px;background:rgba(255,255,255,.15);
 }
 
 /* ESTADOS */
 .stepper li.active,
 .stepper li.done{
-  background:#1d3557;color:#fff;border-bottom:3px solid #00bfff;
+  background:#1d3557;
+  color:#fff;
+  border-bottom:3px solid #00bfff;
 }
-.stepper li.active{text-shadow:0 0 6px rgba(0,191,255,.5);}
+.stepper li.active{
+  text-shadow:0 0 6px rgba(0,191,255,.5);
+}
 
 /* barra superior animada */
 .stepper li.active::before,
@@ -89,21 +101,25 @@ html,body{
 }
 @keyframes fill-bar{from{width:0}to{width:100%}}
 
-/* OPCIONAL ICONO */
+/* ICONO opcional */
 .stepper li .icon{margin-left:.35rem;color:#00ff95;font-size:1rem;}
 
 /* ───── RESPONSIVE ≤768 px ───── */
 @media(max-width:768px){
   .stepper{justify-content:center}
 
-  .logo-stepper,
-  .stepper li{display:none;}
+  /* ocultar todo menos activo/done */
+  .stepper li,
+  .logo-stepper{display:none}
 
   .stepper li.active,
   .stepper li.done{
     display:block;
-    width:100vw!important;max-width:100vw;
-    clip-path:none;border-left:none;border-right:none;
-    text-align:center;font-size:1.1rem;padding:1rem;
+    width:100vw!important;
+    max-width:100vw;
+    clip-path:none;
+    text-align:center;
+    font-size:1.1rem;
+    padding:1rem;
   }
 }
