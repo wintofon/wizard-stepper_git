@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="<?= asset('assets/css/wizard.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/stepper.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/footer-schneider.css') ?>">
-  <script>window.BASE_URL = '<?= BASE_URL ?>';</script>
+  <script>const BASE_URL = "<?= BASE_URL ?>"; window.BASE_URL = BASE_URL;</script>
 </head>
 <body>
 
@@ -35,7 +35,7 @@
 
   <!-- Botón reset -->
   <div style="text-align:right; padding:.5rem 1rem;">
-    <a href="public/reset.php" class="btn btn-outline-light">
+    <a href="<?= BASE_URL ?>public/reset.php" class="btn btn-outline-light">
       <i data-feather="refresh-ccw" class="me-1"></i>
       Volver al inicio
     </a>

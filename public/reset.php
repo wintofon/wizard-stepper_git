@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__ . '/../includes/init.php';
 require_once __DIR__ . '/../src/Config/AppConfig.php';
 /**
  * File: reset.php
@@ -132,7 +133,7 @@ echo <<<'HTML'
     }
     // Redirigir a wizard.php tras un breve retardo (200ms)
     setTimeout(function() {
-      window.location.replace('../wizard.php');
+      window.location.replace('<?= BASE_URL ?>wizard.php');
     }, 200);
   </script>
 </body>
