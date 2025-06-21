@@ -104,14 +104,14 @@
       .catch(console.error);
   }
 
-  /* ========== AJAX → tools_ajax.php =============================== */
+  /* ========== AJAX → get_filtered_tools.php =============================== */
   async function cargarTabla(){
     const fd=new FormData();
     facetBox.querySelectorAll('input[type=checkbox]:checked')
             .forEach(cb=>fd.append(cb.name+'[]',cb.value));
     fd.append('q',qBox.value.trim());
 
-    const url=`${BASE_URL}/ajax/tools_ajax.php?`+new URLSearchParams(fd);
+    const url=`${BASE_URL}/ajax/get_filtered_tools.php?`+new URLSearchParams(fd);
     dbg('fetch',url);
     const r = await fetch(url,{cache:'no-store'});
     toolsData = await r.json();
