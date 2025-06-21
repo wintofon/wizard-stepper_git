@@ -1,5 +1,5 @@
 <?php
-// File: C:\xampp\htdocs\wizard-stepper_git\views\steps\step6.php
+// File: C:\xampp\htdocs\wizard-stepper_git\views\steps\step6_auto_expert_results.php
 declare(strict_types=1);
 
 use App\Controller\ExpertResultController;
@@ -206,8 +206,8 @@ $chartJsLocal    = $root . 'node_modules/chart.js/dist/chart.umd.min.js';
 $cdnChartJs      = 'https://cdn.jsdelivr.net/npm/chart.js/dist/chart.umd.min.js';
 $countUpLocal    = $root . 'node_modules/countup.js/dist/countUp.umd.js';
 $cdnCountUp      = 'https://cdn.jsdelivr.net/npm/countup.js/dist/countUp.umd.min.js';
-$step6JsRel      = file_exists($root . 'assets/js/step6.js')
-    ? asset('assets/js/step6.js') : '';
+$step6JsRel      = file_exists($root . 'assets/js/step6_auto_results.js')
+    ? asset('assets/js/step6_auto_results.js') : '';
 
 
 
@@ -630,18 +630,18 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
  
 
 
-<!--  🔻  ⬇︎  Añade esto JUSTO ANTES de cargar step6.js  ⬇︎  🔻 -->
+  <!--  🔻  ⬇︎  Añade esto JUSTO ANTES de cargar step6_auto_results.js  ⬇︎  🔻 -->
 <script>
   /* parámetros técnicos precalculados en PHP */
   window.step6Params = <?= $jsonParams ?>;
 
-  /* token CSRF para que step6.js lo reenvíe al endpoint */
+  /* token CSRF para que step6_auto_results.js lo reenvíe al endpoint */
   window.step6Csrf   = '<?= $csrfToken ?>';
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.umd.min.js"></script>
-<script src="<?= asset('assets/js/step6.js') ?>"></script>
+  <script src="<?= asset('assets/js/step6_auto_results.js') ?>"></script>
 <script>
   window.addEventListener('pageshow', (e) => {
     if (e.persisted) {

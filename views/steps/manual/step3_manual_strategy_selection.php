@@ -56,8 +56,8 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
  * [D]  Flujo de wizard – debe haberse completado paso 2
  * ──────────────────────────────────────────────────── */
 if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 2) {
-    dbg('❌ wizard_progress<2 – redirigiendo a step1.php');
-    header('Location: step1.php');
+    dbg('❌ wizard_progress<2 – redirigiendo a step1_manual_tool_browser.php');
+    header('Location: step1_manual_tool_browser.php');
     exit;
 }
 $_SESSION['wizard_state'] = 'wizard';
@@ -95,7 +95,7 @@ require_once __DIR__ . '/../../../includes/debug.php';
  * [H]  Validar que existe herramienta seleccionada
  * ──────────────────────────────────────────────────── */
 if (empty($_SESSION['tool_id']) || empty($_SESSION['tool_table'])) {
-    header('Location: step1.php'); /* flujo roto */
+    header('Location: step1_manual_tool_browser.php'); /* flujo roto */
     exit;
 }
 $toolId    = (int)$_SESSION['tool_id'];

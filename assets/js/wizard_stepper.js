@@ -105,15 +105,15 @@
         // Script extra: si el paso 6 necesita su propio JS
         if (step === 6) {
           if (!window.step6Loaded) {
-            const script = document.createElement('script');
-            script.src = `${BASE_URL}/assets/js/step6.js`;
+              const script = document.createElement('script');
+              script.src = `${BASE_URL}/assets/js/step6_auto_results.js`;
             script.defer = true;
             script.onload = () => { 
               window.step6Loaded = true;
-              log('[stepper.js] 🔢 step6.js cargado OK');
+                log('[stepper.js] 🔢 step6_auto_results.js cargado OK');
               if (typeof window.initStep6 === 'function') window.initStep6();
             };
-            script.onerror = () => console.error('[stepper.js] ⚠️ Error cargando step6.js');
+              script.onerror = () => console.error('[stepper.js] ⚠️ Error cargando step6_auto_results.js');
             document.body.appendChild(script);
           } else {
             if (typeof window.initStep6 === 'function') window.initStep6();

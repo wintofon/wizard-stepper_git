@@ -1,6 +1,6 @@
 <?php
 /**
- * File: views/steps/manual/step1.php
+ * File: views/steps/manual/step1_manual_tool_browser.php
  * Explorador visual de herramientas de corte – Paso 1 (modo manual)
  * Con blindaje de sesión, CSRF, validación y debug opcional
  */
@@ -35,8 +35,15 @@ if (empty($_SESSION['wizard_state']) || $_SESSION['wizard_state'] !== 'wizard') 
 // redirigimos directamente al paso que le corresponda
 $currentProgress = (int)($_SESSION['wizard_progress'] ?? 1);
 if ($currentProgress > 1) {
-    // Por ejemplo, si progress == 2, lo mandamos a step2.php
-    header('Location: step' . $currentProgress . '.php');
+    $redirectMap = [
+        2 => 'step2_manual_tool_confirmation.php',
+        3 => 'step3_manual_strategy_selection.php',
+        4 => 'step4_manual_wood_selection.php',
+        5 => 'step5_auto_router_config.php',
+        6 => 'step6_auto_expert_results.php'
+    ];
+    $target = $redirectMap[$currentProgress] ?? 'step1_manual_tool_browser.php';
+    header('Location: ' . $target);
     exit;
 }
 
@@ -107,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['wizard_progress'] = 2; // Marcamos que ya completó Paso 1
         dbg('Paso 1 validado con éxito. tool_id=' . $toolId . ' tool_table=' . $toolTable);
 
-        header('Location: step2.php');
+        header('Location: step2_manual_tool_confirmation.php');
         exit;
     }
 }
@@ -235,14 +242,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
   <!-- Script principal del paso (se encarga de rellenar la tabla y habilitar radios) -->
-  <script src="<?= asset('assets/js/step1_manual_browser.js') ?>"
+  <script src="<?= asset('assets/js/step1_manual_tool_browser.js') ?>"
           onload="window._TOOL_BROWSER_LOADED=true"
-          onerror="console.error('❌ step1_manual_browser.js no cargó');">
+          onerror="console.error('❌ step1_manual_tool_browser.js no cargó');">
   </script>
-  <script type="module" src="<?= asset('assets/js/step1_lazy.js') ?>"></script>
+  <script type="module" src="<?= asset('assets/js/step1_manual_lazy_loader.js') ?>"></script>
 
   <script type="module" nonce="<?= $nonce ?>">
-      import { initToolTable } from '<?= asset('assets/js/step1_manual_hook.js') ?>';
+      import { initToolTable } from '<?= asset('assets/js/step1_manual_browser_hook.js') ?>';
     initToolTable();
   </script>
 </body>

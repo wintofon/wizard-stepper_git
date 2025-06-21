@@ -1,5 +1,5 @@
 /**
- * step7_expert_result.js
+ * step7_auto_expert_result.js
  * Calculadora CNC interactiva completa y didáctica.
  * Muestra todos los parámetros técnicos con cálculos explicativos.
  */
