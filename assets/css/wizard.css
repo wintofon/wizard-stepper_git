@@ -8,117 +8,129 @@
 @import url('base/_typography.css');
 
 body {
-  background: #0b1e2d;
-  color: #dceefb;
+  background: #0b1e2d;              /* tono azul-oscuro global   */
+  color: #dceefb;                   /* texto casi blanco-celeste */
 }
 
 /* Contenedor del stepper (barra de pasos) */
 .stepper-container {
-  background: #0f172a;
-  overflow-x: auto;
-  padding: 0;
-  position: sticky;
-  scrollbar-width: none;
-  top: 0;
-  width: 100%;
-  z-index: 100;
+  background: #0f172a;              /* fondo azul más oscuro     */
+  overflow-x: auto;                 /* scroll horizontal móvil   */
+  padding: 0;                       /* sin padding extra         */
+  position: sticky;                 /* se fija al hacer scroll   */
+  scrollbar-width: none;           /* oculta scroll en Firefox  */
+  top: 0;                           /* siempre pegado arriba     */
+  width: 100%;                      /* ocupa todo el ancho       */
+  z-index: 100;                     /* sobre el contenido        */
 }
-.stepper-container::-webkit-scrollbar { display: none; }
+.stepper-container::-webkit-scrollbar { display: none; } /* oculta en Chrome */
 
 /* ────────────────────────────────────────────────────────────────
-   STEPPER TIPO PESTAÑAS DIAGONALES
+   STEPPER TRAPEZOIDAL
    ──────────────────────────────────────────────────────────────── */
 .stepper {
-  display: flex;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  flex-wrap: nowrap;
-  overflow: hidden;
+  display: flex;                    /* pasos en línea            */
+  list-style: none;                 /* sin bullets               */
+  margin: 0; padding: 0;            /* reset                     */
 }
 
 .stepper li {
-  flex: 0 0 auto;
-  background: #0f172a;
-  color: #64748b;
-  padding: 1rem 2rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  font-size: 0.95rem;
-  position: relative;
-  white-space: nowrap;
-  clip-path: polygon(0 0, 95% 0, 100% 100%, 5% 100%);
-  border-right: 1px solid rgb(255 255 255 / 10%);
-  transition: background 0.3s, color 0.3s;
+  align-items: center;
+  background: #0f172a;              /* mismo fondo contenedor    */
+  border-right: 1px solid rgb(255 255 255 / 10%); /* línea divisoria */
+  clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0% 100%);
+  color: #64748b;                   /* gris-azulado apagado      */
+  display: flex;                    /* alinear texto e icono     */
+  flex: 0 0 25%;                    /* ancho fijo del 30% del contenedor */
+  font-size: 1rem;                  /* tamaño base               */
+  font-weight: 600;                 /* semi-bold                 */
+  justify-content: space-between;   /* icono a la derecha        */
+  margin-left: -10px;               /* solapado para trapecios   */
+  overflow: hidden;                 /* texto que excede se oculta */
+  padding: 1.25rem 2rem;            /* espacio interno           */
+  position: relative;               /* referencia para ::before  */
+  text-overflow: ellipsis;          /* muestra ... si es largo   */
+  text-transform: uppercase;        /* MAYÚSCULAS                */
+  transition: background .3s, color .3s; /* suavidad hover/cambio */
+  white-space: nowrap;              /* no se divide en líneas    */
+  width: 30%;                       /* coincide con el ancho del flex */
+  z-index: 1;                       /* debajo de activo/done     */
 }
 
-/* Primer paso sin corte a la izquierda */
+/* primer paso: trapecio completo */
 .stepper li:first-child {
-  clip-path: polygon(0 0, 95% 0, 100% 100%, 0% 100%);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 10px 100%);
+  margin-left: 0;                   /* sin solapado a la izq.    */
 }
 
-/* Último paso sin corte a la derecha */
-.stepper li:last-child {
-  clip-path: polygon(5% 0, 100% 0, 100% 100%, 0% 100%);
-  border-right: none;
-}
-
-/* Paso activo o completado */
+/* estado completado o activo */
 .stepper li.done,
 .stepper li.active {
-  background: #1e293b;
-  color: #ffffff;
-  border-bottom: 3px solid #0ea5e9;
-  z-index: 2;
+  background: #1e293b;              /* fondo azul intermedio     */
+  border-bottom: 3px solid #0ea5e9; /* destaca el paso actual    */
+  color: #fff;                      /* texto blanco              */
+  z-index: 2;                       /* por encima de inactivos   */
 }
 
 /* barra superior azul animada */
 .stepper li.active::before,
 .stepper li.done::before {
-  animation: fill-line-left .6s ease-in forwards;
-  background: #0ea5e9;
+  animation: fill-line-left .6s ease-in forwards; /* efecto de llenado */
+  background: #0ea5e9;              /* azul brillante            */
   content: "";
-  height: 4px;
+  height: 4px;                      /* grosor de la barra        */
   left: 0;
   position: absolute;
   top: 0;
-  width: 100%;
+  width: 100%;                      /* ocupa todo el paso        */
 }
 
-@keyframes fill-line-left {
+@keyframes fill-line-left {         /* animación de ancho barra  */
   from { width: 0; }
   to   { width: 100%; }
+}
+
+/* línea fina vertical entre pasos */
+.stepper li:not(:last-child)::after {
+  background: rgb(255 255 255 / 15%); /* blanco translúcido        */
+  bottom: 10%;                      /* deja margen arriba/abajo  */
+  content: "";
+  position: absolute;
+  right: 0;                         /* pegada al borde derecho   */
+  top: 10%;
+  width: 1px;                       /* grosor línea              */
+  z-index: 3;                       /* sobre fondo del paso      */
 }
 
 /* ────────────────────────────────────────────────────────────────
    CONTENEDOR CENTRAL
    ──────────────────────────────────────────────────────────────── */
 .wizard-body {
-  background: #132330;
-  border: 1px solid #264b63;
-  border-radius: .75rem;
-  box-shadow: 0 0 24px rgb(0 0 0 / 50%);
-  margin: 3rem auto;
-  max-width: 1200px;
-  padding: 2.5rem;
+  background: #132330;              /* caja azul oscuro          */
+  border: 1px solid #264b63;        /* contorno sutil            */
+  border-radius: .75rem;            /* bordes redondeados        */
+  box-shadow: 0 0 24px rgb(0 0 0 / 50%); /* sombra envolvente      */
+  margin: 3rem auto;                /* centrado y margen sup.    */
+  max-width: 1200px;                /* ancho máx. de contenido   */
+  padding: 2.5rem;                  /* espacio interno generoso  */
 }
 
 /* ────────────────────────────────────────────────────────────────
    DEBUG BOX
    ──────────────────────────────────────────────────────────────── */
 .debug-box {
-  background: #102735;
-  border-radius: 6px;
-  border-top: 1px solid #2e5b78;
-  color: #a7d3e9;
-  font-family: monospace;
-  font-size: .85rem;
-  height: 160px;
-  margin: 2rem auto;
-  max-width: 1000px;
-  overflow-y: auto;
-  padding: 1rem;
-  white-space: pre-wrap;
+  background: #102735;              /* fondo casi negro-azul     */
+  border-radius: 6px;               /* bordes suaves             */
+  border-top: 1px solid #2e5b78;    /* línea superior discreta   */
+  color: #a7d3e9;                   /* texto celeste claro       */
+  font-family: monospace;           /* tipografía código         */
+  font-size: .85rem;                /* pequeño                   */
+  height: 160px;                    /* alto fijo con scroll      */
+  margin: 2rem auto;                /* centrado                  */
+  max-width: 1000px;                /* evita crecer de más       */
+  overflow-y: auto;                 /* scroll vertical           */
+  padding: 1rem;                    /* espacio interno           */
+  white-space: pre-wrap;            /* respeta saltos de línea   */
 }
 
 /* ────────────────────────────────────────────────────────────────
@@ -126,7 +138,7 @@ body {
    ──────────────────────────────────────────────────────────────── */
 @media (width <= 768px) {
   .stepper-container {
-    overflow-x: hidden;
+    overflow-x: hidden;             /* oculta scroll horizontal  */
   }
 
   .stepper {
@@ -134,18 +146,23 @@ body {
   }
 
   .stepper li {
-    display: none;
+    border-right: none;
     clip-path: none;
-    width: 100vw;
-    max-width: none;
-    min-width: 100vw;
-    padding: 1rem 1rem;
+    display: none;                  /* ocultamos por defecto     */
+    flex: 0 0 auto;
+    margin-left: 0;
+    width: 100vw;                   /* paso ocupa toda la pantalla */
+    max-width: 100vw;
+    padding-left: 1rem;
+    padding-right: 1rem;
     text-align: center;
   }
 
   .stepper li.active {
-    display: block;
+    display: block;                 /* solo se ve el activo      */
   }
 
-  .stepper li:not(:last-child)::after { display: none; }
+  .stepper li:not(:last-child)::after {
+    display: none;                  /* sin líneas verticales     */
+  }
 }
