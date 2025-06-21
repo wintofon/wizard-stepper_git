@@ -154,7 +154,7 @@
     };
 
     try {
-      const res = await fetch(`${BASE_URL}/ajax/step6_ajax_legacy_minimal.php`, {
+      const res = await fetch(`${BASE_URL}/ajax/calculate_step6_legacy_minimal.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

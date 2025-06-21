@@ -7,7 +7,7 @@ declare(strict_types=1);
  * • Arranca sesión y valida estado/progreso.
  * • Si es POST, procesa la selección de fresa y redirige al Paso 4.
  * • Si es GET, imprime HTML + JavaScript para:
- *    – Hacer fetch AJAX a get_tools.php y cargar dinámicamente las tarjetas.
+ *    – Hacer fetch AJAX a get_tools_by_material_strategy.php y cargar dinámicamente las tarjetas.
  *    – Filtrar por diámetro.
  *    – Manejar la selección y enviar POST de vuelta a este mismo archivo.
  * • Incluye puntos dbg() en cada paso para poder ver la sesión, datos recibidos,
@@ -17,7 +17,7 @@ declare(strict_types=1);
  *   /includes/debug.php        → define dbg(...)
  *   /includes/db.php           → expone $pdo = db();
  *   /src/Controller/AutoToolRecommenderController.php
- *   /ajax/get_tools.php        → devuelve JSON de fresas compatibles.
+ *   /ajax/get_tools_by_material_strategy.php        → devuelve JSON de fresas compatibles.
  */
 
 use App\Controller\AutoToolRecommenderController;
@@ -239,11 +239,11 @@ try {
     let diameters = [];    // Diámetros únicos (array de strings con 3 decimales)
 
     /**
-     * 1) Hacer fetch AJAX a get_tools.php para obtener JSON de fresas.
+     * 1) Hacer fetch AJAX a get_tools_by_material_strategy.php para obtener JSON de fresas.
      */
     async function fetchTools() {
       try {
-        const url = `${window.BASE_URL}/ajax/get_tools.php?material_id=${encodeURIComponent(materialId)}&strategy_id=${encodeURIComponent(strategyId)}`;
+        const url = `${window.BASE_URL}/ajax/get_tools_by_material_strategy.php?material_id=${encodeURIComponent(materialId)}&strategy_id=${encodeURIComponent(strategyId)}`;
         dbg('⬇ [step3.js] Fetch →', url);
         const resp = await fetch(url, { cache: 'no-store' });
         if (!resp.ok) {
