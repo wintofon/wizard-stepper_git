@@ -54,6 +54,8 @@
         if (!document.querySelector(`head script[src="${tag.src}"]`)) {
           const s = document.createElement('script');
           s.src = tag.src;
+          if (tag.type) s.type = tag.type;     // preservar type="module" si existe
+          if (tag.nonce) s.nonce = tag.nonce;  // mantener CSP
           s.defer = true;
           s.onload = () => log(`[stepper.js] Cargado: ${tag.src}`);
           s.onerror = () => console.error(`[stepper.js] ⚠️ Falló carga: ${tag.src}`);
@@ -63,6 +65,8 @@
         // Scripts inline (vital para cada paso)
         try {
           const inlineScript = document.createElement('script');
+          if (tag.type) inlineScript.type = tag.type;
+          if (tag.nonce) inlineScript.nonce = tag.nonce;
           inlineScript.textContent = tag.textContent;
           document.body.appendChild(inlineScript).remove();
           log('[stepper.js] Ejecutado inline script');
