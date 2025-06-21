@@ -156,7 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <h2 class="step-title"><i data-feather="search"></i> Explorador de fresas</h2>
           <p class="step-desc">Elegí la herramienta inicial para el trabajo.</p>
         </div>
-        <img src="<?= asset('assets/img/logo_nexgen.png') ?>"
+        <img src="<?= asset('assets/img/logos/logo_stepper.png') ?>"
              height="46"
              alt="logo"
              onerror="this.remove()">
