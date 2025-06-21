@@ -63,8 +63,6 @@
   <script>feather.replace();</script>
   <script src="<?= asset('assets/js/wizard_stepper.js') ?>" defer></script>
   <script src="<?= asset('assets/js/dashboard.js') ?>" defer></script>
-<link rel="stylesheet" href="<?= asset('assets/css/wizard.css') ?>">
-  <link rel="stylesheet" href="<?= asset('assets/css/pages/_step6.css') ?>"><!-- <---- AGREGALO ACÁ -->
 
   <footer class="footer-schneider text-white mt-5">
     <div class="container py-4">
