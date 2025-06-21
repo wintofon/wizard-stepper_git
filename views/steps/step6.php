@@ -464,8 +464,9 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
           </div>
         </div>
       </div>
-    </div>
-  </div>
+
+
+
 
 
   <!-- ESPECIFICACIONES TÉCNICAS & IMAGEN VECTORIAL -->
@@ -619,7 +620,6 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
           </div>
         </div>
       </div>
-</div>
 </div>
  
 
