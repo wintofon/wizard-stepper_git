@@ -3,7 +3,10 @@
  * File: step6_ajax_legacy_minimal.php
  *
  * Main responsibility: Part of the CNC Wizard Stepper.
- * Related files: See others in this project.
+ *
+ * Called by: assets/js/step6.js to compute machining parameters
+ * Important JSON fields: fz, vc, ae, passes, thickness, D, Z, params[*]
+ * Uses session key: $_SESSION['csrf_token'] for validation
  * @TODO Extend documentation.
  */
 /**
@@ -28,7 +31,7 @@ header('Content-Type: application/json; charset=UTF-8');
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 
 // Iniciar sesión para CSRF
-session_start();
+session_start(); // ensures $_SESSION['csrf_token'] is available
 
 // 0. CSRF: validar token enviado en header X-CSRF-Token
 $token = (string)($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');

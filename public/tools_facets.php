@@ -3,7 +3,9 @@
  * File: tools_facets.php
  *
  * Main responsibility: Part of the CNC Wizard Stepper.
- * Related files: See others in this project.
+ *
+ * Called by: JS tool browser to retrieve available filter values
+ * Reads no session keys; no POST parameters
  * @TODO Extend documentation.
  */
 /**

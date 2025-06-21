@@ -3,7 +3,12 @@
  * File: strategy_ajax.php
  *
  * Main responsibility: Part of the CNC Wizard Stepper.
- * Related files: See others in this project.
+ *
+ * Called by: step 2/3 pages to retrieve available strategies for a tool
+ * Important GET params:
+ *   - tool_id
+ *   - tool_table
+ *   - machining_type_id
  * @TODO Extend documentation.
  */
 // strategy_ajax.php
@@ -15,12 +20,13 @@ if (!getenv('BASE_URL')) {
 require_once __DIR__ . '/../src/Config/AppConfig.php';
 require_once __DIR__ . '/../includes/db.php';
 
+// Basic sanity check to avoid direct access
 if (!isset($_GET['ajax']) || $_GET['ajax'] !== '1') {
     http_response_code(400);
     exit('Bad request');
 }
 
-$toolId = isset($_GET['tool_id']) ? (int)$_GET['tool_id'] : 0;
+$toolId = isset($_GET['tool_id']) ? (int)$_GET['tool_id'] : 0; // tool identifier
 $toolTable = $_GET['tool_table'] ?? '';
 $machiningTypeId = isset($_GET['machining_type_id']) ? (int)$_GET['machining_type_id'] : 0;
 

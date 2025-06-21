@@ -3,7 +3,15 @@
  * File: load-step.php
  *
  * Main responsibility: Part of the CNC Wizard Stepper.
- * Related files: See others in this project.
+ *
+ * Called by: wizard.php via asynchronous requests
+ * Important GET params:
+ *   - step    Requested wizard step
+ *   - debug   Enable verbose output
+ * Important session keys used:
+ *   - $_SESSION['wizard_state']
+ *   - $_SESSION['wizard_progress']
+ *   - $_SESSION['tool_mode']
  * @TODO Extend documentation.
  */
 declare(strict_types=1);
@@ -65,8 +73,10 @@ $requestedStep = filter_input(INPUT_GET, 'step', FILTER_VALIDATE_INT);
 // ─────────────────────────────────────────────────────────────
 // [6] VERIFICAR ESTADO DE SESIÓN (PERMITIR PASO 1 INICIAL)
 // ─────────────────────────────────────────────────────────────
+// wizard_state is created in wizard.php when starting the flow
 if (($_SESSION['wizard_state'] ?? '') !== 'wizard') {
     if ($requestedStep === 1) {
+        // Initialize wizard state and progress for first step
         $_SESSION['wizard_state']    = 'wizard';
         $_SESSION['wizard_progress'] = $_SESSION['wizard_progress'] ?? 1;
         session_regenerate_id(true);
@@ -94,7 +104,7 @@ dbg("📥 Paso solicitado: {$step}");
 // ─────────────────────────────────────────────────────────────
 // [7] VERIFICAR PROGRESO DEL USUARIO
 // ─────────────────────────────────────────────────────────────
-$currentProgress = (int)($_SESSION['wizard_progress'] ?? 0);
+$currentProgress = (int)($_SESSION['wizard_progress'] ?? 0); // progress set in handle-step.php
 dbg("🔢 Progreso actual (sesión): {$currentProgress}");
 
 $maxAllowedStep = $currentProgress + 1;
@@ -107,7 +117,7 @@ if ($step > $maxAllowedStep) {
 // ─────────────────────────────────────────────────────────────
 // [8] DETECTAR MODO (auto vs manual)
 // ─────────────────────────────────────────────────────────────
-$modeRaw = $_SESSION['tool_mode'] ?? 'manual';
+$modeRaw = $_SESSION['tool_mode'] ?? 'manual'; // set during step selection
 $mode    = ($modeRaw === 'auto') ? 'auto' : 'manual';
 dbg("🧭 Modo actual: {$mode}");
 

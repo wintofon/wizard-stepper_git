@@ -3,7 +3,10 @@
  * File: tools_ajax.php
  *
  * Main responsibility: Part of the CNC Wizard Stepper.
- * Related files: See others in this project.
+ *
+ * Called by: manual tool browser for searching tools
+ * Important GET params include many filter names (brand, material_id, ...)
+ * No session data is needed
  * @TODO Extend documentation.
  */
 // tools_ajax.php - Devuelve lista de herramientas filtradas (sin autenticación)
@@ -33,6 +36,7 @@ foreach ($pdo->query("SELECT id, code FROM series") as $s) {
 // 1) Normalize GET filters
 $f = [];
 $qText = '';
+// Parse query-string filters coming from the tool browser
 foreach ($_GET as $k => $v) {
     if ($k === 'q') {
         $qText = trim($v);

@@ -3,14 +3,17 @@
  * File: paso_minimo_ajax.php
  *
  * Main responsibility: Part of the CNC Wizard Stepper.
- * Related files: See others in this project.
+ *
+ * Called by: legacy demo page for minimum pass calculations
+ * Important JSON fields: fz, vc, passes, D, Z, thickness, ae, frMax, etc.
+ * Writes no session data
  * @TODO Extend documentation.
  */
 declare(strict_types=1);
 header('Content-Type: application/json; charset=UTF-8');
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 
-$data = json_decode(file_get_contents('php://input'), true);
+$data = json_decode(file_get_contents('php://input'), true); // parameters from JS
 if (!isset($data['fz'],$data['vc'],$data['passes'])) {
     http_response_code(400);
     echo json_encode(['error'=>'Parámetros inválidos']);
