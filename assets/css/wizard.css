@@ -12,20 +12,22 @@ body {
   color: #dceefb;
 }
 
-/* Contenedor del stepper */
+/* Contenedor del stepper (barra de pasos) */
 .stepper-container {
   background: #0f172a;
   overflow-x: auto;
   padding: 0;
   position: sticky;
+  scrollbar-width: none;
   top: 0;
   width: 100%;
   z-index: 100;
-  scrollbar-width: none;
 }
 .stepper-container::-webkit-scrollbar { display: none; }
 
-/* Stepper lista */
+/* ────────────────────────────────────────────────────────────────
+   STEPPER CON PESTAÑAS EN DIAGONAL (ESTILO MODERNO)
+   ──────────────────────────────────────────────────────────────── */
 .stepper {
   display: flex;
   list-style: none;
@@ -35,46 +37,42 @@ body {
   overflow: hidden;
 }
 
-/* Paso individual */
 .stepper li {
-  align-items: center;
-  background: #0f172a;
-  border-right: 1px solid rgb(255 255 255 / 10%);
-  clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0% 100%);
-  color: #64748b;
-  display: flex;
   flex: 0 0 auto;
-  font-size: 1rem;
+  background: #0f172a;
+  color: #64748b;
+  padding: 1rem 2rem;
   font-weight: 600;
-  justify-content: space-between;
-  transform: translateX(-10px);
-  overflow: hidden;
-  padding: 1.25rem 2rem;
-  position: relative;
-  text-overflow: ellipsis;
   text-transform: uppercase;
-  transition: background .3s, color .3s;
+  font-size: 0.95rem;
+  position: relative;
   white-space: nowrap;
-  min-width: 140px;
-  max-width: 220px;
-  z-index: 1;
+  clip-path: polygon(0 0, 95% 0, 100% 100%, 5% 100%);
+  border-right: 1px solid rgb(255 255 255 / 10%);
+  transition: background 0.3s, color 0.3s;
 }
 
-/* Primer paso sin desplazamiento */
+/* Primer paso: sin diagonal izquierda */
 .stepper li:first-child {
-  clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 10px 100%);
-  transform: none;
+  clip-path: polygon(0 0, 95% 0, 100% 100%, 0% 100%);
 }
 
-/* Paso activo o completo */
+/* Último paso: sin diagonal derecha */
+.stepper li:last-child {
+  clip-path: polygon(5% 0, 100% 0, 100% 100%, 0% 100%);
+  border-right: none;
+}
+
+/* Paso activo o completado */
 .stepper li.done,
 .stepper li.active {
   background: #1e293b;
+  color: #ffffff;
   border-bottom: 3px solid #0ea5e9;
-  color: #fff;
   z-index: 2;
 }
 
+/* Barra superior azul animada */
 .stepper li.active::before,
 .stepper li.done::before {
   animation: fill-line-left .6s ease-in forwards;
@@ -90,18 +88,6 @@ body {
 @keyframes fill-line-left {
   from { width: 0; }
   to   { width: 100%; }
-}
-
-/* Línea divisoria vertical entre pasos */
-.stepper li:not(:last-child)::after {
-  background: rgb(255 255 255 / 15%);
-  content: "";
-  position: absolute;
-  right: 0;
-  top: 10%;
-  bottom: 10%;
-  width: 1px;
-  z-index: 3;
 }
 
 /* ────────────────────────────────────────────────────────────────
@@ -150,17 +136,15 @@ body {
   .stepper li {
     display: none;
     clip-path: none;
-    flex: 0 0 auto;
-    margin-left: 0;
-    transform: none;
     width: 100vw;
     max-width: none;
     min-width: 100vw;
+    padding: 1rem 1rem;
+    text-align: center;
   }
 
   .stepper li.active {
     display: block;
-    text-align: center;
   }
 
   .stepper li:not(:last-child)::after { display: none; }
