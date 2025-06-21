@@ -1,5 +1,9 @@
 /** Ubicación: C:\xampp\htdocs\wizard-stepper_git\assets\js\step6.js */
 /* global Chart */
+
+// Mantiene la instancia del gráfico entre ejecuciones
+window.radarChartInstance = window.radarChartInstance || null;
+
 (() => {
   const BASE_URL = window.BASE_URL;
   // 1. Parámetros inyectados por PHP
@@ -46,10 +50,11 @@
 
   // 4. Radar Chart init
   const canvas = document.getElementById('radarChart');
-  const existing = Chart.getChart(canvas);
-  if (existing) existing.destroy();
+  if (window.radarChartInstance) {
+    window.radarChartInstance.destroy();
+  }
   const ctx = canvas.getContext('2d');
-  const radar = new Chart(ctx, {
+  window.radarChartInstance = new Chart(ctx, {
     type: 'radar',
     data: {
       labels: ['Vida útil','Terminación','Potencia'],
@@ -62,6 +67,7 @@
     },
     options:{scales:{r:{max:100,ticks:{stepSize:20}}},plugins:{legend:{display:false}}}
   });
+  const radar = window.radarChartInstance;
 
   // 5. Mostrar/ocultar errores
   function showError(msg) {
