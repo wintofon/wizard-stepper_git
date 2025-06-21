@@ -144,7 +144,10 @@ if($tool){
   <!-- Reutilizamos el mismo CSS del paso manual para un look idéntico -->
   <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/pages/_step2.css') ?>">
-  <script>window.BASE_URL = '<?= BASE_URL ?>';</script>
+  <script>
+    window.BASE_URL = <?= json_encode(BASE_URL) ?>;
+    window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
+  </script>
 </head>
 <body class="bg-dark text-white">
 

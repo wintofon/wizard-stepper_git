@@ -137,7 +137,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <link rel="stylesheet" href="<?= asset('assets/css/pages/_step1.css') ?>">
 
   <link rel="stylesheet" href="<?= asset('assets/css/pages/_manual.css') ?>">
-  <script>window.BASE_URL = '<?= BASE_URL ?>';</script>
+  <script>
+    window.BASE_URL = <?= json_encode(BASE_URL) ?>;
+    window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
+  </script>
 </head>
 <body>
   <noscript>

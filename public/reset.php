@@ -1,5 +1,10 @@
 <?php
 declare(strict_types=1);
+// Garantizar que BASE_URL apunte a la carpeta raíz del proyecto
+if (!getenv('BASE_URL')) {
+    $base = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/');
+    putenv('BASE_URL=' . $base);
+}
 require_once __DIR__ . '/../src/Config/AppConfig.php';
 /**
  * File: reset.php
@@ -109,7 +114,7 @@ dbg('🔄 Sesión regenerada y destruida nuevamente para mayor seguridad');
 // -------------------------------------------
 // [8] HTML + JS PARA BORRAR localStorage Y REDIRIGIR
 // -------------------------------------------
-echo <<<'HTML'
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -132,10 +137,10 @@ echo <<<'HTML'
     }
     // Redirigir a wizard.php tras un breve retardo (200ms)
     setTimeout(function() {
-      window.location.replace('../wizard.php');
+      window.location.replace('<?= asset('wizard.php') ?>');
     }, 200);
   </script>
 </body>
 </html>
-HTML;
+<?php
 exit;

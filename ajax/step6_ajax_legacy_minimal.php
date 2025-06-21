@@ -9,6 +9,11 @@
  */
 
 declare(strict_types=1);
+// Fijar BASE_URL adecuado aun estando en /ajax
+if (!getenv('BASE_URL')) {
+    $base = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/');
+    putenv('BASE_URL=' . $base);
+}
 require_once __DIR__ . '/../src/Config/AppConfig.php';
 
 // Cabeceras JSON

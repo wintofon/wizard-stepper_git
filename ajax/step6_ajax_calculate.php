@@ -1,6 +1,11 @@
 <?php
 // File: C:\xampp\htdocs\wizard-stepper_git\ajax\step6_ajax_calculate.php
 declare(strict_types=1);
+// Establecer BASE_URL desde /ajax
+if (!getenv('BASE_URL')) {
+    $base = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/');
+    putenv('BASE_URL=' . $base);
+}
 require_once __DIR__ . '/../src/Config/AppConfig.php';
 header('Content-Type: application/json; charset=UTF-8');
 

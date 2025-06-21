@@ -1,5 +1,10 @@
 <?php
 declare(strict_types=1);
+// Forzar BASE_URL para que coincida con la ruta base del proyecto
+if (!getenv('BASE_URL')) {
+    $base = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/');
+    putenv('BASE_URL=' . $base);
+}
 require_once __DIR__ . '/../src/Config/AppConfig.php';
 require_once __DIR__ . '/../includes/security.php';
 
