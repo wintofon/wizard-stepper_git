@@ -1,5 +1,5 @@
-/*  STEP-PER 2025 – versión completa y centrada  */
-/*  Fuente Rajdhani + Feather/Lucide compatible  */
+/*  STEP-PER 2025 – versión centrada con doble barra animada  */
+/*  Fuente Rajdhani + Feather/Lucide compatible               */
 @import url("https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap");
 
 /* ─────────  BASE  ───────── */
@@ -7,8 +7,8 @@ html,
 body{
   margin:0;
   font-family:"Rajdhani",sans-serif;
-  background:#0f172a;
-  color:#dceefb;
+  background:#0f172a;          /* Fondo app */
+  color:#dceefb;               /* Texto base */
   overflow-x:hidden!important;
 }
 
@@ -21,7 +21,6 @@ body{
   box-shadow:0 8px 16px rgba(0,0,0,.55), inset 0 -1px 0 #1b2537;
 }
 .stepper-container::-webkit-scrollbar{display:none;}
-.stepper-container{position:relative;}
 
 /* tapas laterales */
 .stepper-container::before,
@@ -35,8 +34,8 @@ body{
 /* ─────────  LISTA  ───────── */
 .stepper{
   display:flex;                         /* fila de pasos             */
-  width:max-content;                    /* → se ajusta al contenido  */
-  margin:0 auto;                        /* → centrado                */
+  width:max-content;                    /* ajusta al contenido       */
+  margin:0 auto;                        /* centrado                  */
   padding:0;
   list-style:none;
   background:transparent;
@@ -45,11 +44,11 @@ body{
 .stepper::-webkit-scrollbar{height:6px;}
 .stepper::-webkit-scrollbar-thumb{background:#1b2537;border-radius:3px;}
 
-/* logo romboide opcional */
+/* logo PNG con transparencia */
 .logo-stepper{
   display:flex;align-items:center;
   padding:0 1.25rem;
-  background:#162235;
+  background:#162235;                   /* mismo color que pasos     */
   clip-path:polygon(0 0,100% 0,calc(100% - 12px) 100%,12px 100%);
   font-weight:500;
 }
@@ -57,15 +56,14 @@ body{
 
 /* ─────────  PASOS  ───────── */
 .stepper li{
-  flex:0 0 auto;
-  position:relative;
+  flex:0 0 auto;position:relative;
   padding:.75rem 1.25rem;
   margin-left:-12px;
   background:#162235;color:#d2d2d2;
   font-weight:500;font-size:1rem;text-transform:uppercase;
   clip-path:polygon(12px 0,100% 0,calc(100% - 12px) 100%,0 100%);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  border-bottom:2px solid transparent;
+  border-bottom:2px solid transparent;   /* base (queda oculta)      */
   transition:background .3s,color .3s;
 }
 .stepper li:first-child{
@@ -77,20 +75,32 @@ body{
   width:1px;background:rgba(255,255,255,.15);
 }
 
-/* activo + done */
+/* activo + done (sin borde extra) */
 .stepper li.active,
 .stepper li.done{
-  background:#1d3557;color:#fff;border-bottom:3px solid #00bfff;
+  background:#1d3557;color:#fff;
 }
 .stepper li.active{text-shadow:0 0 6px rgba(0,191,255,.45);}
 
-/* barra superior progreso */
+/* ─────────  BARRAS AZULES (arriba y abajo, misma animación) ───────── */
 .stepper li.active::before,
-.stepper li.done::before{
-  content:"";position:absolute;top:0;left:0;height:4px;width:0;
-  background:#00bfff;animation:fill-bar .45s forwards;
+.stepper li.done::before,
+.stepper li.active::after,
+.stepper li.done::after{
+  content:"";
+  position:absolute;left:0;
+  height:4px;width:0;                  /* se animará hasta 100%     */
+  background:#00bfff;
+  animation:fill-bar .45s forwards;
 }
-@keyframes fill-bar{from{width:0}to{width:100%}}
+/* arriba */
+.stepper li.active::before,
+.stepper li.done::before{top:0;}
+/* abajo */
+.stepper li.active::after,
+.stepper li.done::after{bottom:0;}
+
+@keyframes fill-bar{from{width:0;}to{width:100%;}}
 
 /* icono Feather/Lucide */
 .stepper li .icon{
@@ -99,12 +109,10 @@ body{
   stroke-width:2;vertical-align:middle;
 }
 
-/* ─────────  RESPONSIVE  ───────── */
-/* Compacto ≤1200 px: sólo paso activo, sin scrollbar */
+/* ─────────  RESPONSIVE (≤1200px) ───────── */
 @media(max-width:1200px){
   .stepper{
-    display:block;width:100%;
-    margin:0 auto;           /* sigue centrado */
+    display:block;width:100%;margin:0 auto;
     overflow-x:hidden;scrollbar-width:none;
   }
   .stepper::-webkit-scrollbar{display:none;}
@@ -122,7 +130,7 @@ body{
   .stepper-container{overflow-x:hidden;}
 }
 
-/* ─────────  EFECTO ELEGANTE  ───────── */
+/* ─────────  EFECTO ENTRADA + GLOW ───────── */
 @keyframes slideInX{0%{transform:translateX(-14px);opacity:0;}100%{transform:translateX(0);opacity:1;}}
 @keyframes slideInY{0%{transform:translateY(-10px);opacity:0;}100%{transform:translateY(0);opacity:1;}}
 @keyframes glowBar{0%{box-shadow:0 0 0 0 rgba(0,191,255,0);}60%{box-shadow:0 0 8px 2px rgba(0,191,255,.55);}100%{box-shadow:0 0 0 0 rgba(0,191,255,0);}}
