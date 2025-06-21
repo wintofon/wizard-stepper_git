@@ -4,61 +4,52 @@
 html,body{
   overflow-x:hidden!important;
   font-family:"Rajdhani",sans-serif;
-  background:#0f172a;
+  background:#0f172a;   /* fondo general de la página */
   color:#dceefb;
   margin:0;
 }
 
-/* ─────────  CONTENEDOR  ───────── */
+/* ─────────  CONTENEDOR STEPPER  ───────── */
 .stepper-container{
   width:100%;
   position:sticky;top:0;z-index:1000;
-  background:#0f172a;
+  background:transparent;          /* ← gris eliminado */
   overflow-x:auto;scrollbar-width:none;
-  box-shadow:0 3px 8px rgba(0,0,0,.45),
-             inset 0 -1px 0 #1b2537;
+
+  /* Sombra inferior efecto “flotante” */
+  box-shadow:0 8px 16px rgba(0,0,0,.55);
 }
 .stepper-container::-webkit-scrollbar{display:none;}
 .stepper-container{position:relative;}
 
-/* tapas laterales que cubren extremos */
+/* tapas laterales (mismo color de los pasos) */
 .stepper-container::before,
 .stepper-container::after{
-  content:"";
-  position:absolute;top:0;bottom:0;
-  width:14px;                      /* un poco más ancho */
-  background:#0f172a;              /* mismo color contenedor */
-  pointer-events:none;z-index:5;
+  content:"";position:absolute;top:0;bottom:0;
+  width:14px;background:#162235;pointer-events:none;z-index:5;
 }
-.stepper-container::before{
-  left:0;
-  clip-path:polygon(0 0,100% 0,100% 100%);
-}
-.stepper-container::after{
-  right:0;
-  clip-path:polygon(0 0,100% 0,0 100%);
-}
+.stepper-container::before{left:0; clip-path:polygon(0 0,100% 0,100% 100%);}
+.stepper-container::after {right:0;clip-path:polygon(0 0,100% 0,0 100%);}
 
 /* ─────────  LISTA  ───────── */
 .stepper{
-  display:flex;
-  margin:0;padding:0;list-style:none;
-  background:#0f172a;border-bottom:2px solid #0f172a;
+  display:flex;margin:0;padding:0;list-style:none;
+  background:transparent;border-bottom:2px solid transparent;
   overflow-x:auto;scroll-behavior:smooth;
 }
 
-/* logo */
+/* logo romboide */
 .logo-stepper{
   display:flex;align-items:center;
-  padding:0 1.25rem;background:#0f172a;
+  padding:0 1.25rem;
+  background:#162235;                                 /* mantiene contraste */
   clip-path:polygon(0 0,100% 0,calc(100% - 12px) 100%,12px 100%);
 }
 .logo-stepper img{height:42px;max-height:48px;object-fit:contain;}
 
 /* pasos */
 .stepper li{
-  flex:0 0 auto;
-  position:relative;
+  flex:0 0 auto;position:relative;
   padding:.75rem 1.25rem;margin-left:-12px;
   background:#162235;color:#d2d2d2;
   font-weight:600;font-size:1rem;text-transform:uppercase;
@@ -73,22 +64,17 @@ html,body{
 }
 .stepper li:not(:last-child)::after{
   content:"";position:absolute;right:0;top:12%;bottom:12%;
-  width:1px;background:rgba(255,255,255,.15);z-index:3;
+  width:1px;background:rgba(255,255,255,.15);
 }
 
-/* activo + done */
+/* activo + done (barra celeste) */
 .stepper li.active,
 .stepper li.done{
-  background:#1d3557;color:#fff;
-  border-bottom:3px solid #00bfff;
+  background:#1d3557;color:#fff;border-bottom:3px solid #00bfff;
 }
+.stepper li.active{text-shadow:0 0 6px rgba(0,191,255,.45);}
 
-/* brillo extra en texto activo */
-.stepper li.active{
-  text-shadow:0 0 6px rgba(0,191,255,.45);
-}
-
-/* barra superior animada – mismo color en active y done */
+/* barra superior animada (mismo color) */
 .stepper li.active::before,
 .stepper li.done::before{
   content:"";position:absolute;top:0;left:0;height:4px;width:0;
@@ -96,10 +82,10 @@ html,body{
 }
 @keyframes fill-bar{from{width:0}to{width:100%}}
 
-/* icono opcional  */
+/* icono opcional */
 .stepper li .icon{margin-left:.35rem;color:#00ff95;font-size:1rem;}
 
-/* ─────────  RESPONSIVE ≤ 768 px  ───────── */
+/* ─────────  RESPONSIVE  ───────── */
 @media(max-width:768px){
   .stepper{justify-content:center}
   .stepper li,.logo-stepper{display:none}
