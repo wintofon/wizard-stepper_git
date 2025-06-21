@@ -35,7 +35,7 @@
 
   <!-- Botón reset -->
   <div style="text-align:right; padding:.5rem 1rem;">
-    <a href="public/reset.php" class="btn btn-outline-light">
+    <a href="public/reset.php" class="btn btn-outline-light" onclick="localStorage.clear()">
       <i data-feather="refresh-ccw" class="me-1"></i>
       Volver al inicio
     </a>
