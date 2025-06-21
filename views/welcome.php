@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/wizard.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/onboarding.css') ?>">
-  <script>const BASE_URL = "<?= BASE_URL ?>"; window.BASE_URL = BASE_URL;</script>
+  <script>window.BASE_URL = '<?= BASE_URL ?>';</script>
 </head>
 <body>
   <main class="wizard-welcome">

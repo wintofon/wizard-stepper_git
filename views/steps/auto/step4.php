@@ -144,7 +144,7 @@ if($tool){
   <!-- Reutilizamos el mismo CSS del paso manual para un look idéntico -->
   <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/pages/_step2.css') ?>">
-  <script>const BASE_URL = "<?= BASE_URL ?>"; window.BASE_URL = BASE_URL;</script>
+  <script>window.BASE_URL = '<?= BASE_URL ?>';</script>
 </head>
 <body class="bg-dark text-white">
 
