@@ -1,3 +1,9 @@
+/*
+ * File: step6.js
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * TODO: Extend documentation.
+ */
 /** Ubicación: C:\xampp\htdocs\wizard-stepper_git\assets\js\step6.js */
 /* global Chart */
 

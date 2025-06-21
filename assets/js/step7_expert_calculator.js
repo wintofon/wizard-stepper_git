@@ -1,3 +1,9 @@
+/*
+ * File: step7_expert_calculator.js
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * TODO: Extend documentation.
+ */
 /**
  * step7_expert_calculator.js
  * Calculadora CNC interactiva completa y didáctica.

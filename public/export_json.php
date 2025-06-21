@@ -1,4 +1,11 @@
 <?php
+/**
+ * File: export_json.php
+ *
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * @TODO Extend documentation.
+ */
 declare(strict_types=1);
 // Definir BASE_URL en el mismo nivel que wizard.php
 if (!getenv('BASE_URL')) {

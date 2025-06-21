@@ -1,3 +1,9 @@
+/*
+ * File: footer-schneider.css
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * TODO: Extend documentation.
+ */
 .footer-schneider {
   background: linear-gradient(to bottom, #0a0f14, #101820);
   border-top: 1px solid rgb(255 255 255 / 10%);

@@ -1,3 +1,9 @@
+/*
+ * File: step3_auto_strategy_selector.js
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * TODO: Extend documentation.
+ */
 /* global estrategiaMap */
 
 document.addEventListener('DOMContentLoaded', () => {

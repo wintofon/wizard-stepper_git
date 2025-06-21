@@ -1,4 +1,11 @@
 <?php
+/**
+ * File: export.php
+ *
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * @TODO Extend documentation.
+ */
 declare(strict_types=1);
 // Forzar BASE_URL para que coincida con la ruta base del proyecto
 if (!getenv('BASE_URL')) {

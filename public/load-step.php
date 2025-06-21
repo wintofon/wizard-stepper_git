@@ -1,4 +1,11 @@
 <?php
+/**
+ * File: load-step.php
+ *
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * @TODO Extend documentation.
+ */
 declare(strict_types=1);
 // Asegurar que la constante BASE_URL sea la misma que la utilizada por wizard.php
 if (!getenv('BASE_URL')) {

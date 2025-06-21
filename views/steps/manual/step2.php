@@ -1,5 +1,12 @@
 <?php
 /**
+ * File: step2.php
+ *
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * @TODO Extend documentation.
+ */
+/**
  * Paso 2 – Confirmar herramienta seleccionada
  * - Acepta POST (del paso 1), GET (?brand&code) o los datos
  *   persistidos en $_SESSION (fallback).

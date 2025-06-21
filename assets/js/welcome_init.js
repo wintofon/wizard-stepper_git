@@ -1,3 +1,9 @@
+/*
+ * File: welcome_init.js
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * TODO: Extend documentation.
+ */
 // File: wizard/assets/js/welcome_init.js
 // Controla el botón de inicio y limpia sesión/localStorage
 const BASE_URL = window.BASE_URL;

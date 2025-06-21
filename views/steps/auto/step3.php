@@ -1,4 +1,11 @@
 <?php
+/**
+ * File: step3.php
+ *
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * @TODO Extend documentation.
+ */
 declare(strict_types=1);
 
 /**

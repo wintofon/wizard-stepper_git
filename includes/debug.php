@@ -1,5 +1,12 @@
 <?php
 /**
+ * File: debug.php
+ *
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * @TODO Extend documentation.
+ */
+/**
  * Helper ultra-liviano de depuración.
  *  – dbg('texto', $array) → console.log + <pre id="debug"> (si existe)
  */

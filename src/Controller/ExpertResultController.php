@@ -1,5 +1,12 @@
 <?php
 /**
+ * File: ExpertResultController.php
+ *
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * @TODO Extend documentation.
+ */
+/**
  * ExpertResultController.php
  *
  * Ubicación: C:\xampp\htdocs\wizard-stepper_git\src\Controller\ExpertResultController.php

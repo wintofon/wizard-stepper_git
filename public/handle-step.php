@@ -1,4 +1,11 @@
 <?php
+/**
+ * File: handle-step.php
+ *
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * @TODO Extend documentation.
+ */
 /** File: handle-step.php */
 // Unificar BASE_URL con el valor utilizado por wizard.php
 if (!getenv('BASE_URL')) {

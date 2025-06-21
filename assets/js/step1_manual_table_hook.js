@@ -1,3 +1,9 @@
+/*
+ * File: step1_manual_table_hook.js
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * TODO: Extend documentation.
+ */
 export function dbg(...m) {
   console.log('[DBG]', ...m);
   const box = document.getElementById('debug');

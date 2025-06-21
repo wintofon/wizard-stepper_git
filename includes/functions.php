@@ -3,6 +3,13 @@
 // Descripción: Contiene funciones genéricas de utilidad para todo el proyecto.
 <?php
 /**
+ * File: functions.php
+ *
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * @TODO Extend documentation.
+ */
+/**
  * Carga la conexión a la base de datos y otras funciones generales.
  */
 require_once __DIR__ . '/db.php';

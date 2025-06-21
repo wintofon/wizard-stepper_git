@@ -1,3 +1,9 @@
+/*
+ * File: dashboard.js
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * TODO: Extend documentation.
+ */
 /*  wizard/assets/js/dashboard.js  —  v2
     Refuerzo contra respuestas “casi-JSON” (cabecera JSON
     pero texto contaminado con warnings, BOM, etc.).        */

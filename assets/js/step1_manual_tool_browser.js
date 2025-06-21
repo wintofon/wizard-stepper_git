@@ -1,3 +1,9 @@
+/*
+ * File: step1_manual_tool_browser.js
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * TODO: Extend documentation.
+ */
 /* ------------------------------------------------------------
  * step1_manual_tool_browser.js
  * Navegador de herramientas con facetas, búsqueda y selección

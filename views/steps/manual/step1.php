@@ -1,5 +1,12 @@
 <?php
 /**
+ * File: step1.php
+ *
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * @TODO Extend documentation.
+ */
+/**
  * File: views/steps/manual/step1.php
  * Explorador visual de herramientas de corte – Paso 1 (modo manual)
  * Con blindaje de sesión, CSRF, validación y debug opcional

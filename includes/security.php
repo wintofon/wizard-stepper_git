@@ -1,4 +1,11 @@
 <?php
+/**
+ * File: security.php
+ *
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * @TODO Extend documentation.
+ */
 // General security helpers
 
 declare(strict_types=1);
