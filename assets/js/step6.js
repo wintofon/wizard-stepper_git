@@ -54,20 +54,34 @@ window.radarChartInstance = window.radarChartInstance || null;
     window.radarChartInstance.destroy();
   }
   const ctx = canvas.getContext('2d');
+
+  // Configuración básica del gráfico
+  const radarOptions = {
+    scales: { r: { max: 100, ticks: { stepSize: 20 } } },
+    plugins: { legend: { display: false } }
+  };
+
   window.radarChartInstance = new Chart(ctx, {
     type: 'radar',
     data: {
-      labels: ['Vida útil','Terminación','Potencia'],
-      datasets:[{
-        data:[0,0,0],
-        backgroundColor:'rgba(79,195,247,0.35)',
-        borderColor:'rgba(79,195,247,0.8)',
-        borderWidth:2
+      labels: ['Vida útil', 'Terminación', 'Potencia'],
+      datasets: [{
+        data: [0, 0, 0],
+        backgroundColor: 'rgba(79,195,247,0.35)',
+        borderColor: 'rgba(79,195,247,0.8)',
+        borderWidth: 2
       }]
     },
-    options:{scales:{r:{max:100,ticks:{stepSize:20}}},plugins:{legend:{display:false}}}
+    options: radarOptions
   });
   const radar = window.radarChartInstance;
+
+  // Asegura que se pueda modificar legend.fullSize sin errores
+  if (radar?.options) {
+    radar.options.plugins = radar.options.plugins || {};
+    radar.options.plugins.legend = radar.options.plugins.legend || {};
+    radar.options.plugins.legend.fullSize = true;
+  }
 
   // 5. Mostrar/ocultar errores
   function showError(msg) {
