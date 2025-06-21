@@ -95,7 +95,7 @@ async function fetchPage() {
   if (loading || !hasMore) return;
   loading = true;
   try {
-    const url = `${window.BASE_URL}/ajax/get_paginated_tools.php?material_id=${materialId}&strategy_id=${strategyId}&page=${page}&per_page=12`;
+    const url = `${window.BASE_URL}/ajax/tools_scroll.php?material_id=${materialId}&strategy_id=${strategyId}&page=${page}&per_page=12`;
     dbg('fetch', url);
     const res = await fetch(url, { headers: csrf ? { 'X-CSRF-Token': csrf } : {}, cache: 'no-store' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
