@@ -9,6 +9,6 @@ if (!defined('BASE_URL')) {
 if (!function_exists('asset')) {
     function asset(string $path): string
     {
-        return rtrim(BASE_URL, '/') . '/' . ltrim($path, '/');
+        return BASE_URL . '/' . ltrim($path, '/');
     }
 }

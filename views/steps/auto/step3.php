@@ -163,7 +163,7 @@ try {
 
   <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/pages/step3_auto_tool_recommendation.css') ?>">
-  <script>const BASE_URL = "<?= BASE_URL ?>"; window.BASE_URL = BASE_URL;</script>
+  <script>window.BASE_URL = '<?= BASE_URL ?>';</script>
 </head>
 <body>
   <main class="container py-4">
