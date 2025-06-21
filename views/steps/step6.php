@@ -6,15 +6,19 @@ use App\Controller\ExpertResultController;
 
 // ──────────────────────────────────────────────────────────────
 // ¿Se carga directo o embebido en load-step.php?
-// Si wizard.php incluyó esta vista → define('WIZARD_EMBEDDED', true)
+// Si index.php incluyó esta vista → define('WIZARD_EMBEDDED', true)
 // Si se abre en el navegador directamente → la constante NO existe
 // ──────────────────────────────────────────────────────────────
 $embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
-require_once __DIR__ . '/../../src/Utils/Session.php';
 
 // [A] CABECERAS DE SEGURIDAD Y NO-CACHING (solo si NO embebido)
 if (!$embedded) {
-    sendSecurityHeaders('text/html; charset=UTF-8');
+    header('Content-Type: text/html; charset=UTF-8');
+    header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
+    header('X-Frame-Options: DENY');
+    header('X-Content-Type-Options: nosniff');
+    header('Referrer-Policy: no-referrer');
+    header('Permissions-Policy: geolocation=(), microphone=()');
     header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
     header('Pragma: no-cache');
     header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';");
@@ -27,7 +31,7 @@ require_once __DIR__ . '/../../includes/wizard_helpers.php';
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_set_cookie_params([
         'lifetime' => 0,
-        'path'     => BASE_URL . '/',
+        'path'     => '/',
         'secure'   => true,
         'httponly' => true,
         'samesite' => 'Strict'
@@ -137,12 +141,12 @@ $toolType      = htmlspecialchars($toolData['tool_type']   ?? 'N/A', ENT_QUOTES)
 
 // Imagen principal
 $imageURL = !empty($toolData['image'])
-    ? asset($toolData['image'])
+    ? '/wizard-stepper_git/' . ltrim($toolData['image'], '/\\')
     : '';
 
 // Imagen vectorial (usa la columna image_dimensions)
 $vectorURL = !empty($toolData['image_dimensions'])
-    ? asset($toolData['image_dimensions'])
+    ? '/wizard-stepper_git/' . ltrim($toolData['image_dimensions'], '/\\')
     : '';
 
 
@@ -197,9 +201,9 @@ $notesArray = $params['notes'] ?? [];
 
 // Rutas de assets locales vs CDN
 $cssBootstrapRel = file_exists($root . 'assets/css/bootstrap.min.css')
-    ? asset('assets/css/bootstrap.min.css') : '';
+    ? '/wizard-stepper_git/assets/css/bootstrap.min.css' : '';
 $bootstrapJsRel  = file_exists($root . 'assets/js/bootstrap.bundle.min.js')
-    ? asset('assets/js/bootstrap.bundle.min.js') : '';
+    ? '/wizard-stepper_git/assets/js/bootstrap.bundle.min.js' : '';
 $featherLocal    = $root . 'node_modules/feather-icons/dist/feather.min.js';
 $cdnFeather      = 'https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js';
 $chartJsLocal    = $root . 'node_modules/chart.js/dist/chart.umd.min.js';
@@ -207,7 +211,7 @@ $cdnChartJs      = 'https://cdn.jsdelivr.net/npm/chart.js/dist/chart.umd.min.js'
 $countUpLocal    = $root . 'node_modules/countup.js/dist/countUp.umd.js';
 $cdnCountUp      = 'https://cdn.jsdelivr.net/npm/countup.js/dist/countUp.umd.min.js';
 $step6JsRel      = file_exists($root . 'assets/js/step6.js')
-    ? asset('assets/js/step6.js') : '';
+    ? '/wizard-stepper_git/assets/js/step6.js' : '';
 
 
 
@@ -226,17 +230,13 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Datos de corte – Paso 6</title>
+  <title>Cutting Data Épico – Paso 6</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
-  <link rel="stylesheet" href="<?= asset('assets/css/pages/_step6.css') ?>">
-  <script>window.BASE_URL = '<?= BASE_URL ?>';</script>
-
+  <link rel="stylesheet" href="/wizard-stepper_git/assets/css/step6.css">
+  
 </head>
 <body>
   <div class="container py-4">
-    <h2 class="step-title"><i data-feather="bar-chart-2"></i> Resultados finales</h2>
-    <p class="step-desc">Revisá los valores recomendados para el corte.</p>
 <?php endif; ?>
 
 <!-- ALERTA DE ASSETS FALTANTES -->
@@ -268,9 +268,9 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
           </div>
           <div class="card-body text-center p-4">
             <?php if (!empty($toolData['image'])): ?>
-              <img
-                src="<?= htmlspecialchars($imageURL, ENT_QUOTES) ?>"
-                alt="Imagen principal de la herramienta"
+              <img 
+                src="/wizard-stepper_git/<?= ltrim($toolData['image'], '/\\') ?>" 
+                alt="Imagen principal de la herramienta" 
                 class="tool-image mx-auto d-block"
               >
             <?php else: ?>
@@ -298,18 +298,15 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
             <!-- fz -->
             <div class="mb-4 px-2">
               <label for="sliderFz" class="form-label">fz (mm/tooth)</label>
-              <div class="slider-wrap">
-                <input
-                  type="range"
-                  id="sliderFz"
-                  class="form-range"
-                  min="<?= number_format($fzMinDb,4,'.','') ?>"
-                  max="<?= number_format($fzMaxDb,4,'.','') ?>"
-                  step="0.0001"
-                  value="<?= number_format($baseFz,4,'.','') ?>"
-                >
-                <span class="slider-bubble"></span>
-              </div>
+              <input
+                type="range"
+                id="sliderFz"
+                class="form-range"
+                min="<?= number_format($fzMinDb,4,'.','') ?>"
+                max="<?= number_format($fzMaxDb,4,'.','') ?>"
+                step="0.0001"
+                value="<?= number_format($baseFz,4,'.','') ?>"
+              >
               <div class="text-end small text-secondary mt-1">
                 <span><?= number_format($fzMinDb,4,'.','') ?></span> –
                 <strong id="valFz"><?= number_format($baseFz,4,'.','') ?></strong> –
@@ -319,18 +316,15 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
             <!-- Vc -->
             <div class="mb-4 px-2">
               <label for="sliderVc" class="form-label">Vc (m/min)</label>
-              <div class="slider-wrap">
-                <input
-                  type="range"
-                  id="sliderVc"
-                  class="form-range"
-                  min="<?= number_format($vcMinDb,1,'.','') ?>"
-                  max="<?= number_format($vcMaxDb,1,'.','') ?>"
-                  step="0.1"
-                  value="<?= number_format($baseVc,1,'.','') ?>"
-                >
-                <span class="slider-bubble"></span>
-              </div>
+              <input
+                type="range"
+                id="sliderVc"
+                class="form-range"
+                min="<?= number_format($vcMinDb,1,'.','') ?>"
+                max="<?= number_format($vcMaxDb,1,'.','') ?>"
+                step="0.1"
+                value="<?= number_format($baseVc,1,'.','') ?>"
+              >
               <div class="text-end small text-secondary mt-1">
                 <span><?= number_format($vcMinDb,1,'.','') ?></span> –
                 <strong id="valVc"><?= number_format($baseVc,1,'.','') ?></strong> –
@@ -342,18 +336,15 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
               <label for="sliderAe" class="form-label">
                 ae (mm) <small>(ancho de pasada)</small>
               </label>
-              <div class="slider-wrap">
-                <input
-                  type="range"
-                  id="sliderAe"
-                  class="form-range"
-                  min="0.1"
-                  max="<?= number_format($diameterMb,1,'.','') ?>"
-                  step="0.1"
-                  value="<?= number_format($diameterMb*0.5,1,'.','') ?>"
-                >
-                <span class="slider-bubble"></span>
-              </div>
+              <input
+                type="range"
+                id="sliderAe"
+                class="form-range"
+                min="0.1"
+                max="<?= number_format($diameterMb,1,'.','') ?>"
+                step="0.1"
+                value="<?= number_format($diameterMb*0.5,1,'.','') ?>"
+              >
               <div class="text-end small text-secondary mt-1">
                 <span>0.1</span> –
                 <strong id="valAe"><?= number_format($diameterMb*0.5,1,'.','') ?></strong> –
@@ -363,19 +354,16 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
             <!-- Pasadas -->
             <div class="mb-4 px-2">
               <label for="sliderPasadas" class="form-label">Pasadas</label>
-              <div class="slider-wrap">
-                <input
-                  type="range"
-                  id="sliderPasadas"
-                  class="form-range"
-                  min="1"
-                  max="1"
-                  step="1"
-                  value="1"
-                  data-thickness="<?= htmlspecialchars((string)$thickness, ENT_QUOTES) ?>"
-                >
-                <span class="slider-bubble"></span>
-              </div>
+              <input
+                type="range"
+                id="sliderPasadas"
+                class="form-range"
+                min="1"
+                max="1"
+                step="1"
+                value="1"
+                data-thickness="<?= htmlspecialchars((string)$thickness, ENT_QUOTES) ?>"
+              >
               <div id="textPasadasInfo" class="small text-secondary mt-1">
                 1 pasada de <?= number_format($thickness, 2) ?> mm
               </div>
@@ -641,7 +629,7 @@ if (!file_exists($countUpLocal))    $assetErrors[] = 'CountUp.js faltante.';
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.umd.min.js"></script>
-<script src="<?= asset('assets/js/step6.js') ?>"></script>
+<script src="/wizard-stepper_git/assets/js/step6.js"></script>
 <script>
   window.addEventListener('pageshow', (e) => {
     if (e.persisted) {
