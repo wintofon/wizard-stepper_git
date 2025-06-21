@@ -7,8 +7,14 @@ export let hasMore = true;
 export const sentinel = document.getElementById('sentinel');
 export const tbody = document.querySelector('#toolTbl tbody');
 const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
-const materialId = document.querySelector('meta[name="material-id"]')?.content || '';
-const strategyId = document.querySelector('meta[name="strategy-id"]')?.content || '';
+const materialId = parseInt(
+  document.querySelector('meta[name="material-id"]')?.content || '',
+  10,
+);
+const strategyId = parseInt(
+  document.querySelector('meta[name="strategy-id"]')?.content || '',
+  10,
+);
 
 console.log('Sentinel:', sentinel);
 
@@ -28,6 +34,11 @@ const observer = new IntersectionObserver(
 
 export async function loadPage() {
   if (loading || !hasMore || !tbody) return;
+  if (!Number.isInteger(materialId) || !Number.isInteger(strategyId)) {
+    console.warn('Missing material_id or strategy_id; aborting lazy load');
+    hasMore = false;
+    return;
+  }
   loading = true;
   try {
     const params = new URLSearchParams({
