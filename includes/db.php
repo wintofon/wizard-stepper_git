@@ -14,6 +14,7 @@ declare(strict_types=1);
 if (file_exists(__DIR__ . '/../.env')) {
     $env = parse_ini_file(__DIR__ . '/../.env', false, INI_SCANNER_TYPED);
     if ($env !== false) {
+        // Merge .env values into $_ENV without overwriting existing entries
         foreach ($env as $key => $val) {
             if (!isset($_ENV[$key])) {
                 $_ENV[$key] = $val;
@@ -30,6 +31,7 @@ if (file_exists(__DIR__ . '/../.env')) {
  */
 function env(string $key, $default = null)
 {
+    // Wrapper to fetch env vars, falling back to provided default
     return $_ENV[$key] ?? $default;
 }
 
@@ -40,6 +42,7 @@ function env(string $key, $default = null)
  */
 function db(): PDO
 {
+    // Return shared PDO connection, initializing on first call
     static $pdo = null;
     if ($pdo === null) {
         $dsn = sprintf(
@@ -60,6 +63,7 @@ function db(): PDO
                 $opts
             );
         } catch (PDOException $e) {
+            // Fail hard on connection issues
             http_response_code(500);
             exit('DB Connection Error: ' . htmlspecialchars($e->getMessage()));
         }
@@ -77,6 +81,7 @@ $pdo = db();
  */
 function brandTable(int $brandId): string
 {
+    // Map brand IDs to their respective tool tables
     switch ($brandId) {
         case 1:
             return 'tools_sgs';
@@ -105,6 +110,7 @@ function feedrateTable(): string
 function getToolRating(int $toolId, int $materialId): int
 {
     global $pdo;
+    // Retrieve rating for this tool/material pair
     $stmt = $pdo->prepare("
         SELECT rating
           FROM tool_material_rating
@@ -123,6 +129,7 @@ function getToolRating(int $toolId, int $materialId): int
  */
 function fetchRecommendedTools(string $tipo, string $estrategia, int $materialId, ?int $brandId = null): array
 {
+    // Pull tool list joined with rating and feed data
     global $pdo;
     $toolsTb = $brandId ? brandTable($brandId) : 'tools';
     $feedTb  = feedrateTable();
@@ -157,6 +164,7 @@ function fetchRecommendedTools(string $tipo, string $estrategia, int $materialId
  */
 function fetchToolDetails(int $toolId, int $materialId): array
 {
+    // Fetch a single tool row with material-specific data
     global $pdo;
     $toolsTb = 'tools';
     $feedTb  = feedrateTable();
