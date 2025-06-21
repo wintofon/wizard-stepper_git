@@ -20,7 +20,7 @@ session_start();
 
 // 0. CSRF: validar token enviado en header X-CSRF-Token
 $token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
-if (!hash_equals($_SESSION['csrf_token'], $token)) {
+if (!isset($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $token)) {
     http_response_code(403);
     exit('CSRF fail');
 }
