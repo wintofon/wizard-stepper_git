@@ -1,5 +1,10 @@
 <?php
 // strategy_ajax.php
+// BASE_URL debe apuntar a la carpeta raíz, no a /ajax
+if (!getenv('BASE_URL')) {
+    $base = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/');
+    putenv('BASE_URL=' . $base);
+}
 require_once __DIR__ . '/../src/Config/AppConfig.php';
 require_once __DIR__ . '/../includes/db.php';
 

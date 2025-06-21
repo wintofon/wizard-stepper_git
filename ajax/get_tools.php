@@ -1,6 +1,11 @@
 <?php
 declare(strict_types=1);
 
+// Ajustar BASE_URL desde la subcarpeta /ajax
+if (!getenv('BASE_URL')) {
+    $base = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/');
+    putenv('BASE_URL=' . $base);
+}
 require_once __DIR__ . '/../src/Config/AppConfig.php';
 
 // (1) Sesión y seguridad

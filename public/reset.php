@@ -1,5 +1,10 @@
 <?php
 declare(strict_types=1);
+// Garantizar que BASE_URL apunte a la carpeta raíz del proyecto
+if (!getenv('BASE_URL')) {
+    $base = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/');
+    putenv('BASE_URL=' . $base);
+}
 require_once __DIR__ . '/../src/Config/AppConfig.php';
 /**
  * File: reset.php

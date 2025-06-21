@@ -1,5 +1,10 @@
 <?php
 header('Content-Type: application/json');
+// Igualar BASE_URL al de la app principal
+if (!getenv('BASE_URL')) {
+    $base = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/');
+    putenv('BASE_URL=' . $base);
+}
 require_once __DIR__ . '/../src/Config/AppConfig.php';
 require_once __DIR__ . '/../src/Utils/CNCCalculator.php';
 

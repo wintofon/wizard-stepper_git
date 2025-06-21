@@ -1,5 +1,10 @@
 <?php
 /** File: handle-step.php */
+// Unificar BASE_URL con el valor utilizado por wizard.php
+if (!getenv('BASE_URL')) {
+    $base = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/');
+    putenv('BASE_URL=' . $base);
+}
 require_once __DIR__ . '/../src/Config/AppConfig.php';
 session_start();
 require_once __DIR__ . '/../vendor/autoload.php';
