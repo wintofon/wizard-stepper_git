@@ -242,7 +242,8 @@ if (!file_exists($countUpLocal))   $assetErrors[] = 'CountUp.js faltante.';
   <?php else: ?>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <?php endif; ?>
-
+  <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/step-common.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/pages/_step6.css') ?>">
   <script>window.BASE_URL = <?= json_encode(BASE_URL) ?>; window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;</script>
 </head>
