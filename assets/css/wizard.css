@@ -1,114 +1,100 @@
 @import url("https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap");
 
-/* ──────  BASE GLOBAL  ────── */
+/* ─────────  BASE  ───────── */
 html,body{
   overflow-x:hidden!important;
-  font-family:"Rajdhani",sans-serif;
+  font-family:"Rajdhani",sans-serif;   /* Rajdhani 500 por defecto */
   background:#0f172a;
   color:#dceefb;
   margin:0;
 }
 
-/* ──────  CONTENEDOR PEGADO  ────── */
+/* ─────────  CONTENEDOR STEPPER  ───────── */
 .stepper-container{
   width:100%;
   position:sticky;top:0;z-index:1000;
-  background:transparent;              /* transparente → se fusiona */
-  overflow-x:hidden;                   /* sin scroll jamás */
-  box-shadow:0 8px 14px rgba(0,0,0,.55),
+  background:transparent;
+  overflow-x:auto;scrollbar-width:none;
+  box-shadow:0 8px 16px rgba(0,0,0,.55),
              inset 0 -1px 0 #1b2537;
 }
 .stepper-container::-webkit-scrollbar{display:none;}
 .stepper-container{position:relative;}
 
-/* tapas laterales (relleno extremos) */
+/* tapas laterales */
 .stepper-container::before,
 .stepper-container::after{
   content:"";position:absolute;top:0;bottom:0;
-  width:14px;background:#0f172a;pointer-events:none;
+  width:14px;background:#162235;pointer-events:none;z-index:5;
 }
-.stepper-container::before{left:0;clip-path:polygon(0 0,100% 0,100% 100%);}
+.stepper-container::before{left:0; clip-path:polygon(0 0,100% 0,100% 100%);}
 .stepper-container::after {right:0;clip-path:polygon(0 0,100% 0,0 100%);}
 
-/* ──────  BARRA / LISTA  ────── */
+/* ─────────  LISTA  ───────── */
 .stepper{
   display:flex;margin:0;padding:0;list-style:none;
-  background:transparent;
+  background:transparent;overflow-x:auto;scroll-behavior:smooth;
 }
 
-/* LOGO (primer li) — mismo fondo gris-azulado */
+/* logo romboide */
 .logo-stepper{
   display:flex;align-items:center;
   padding:0 1.25rem;
-  background:#0f172a;                           /* ← igual al contenedor */
+  background:#162235;
   clip-path:polygon(0 0,100% 0,calc(100% - 12px) 100%,12px 100%);
-  font-weight:500;
+  font-weight:500;                 /* ← peso reducido */
 }
-.logo-stepper img{height:42px;object-fit:contain;}
+.logo-stepper img{height:42px;max-height:48px;object-fit:contain;}
 
-/* PASOS */
+/* pasos */
 .stepper li{
-  flex:0 0 auto;
-  position:relative;
+  flex:0 0 auto;position:relative;
   padding:.75rem 1.25rem;
   margin-left:-12px;
   background:#162235;color:#d2d2d2;
-  font-weight:500;font-size:1rem;text-transform:uppercase;
+  font-weight:500;                 /* ← peso reducido */
+  font-size:1rem;text-transform:uppercase;
   clip-path:polygon(12px 0,100% 0,calc(100% - 12px) 100%,0 100%);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   border-bottom:2px solid transparent;
   transition:background .3s,color .3s;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
 .stepper li:first-child{
   margin-left:0;
   clip-path:polygon(0 0,100% 0,calc(100% - 12px) 100%,12px 100%);
 }
-
 .stepper li:not(:last-child)::after{
   content:"";position:absolute;right:0;top:12%;bottom:12%;
   width:1px;background:rgba(255,255,255,.15);
 }
 
-/* ACTIVO & DONE */
+/* activo + done */
 .stepper li.active,
 .stepper li.done{
   background:#1d3557;color:#fff;border-bottom:3px solid #00bfff;
 }
-.stepper li.active{text-shadow:0 0 6px rgba(0,191,255,.5);}
+.stepper li.active{text-shadow:0 0 6px rgba(0,191,255,.45);}
 
-/* Barra superior animada (para ambos) */
+/* barra superior animada */
 .stepper li.active::before,
 .stepper li.done::before{
   content:"";position:absolute;top:0;left:0;height:4px;width:0;
-  background:#00bfff;
-  animation:fill-bar .45s forwards;
+  background:#00bfff;animation:fill-bar .45s forwards;
 }
 @keyframes fill-bar{from{width:0}to{width:100%}}
 
 /* icono opcional */
 .stepper li .icon{margin-left:.35rem;color:#00ff95;font-size:1rem;}
 
-/* ──────  RESPONSIVE épico ≤768 px  ────── */
+/* ─────────  RESPONSIVE  ───────── */
 @media(max-width:768px){
-  .stepper{
-    justify-content:center;
-    overflow-x:hidden;      /* refuerzo */
-  }
-
-  /* ocultar todo menos el paso activo (o done) */
-  .stepper li,
-  .logo-stepper{display:none;}
+  .stepper{justify-content:center}
+  .stepper li,.logo-stepper{display:none}
 
   .stepper li.active,
   .stepper li.done{
-    display:block;
-    width:100vw!important;max-width:100vw;
-    margin-left:0;
-    clip-path:none;border-right:none;
-    padding:1rem;
-    text-align:center;
-    font-size:1.1rem;
-    white-space:normal;          /* permite salto de línea */
-    overflow:visible;text-overflow:unset;
+    display:block;width:100vw!important;max-width:100vw;
+    margin-left:0;clip-path:none;text-align:center;
+    font-size:1.15rem;font-weight:500;
   }
 }
