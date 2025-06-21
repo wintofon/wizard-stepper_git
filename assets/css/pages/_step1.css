@@ -2,19 +2,19 @@
 
 /* Estilo v6.0 trapezoidal, adaptado al stepper azul oscuro */
 
-.sidebar {
+.sidebar {             /* Panel lateral de filtros */
   min-width: 100%;
   padding-bottom: 1rem;
 }
 
-@media (width >= 768px) {
+@media (width >= 768px) { /* Ancho fijo en pantallas amplias */
   .sidebar {
     max-width: 260px;
     min-width: 260px;
   }
 }
 
-.facet-header {
+.facet-header {        /* Cabecera de cada filtro desplegable */
   background: #1e293b;
   border-bottom: 1px solid #334155;
   color: #cbd5e1;
@@ -24,7 +24,7 @@
   padding: .4rem .5rem;
 }
 
-.facet-body {
+.facet-body {          /* Cuerpo ocultable con opciones */
   background: #0f172a;
   border-left: 1px solid #334155;
   border-right: 1px solid #334155;
@@ -34,11 +34,11 @@
   padding: .25rem .5rem;
 }
 
-.facet-body.show {
+.facet-body.show {     /* Se muestra cuando se expande */
   display: block;
 }
 
-.facet-body label {
+.facet-body label {    /* Etiquetas de las opciones */
   color: #cbd5e1;
   display: block;
   font-size: .8rem;
@@ -46,7 +46,7 @@
   white-space: nowrap;
 }
 
-.facet-search {
+.facet-search {        /* Buscador dentro del panel */
   background: #1e293b;
   border: 1px solid #334155;
   color: #cbd5e1;
@@ -55,28 +55,28 @@
   width: 100%;
 }
 
-.thumb {
+.thumb {               /* Miniaturas de marcas */
   border: 1px solid #ddd;
   height: 40px;
-  object-fit: contain;
+  object-fit: contain; /* evita distorsión de la imagen */
   width: 40px;
 }
 
-.thumb:hover {
+.thumb:hover {         /* Aumento al pasar el mouse */
   box-shadow: 0 0 4px #0ea5e9;
   position: relative;
   transform: scale(2);
   z-index: 10;
 }
 
-.alert-no-brand {
+.alert-no-brand {      /* Aviso cuando no hay marcas */
   color: #f87171;
   font-weight: 600;
   margin: .5rem;
   text-align: center;
 }
 
-.alert-js-missing {
+.alert-js-missing {    /* Mensaje fijo si no se detecta JS */
   background: #dc2626;
   border-radius: 6px;
   bottom: 8px;
@@ -88,38 +88,38 @@
   z-index: 9999;
 }
 
-.table-dark {
+.table-dark {          /* Colores para tabla oscura Bootstrap */
   --bs-table-bg: #1e293b;
   --bs-table-color: #e2e8f0;
 }
 
-.stars {
+.stars {               /* Estilos de rating */
   color: #0ea5e9;
   font-size: 0.95em;
 }
 
 /* Ajuste responsivo y padding visual del contenido */
-.container-fluid {
+.container-fluid {     /* Contenedor general con ancho máximo */
   max-width: 1200px;
 }
 
-h2.fw-bold {
+h2.fw-bold {           /* Título principal de la página */
   color: #e2e8f0;
   font-size: 1.8rem;
 }
 
-.table-responsive {
+.table-responsive {    /* Alineación y scroll en tablas */
   max-height: none !important;
   overflow-x: auto;
   overflow-y: visible !important;
 }
 
-.list-scroll-container {
+.list-scroll-container { /* Lista con alto limitado */
   max-height: 65vh; /* ajustá si hace falta */
   overflow-y: auto;
 }
 
-#sentinel {
+#sentinel {            /* Punto de observación para scroll infinito */
   height: 1px;
 }
 
