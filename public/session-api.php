@@ -11,8 +11,9 @@ require_once __DIR__ . '/../includes/security.php';
 session_start();
 require_debug_mode();
 
+// Validate CSRF token sent via header. Avoid undefined index warnings
 $token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
-if (!hash_equals($_SESSION['csrf_token'], $token)) {
+if (empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $token)) {
     http_response_code(403);
     exit('CSRF fail');
 }
