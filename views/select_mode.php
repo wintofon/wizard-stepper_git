@@ -23,7 +23,7 @@
   <p class="explanation">
     Elegí uno de los dos modos según tu experiencia previa:
   </p>
-  <form method="post" action="<?= BASE_URL ?>wizard.php">
+  <form method="post" action="wizard.php">
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>">
     <div class="mode-options">
       <label class="mode-option">

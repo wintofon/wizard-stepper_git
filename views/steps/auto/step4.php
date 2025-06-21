@@ -184,7 +184,7 @@ if($tool){
       </div>
 
       <!-- Campo oculto step=4 para que el Stepper no marque error -->
-      <form action="<?= BASE_URL ?>views/steps/step5.php" method="post" class="mt-4 text-end">
+      <form action="step5.php" method="post" class="mt-4 text-end">
         <input type="hidden" name="step"       value="4">
         <input type="hidden" name="tool_id"    value="<?= $tool['tool_id'] ?>">
         <input type="hidden" name="tool_table" value="<?= htmlspecialchars($_SESSION['tool_table']) ?>">

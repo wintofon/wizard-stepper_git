@@ -1,6 +1,4 @@
 <?php
-declare(strict_types=1);
-require_once __DIR__ . '/../includes/init.php';
 // tools_ajax.php - Devuelve lista de herramientas filtradas (sin autenticación)
 require_once __DIR__ . '/../src/Config/AppConfig.php';
 require_once __DIR__ . '/../includes/db.php';
