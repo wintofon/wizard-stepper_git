@@ -109,7 +109,7 @@ dbg('🔄 Sesión regenerada y destruida nuevamente para mayor seguridad');
 // -------------------------------------------
 // [8] HTML + JS PARA BORRAR localStorage Y REDIRIGIR
 // -------------------------------------------
-echo <<<'HTML'
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -132,10 +132,10 @@ echo <<<'HTML'
     }
     // Redirigir a wizard.php tras un breve retardo (200ms)
     setTimeout(function() {
-      window.location.replace('../wizard.php');
+      window.location.replace('<?= asset('wizard.php') ?>');
     }, 200);
   </script>
 </body>
 </html>
-HTML;
+<?php
 exit;

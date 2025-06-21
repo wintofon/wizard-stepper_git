@@ -122,7 +122,10 @@ if ($tool) {
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
 <link rel="stylesheet" href="<?= asset('assets/css/pages/_step2.css') ?>">
-<script>window.BASE_URL = '<?= BASE_URL ?>';</script>
+<script>
+  window.BASE_URL = <?= json_encode(BASE_URL) ?>;
+  window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
+</script>
 
 <div class="container py-4">
   <h2 class="step-title"><i data-feather="check-circle"></i> Confirmar herramienta</h2>

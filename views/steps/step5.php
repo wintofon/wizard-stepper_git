@@ -108,7 +108,10 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
 <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
 <link rel="stylesheet" href="<?= asset('assets/css/step-common.css') ?>">
 <link rel="stylesheet" href="<?= asset('assets/css/pages/_step5.css') ?>">
-<script>window.BASE_URL = '<?= BASE_URL ?>';</script>
+<script>
+  window.BASE_URL = <?= json_encode(BASE_URL) ?>;
+  window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
+</script>
 </head><body>
 <main class="container py-4">
   <h2 class="step-title"><i data-feather="cpu"></i> Configurá tu router</h2>

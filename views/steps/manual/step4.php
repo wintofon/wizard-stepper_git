@@ -140,7 +140,10 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
 <link rel="stylesheet" href="<?= asset('assets/css/material.css') ?>">
-<script>window.BASE_URL = '<?= BASE_URL ?>';</script>
+<script>
+  window.BASE_URL = <?= json_encode(BASE_URL) ?>;
+  window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
+</script>
 </head><body>
 <main class="container py-4">
 <h2 class="step-title"><i data-feather="layers"></i> Material y espesor</h2>
