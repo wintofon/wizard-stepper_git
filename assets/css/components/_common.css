@@ -37,3 +37,25 @@
   background-color: #38bdf8 !important;
   color: #0c4a6e !important;
 }
+
+/* Card backgrounds respect email styles */
+.card,
+.config-card-static,
+.notes-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.card-header {
+  background: var(--bg-header);
+  border-bottom: 1px solid var(--border-color);
+  color: var(--accent-color);
+  font-weight: 600;
+}
+
+.card.h-100 {
+  display: flex;
+  flex-direction: column;
+}
