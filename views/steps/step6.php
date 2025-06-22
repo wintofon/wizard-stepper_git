@@ -8,7 +8,13 @@
 declare(strict_types=1);
 
 if (!getenv('BASE_URL')) {
-    putenv('BASE_URL=' . rtrim(dirname($_SERVER['SCRIPT_NAME']), '/'));
+    // Sube 3 niveles: /views/steps/step6.php → /
+    putenv(
+        'BASE_URL=' . rtrim(
+            dirname(dirname(dirname($_SERVER['SCRIPT_NAME']))),
+            '/'
+        )
+    );
 }
 require_once __DIR__ . '/../../src/Config/AppConfig.php';
 
