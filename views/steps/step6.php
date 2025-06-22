@@ -39,7 +39,11 @@ if (!$embedded) {
     header("Permissions-Policy: geolocation=(), microphone=()");
     header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
     header('Pragma: no-cache');
-    header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';");
+    header(
+        "Content-Security-Policy: default-src 'self';"
+        . " script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;"
+        . " style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;"
+    );
 }
 
 // ────────────────────────────────────────────────────────────────
