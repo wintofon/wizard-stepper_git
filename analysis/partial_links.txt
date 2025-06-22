@@ -1,0 +1,3 @@
+3: * Render <link> tags for CSS styles.
+12:    echo '<link rel="stylesheet" href="'.asset('assets/css/components/main.css').'">'.PHP_EOL;
+16:    echo '<link rel="stylesheet" href="'.$url.'">'.PHP_EOL;
