@@ -236,26 +236,53 @@ if (!file_exists($countUpLocal))   $assetErrors[] = 'CountUp.js faltante.';
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Cutting Data – Paso&nbsp;6</title>
 
-  <?php
-    $bootstrapHref = $cssBootstrapRel ?: 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css';
-    $styles = [
-        $bootstrapHref,
-        'assets/css/step-common.css',
-        'assets/css/pages/_step6.css',
-    ];
-    include __DIR__ . '/../partials/styles.php';
-  ?>
-  <?php if (!$embedded): ?>
+  <?php if ($cssBootstrapRel): ?>
+    <!-- Bootstrap local -->
+    <link id="css-bootstrap"
+          rel="stylesheet"
+          href="<?= $cssBootstrapRel ?>"
+          onload="console.log('✅ Bootstrap local cargado')"
+          onerror="console.error('❌ Bootstrap local NO cargó')">
+  <?php else: ?>
+    <!-- Bootstrap CDN fallback -->
+    <link id="css-bootstrap"
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          onload="console.log('✅ Bootstrap CDN cargado')"
+          onerror="console.error('❌ Bootstrap CDN NO cargó')">
+  <?php endif; ?>
+
+  <!-- Hojas de estilo del proyecto -->
+  <link id="css-main"
+        rel="stylesheet"
+        href="<?= asset('assets/css/main.css') ?>"
+        onload="console.log('✅ main.css cargado')"
+        onerror="console.error('❌ main.css NO cargó')">
+
+  <link id="css-step-common"
+        rel="stylesheet"
+        href="<?= asset('assets/css/step-common.css') ?>"
+        onload="console.log('✅ step-common.css cargado')"
+        onerror="console.error('❌ step-common.css NO cargó')">
+
+  <link id="css-step6"
+        rel="stylesheet"
+        href="<?= asset('assets/css/pages/_step6.css') ?>"
+        onload="console.log('✅ _step6.css cargado')"
+        onerror="console.error('❌ _step6.css NO cargó')">
+
   <script>
     window.BASE_URL  = <?= json_encode(BASE_URL) ?>;
     window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
   </script>
-  <?php endif; ?>
-
 </head>
+
 
 <body>
 <div class="container py-4">
+<?php else: ?>
+  <link rel="stylesheet" href="<?= asset('assets/css/pages/_step6.css') ?>">
+<?php endif; ?>
 
 <?php if ($assetErrors): ?>
   <div class="alert alert-warning text-dark m-3"><strong>⚠️ Archivos faltantes (se usarán CDNs):</strong><ul><?php foreach ($assetErrors as $err): ?><li><?= htmlspecialchars($err, ENT_QUOTES) ?></li><?php endforeach; ?></ul></div>
