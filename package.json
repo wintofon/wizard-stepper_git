@@ -4,24 +4,26 @@
   "description": "This project contains a PHP wizard for configuring CNC operations.",
   "main": "index.js",
   "devDependencies": {
+    "@fullhuman/postcss-purgecss": "^7.0.2",
     "autoprefixer": "^10.4.21",
     "chokidar-cli": "^3.0.0",
     "concurrently": "^9.1.2",
     "eslint": "^9.29.0",
-    "@fullhuman/postcss-purgecss": "^7.0.2",
     "postcss": "^8.5.6",
     "postcss-cli": "^11.0.1",
     "postcss-preset-env": "^10.2.3",
     "prettier": "^3.5.3",
     "stylelint": "^16.6.0",
+    "stylelint-config-clean-order": "^7.0.0",
     "stylelint-config-standard": "^36.0.0",
+    "stylelint-declaration-strict-value": "^1.10.11",
     "stylelint-order": "^6.0.4",
     "webpack": "^5.99.9"
   },
   "scripts": {
     "build": "postcss 'assets/css/**/*.css' -r",
     "watch": "chokidar 'assets/css/**/*.css' -c \"npm run build\"",
-    "lint:css": "stylelint \"**/*.css\" --quiet"
+    "lint:css": "stylelint 'assets/css/**/*.css'"
   },
   "keywords": [],
   "author": "",
