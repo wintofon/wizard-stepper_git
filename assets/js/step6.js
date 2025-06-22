@@ -10,7 +10,7 @@
 // Mantiene la instancia del gráfico entre ejecuciones
 window.radarChartInstance = window.radarChartInstance || null;
 
-(() => {
+window.initStep6 = function () {
   const BASE_URL = window.BASE_URL;
   // 1. Parámetros inyectados por PHP
   const {
@@ -43,8 +43,25 @@ window.radarChartInstance = window.radarChartInstance || null;
           w:   document.getElementById('valueW'),
           eta: document.getElementById('valueEta'),
           ae:  document.getElementById('outAe'),  // ← nuevo
-          ap:  document.getElementById('outAp')   // ← nuevo
-        };
+        ap:  document.getElementById('outAp')   // ← nuevo
+      };
+
+  function enhanceSlider(slider) {
+    const wrap = slider.closest('.slider-wrap');
+    if (!wrap) return;
+    const bubble = wrap.querySelector('.slider-bubble');
+    const min = parseFloat(slider.min || 0);
+    const max = parseFloat(slider.max || 1);
+    const step = parseFloat(slider.step || 1);
+    wrap.style.setProperty('--step-pct', (step / (max - min)) * 100);
+    function update(val) {
+      const pct = ((val - min) / (max - min)) * 100;
+      wrap.style.setProperty('--val', pct);
+      if (bubble) bubble.textContent = parseFloat(val).toFixed(step < 1 ? 2 : 0);
+    }
+    slider.addEventListener('input', e => update(parseFloat(e.target.value)));
+    update(parseFloat(slider.value));
+  }
 
   // 3. Límites de Vc desde rpmMin/rpmMax
   const vcMinAllowed = (rpmMin * Math.PI * D) / 1000;
@@ -216,8 +233,10 @@ window.radarChartInstance = window.radarChartInstance || null;
   }
 
   // 15. Kickoff
+  [sFz, sVc, sAe, sP].forEach(enhanceSlider);
   updatePasadasSlider();
   updatePasadasInfo();
   recalc();
   window.addEventListener('error', ev => showError(`JS: ${ev.message}`));
-})();
+};
+window.initStep6();

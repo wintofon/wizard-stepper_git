@@ -274,11 +274,6 @@ if (!file_exists($countUpLocal))   $assetErrors[] = 'CountUp.js faltante.';
         onload="console.log('✅ step-common.css cargado')"
         onerror="console.error('❌ step-common.css NO cargó')">
 
-  <link id="css-step6"
-        rel="stylesheet"
-        href="<?= asset('assets/css/components/_step6.css') ?>"
-        onload="console.log('✅ _step6.css cargado')"
-        onerror="console.error('❌ _step6.css NO cargó')">
 
   <script>
     window.BASE_URL  = <?= json_encode(BASE_URL) ?>;
@@ -288,7 +283,6 @@ if (!file_exists($countUpLocal))   $assetErrors[] = 'CountUp.js faltante.';
   <?php
   echo '<!-- main.css = '.asset('assets/css/components/main.css').' -->';
   echo '<!-- step-common.css = '.asset('assets/css/objects/step-common.css').' -->';
-  echo '<!-- _step6.css = '.asset('assets/css/components/_step6.css').' -->';
   ?>
 </head>
 
@@ -333,30 +327,42 @@ if (!file_exists($countUpLocal))   $assetErrors[] = 'CountUp.js faltante.';
           <div class="card-header text-center p-3"><h5 class="mb-0">Ajustes</h5></div>
           <div class="card-body p-4">
             <!-- fz -->
-            <div class="mb-4 px-2">
-              <label for="sliderFz" class="form-label">fz (mm/tooth)</label>
-              <input type="range" id="sliderFz" class="form-range" min="<?= number_format($fzMinDb,4,'.','') ?>" max="<?= number_format($fzMaxDb,4,'.','') ?>" step="0.0001" value="<?= number_format($baseFz,4,'.','') ?>">
-              <div class="text-end small text-secondary mt-1"><span><?= number_format($fzMinDb,4,'.','') ?></span> – <strong id="valFz"><?= number_format($baseFz,4,'.','') ?></strong> – <span><?= number_format($fzMaxDb,4,'.','') ?></span></div>
-            </div>
+              <div class="mb-4 px-2">
+                <label for="sliderFz" class="form-label">fz (mm/tooth)</label>
+                <div class="slider-wrap">
+                  <input type="range" id="sliderFz" class="form-range" min="<?= number_format($fzMinDb,4,'.','') ?>" max="<?= number_format($fzMaxDb,4,'.','') ?>" step="0.0001" value="<?= number_format($baseFz,4,'.','') ?>">
+                  <span class="slider-bubble"></span>
+                </div>
+                <div class="text-end small text-secondary mt-1"><span><?= number_format($fzMinDb,4,'.','') ?></span> – <strong id="valFz"><?= number_format($baseFz,4,'.','') ?></strong> – <span><?= number_format($fzMaxDb,4,'.','') ?></span></div>
+              </div>
             <!-- Vc -->
-            <div class="mb-4 px-2">
-              <label for="sliderVc" class="form-label">Vc (m/min)</label>
-              <input type="range" id="sliderVc" class="form-range" min="<?= number_format($vcMinDb,1,'.','') ?>" max="<?= number_format($vcMaxDb,1,'.','') ?>" step="0.1" value="<?= number_format($baseVc,1,'.','') ?>">
-              <div class="text-end small text-secondary mt-1"><span><?= number_format($vcMinDb,1,'.','') ?></span> – <strong id="valVc"><?= number_format($baseVc,1,'.','') ?></strong> – <span><?= number_format($vcMaxDb,1,'.','') ?></span></div>
-            </div>
+              <div class="mb-4 px-2">
+                <label for="sliderVc" class="form-label">Vc (m/min)</label>
+                <div class="slider-wrap">
+                  <input type="range" id="sliderVc" class="form-range" min="<?= number_format($vcMinDb,1,'.','') ?>" max="<?= number_format($vcMaxDb,1,'.','') ?>" step="0.1" value="<?= number_format($baseVc,1,'.','') ?>">
+                  <span class="slider-bubble"></span>
+                </div>
+                <div class="text-end small text-secondary mt-1"><span><?= number_format($vcMinDb,1,'.','') ?></span> – <strong id="valVc"><?= number_format($baseVc,1,'.','') ?></strong> – <span><?= number_format($vcMaxDb,1,'.','') ?></span></div>
+              </div>
             <!-- ae -->
-            <div class="mb-4 px-2">
-              <label for="sliderAe" class="form-label">ae (mm) <small>(ancho de pasada)</small></label>
-              <input type="range" id="sliderAe" class="form-range" min="0.1" max="<?= number_format($diameterMb,1,'.','') ?>" step="0.1" value="<?= number_format($diameterMb*0.5,1,'.','') ?>">
-              <div class="text-end small text-secondary mt-1"><span>0.1</span> – <strong id="valAe"><?= number_format($diameterMb*0.5,1,'.','') ?></strong> – <span><?= number_format($diameterMb,1,'.','') ?></span></div>
-            </div>
+              <div class="mb-4 px-2">
+                <label for="sliderAe" class="form-label">ae (mm) <small>(ancho de pasada)</small></label>
+                <div class="slider-wrap">
+                  <input type="range" id="sliderAe" class="form-range" min="0.1" max="<?= number_format($diameterMb,1,'.','') ?>" step="0.1" value="<?= number_format($diameterMb*0.5,1,'.','') ?>">
+                  <span class="slider-bubble"></span>
+                </div>
+                <div class="text-end small text-secondary mt-1"><span>0.1</span> – <strong id="valAe"><?= number_format($diameterMb*0.5,1,'.','') ?></strong> – <span><?= number_format($diameterMb,1,'.','') ?></span></div>
+              </div>
             <!-- Pasadas -->
-            <div class="mb-4 px-2">
-              <label for="sliderPasadas" class="form-label">Pasadas</label>
-              <input type="range" id="sliderPasadas" class="form-range" min="1" max="1" step="1" value="1" data-thickness="<?= htmlspecialchars((string)$thickness, ENT_QUOTES) ?>">
-              <div id="textPasadasInfo" class="small text-secondary mt-1">1 pasada de <?= number_format($thickness, 2) ?> mm</div>
-              <div id="errorMsg" class="text-danger mt-2 small" style="display:none"></div>
-            </div>
+              <div class="mb-4 px-2">
+                <label for="sliderPasadas" class="form-label">Pasadas</label>
+                <div class="slider-wrap">
+                  <input type="range" id="sliderPasadas" class="form-range" min="1" max="1" step="1" value="1" data-thickness="<?= htmlspecialchars((string)$thickness, ENT_QUOTES) ?>">
+                  <span class="slider-bubble"></span>
+                </div>
+                <div id="textPasadasInfo" class="small text-secondary mt-1">1 pasada de <?= number_format($thickness, 2) ?> mm</div>
+                <div id="errorMsg" class="text-danger mt-2 small" style="display:none"></div>
+              </div>
           </div>
         </div>
       </div>
