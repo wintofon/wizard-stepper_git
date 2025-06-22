@@ -11,7 +11,6 @@ This document lists source files with certain extensions and their roles in the 
 | ./ajax/ajax_expert_result.php | logic/controller |
 | ./ajax/get_tools.php | logic/controller |
 | ./ajax/paso_minimo_ajax.php | logic/controller |
-| ./ajax/step6_ajax_calculate.php | logic/controller |
 | ./ajax/step6_ajax_legacy_minimal.php | logic/controller |
 | ./ajax/step_minimo_ajax.php | logic/controller |
 | ./ajax/strategy_ajax.php | logic/controller |
