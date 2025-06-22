@@ -15,10 +15,10 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Wizard CNC</title>
-  <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
-  <link rel="stylesheet" href="<?= asset('assets/css/wizard.css') ?>">
-  <link rel="stylesheet" href="<?= asset('assets/css/stepper.css') ?>">
-  <link rel="stylesheet" href="<?= asset('assets/css/footer-schneider.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/components/main.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/objects/wizard.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/objects/stepper.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/components/footer-schneider.css') ?>">
   <script>
     window.BASE_URL = <?= json_encode(BASE_URL) ?>;
     window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;

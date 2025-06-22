@@ -6,9 +6,9 @@
  */
 
 /* Infinite scroll styles for step3 */
-@import url('../abstracts/_variables.css');
-@import url('../base/_reset.css');
-@import url('../base/_typography.css');
+@import url('../settings/_variables.css');
+@import url('../generic/_reset.css');
+@import url('../elements/_typography.css');
 
 body {
   --bs-body-bg: #0d1117;

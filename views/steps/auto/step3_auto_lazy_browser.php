@@ -27,7 +27,7 @@ $thickness  = $_SESSION['thickness']  ?? null;
   <meta name="csrf-token" content="<?= htmlspecialchars($csrf) ?>">
   <?php
     $styles = [
-      'assets/css/pages/_step3.css',
+      'assets/css/components/_step3.css',
     ];
     $embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
     include __DIR__ . '/../../partials/styles.php';

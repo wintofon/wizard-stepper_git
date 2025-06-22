@@ -5,13 +5,13 @@
  * Mantiene la misma apariencia que tu borrador original, saneando duplicados y
  * evitando side‑effects sobre otros pasos. No requiere clases envolventes.
  * ---------------------------------------------------------------------------
- * → Variables globales definidas en abstracts/_variables.css
+ * → Variables globales definidas en settings/_variables.css
  * → No sobreescribe reglas de stepper.css ni Bootstrap
  */
 
-@import url('../abstracts/_variables.css');
-@import url('../base/_reset.css');
-@import url('../base/_typography.css');
+@import url('../settings/_variables.css');
+@import url('../generic/_reset.css');
+@import url('../elements/_typography.css');
 
 /* =======================  Paleta y texto base  ====================== */
 body {

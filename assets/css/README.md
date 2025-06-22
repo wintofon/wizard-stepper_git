@@ -5,14 +5,11 @@ This folder follows the **ITCSS (Inverted Triangle CSS)** methodology. Styles ar
 ## Directory mapping
 
 - **settings** – global variables such as colours and fonts.
-- **tools** – mixins and functions used across files.
 - **generic** – resets and generic stylesheets (e.g. normalisation).
 - **elements** – base styles for HTML elements.
 - **objects** – layout patterns and non-cosmetic wrappers.
 - **components** – discrete UI modules.
 - **utilities** – helper and override classes.
-- **pages** – styles scoped to individual wizard pages.
-- **steps** – legacy step directories kept for reference.
 
 ## Adding new styles
 
@@ -41,4 +38,4 @@ Stylelint reads the configuration from `.stylelintrc.json`.
 
 ## Wizard step files
 
-Each wizard step’s view loads its specific styles from `assets/css/pages` or the legacy `assets/css/steps` folder.
+Each wizard step’s view loads its specific styles from `assets/css/components`.
