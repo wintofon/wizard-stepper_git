@@ -1,0 +1,9 @@
+@import url('../settings/_variables.css');
+@import url('../generic/reset.css');
+@import url('../elements/_typography.css');
+
+.step6-error {
+  color: #fff;
+  background: #900;
+  padding: 1rem;
+}

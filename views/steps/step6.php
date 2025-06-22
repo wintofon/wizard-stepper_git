@@ -118,7 +118,7 @@ $requiredKeys = [
 $missing = array_filter($requiredKeys, fn($k) => empty($_SESSION[$k]));
 if ($missing) {
     http_response_code(400);
-    echo "<pre style='color:#fff;background:#900;padding:1rem;'>ERROR – faltan claves en sesión:\n" . implode(', ', $missing) . "</pre>";
+    echo "<pre class='step6-error'>ERROR – faltan claves en sesión:\n" . implode(', ', $missing) . "</pre>";
     exit;
 }
 
@@ -475,9 +475,12 @@ if (!file_exists($countUpLocal))   $assetErrors[] = 'CountUp.js faltante.';
 <script src="<?= file_exists($countUpLocal) ? asset('node_modules/countup.js/dist/countUp.umd.js') : 'https://cdn.jsdelivr.net/npm/countup.js/dist/countUp.umd.min.js' ?>"></script>
 <?php if ($step6JsRel): ?><script src="<?= $step6JsRel ?>"></script><?php endif; ?>
 <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    if (typeof window.initStep6 === 'function') initStep6();
+  });
   window.addEventListener('pageshow', e => {
-    if (e.persisted && typeof window.initStep6 === 'function') {
-      window.initStep6();
+    if (!e.persisted && typeof window.initStep6 === 'function') {
+      initStep6();
     }
   });
 </script>

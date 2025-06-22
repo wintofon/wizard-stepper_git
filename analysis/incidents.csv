@@ -1,11 +1,11 @@
-file,line,issueType,details
-views/wizard_layout.php,20,duplicate-import,assets/css/components/main.css already loaded via views/partials/styles.php
-views/steps/step6.php,248,order-ITCSS,main.css loaded before step-common.css (component before object)
-assets/js/wizard_stepper.js,92,dynamic-style-injection,runStepStyles moves step CSS links to head
-views/steps/step6.php,121,inline-style,debug error message uses inline styles
-assets/css/components/components.css,0,unused-css,file not imported anywhere
-assets/css/elements/elements.css,0,unused-css,file not imported anywhere
-assets/css/generic/generic.css,0,unused-css,file not imported anywhere
-assets/css/objects/objects.css,0,unused-css,file not imported anywhere
-assets/css/settings/settings.css,0,unused-css,file not imported anywhere
-assets/css/utilities/utilities.css,0,unused-css,file not imported anywhere
+file,line,issueType,details,status
+views/wizard_layout.php,20,duplicate-import,assets/css/components/main.css already loaded via views/partials/styles.php,corregido
+views/steps/step6.php,248,order-ITCSS,main.css loaded before step-common.css (component before object),corregido
+assets/js/wizard_stepper.js,92,dynamic-style-injection,runStepStyles moves step CSS links to head,corregido
+views/steps/step6.php,121,inline-style,debug error message uses inline styles,corregido
+assets/css/components/components.css,0,unused-css,file not imported anywhere,corregido
+assets/css/elements/elements.css,0,unused-css,file not imported anywhere,corregido
+assets/css/generic/generic.css,0,unused-css,file not imported anywhere,corregido
+assets/css/objects/objects.css,0,unused-css,file not imported anywhere,corregido
+assets/css/settings/settings.css,0,unused-css,file not imported anywhere,corregido
+assets/css/utilities/utilities.css,0,unused-css,file not imported anywhere,corregido
