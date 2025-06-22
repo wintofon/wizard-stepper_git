@@ -248,9 +248,9 @@ if (!file_exists($countUpLocal))   $assetErrors[] = 'CountUp.js faltante.';
     $bootstrapCss = $cssBootstrapRel ?: 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css';
     $styles = [
       $bootstrapCss,
-      'assets/css/objects/step-common.css',
-      'assets/css/objects/step6.css',
-      'assets/css/components/main.css',
+    //  'assets/css/objects/step-common.css',
+    //  'assets/css/objects/step6.css',
+    //  'assets/css/components/main.css',
     ];
     $embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
     include __DIR__ . '/../partials/styles.php';
