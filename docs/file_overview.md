@@ -36,7 +36,7 @@ This document lists source files with certain extensions and their roles in the 
 | ./assets/css/components/_step2.css | partial/component |
 | ./assets/css/components/_step3.css | partial/component |
 | ./assets/css/components/_step5.css | partial/component |
-| ./assets/css/components/_step6.css | partial/component |
+| ./assets/css/components/step6.css | partial/component |
 | ./assets/css/components/step3_auto_tool_recommendation.css | view/template |
 | ./assets/css/objects/step-common.css | view/template |
 | ./assets/css/objects/stepper.css | view/template |

@@ -1,6 +1,6 @@
 
 /*
- * File: assets/css/pages/_step6.css  (versión pulida)
+ * File: assets/css/pages/step6.css  (versión pulida)
  * Responsabilidad: Estilos exclusivos del Paso 6 del Wizard CNC.
  * Mantiene la misma apariencia que tu borrador original, saneando duplicados y
  * evitando side‑effects sobre otros pasos. No requiere clases envolventes.
@@ -8,10 +8,6 @@
  * → Variables globales definidas en settings/_variables.css
  * → No sobreescribe reglas de stepper.css ni Bootstrap
  */
-
-@import url('../settings/_variables.css');
-@import url('../generic/_reset.css');
-@import url('../elements/_typography.css');
 
 /* =======================  Paleta y texto base  ====================== */
 body {

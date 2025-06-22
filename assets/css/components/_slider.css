@@ -7,6 +7,11 @@
 
 /* Estilos reutilizables para controles tipo slider */
 
+:root {
+  --val: 0;
+  --step-pct: 10;
+}
+
 /* Contenedor del slider y variables de valor */
 .slider-wrap {
   --val: 0;        /* valor actual 0-100 */
@@ -101,9 +106,14 @@ input[type="range"].form-range::-ms-track {
   padding: 0.1rem 0.35rem;
   position: absolute;
   top: -1.6rem;
+
   transform: translateX(-50%);
   white-space: nowrap;
 }
+.slider-tick {
+  position: absolute;
+}
+
 
 @keyframes shake {
   0%,100% { transform: translateX(-50%) translateY(0); }

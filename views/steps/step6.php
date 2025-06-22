@@ -4,6 +4,8 @@
  * Descripción: Paso 6 – Resultados expertos del Wizard CNC
  * Versión pulida: se corrigieron nombres de IDs, clases CSS, chequeos de constantes y algunas advertencias PHP.
  */
+// Para pruebas AJAX: fetch("public/load-step.php?step=6")
+
 
 declare(strict_types=1);
 
@@ -274,12 +276,6 @@ if (!file_exists($countUpLocal))   $assetErrors[] = 'CountUp.js faltante.';
         onload="console.log('✅ step-common.css cargado')"
         onerror="console.error('❌ step-common.css NO cargó')">
 
-  <link id="css-step6"
-        rel="stylesheet"
-        href="<?= asset('assets/css/components/_step6.css') ?>"
-        onload="console.log('✅ _step6.css cargado')"
-        onerror="console.error('❌ _step6.css NO cargó')">
-
   <script>
     window.BASE_URL  = <?= json_encode(BASE_URL) ?>;
     window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
@@ -288,7 +284,7 @@ if (!file_exists($countUpLocal))   $assetErrors[] = 'CountUp.js faltante.';
   <?php
   echo '<!-- main.css = '.asset('assets/css/components/main.css').' -->';
   echo '<!-- step-common.css = '.asset('assets/css/objects/step-common.css').' -->';
-  echo '<!-- _step6.css = '.asset('assets/css/components/_step6.css').' -->';
+  echo '<!-- step6.css = '.asset('assets/css/components/step6.css').' -->';
   ?>
 </head>
 
