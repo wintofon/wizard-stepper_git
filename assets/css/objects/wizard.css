@@ -39,27 +39,29 @@
 /* ────────────────────────────────────────── 1) BASE ──────────────── */
 html,
 body{
-  color:#dceefb;                           /* texto celeste tenue           */
-  font-family:Rajdhani,sans-serif;       /* familia tipográfica única     */
-  margin:0;                               /* sin margen por defecto        */
   overflow-x:hidden!important;             /* evita scroll lateral sorpresa */
+  margin:0;                               /* sin margen por defecto        */
+  font-family:Rajdhani,sans-serif;       /* familia tipográfica única     */
+  color:#dceefb;                           /* texto celeste tenue           */
 }
 
 /* ──────────────────────────── 2) CONTENEDOR STICKY ───────────────── */
 .stepper-container{
+  scrollbar-width:none;                   /* oculta barra (Firefox)        */
+
+  /* siempre visible arriba mientras scrolleás */
+  position:sticky; z-index:1000; top:0;
+
+  /* permitir desplazamiento horizontal cuando la lista es muy larga  */
+  overflow-x:auto;
+
+  width:100%;                             /* ocupa 100 % del viewport      */
+
   background:transparent;                 /* transparente = hereda fondo   */
 
   /* sombra inferior + línea interior para separar del contenido      */
   box-shadow:0 8px 16px rgb(0 0 0 / 55%),
              inset 0 -1px 0 #1b2537;
-
-  /* permitir desplazamiento horizontal cuando la lista es muy larga  */
-  overflow-x:auto;
-
-  /* siempre visible arriba mientras scrolleás */
-  position:sticky;
-  scrollbar-width:none;                   /* oculta barra (Firefox)        */ top:0;
-  width:100%;                             /* ocupa 100 % del viewport      */ z-index:1000;
 }
 
 /* oculta scrollbar (WebKit) */
@@ -71,55 +73,64 @@ body{
 /* –– tapas triangulares para cerrar visualmente los bordes –––––––––– */
 .stepper-container::before,
 .stepper-container::after{
-  background:#162235;                     /* mismo azul oscuro interno     */ bottom:0;
-  content:"";
   pointer-events:none;
-  position:absolute; top:0;
-  width:14px;                             /* ancho de la “tapa”            */ z-index:5;         /* no bloquean clicks            */
+  content:"";
+
+  position:absolute; z-index:5;         /* no bloquean clicks            */ top:0; bottom:0;
+
+  width:14px;                             /* ancho de la “tapa”            */
+
+  background:#162235;                     /* mismo azul oscuro interno     */
 }
 
 /* tapa izquierda: triángulo apuntando a la derecha */
 .stepper-container::before{
-  clip-path:polygon(0 0,100% 0,100% 100%);
   left:0;
+  clip-path:polygon(0 0,100% 0,100% 100%);
 }
 
 /* tapa derecha: triángulo apuntando a la izquierda */
 .stepper-container::after{
-  clip-path:polygon(0 0,100% 0,0 100%);
   right:0;
+  clip-path:polygon(0 0,100% 0,0 100%);
 }
 
 /* ────────────────────────────── 3) LISTA UL – .stepper ───────────── */
 .stepper{
-  background:transparent;
-  display:flex;                            /* items en fila                */
-  list-style:none;                         /* sin bullets                  */
-  margin:0 auto;                           /* bloc centrado horizontal     */
+  scroll-behavior:smooth;
 
   /* scroll suave si la lista se desborda                             */
   overflow-x:auto;
-  padding:0;                               /* reset lista                  */
-  scroll-behavior:smooth;
+  display:flex;                            /* items en fila                */
+
   width:max-content;                       /* ancho = suma de hijos        */
+  margin:0 auto;                           /* bloc centrado horizontal     */
+  padding:0;                               /* reset lista                  */
+
+  list-style:none;                         /* sin bullets                  */
+
+  background:transparent;
 }
 
 /* estilizado de la barra de scroll (sólo cuando se ve) */
 .stepper::-webkit-scrollbar{height:6px;}
 
-.stepper::-webkit-scrollbar-thumb{
-  background:#1b2537; border-radius:3px;
+.stepper::-webkit-scrollbar-thumb{ border-radius:3px;
+  background:#1b2537;
 }
 
 /* ──────────────────── 4) LOGO opcional – .logo-stepper ───────────── */
-.logo-stepper{ align-items:center;        /* centra vertical imagen/logo  */
+.logo-stepper{
+  display:flex; align-items:center;        /* centra vertical imagen/logo  */
+
+  padding:0 1.25rem;                       /* respiración horizontal       */
+
+  font-weight:500;                         /* texto/brand en peso medio    */
+
   background:#162235;                      /* mismo fondo que los pasos    */
 
   /* Romboide: esquina izquierda puntiaguda                            */
   clip-path:polygon(0 0,100% 0,calc(100% - 12px) 100%,12px 100%);
-  display:flex;
-  font-weight:500;                         /* texto/brand en peso medio    */
-  padding:0 1.25rem;                       /* respiración horizontal       */
 }
 
 .logo-stepper img{
@@ -129,39 +140,50 @@ body{
 
 /* ──────────────────────────── 5) ITEMS LI (pasos) ─────────────────── */
 .stepper li{
-  background:#162235;
+  position:relative;                       /* para pseudo-elementos        */
+
+ overflow:hidden;
+  flex:0 0 auto;                           /* ancho fijo según contenido   */
+
+  margin-left:-12px;                       /* superposición romboides      */
+  padding:.75rem 1.25rem;                  /* caja clicable cómoda         */
   border-bottom:2px solid transparent;     /* línea base (override c/estado) */
 
-  /* punta romboide derecha                                             */
-  clip-path:polygon(12px 0,100% 0,calc(100% - 12px) 100%,0 100%); color:#d2d2d2;       /* gris claro inactivo          */
-  flex:0 0 auto;                           /* ancho fijo según contenido   */ font-size:1rem;
-  font-weight:500;
-  margin-left:-12px;                       /* superposición romboides      */ overflow:hidden;
-  padding:.75rem 1.25rem;                  /* caja clicable cómoda         */
-  position:relative;                       /* para pseudo-elementos        */ text-overflow:ellipsis; text-transform:uppercase;
-  transition:background .3s,color .3s;     /* fade suave al cambiar estado */
+ font-size:1rem;
+  font-weight:500; color:#d2d2d2;       /* gris claro inactivo          */ text-overflow:ellipsis; text-transform:uppercase;
   white-space:nowrap;
+
+  background:#162235;
+
+  /* punta romboide derecha                                             */
+  clip-path:polygon(12px 0,100% 0,calc(100% - 12px) 100%,0 100%);
+
+  transition:background .3s,color .3s;     /* fade suave al cambiar estado */
 }
 
 /* primer paso: punta romboide izquierda también                        */
 .stepper li:first-child{
-  clip-path:polygon(0 0,100% 0,calc(100% - 12px) 100%,12px 100%);
   margin-left:0;
+  clip-path:polygon(0 0,100% 0,calc(100% - 12px) 100%,12px 100%);
 }
 
 /* separador vertical entre pasos                                       */
-.stepper li:not(:last-child)::after{ background:rgb(255 255 255 / 15%); bottom:12%;
+.stepper li:not(:last-child)::after{
   content:"";
-  position:absolute; right:0; top:12%;
+
+  position:absolute; top:12%; right:0; bottom:12%;
+
   width:1px;
+
+ background:rgb(255 255 255 / 15%);
 }
 
 /* ──────────────────── 6) ESTADOS activo y completado ──────────────── */
 .stepper li.active,
 .stepper li.done{
-  background:#1d3557;                      /* tono + brillante             */
   border-bottom:3px solid #00bfff;         /* línea inferior cian          */
   color:#fff;
+  background:#1d3557;                      /* tono + brillante             */
 }
 
 /* efecto glow al texto del paso activo */
@@ -172,31 +194,42 @@ body{
 /* ──────────────────── 7) BARRA DE PROGRESO SUPERIOR ───────────────── */
 .stepper li.active::before,
 .stepper li.done::before{
-  animation:fill-bar .45s forwards;
-  background:#00bfff;
   content:"";
-  height:4px; left:0;
-  position:absolute; top:0; width:0;                     /* animación: de 0% a 100%      */
+
+  position:absolute; top:0; left:0;
+
+ width:0;                     /* animación: de 0% a 100%      */
+  height:4px;
+
+  background:#00bfff;
+
+  animation:fill-bar .45s forwards;
 }
 
 /* keyframe comparte para fill-bar (de 0 a 100 % width) */
 @keyframes fill-bar{from{width:0}to{width:100%}}
 
 /* ──────────────────── 8) ICONO Feather/Lucide ─────────────────────── */
-.stepper li .icon{ height:1em;
+.stepper li .icon{
+  width:1em; height:1em;
   margin-left:.35rem;
-  stroke-width:2; vertical-align:middle;
-  width:1em;
+
+ vertical-align:middle;
+
+  stroke-width:2;
 }
 
 /* ──────────────────────────── 9) RESPONSIVE ───────────────────────── */
 
 /* Modo compacto: <=1200 px ------------------------------------------ */
 @media(width <=1200px){
-  .stepper{
+  .stepper{ scrollbar-width:none; /* oculta scroll              */
+
+    overflow-x:hidden;
     display:block;
+
+ width:100%;
     margin:0 auto;
-    overflow-x:hidden; scrollbar-width:none; /* oculta scroll              */ width:100%;
   }
   .stepper::-webkit-scrollbar{display:none;}
 
@@ -205,11 +238,14 @@ body{
 
   /* …excepto el paso activo (full-width, centrado) */
   .stepper li.active{
-    box-sizing:border-box;
-    clip-path:none;
     display:block!important;
-    font-size:1.15rem; font-weight:500; margin:0; padding:1rem; text-align:center;
-    width:100%;
+
+    box-sizing:border-box;
+    width:100%; margin:0; padding:1rem;
+
+    font-size:1.15rem; font-weight:500; text-align:center;
+
+    clip-path:none;
   }
   .stepper li.done{display:none!important;}
   .stepper-container{overflow-x:hidden;}
@@ -219,14 +255,14 @@ body{
 
 /* slide X (desktop) */
 @keyframes slideInX{
-  0%{opacity:0;transform:translateX(-14px);}
-  100%{opacity:1;transform:translateX(0);}
+  0%{transform:translateX(-14px);opacity:0;}
+  100%{transform:translateX(0);opacity:1;}
 }
 
 /* slide Y (mobile) */
 @keyframes slideInY{
-  0%{opacity:0;transform:translateY(-10px);}
-  100%{opacity:1;transform:translateY(0);}
+  0%{transform:translateY(-10px);opacity:0;}
+  100%{transform:translateY(0);opacity:1;}
 }
 
 /* glow temporario en línea inferior */
@@ -240,6 +276,7 @@ body{
 .stepper li.active:not(.anim-done){
   animation:slideInX .35s ease-out both,
              glowBar 1s .35s ease-out 1;
+
   animation-composition:add;              /* acumular animaciones         */
 }
 
@@ -254,11 +291,11 @@ body{
 /* ──────────────────── 11) HOVER (sólo escritorio) ─────────────────── */
 @media(width >=1201px){
   .stepper li:hover{
-    filter:brightness(1.1);               /* ligero highlight             */
     transform:translateY(-2px);           /* levanta 2 px                 */
+    filter:brightness(1.1);               /* ligero highlight             */
     transition:transform .2s ease, filter .2s ease;
   }
 }
 
-.reset-wrap{ text-align:right; padding:.5rem 1rem; }
+.reset-wrap{ padding:.5rem 1rem; text-align:right; }
 

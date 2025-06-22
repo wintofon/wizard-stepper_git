@@ -12,12 +12,12 @@
 
 
 h2 {
-  color: var(--text-color-muted);
   margin-bottom: 1.5rem;
+  color: var(--text-color-muted);
 }
 
 .form-label {
-  color: var(--text-color-sec);
   font-weight: 600;
+  color: var(--text-color-sec);
 }
 
