@@ -56,7 +56,7 @@
 /* Encabezados uniformes de los pasos */
 .step-title {
   align-items: center;
-  color: #d1d1d1;
+  color: #fff;
   display: flex;
   font-size: 1.5rem;
   font-weight: 800;
