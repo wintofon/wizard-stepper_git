@@ -256,7 +256,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </form>
   <?php endif; ?>
 
-  <pre id="debug" class="debug-box"></pre>
 </main>
 
 <!-- Bootstrap Bundle -->

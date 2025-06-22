@@ -21,11 +21,10 @@
     if (!DEBUG) return fn();
     console.group(title); try { fn(); } finally { console.groupEnd(); }
   };
-  const dbgBox = $qs('#debug');
   const dbgMsg = txt => {
-    if (!dbgBox) return;
+    if (!DEBUG) return;
     const ts = new Date().toLocaleTimeString();
-    dbgBox.textContent = `[${ts}] ${txt}\n` + dbgBox.textContent;
+    console.log(`[${ts}] ${txt}`);
   };
 
   const stepsBar   = $qsa('.stepper li');

@@ -12,7 +12,7 @@
  *   persistidos en $_SESSION (fallback).
  * - Agrega campo oculto step=2 para que el Stepper no marque
  *   “Paso inválido”.
- * - Funciones dbg() imprimen todo en la consola y en <pre id="debug">.
+ * - Funciones dbg() registran información en el log de errores.
  */
 declare(strict_types=1);
 require_once __DIR__ . '/../../../includes/db.php';
@@ -22,11 +22,7 @@ if (!function_exists('dbg')) {
     function dbg(string $tag, $data = null): void {
         $txt = '['.date('H:i:s')."] {$tag} "
              . (is_scalar($data) ? $data : json_encode($data, JSON_UNESCAPED_UNICODE));
-        echo "<script>console.log(".json_encode($txt).");</script>";
-        echo "<script>
-                (t => {const d=document.getElementById('debug');
-                       if(d){d.textContent+=t+'\\n';}})(".json_encode($txt).");
-              </script>";
+        error_log($txt);
     }
 }
 
@@ -201,8 +197,6 @@ if ($tool) {
   <?php endif; ?>
 </div>
 
-<!-- consola interna -->
-<pre id="debug" class="debug-box"></pre>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

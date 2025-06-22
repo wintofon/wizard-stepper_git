@@ -293,8 +293,6 @@ dbg('children', $children);
     </div>
   </form>
 
-  <pre id="debug" class="bg-dark text-info p-2 mt-4"></pre>
-
   <script>
   //────────────────────────────────────────────────────────────────────
   // normalizeText: Quita tildes, pasa a minúsculas
