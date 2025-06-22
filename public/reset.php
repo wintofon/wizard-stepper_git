@@ -106,7 +106,7 @@ dbg('🔄 Nueva sesión limpia generada');
     const BASE_URL = <?= json_encode(BASE_URL) ?>;
   </script>
 </head>
-<body>
+<body class="center-screen">
   <div class="message-box">
     <h1>Reiniciando Wizard CNC...</h1>
     <p>Espere un instante...</p>
