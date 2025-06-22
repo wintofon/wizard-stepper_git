@@ -8,10 +8,6 @@
 @import url('../generic/_reset.css');
 @import url('../elements/_typography.css');
 
-body {
-  background-color: #0d1117;
-  color: #e0e0e0;
-}
 
 .btn-type,
 .btn-cat {

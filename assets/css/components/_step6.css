@@ -14,10 +14,6 @@
 @import url('../elements/_typography.css');
 
 /* =======================  Paleta y texto base  ====================== */
-body {
-  background: var(--bg-body);
-  color: var(--text-color);
-}
 
 /* =======================  Tarjetas genéricas  ======================= */
 .card,
