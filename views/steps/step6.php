@@ -252,7 +252,7 @@ if (!file_exists($countUpLocal))   $assetErrors[] = 'CountUp.js faltante.';
     $styles = [
       $bootstrapCss,
       'assets/css/objects/step-common.css',
- 'assets/css/objects/step6.css',
+      'assets/css/components/_step6.css',
  
     ];
     $embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
