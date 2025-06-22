@@ -25,7 +25,7 @@
 <link rel="stylesheet" href="<?= asset('assets/css/objects/wizard.css') ?>">
 <link rel="stylesheet" href="<?= asset('assets/css/objects/stepper.css') ?>">
 <link rel="stylesheet" href="<?= asset('assets/css/objects/step-common.css') ?>">
-<link rel="stylesheet" href="<?= asset('assets/css/objects/step6.css') ?>">
+
 <link rel="stylesheet" href="<?= asset('assets/css/components/components.css') ?>">
 <link rel="stylesheet" href="<?= asset('assets/css/components/main.css') ?>">
 <link rel="stylesheet" href="<?= asset('assets/css/components/footer-schneider.css') ?>">
