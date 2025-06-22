@@ -140,6 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css',
       'assets/css/components/_step1.css',
       'assets/css/components/_manual.css',
+      'assets/css/objects/step-common.css',
     ];
     $embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
     include __DIR__ . '/../../partials/styles.php';

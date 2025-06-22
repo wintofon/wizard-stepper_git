@@ -203,6 +203,7 @@ dbg('children', $children);
     $styles = [
       'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
       'assets/css/generic/material.css',
+      'assets/css/objects/step-common.css',
     ];
     $embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
     include __DIR__ . '/../../partials/styles.php';
