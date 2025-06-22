@@ -9,10 +9,13 @@
 
 /* Contenedor del slider y variables de valor */
 .slider-wrap {
+  position: relative;
+}
+
+/* STEP 6: variables globales para sliders */
+:root {
   --val: 0;        /* valor actual 0-100 */
   --step-pct: 10;  /* porcentaje entre marcas */
-
-  position: relative;
 }
 
 /* Barra base del input range */
