@@ -14,9 +14,8 @@ declare(strict_types=1);
 // ---------------------------------------------------------------------------
 
 if (!defined('BASE_URL')) {
-    $envBase = getenv('BASE_URL');
-    $base    = $envBase !== false ? $envBase
-                                  : dirname($_SERVER['SCRIPT_NAME']);
+    $env  = getenv('BASE_URL');
+    $base = $env !== false ? $env : dirname($_SERVER['SCRIPT_NAME']);
     define('BASE_URL', rtrim($base, '/'));
 }
 
