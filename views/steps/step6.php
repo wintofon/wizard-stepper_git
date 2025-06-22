@@ -238,33 +238,31 @@ if (!file_exists($countUpLocal))   $assetErrors[] = 'CountUp.js faltante.';
 // =====================================================================
 ?>
 <?php if (!$embedded): ?>
+
+
 <!DOCTYPE html>
-<html lang="es">
-<head>
-
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Cutting Data – Paso&nbsp;6</title>
-  <?php
-    $bootstrapCss = $cssBootstrapRel ?: 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css';
-    $styles = [
-      $bootstrapCss,
-    //  'assets/css/objects/step-common.css',
-    //  'assets/css/objects/step6.css',
-    //  'assets/css/components/main.css',
-    ];
-    $embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
-    include __DIR__ . '/../partials/styles.php';
-  ?>
-  <?php if (!$embedded): ?>
-  <script>
-    window.BASE_URL  = <?= json_encode(BASE_URL) ?>;
-    window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
-  </script>
-  <?php endif; ?>
-
-
+<html lang="es"><head>
+<meta charset="utf-8">
+<title>Paso 5 – Configurá tu router</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<?php
+  $styles = [
+    'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
+    'assets/css/objects/step-common.css',
+    'assets/css/components/_step6.css',
+  ];
+  $embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
+  include __DIR__ . '/../partials/styles.php';
+?>
+<?php if (!$embedded): ?>
+<script>
+  window.BASE_URL = <?= json_encode(BASE_URL) ?>;
+  window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
+</script>
+<?php endif; ?>
 </head>
+
+
 
 
 
