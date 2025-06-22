@@ -219,7 +219,7 @@ $notesArray = $params['notes'] ?? [];
 // ────────────────────────────────────────────────────────────────
 // Assets locales / CDN fall-back
 // ────────────────────────────────────────────────────────────────
-$cssBootstrapRel = file_exists($root.'assets/css/bootstrap.min.css') ? asset('assets/css/bootstrap.min.css') : '';
+$cssBootstrapRel = file_exists($root.'assets/css/generic/bootstrap.min.css') ? asset('assets/css/generic/bootstrap.min.css') : '';
 $bootstrapJsRel  = file_exists($root.'assets/js/bootstrap.bundle.min.js') ? asset('assets/js/bootstrap.bundle.min.js') : '';
 $featherLocal    = $root.'node_modules/feather-icons/dist/feather.min.js';
 $chartJsLocal    = $root.'node_modules/chart.js/dist/chart.umd.min.js';
@@ -264,19 +264,19 @@ if (!file_exists($countUpLocal))   $assetErrors[] = 'CountUp.js faltante.';
   <!-- Hojas de estilo del proyecto -->
   <link id="css-main"
         rel="stylesheet"
-        href="<?= asset('assets/css/main.css') ?>"
+        href="<?= asset('assets/css/components/main.css') ?>"
         onload="console.log('✅ main.css cargado')"
         onerror="console.error('❌ main.css NO cargó')">
 
   <link id="css-step-common"
         rel="stylesheet"
-        href="<?= asset('assets/css/step-common.css') ?>"
+        href="<?= asset('assets/css/objects/step-common.css') ?>"
         onload="console.log('✅ step-common.css cargado')"
         onerror="console.error('❌ step-common.css NO cargó')">
 
   <link id="css-step6"
         rel="stylesheet"
-        href="<?= asset('assets/css/pages/_step6.css') ?>"
+        href="<?= asset('assets/css/components/_step6.css') ?>"
         onload="console.log('✅ _step6.css cargado')"
         onerror="console.error('❌ _step6.css NO cargó')">
 
@@ -286,9 +286,9 @@ if (!file_exists($countUpLocal))   $assetErrors[] = 'CountUp.js faltante.';
   </script>
   <!-- DEBUG — eliminar después -->
   <?php
-  echo '<!-- main.css = '.asset('assets/css/main.css').' -->';
-  echo '<!-- step-common.css = '.asset('assets/css/step-common.css').' -->';
-  echo '<!-- _step6.css = '.asset('assets/css/pages/_step6.css').' -->';
+  echo '<!-- main.css = '.asset('assets/css/components/main.css').' -->';
+  echo '<!-- step-common.css = '.asset('assets/css/objects/step-common.css').' -->';
+  echo '<!-- _step6.css = '.asset('assets/css/components/_step6.css').' -->';
   ?>
 </head>
 

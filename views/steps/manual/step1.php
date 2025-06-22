@@ -138,8 +138,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $styles = [
       'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
       'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css',
-      'assets/css/pages/_step1.css',
-      'assets/css/pages/_manual.css',
+      'assets/css/components/_step1.css',
+      'assets/css/components/_manual.css',
     ];
     $embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
     include __DIR__ . '/../../partials/styles.php';

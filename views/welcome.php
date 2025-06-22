@@ -4,7 +4,7 @@
  *
  * Brief summary: Landing page for the CNC wizard.
  * Main responsibility: Displays the welcome screen and loads base styles.
- * Related files: includes/init.php, assets/css/wizard.css, assets/css/main.css
+ * Related files: includes/init.php, assets/css/objects/wizard.css, assets/css/components/main.css
  */
 require_once __DIR__ . '/../includes/init.php';
 ?>
@@ -15,9 +15,9 @@ require_once __DIR__ . '/../includes/init.php';
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Bienvenido – Wizard CNC</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
-  <link rel="stylesheet" href="<?= asset('assets/css/wizard.css') ?>">
-  <link rel="stylesheet" href="<?= asset('assets/css/onboarding.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/components/main.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/objects/wizard.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/components/onboarding.css') ?>">
   <script>
     window.BASE_URL = <?= json_encode(BASE_URL) ?>;
     window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;

@@ -19,9 +19,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Seleccionar Modo – Wizard CNC</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
-  <link rel="stylesheet" href="<?= asset('assets/css/wizard.css') ?>">
-  <link rel="stylesheet" href="<?= asset('assets/css/onboarding.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/components/main.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/objects/wizard.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/components/onboarding.css') ?>">
   <script>
     window.BASE_URL = <?= json_encode(BASE_URL) ?>;
     window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
