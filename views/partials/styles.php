@@ -15,4 +15,7 @@ foreach ($styles as $href) {
     $url = str_starts_with($href, 'http') ? $href : asset($href);
     echo '<link rel="stylesheet" href="'.$url.'">'.PHP_EOL;
 }
+if ($embedded) {
+    echo '<style>body{background-color:transparent!important;}</style>'.PHP_EOL;
+}
 ?>
