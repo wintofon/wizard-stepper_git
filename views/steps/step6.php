@@ -242,7 +242,6 @@ if (!file_exists($countUpLocal)) $assetErrors[] = 'CountUp.js faltante.';
 // =========================  COMIENZA SALIDA  ==========================
 // =====================================================================
 ?>
-<?php if (!$embedded): ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -648,7 +647,6 @@ if (!file_exists($countUpLocal)) $assetErrors[] = 'CountUp.js faltante.';
 </script>
 <script>feather.replace();</script>
 
-<?php if (!$embedded): ?>
 </body>
 </html>
-<?php endif; ?>
+
