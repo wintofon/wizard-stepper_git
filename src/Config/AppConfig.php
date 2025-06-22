@@ -14,9 +14,10 @@ declare(strict_types=1);
 // ---------------------------------------------------------------------------
 
 if (!defined('BASE_URL')) {
-    // 🌐 BASE_URL → solo path (funciona bien en XAMPP y producción)
-    $basePath = getenv('BASE_URL') ?: dirname($_SERVER['SCRIPT_NAME']);
-    define('BASE_URL', rtrim($basePath, '/'));
+    $envBase = getenv('BASE_URL');
+    $base    = $envBase !== false ? $envBase
+                                  : dirname($_SERVER['SCRIPT_NAME']);
+    define('BASE_URL', rtrim($base, '/'));
 }
 
 if (!defined('BASE_HOST')) {
@@ -30,7 +31,9 @@ if (!defined('BASE_HOST')) {
 if (!function_exists('asset')) {
     function asset(string $path): string
     {
-        return BASE_URL . '/' . ltrim($path, '/');
+        return BASE_URL === ''
+            ? '/' . ltrim($path, '/')
+            : BASE_URL . '/' . ltrim($path, '/');
     }
 }
 

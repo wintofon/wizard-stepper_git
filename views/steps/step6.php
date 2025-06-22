@@ -7,20 +7,13 @@
 
 declare(strict_types=1);
 
-use App\Controller\ExpertResultController;
+require_once __DIR__ . '/../../src/Config/AppConfig.php';
 
-// Ensure BASE_URL is correctly set when this view is loaded directly
-if (!getenv('BASE_URL')) {
-    $base = rtrim(dirname(dirname(dirname($_SERVER['SCRIPT_NAME']))), '/');
-    putenv('BASE_URL=' . $base);
-}
+use App\Controller\ExpertResultController;
 
 // ────────────────────────────────────────────────────────────────
 // Utilidades / helpers
 // ────────────────────────────────────────────────────────────────
-
-
-require_once __DIR__ . '/../../src/Config/AppConfig.php';
 
 require_once __DIR__ . '/../../includes/wizard_helpers.php';
 
