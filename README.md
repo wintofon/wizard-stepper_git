@@ -51,6 +51,16 @@ Unit tests can be run with PHPUnit. From the project root execute:
 vendor/bin/phpunit
 ```
 
+## Auditing unused CSS
+
+Run the PurgeCSS audit script to see which selectors are not used by the PHP views or JavaScript modules:
+
+```bash
+node scripts/purgecss-audit.js
+```
+
+The script generates `reports/report-unused-selectors.json` with all removed selectors.
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
