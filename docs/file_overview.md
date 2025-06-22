@@ -18,7 +18,7 @@ This document lists source files with certain extensions and their roles in the 
 | ./ajax/tools_scroll.php | logic/controller |
 | ./api/restore_progress.php | logic/controller |
 | ./assets/css/settings/_variables.css | partial/component |
-| ./assets/css/generic/_reset.css | partial/component |
+| ./assets/css/generic/reset.css | partial/component |
 | ./assets/css/elements/_typography.css | partial/component |
 | ./assets/css/generic/reset.css | partial/component |
 | ./assets/css/generic/bootstrap.min.css | view/template |

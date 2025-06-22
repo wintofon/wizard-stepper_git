@@ -8,7 +8,7 @@
 /* Common material selection styles */
 
 @import url('../settings/_variables.css');
-@import url('./_reset.css');
+@import url('./reset.css');
 @import url('../elements/_typography.css');
 
 
