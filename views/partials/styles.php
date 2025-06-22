@@ -8,9 +8,7 @@
  */
 $embedded = $embedded ?? (defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED);
 $styles = $styles ?? [];
-if (!$embedded) {
-    echo '<link rel="stylesheet" href="'.asset('assets/css/components/main.css').'">'.PHP_EOL;
-}
+// main.css is now loaded globally from wizard_layout.php
 foreach ($styles as $href) {
     $url = str_starts_with($href, 'http') ? $href : asset($href);
     echo '<link rel="stylesheet" href="'.$url.'">'.PHP_EOL;

@@ -15,10 +15,18 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Wizard CNC</title>
+  <link rel="stylesheet" href="<?= asset('assets/css/settings/settings.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/generic/generic.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/elements/elements.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/objects/objects.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/objects/wizard.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/objects/stepper.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/objects/step-common.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/objects/step6.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/components/components.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/components/main.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/components/footer-schneider.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/utilities/utilities.css') ?>">
   <script>
     window.BASE_URL = <?= json_encode(BASE_URL) ?>;
     window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
