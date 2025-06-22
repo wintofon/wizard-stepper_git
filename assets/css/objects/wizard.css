@@ -39,7 +39,6 @@
 /* ────────────────────────────────────────── 1) BASE ──────────────── */
 html,
 body{
-  background:#0f172a;                      /* azul-oscuro “dashboard”       */
   color:#dceefb;                           /* texto celeste tenue           */
   font-family:Rajdhani,sans-serif;       /* familia tipográfica única     */
   margin:0;                               /* sin margen por defecto        */
