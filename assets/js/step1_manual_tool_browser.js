@@ -9,12 +9,12 @@
  * Navegador de herramientas con facetas, búsqueda y selección
  * ▸ 100 % compatible con el stepper (envía tool_id & tool_table)
  * ▸ Soporta acceso externo ?brand=&code=  (fallback GET → step 2)
- * ▸ Modo DEBUG: loguea TODO en consola + window.dbg()
+ * ▸ Modo DEBUG: loguea TODO en consola
  * ------------------------------------------------------------ */
 (() => {
   const BASE_URL = window.BASE_URL;
   /* -------- utilidades comunes ------------------------------------ */
-  const dbg = (...m) => {          // visible en consola + #debug
+  const dbg = (...m) => {          // visible en consola
     console.log('[STEP-1]', ...m);
     window.dbg?.('[STEP-1]', ...m);   // si existe helper global
   };

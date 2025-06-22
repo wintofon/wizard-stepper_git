@@ -245,9 +245,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </main>
   </form>
 
-  <!-- Caja opcional de debugging -->
-  <pre id="debug" class="debug-box"></pre>
-
   <!-- ─────────────── Scripts ──────────────────────────────────────── -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 

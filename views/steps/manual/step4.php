@@ -213,7 +213,6 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
   </div>
 </form>
 
-<pre id="debug" class="bg-dark text-info p-2 mt-4"></pre>
 </main>
 
 <script>

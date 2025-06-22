@@ -6,8 +6,6 @@
  */
 export function dbg(...m) {
   console.log('[DBG]', ...m);
-  const box = document.getElementById('debug');
-  if (box) box.textContent += m.join(' ') + '\n';
 }
 
 export function initToolTable() {

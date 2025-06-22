@@ -73,9 +73,6 @@
   <!-- Dashboard (opcional) -->
   <section id="wizard-dashboard"></section>
 
-  <!-- Consola interna -->
-  <pre id="debug" class="debug-box"></pre>
-
   <!-- Scripts -->
   <?php if (!empty($_SESSION['csrf_token'])): ?>
   <script>

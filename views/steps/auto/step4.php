@@ -211,7 +211,5 @@ if($tool){
   <?php endif; ?>
 </div>
 
-<!-- Consola interna -->
-<pre id="debug" class="debug-box"></pre>
 </body>
 </html>

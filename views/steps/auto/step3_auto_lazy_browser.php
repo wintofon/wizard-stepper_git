@@ -54,7 +54,6 @@ $thickness  = $_SESSION['thickness']  ?? null;
          data-thickness="<?= htmlspecialchars((string)$thickness) ?>">
     </div>
     <div id="scrollSentinel"></div>
-    <pre id="debug" class="bg-dark text-info p-2 mt-4"></pre>
   </main>
   <script type="module" src="<?= asset('assets/js/step3_auto_lazy_loader.js') ?>"></script>
 </body>

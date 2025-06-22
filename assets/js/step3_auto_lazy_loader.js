@@ -14,8 +14,6 @@ const thickness = parseFloat(container.dataset.thickness || '0');
 
 window.dbg = function (...m) {
   console.log('[STEP3]', ...m);
-  const box = document.getElementById('debug');
-  if (box) box.textContent += m.join(' ') + '\n';
 };
 
 let page = 1;

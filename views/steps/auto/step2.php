@@ -264,8 +264,6 @@ $hasPrev   = is_int($prevType) && array_key_exists((int)$prevType, $types)
     </div>
   </form>
 
-  <pre id="debug" class="bg-dark text-info p-2 mt-4"></pre>
-
   <script>
   (function() {
     // Datos PHP → JS

@@ -15,8 +15,6 @@ function initExpertResult(P) {
   if (!P || typeof P !== 'object') {
     const msg = '❌ Error: No se recibió el objeto de parámetros (P) o no es válido.';
     console.error(msg);
-    const dbg = document.getElementById('debug');
-    if (dbg) dbg.textContent = msg;
     return;
   }
 
@@ -25,8 +23,6 @@ function initExpertResult(P) {
   if (missing.length > 0) {
     const msg = '❌ Faltan datos en el objeto P: ' + missing.join(', ');
     console.error(msg);
-    const dbg = document.getElementById('debug');
-    if (dbg) dbg.textContent = msg;
     return;
   }
 
@@ -45,7 +41,6 @@ function initExpertResult(P) {
     vc_max_label: document.getElementById('vc_max_label'),
     material_thickness: document.getElementById('material_thickness'),
     ae_notice: document.getElementById('ae_notice'),
-    debug: document.getElementById('debug'),
     warning_feed: document.getElementById('warning-feed'),
     warning_rpm_low: document.getElementById('warning-rpm-low'),
     warning_rpm_high: document.getElementById('warning-rpm-high'),
@@ -58,7 +53,6 @@ function initExpertResult(P) {
   if (missingDom.length > 0) {
     const msg = '❌ Elementos del DOM faltantes: ' + missingDom.join(', ');
     console.error(msg);
-    if (domMap.debug) domMap.debug.textContent = msg;
     return;
   }
 
@@ -66,7 +60,7 @@ function initExpertResult(P) {
     fz_slider: fzS, vc_slider: vcS, ae_slider: aeS, pass_slider: passS,
     fz_value: fzV, vc_value: vcV, ae_value: aeV, pass_value: passV,
     fz_min_label: fzMinL, fz_max_label: fzMaxL, vc_min_label: vcMinL, vc_max_label: vcMaxL,
-    material_thickness: matThick, ae_notice: aeMsg, debug: dbg,
+    material_thickness: matThick, ae_notice: aeMsg,
     warning_feed: warnF, warning_rpm_low: warnL, warning_rpm_high: warnH,
     datos_extra: datosExtra
   } = domMap;
@@ -203,12 +197,12 @@ function initExpertResult(P) {
     if (warnL) warnL.style.display = rpm < P.rpmMin ? 'block' : 'none';
     if (warnH) warnH.style.display = rpm > P.rpmMax ? 'block' : 'none';
 
-    dbg.textContent = [
+    console.log([
       `MMR: ${mmr.toFixed(2)} mm³/min`,
       `RPM: ${Math.round(rpmClamped)}`,
       `Feed: ${Math.round(feed)} mm/min`,
       `Potencia: ${watts.toFixed(1)} W (${hp.toFixed(2)} HP)`
-    ].join('\n');
+    ].join('\n'));
 
     const extra = [
       `↕ ap (profundidad): ${ap.toFixed(2)} mm`,

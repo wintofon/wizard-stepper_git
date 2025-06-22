@@ -210,7 +210,6 @@ try {
   <!-- Botón "Siguiente" removido -->
 
   <!-- 7.4) Consola interna de debugging -->
-  <pre id="debug" class="bg-dark text-info p-2 mt-4"></pre>
 
   <!-- Bootstrap JS (para estilos, no es estrictamente necesario) -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -218,11 +217,9 @@ try {
   <!-- 7.5) Script inline con toda la lógica AJAX + render + filtrado -->
   <script>
   (() => {
-    // Helper de debug: imprime en consola y en <pre id="debug">
+    // Helper de debug: imprime únicamente en la consola
     window.dbg = (...msgs) => {
       console.log('[STEP-3]', ...msgs);
-      const box = document.getElementById('debug');
-      if (box) box.textContent += msgs.join(' ') + '\n';
     };
 
     dbg('ℹ [step3.js] Iniciando lógica de Paso 3 (Auto)');
