@@ -8,8 +8,12 @@ This document lists source files with certain extensions and their roles in the 
 | ./.stylelintrc.json | config |
 | ./.vscode/launch.json | config |
 | ./.vscode/public/api/expertResult.php | logic/controller |
+| ./ajax/ajax_expert_result.php | logic/controller |
 | ./ajax/get_tools.php | logic/controller |
+| ./ajax/paso_minimo_ajax.php | logic/controller |
 | ./ajax/step6_ajax_legacy_minimal.php | logic/controller |
+| ./ajax/step_minimo_ajax.php | logic/controller |
+| ./ajax/strategy_ajax.php | logic/controller |
 | ./ajax/tools_ajax.php | logic/controller |
 | ./ajax/tools_scroll.php | logic/controller |
 | ./api/restore_progress.php | logic/controller |
