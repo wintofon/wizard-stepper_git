@@ -85,6 +85,19 @@
     });
   };
 
+  /**
+   * Mueve las hojas de estilo de un paso al <head> evitando duplicados
+   * @param {Element} container Elemento con el HTML del paso
+   */
+  const runStepStyles = container => {
+    [...container.querySelectorAll('link[rel="stylesheet"]')].forEach(link => {
+      if (link.href && !document.querySelector(`head link[href="${link.href}"]`)) {
+        document.head.appendChild(link.cloneNode(true));
+      }
+      link.remove();
+    });
+  };
+
   /** Carga por AJAX el paso y lo inyecta, ejecutando inicializadores de JS y dependencias */
   const loadStep = step => group(`loadStep(${step})`, () => {
     const prog = getProg();
@@ -104,6 +117,7 @@
       })
       .then(html => {
         stepHolder.innerHTML = html;
+        runStepStyles(stepHolder);
         runStepScripts(stepHolder);
 
         // Inicializadores JS globales (Feather, Bootstrap tooltips)
