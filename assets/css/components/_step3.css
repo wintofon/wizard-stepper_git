@@ -13,7 +13,7 @@
 
 
 #scrollSentinel {
+  width: 100%;
   height: 1px;
   visibility: hidden;
-  width: 100%;
 }

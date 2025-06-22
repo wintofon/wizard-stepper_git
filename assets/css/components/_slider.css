@@ -20,11 +20,13 @@
 
 /* Barra base del input range */
 input[type="range"].form-range {
+  cursor: pointer;
+
+  width: 100%;
+  height: 6px;
+
   appearance: none;
   background: none;
-  cursor: pointer;
-  height: 6px;
-  width: 100%;
 }
 
 /* Evita el contorno por defecto */
@@ -35,14 +37,16 @@ input[type="range"].form-range:focus {
 
 /* Estilo del thumb en navegadores WebKit */
 input[type="range"].form-range::-webkit-slider-thumb {
-  appearance: none;
-  background: var(--accent-color);
-  border: 2px solid var(--bg-header);
-  border-radius: 50%;
   cursor: pointer;
+
+  width: var(--slider-thumb-size);
   height: var(--slider-thumb-size);
   margin-top: -5px;
-  width: var(--slider-thumb-size);
+  border: 2px solid var(--bg-header);
+  border-radius: 50%;
+
+  appearance: none;
+  background: var(--accent-color);
 }
 
 /* Efecto de foco sobre el thumb */
@@ -53,18 +57,22 @@ input[type="range"].form-range:focus::-webkit-slider-thumb {
 /* Thumb para Firefox y navegadores MS */
 input[type="range"].form-range::-moz-range-thumb,
 input[type="range"].form-range::-ms-thumb {
-  background: var(--accent-color);
+  cursor: pointer;
+
+  width: var(--slider-thumb-size);
+  height: var(--slider-thumb-size);
   border: 2px solid var(--bg-header);
   border-radius: 50%;
-  cursor: pointer;
-  height: var(--slider-thumb-size);
-  width: var(--slider-thumb-size);
+
+  background: var(--accent-color);
 }
 
 /* Pista con relleno y marcas de división */
 input[type="range"].form-range::-webkit-slider-runnable-track,
 input[type="range"].form-range::-moz-range-track,
 input[type="range"].form-range::-ms-track {
+  height: 6px;
+  border-radius: 3px;
   background:
     linear-gradient(to right,
       var(--accent-color) 0%,
@@ -76,36 +84,41 @@ input[type="range"].form-range::-ms-track {
       transparent 0 calc(var(--step-pct) * 1% - 1px),
       var(--accent-color-light) calc(var(--step-pct) * 1% - 1px) calc(var(--step-pct) * 1%));
   background-size: 100% 100%, 100% 100%;
-  border-radius: 3px;
-  height: 6px;
 }
 
 /* Pequeña etiqueta fija con el valor */
 .badge-value {
-  background: var(--accent-color);
-  border-radius: 0.25rem;
-  color: #fff;
-  font-size: 0.75rem;
-  padding: 0.2rem 0.4rem;
   pointer-events: none;
+
   position: absolute;
   top: -1.2rem;
   transform: translateX(-50%);
+
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+
+  font-size: 0.75rem;
+  color: #fff;
   white-space: nowrap;
+
+  background: var(--accent-color);
 }
 
 /* Burbuja flotante que sigue al thumb */
 .slider-bubble {
-  background: var(--accent-color);
-  border-radius: 4px;
-  color: var(--bg-body);
-  font-size: 0.75rem;
-  left: calc(var(--val) * 1%);
-  padding: 0.1rem 0.35rem;
   position: absolute;
   top: -1.6rem;
+  left: calc(var(--val) * 1%);
   transform: translateX(-50%);
+
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+
+  font-size: 0.75rem;
+  color: var(--bg-body);
   white-space: nowrap;
+
+  background: var(--accent-color);
 }
 
 @keyframes shake {
@@ -124,17 +137,17 @@ input[type="range"].form-range::-ms-track {
 }
 
 #valFz, #valVc, #valAe {
-  color: var(--accent-color);
   font-weight: 600;
+  color: var(--accent-color);
 }
 
 #textPasadasInfo {
-  color: var(--text-color-sec);
   font-size: 0.85rem;
+  color: var(--text-color-sec);
 }
 
 #errorMsg {
-  color: #f44;
   display: none;
   font-size: 0.85rem;
+  color: #f44;
 }

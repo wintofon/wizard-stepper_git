@@ -5,10 +5,10 @@
  * TODO: Extend documentation.
  */
 .footer-schneider {
-  background: linear-gradient(to bottom, #0a0f14, #101820);
   border-top: 1px solid rgb(255 255 255 / 10%);
   font-family: var(--font-family-base, 'Segoe UI', sans-serif);
   font-size: 0.9rem;
+  background: linear-gradient(to bottom, #0a0f14, #101820);
 }
 
 .footer-schneider h4 {
@@ -16,15 +16,18 @@
 }
 
 .footer-schneider h6 {
-  color: #17a2b8;
   margin-bottom: 0.75rem;
+  color: #17a2b8;
 }
 
 .footer-link {
-  color: #bbb;
   display: block;
+
   padding: 0.2rem 0;
+
+  color: #bbb;
   text-decoration: none;
+
   transition: color 0.2s;
 }
 
@@ -33,7 +36,7 @@
 }
 
 .footer-logo {
+  width: 120px;
   height: auto;
   margin-bottom: 0.75rem;
-  width: 120px;
 }

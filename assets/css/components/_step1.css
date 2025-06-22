@@ -16,29 +16,34 @@
 
 @media (width >= 768px) { /* Ancho fijo en pantallas amplias */
   .sidebar {
-    max-width: 260px;
     min-width: 260px;
+    max-width: 260px;
   }
 }
 
 .facet-header {        /* Cabecera de cada filtro desplegable */
-  background: var(--bg-panel);
-  border-bottom: 1px solid var(--border-panel);
-  color: var(--text-color-muted);
   cursor: pointer;
+
+  padding: .4rem .5rem;
+  border-bottom: 1px solid var(--border-panel);
+
   font-size: .85rem;
   font-weight: 600;
-  padding: .4rem .5rem;
+  color: var(--text-color-muted);
+
+  background: var(--bg-panel);
 }
 
 .facet-body {          /* Cuerpo ocultable con opciones */
-  background: #0f172a;
-  border-left: 1px solid var(--border-panel);
-  border-right: 1px solid var(--border-panel);
-  display: none;
-  max-height: 220px;
   overflow-y: auto;
+  display: none;
+
+  max-height: 220px;
   padding: .25rem .5rem;
+  border-right: 1px solid var(--border-panel);
+  border-left: 1px solid var(--border-panel);
+
+  background: #0f172a;
 }
 
 .facet-body.show {     /* Se muestra cuando se expande */
@@ -46,53 +51,60 @@
 }
 
 .facet-body label {    /* Etiquetas de las opciones */
-  color: var(--text-color-muted);
   display: block;
-  font-size: .8rem;
+
   margin-bottom: 2px;
+
+  font-size: .8rem;
+  color: var(--text-color-muted);
   white-space: nowrap;
 }
 
 .facet-search {        /* Buscador dentro del panel */
-  background: var(--bg-panel);
-  border: 1px solid var(--border-panel);
-  color: var(--text-color-muted);
-  font-size: 0.75rem;
-  margin-bottom: .25rem;
   width: 100%;
+  margin-bottom: .25rem;
+  border: 1px solid var(--border-panel);
+
+  font-size: 0.75rem;
+  color: var(--text-color-muted);
+
+  background: var(--bg-panel);
 }
 
 .thumb {               /* Miniaturas de marcas */
-  border: 1px solid #ddd;
-  height: 40px;
-  object-fit: contain; /* evita distorsión de la imagen */
   width: 40px;
+  height: 40px;
+  border: 1px solid #ddd;
+  object-fit: contain; /* evita distorsión de la imagen */
 }
 
 .thumb:hover {         /* Aumento al pasar el mouse */
-  box-shadow: 0 0 4px #0ea5e9;
   position: relative;
-  transform: scale(2);
   z-index: 10;
+  transform: scale(2);
+  box-shadow: 0 0 4px #0ea5e9;
 }
 
 .alert-no-brand {      /* Aviso cuando no hay marcas */
-  color: #f87171;
-  font-weight: 600;
   margin: .5rem;
+  font-weight: 600;
+  color: #f87171;
   text-align: center;
 }
 
 .alert-js-missing {    /* Mensaje fijo si no se detecta JS */
-  background: #dc2626;
-  border-radius: 6px;
-  bottom: 8px;
-  box-shadow: 0 0 10px rgb(0 0 0 / 30%);
-  color: #fff;
-  padding: .75rem 1rem;
   position: fixed;
-  right: 8px;
   z-index: 9999;
+  right: 8px;
+  bottom: 8px;
+
+  padding: .75rem 1rem;
+  border-radius: 6px;
+
+  color: #fff;
+
+  background: #dc2626;
+  box-shadow: 0 0 10px rgb(0 0 0 / 30%);
 }
 
 .table-dark {          /* Colores para tabla oscura Bootstrap */
@@ -101,8 +113,8 @@
 }
 
 .stars {               /* Estilos de rating */
-  color: #0ea5e9;
   font-size: 0.95em;
+  color: #0ea5e9;
 }
 
 /* Ajuste responsivo y padding visual del contenido */
@@ -111,19 +123,19 @@
 }
 
 h2.fw-bold {           /* Título principal de la página */
-  color: #e2e8f0;
   font-size: 1.8rem;
+  color: #e2e8f0;
 }
 
 .table-responsive {    /* Alineación y scroll en tablas */
-  max-height: none !important;
   overflow-x: auto;
   overflow-y: visible !important;
+  max-height: none !important;
 }
 
 .list-scroll-container { /* Lista con alto limitado */
-  max-height: 65vh; /* ajustá si hace falta */
   overflow-y: auto;
+  max-height: 65vh; /* ajustá si hace falta */
 }
 
 #sentinel {            /* Punto de observación para scroll infinito */

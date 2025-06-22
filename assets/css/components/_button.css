@@ -9,50 +9,53 @@
 
 /* Botón principal con color destacado */
 .btn-primary {
-  background-color: #2b8ac6;
+  padding: .7rem 1.4rem;
   border-color: #256fa1;
   border-radius: .4rem;
-  color: #fff;
+
   font-size: 1rem;
-  padding: .7rem 1.4rem;
+  color: #fff;
+
+  background-color: #2b8ac6;
+
   transition: background .3s, border-color .3s;
 }
 
 /* Al pasar el mouse se aclara el fondo */
 .btn-primary:hover {
-  background-color: #3aa0db;
   border-color: #2b8ac6;
+  background-color: #3aa0db;
 }
 
 /* Opción de selección en listados */
 .btn-select {
-  background-color: #4fc3f7;
   border: none;
   color: #0d1117;
+  background-color: #4fc3f7;
 }
 
 /* Resalta la opción seleccionada */
 .btn-select:hover {
-  background-color: #0d6efd;
   color: #fff;
+  background-color: #0d6efd;
 }
 
 /* Variante con borde para acciones secundarias */
 .btn-outline-primary {
+  margin: .25rem;
   border-color: #4fc3f7;
   color: #4fc3f7;
-  margin: .25rem;
 }
 
 /* Cambia a fondo sólido al hacer hover */
 .btn-outline-primary:hover {
-  background-color: #4fc3f7;
   color: #0d1117;
+  background-color: #4fc3f7;
 }
 
 /* Estado checked de los inputs ocultos */
 .btn-check:checked + label.btn-outline-primary {
-  background-color: #0d6efd !important;
   border-color: #0d6efd !important;
   color: #fff !important;
+  background-color: #0d6efd !important;
 }

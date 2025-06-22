@@ -11,38 +11,39 @@
 
 
 .form-label {
-  color: var(--text-color-sec);
   font-weight: 600;
+  color: var(--text-color-sec);
 }
 
 .form-control {
-  background-color: var(--bg-panel);
   border-color: var(--border-panel);
   color: var(--text-color);
+  background-color: var(--bg-panel);
 }
 
 .form-control:disabled {
-  background-color: var(--border-panel);
   color: var(--text-color-sec);
+  background-color: var(--border-panel);
 }
 
 .alert-danger {
-  background-color: #4c1d1d;
   border-color: #f5c2c7;
   color: #f8d7da;
+  background-color: #4c1d1d;
 }
 
 
 
 #routerForm {
-  background: transparent !important;
+  max-width: none;
+  margin: 0;
+  padding: 0;
 
   /* Parche para evitar recuadro interno heredado */
   border: 0 !important;
+
+  background: transparent !important;
   box-shadow: none !important;
-  margin: 0;
-  max-width: none;
-  padding: 0;
 }
 
 #paramSection {

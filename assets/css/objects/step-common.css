@@ -17,29 +17,31 @@
 
 .btn-type.active,
 .btn-cat.active {
-  background: #0d6efd !important;
   color: #fff !important;
+  background: #0d6efd !important;
 }
 
 .btn-strat,
 .btn-mat {
-  margin: .25rem 0;
   width: 100%;
+  margin: .25rem 0;
 }
 
 .btn-strat.active,
 .btn-mat.active {
-  background: #198754 !important;
   color: #fff !important;
+  background: #198754 !important;
 }
 
 .alert-custom {
-  background-color: #4c1d1d;
-  border: 1px solid #f5c2c7;
-  border-radius: 0.375rem;
-  color: #f8d7da;
   margin-bottom: 1.5rem;
   padding: 0.75rem 1rem;
+  border: 1px solid #f5c2c7;
+  border-radius: 0.375rem;
+
+  color: #f8d7da;
+
+  background-color: #4c1d1d;
 }
 
 @media (width <= 768px) {
@@ -55,22 +57,24 @@
 
 /* Encabezados uniformes de los pasos */
 .step-title {
-  align-items: center;
-  color: #fff;
   display: flex;
+  gap: 0.5rem;
+  align-items: center;
+
+  margin-bottom: 0.75rem;
+
   font-size: 1.5rem;
   font-weight: 800;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
+  color: #fff;
 }
 
 .step-title i[data-feather] {
+  width: 24px;
   height: 24px;
   stroke: #17a2b8;
-  width: 24px;
 }
 
 .step-desc {
-  color: #adb5bd;
   margin-bottom: 1.5rem;
+  color: #adb5bd;
 }

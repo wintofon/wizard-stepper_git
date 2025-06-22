@@ -8,11 +8,13 @@
 /* Reusable fresa card styles */
 
 .fresa-card {
-  background: #161b22;
-  border: 1px solid #2c2f33;
-  border-radius: 8px;
   margin-bottom: 1rem;
   padding: 1rem;
+  border: 1px solid #2c2f33;
+  border-radius: 8px;
+
+  background: #161b22;
+
   transition: background-color 0.2s;
 }
 
@@ -25,12 +27,12 @@
 }
 
 .warning {
-  color: #f66;
   font-weight: bold;
+  color: #f66;
 }
 
 .tool-thumb {
-  height: auto;
   max-width: 80px;
+  height: auto;
   object-fit: contain;
 }

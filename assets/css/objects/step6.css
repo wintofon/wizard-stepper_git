@@ -3,7 +3,7 @@
 @import url('../elements/_typography.css');
 
 .step6-error {
+  padding: 1rem;
   color: #fff;
   background: #900;
-  padding: 1rem;
 }
