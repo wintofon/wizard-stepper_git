@@ -237,6 +237,8 @@ window.initStep6 = function () {
   updatePasadasSlider();
   updatePasadasInfo();
   recalc();
-  window.addEventListener('error', ev => showError(`JS: ${ev.message}`));
+  if (!window.step6ErrorHandlerAdded) {
+    window.addEventListener('error', ev => showError(`JS: ${ev.message}`));
+    window.step6ErrorHandlerAdded = true;
+  }
 };
-window.initStep6();
