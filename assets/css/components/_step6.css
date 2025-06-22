@@ -15,7 +15,7 @@
 
 /* =======================  Paleta y texto base  ====================== */
 body {
-  background: var(--bg-body);
+  background: #212529; /* UNIFICADO A DARK */
   color: var(--text-color);
 }
 
@@ -23,14 +23,14 @@ body {
 .card,
 .config-card-static,
 .notes-card {
-  background: var(--bg-card);
+  background: #212529; /* UNIFICADO A DARK */
   border: 1px solid var(--border-color);
   border-radius: 0.5rem;
   margin-bottom: 1rem;
 }
 
 .card-header {
-  background: var(--bg-header);
+  background: #212529; /* UNIFICADO A DARK */
   border-bottom: 1px solid var(--border-color);
   color: var(--accent-color);
   cursor: default; /* resaltable si es colapsable */
@@ -112,7 +112,7 @@ body {
 /* ============================  Spinner  ============================ */
 .spinner-overlay {
   align-items: center;
-  background: rgb(0 0 0 / 50%);
+  background: #212529; /* UNIFICADO A DARK */
   border-radius: 0.5rem;
   display: flex;
   inset: 0;
@@ -140,7 +140,7 @@ body.debug-mode .card {outline: 1px dashed magenta;}
 .debug-outline {outline: 2px solid #e00 !important;}
 
 .debug-panel {
-  background: rgb(0 0 0 / 80%); bottom: 0;
+  background: #212529; /* UNIFICADO A DARK */ bottom: 0;
   color: #0f0;
   display: none;
   font-family: Consolas, monospace;
@@ -159,7 +159,7 @@ body.debug-mode .card {outline: 1px dashed magenta;}
   .content-main {margin-bottom: 12rem;}
 
   .slider-box {
-    background: var(--bg-card);
+    background: #212529; /* UNIFICADO A DARK */
     bottom: 0; left: 0;
     max-height: 50%;
     overflow-y: auto;

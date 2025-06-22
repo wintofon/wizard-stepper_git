@@ -10,7 +10,7 @@
 /* Estilo mínimo para cargar rápidamente */
 body {
   align-items: center;
-  background-color: #f8f9fa;
+  background-color: #212529; /* UNIFICADO A DARK */
   color: #333;
   display: flex;
   font-family: 'Segoe UI', Roboto, sans-serif;
@@ -20,7 +20,7 @@ body {
 }
 
 .message-box {
-  background: #fff;
+  background: #212529; /* UNIFICADO A DARK */
   border-radius: 0.5rem;
   box-shadow: 0 0 15px rgb(0 0 0 / 10%);
   padding: 2rem;

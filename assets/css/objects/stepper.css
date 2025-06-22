@@ -6,7 +6,7 @@
  */
 .stepper-header {
   align-items: center;
-  background-color: var(--bs-dark);
+  background-color: #212529; /* UNIFICADO A DARK */
   border: none;
   display: flex;
   margin: 0;

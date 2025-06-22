@@ -9,7 +9,7 @@
 
 /* Botón principal con color destacado */
 .btn-primary {
-  background-color: #2b8ac6;
+  background-color: #212529; /* UNIFICADO A DARK */
   border-color: #256fa1;
   border-radius: .4rem;
   color: #fff;
@@ -20,20 +20,20 @@
 
 /* Al pasar el mouse se aclara el fondo */
 .btn-primary:hover {
-  background-color: #3aa0db;
+  background-color: #212529; /* UNIFICADO A DARK */
   border-color: #2b8ac6;
 }
 
 /* Opción de selección en listados */
 .btn-select {
-  background-color: #4fc3f7;
+  background-color: #212529; /* UNIFICADO A DARK */
   border: none;
   color: #0d1117;
 }
 
 /* Resalta la opción seleccionada */
 .btn-select:hover {
-  background-color: #0d6efd;
+  background-color: #212529; /* UNIFICADO A DARK */
   color: #fff;
 }
 
@@ -46,13 +46,13 @@
 
 /* Cambia a fondo sólido al hacer hover */
 .btn-outline-primary:hover {
-  background-color: #4fc3f7;
+  background-color: #212529; /* UNIFICADO A DARK */
   color: #0d1117;
 }
 
 /* Estado checked de los inputs ocultos */
 .btn-check:checked + label.btn-outline-primary {
-  background-color: #0d6efd !important;
+  background-color: #212529 !important; /* UNIFICADO A DARK */
   border-color: #0d6efd !important;
   color: #fff !important;
 }

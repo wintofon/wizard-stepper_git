@@ -39,7 +39,7 @@
 /* ────────────────────────────────────────── 1) BASE ──────────────── */
 html,
 body{
-  background:#0f172a;                      /* azul-oscuro “dashboard”       */
+  background:#212529; /* UNIFICADO A DARK */                      /* azul-oscuro “dashboard”       */
   color:#dceefb;                           /* texto celeste tenue           */
   font-family:Rajdhani,sans-serif;       /* familia tipográfica única     */
   margin:0;                               /* sin margen por defecto        */
@@ -48,7 +48,7 @@ body{
 
 /* ──────────────────────────── 2) CONTENEDOR STICKY ───────────────── */
 .stepper-container{
-  background:transparent;                 /* transparente = hereda fondo   */
+  background:#212529; /* UNIFICADO A DARK */                 /* transparente = hereda fondo   */
 
   /* sombra inferior + línea interior para separar del contenido      */
   box-shadow:0 8px 16px rgb(0 0 0 / 55%),
@@ -72,7 +72,7 @@ body{
 /* –– tapas triangulares para cerrar visualmente los bordes –––––––––– */
 .stepper-container::before,
 .stepper-container::after{
-  background:#162235;                     /* mismo azul oscuro interno     */ bottom:0;
+  background:#212529; /* UNIFICADO A DARK */                     /* mismo azul oscuro interno     */ bottom:0;
   content:"";
   pointer-events:none;
   position:absolute; top:0;
@@ -93,7 +93,7 @@ body{
 
 /* ────────────────────────────── 3) LISTA UL – .stepper ───────────── */
 .stepper{
-  background:transparent;
+  background:#212529; /* UNIFICADO A DARK */
   display:flex;                            /* items en fila                */
   list-style:none;                         /* sin bullets                  */
   margin:0 auto;                           /* bloc centrado horizontal     */
@@ -109,12 +109,12 @@ body{
 .stepper::-webkit-scrollbar{height:6px;}
 
 .stepper::-webkit-scrollbar-thumb{
-  background:#1b2537; border-radius:3px;
+  background:#212529; /* UNIFICADO A DARK */ border-radius:3px;
 }
 
 /* ──────────────────── 4) LOGO opcional – .logo-stepper ───────────── */
 .logo-stepper{ align-items:center;        /* centra vertical imagen/logo  */
-  background:#162235;                      /* mismo fondo que los pasos    */
+  background:#212529; /* UNIFICADO A DARK */                      /* mismo fondo que los pasos    */
 
   /* Romboide: esquina izquierda puntiaguda                            */
   clip-path:polygon(0 0,100% 0,calc(100% - 12px) 100%,12px 100%);
@@ -130,7 +130,7 @@ body{
 
 /* ──────────────────────────── 5) ITEMS LI (pasos) ─────────────────── */
 .stepper li{
-  background:#162235;
+  background:#212529; /* UNIFICADO A DARK */
   border-bottom:2px solid transparent;     /* línea base (override c/estado) */
 
   /* punta romboide derecha                                             */
@@ -151,7 +151,7 @@ body{
 }
 
 /* separador vertical entre pasos                                       */
-.stepper li:not(:last-child)::after{ background:rgb(255 255 255 / 15%); bottom:12%;
+.stepper li:not(:last-child)::after{ background:#212529; /* UNIFICADO A DARK */ bottom:12%;
   content:"";
   position:absolute; right:0; top:12%;
   width:1px;
@@ -160,7 +160,7 @@ body{
 /* ──────────────────── 6) ESTADOS activo y completado ──────────────── */
 .stepper li.active,
 .stepper li.done{
-  background:#1d3557;                      /* tono + brillante             */
+  background:#212529; /* UNIFICADO A DARK */                      /* tono + brillante             */
   border-bottom:3px solid #00bfff;         /* línea inferior cian          */
   color:#fff;
 }
@@ -174,7 +174,7 @@ body{
 .stepper li.active::before,
 .stepper li.done::before{
   animation:fill-bar .45s forwards;
-  background:#00bfff;
+  background:#212529; /* UNIFICADO A DARK */
   content:"";
   height:4px; left:0;
   position:absolute; top:0; width:0;                     /* animación: de 0% a 100%      */

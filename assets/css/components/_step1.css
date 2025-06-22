@@ -22,7 +22,7 @@
 }
 
 .facet-header {        /* Cabecera de cada filtro desplegable */
-  background: var(--bg-panel);
+  background: #212529; /* UNIFICADO A DARK */
   border-bottom: 1px solid var(--border-panel);
   color: var(--text-color-muted);
   cursor: pointer;
@@ -32,7 +32,7 @@
 }
 
 .facet-body {          /* Cuerpo ocultable con opciones */
-  background: #0f172a;
+  background: #212529; /* UNIFICADO A DARK */
   border-left: 1px solid var(--border-panel);
   border-right: 1px solid var(--border-panel);
   display: none;
@@ -54,7 +54,7 @@
 }
 
 .facet-search {        /* Buscador dentro del panel */
-  background: var(--bg-panel);
+  background: #212529; /* UNIFICADO A DARK */
   border: 1px solid var(--border-panel);
   color: var(--text-color-muted);
   font-size: 0.75rem;
@@ -84,7 +84,7 @@
 }
 
 .alert-js-missing {    /* Mensaje fijo si no se detecta JS */
-  background: #dc2626;
+  background: #212529; /* UNIFICADO A DARK */
   border-radius: 6px;
   bottom: 8px;
   box-shadow: 0 0 10px rgb(0 0 0 / 30%);

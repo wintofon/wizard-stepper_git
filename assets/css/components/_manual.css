@@ -9,7 +9,7 @@
 
 /* Opcional: estilos para box de debugging */
 .debug-box {
-  background: #102735;
+  background: #212529; /* UNIFICADO A DARK */
   border-radius: 6px;
   border-top: 1px solid #2e5b78;
   color: #a7d3e9;
