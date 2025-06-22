@@ -22,9 +22,9 @@
 }
 
 .facet-header {        /* Cabecera de cada filtro desplegable */
-  background: #1e293b;
-  border-bottom: 1px solid #334155;
-  color: #cbd5e1;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border-panel);
+  color: var(--text-color-muted);
   cursor: pointer;
   font-size: .85rem;
   font-weight: 600;
@@ -33,8 +33,8 @@
 
 .facet-body {          /* Cuerpo ocultable con opciones */
   background: #0f172a;
-  border-left: 1px solid #334155;
-  border-right: 1px solid #334155;
+  border-left: 1px solid var(--border-panel);
+  border-right: 1px solid var(--border-panel);
   display: none;
   max-height: 220px;
   overflow-y: auto;
@@ -46,7 +46,7 @@
 }
 
 .facet-body label {    /* Etiquetas de las opciones */
-  color: #cbd5e1;
+  color: var(--text-color-muted);
   display: block;
   font-size: .8rem;
   margin-bottom: 2px;
@@ -54,9 +54,9 @@
 }
 
 .facet-search {        /* Buscador dentro del panel */
-  background: #1e293b;
-  border: 1px solid #334155;
-  color: #cbd5e1;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-panel);
+  color: var(--text-color-muted);
   font-size: 0.75rem;
   margin-bottom: .25rem;
   width: 100%;
@@ -96,7 +96,7 @@
 }
 
 .table-dark {          /* Colores para tabla oscura Bootstrap */
-  --bs-table-bg: #1e293b;
+  --bs-table-bg: var(--bg-panel);
   --bs-table-color: #e2e8f0;
 }
 

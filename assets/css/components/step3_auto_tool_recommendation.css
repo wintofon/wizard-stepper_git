@@ -19,12 +19,12 @@ body {
 }
 
 h2 {
-  color: #cbd5e0;
+  color: var(--text-color-muted);
   margin-bottom: 1.5rem;
 }
 
 .form-label {
-  color: #a7b1bb;
+  color: var(--text-color-sec);
   font-weight: 600;
 }
 

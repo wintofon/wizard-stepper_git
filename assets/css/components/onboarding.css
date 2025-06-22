@@ -14,7 +14,7 @@
 
 
 .disclaimer {
-  background: #1e293b;
+  background: var(--bg-panel);
   border: 1px solid #facc15;
   border-radius: 8px;
   color: #facc15;
@@ -25,7 +25,7 @@
 }
 
 .explanation {
-  color: #cbd5e1;
+  color: var(--text-color-muted);
   margin-bottom: 1.5rem;
   text-align: center;
 }
@@ -41,7 +41,7 @@
 .mode-option {
   align-items: flex-start;
   background: #0f172a;
-  border: 1px solid #334155;
+  border: 1px solid var(--border-panel);
   border-radius: 0.5rem;
   color: #e2e8f0;
   cursor: pointer;
@@ -52,7 +52,7 @@
 }
 
 .mode-option:hover {
-  background: #1e293b;
+  background: var(--bg-panel);
 }
 
 .mode-option input {
