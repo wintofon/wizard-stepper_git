@@ -265,7 +265,7 @@ if (!file_exists($countUpLocal))   $assetErrors[] = 'CountUp.js faltante.';
 
 <body>
 <div class="container py-4">
-<?php endif; ?>
+
 
 <?php if ($assetErrors): ?>
   <div class="alert alert-warning text-dark m-3"><strong>⚠️ Archivos faltantes (se usarán CDNs):</strong><ul><?php foreach ($assetErrors as $err): ?><li><?= htmlspecialchars($err, ENT_QUOTES) ?></li><?php endforeach; ?></ul></div>
@@ -488,6 +488,8 @@ if (!file_exists($countUpLocal))   $assetErrors[] = 'CountUp.js faltante.';
 </script>
 <script>feather.replace();</script>
 
-<?php if (!$embedded): ?></div><!-- .container -->
+</div><!-- .container -->
+<?php if (!$embedded): ?>
 </body>
-</html><?php endif; ?>
+</html>
+<?php endif; ?>
