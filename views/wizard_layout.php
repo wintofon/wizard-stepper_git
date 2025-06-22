@@ -70,8 +70,7 @@
   <!-- Contenido dinámico -->
   <main id="step-content" class="wizard-body"></main>
 
-  <!-- Dashboard (opcional) -->
-  <section id="wizard-dashboard"></section>
+  <!-- Dashboard oculto; la información se muestra por consola -->
 
   <!-- Scripts -->
   <?php if (!empty($_SESSION['csrf_token'])): ?>
