@@ -51,6 +51,16 @@ Unit tests can be run with PHPUnit. From the project root execute:
 vendor/bin/phpunit
 ```
 
+## CSS Linting
+
+Run Stylelint to check the coding style of all CSS files:
+
+```bash
+npm run lint:css
+```
+
+GitHub Actions executes the same command on every push to ensure consistent formatting.
+
 ## Auditing unused CSS
 
 Run the PurgeCSS audit script to see which selectors are not used by the PHP views or JavaScript modules:
@@ -59,7 +69,7 @@ Run the PurgeCSS audit script to see which selectors are not used by the PHP vie
 node scripts/purgecss-audit.js
 ```
 
-The script generates `reports/report-unused-selectors.json` with all removed selectors.
+The script uses PostCSS and PurgeCSS to scan the templates and JavaScript. It outputs `reports/report-unused-selectors.json` listing every selector removed from the CSS.
 
 ## License
 

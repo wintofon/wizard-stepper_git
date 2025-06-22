@@ -2,7 +2,7 @@
 
 This folder follows the **ITCSS (Inverted Triangle CSS)** methodology. Styles are organised from the most generic layers to the most specific so that later rules can safely override earlier ones.
 
-## Directory mapping
+## ITCSS folder hierarchy
 
 - **settings** – global variables such as colours and fonts.
 - **generic** – resets and generic stylesheets (e.g. normalisation).
@@ -10,6 +10,18 @@ This folder follows the **ITCSS (Inverted Triangle CSS)** methodology. Styles ar
 - **objects** – layout patterns and non-cosmetic wrappers.
 - **components** – discrete UI modules.
 - **utilities** – helper and override classes.
+
+The directory order under `assets/css` mirrors the cascade:
+
+```text
+assets/css/
+├── settings
+├── generic
+├── elements
+├── objects
+├── components
+└── utilities
+```
 
 ## Adding new styles
 
