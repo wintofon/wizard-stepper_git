@@ -13,14 +13,8 @@ use App\Controller\ExpertResultController;
 // Utilidades / helpers
 // ────────────────────────────────────────────────────────────────
 
-if (!defined('BASE_URL'))   { define('BASE_URL',  rtrim(dirname(dirname(dirname($_SERVER['SCRIPT_NAME']))), '/')); }
-if (!defined('BASE_HOST'))  { define('BASE_HOST', $_SERVER['HTTP_HOST'] ?? 'localhost'); }
-if (!function_exists('asset')) {
-    /** Retorna URL absoluta a partir de una ruta relativa dentro del proyecto */
-    function asset(string $path): string {
-        return BASE_URL . '/' . ltrim($path, '/');
-    }
-}
+
+require_once __DIR__ . '/../../src/Config/AppConfig.php';
 
 require_once __DIR__ . '/../../includes/wizard_helpers.php';
 
