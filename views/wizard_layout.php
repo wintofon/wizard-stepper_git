@@ -17,7 +17,7 @@
   <title>Wizard CNC</title>
 <!--
 <link rel="stylesheet" href="<?= asset('assets/css/settings/settings.css') ?>">
-<link rel="stylesheet" href="<?= asset('assets/css/generic/generic.css') ?>">
+<!-- <link rel="stylesheet" href="<?= asset('assets/css/generic/generic.css') ?>">
 <link rel="stylesheet" href="<?= asset('assets/css/elements/elements.css') ?>">
 <link rel="stylesheet" href="<?= asset('assets/css/objects/objects.css') ?>">
 <link rel="stylesheet" href="<?= asset('assets/css/objects/wizard.css') ?>">
