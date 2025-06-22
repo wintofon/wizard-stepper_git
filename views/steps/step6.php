@@ -636,7 +636,9 @@ if (!file_exists($countUpLocal)) $assetErrors[] = 'CountUp.js faltante.';
 <script src="<?= file_exists($countUpLocal)
   ? asset('node_modules/countup.js/dist/countUp.umd.js')
   : 'https://cdn.jsdelivr.net/npm/countup.js/dist/countUp.umd.min.js' ?>"></script>
-<?php if ($step6JsRel): ?><script src="<?= $step6JsRel ?>"></script><?php endif; ?>
+<?php if (!$embedded && $step6JsRel): ?>
+  <script src="<?= $step6JsRel ?>"></script>
+<?php endif; ?>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     if (typeof window.initStep6 === 'function') initStep6();
