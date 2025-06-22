@@ -1,7 +1,3 @@
-@import url('../settings/_variables.css');
-@import url('../generic/reset.css');
-@import url('../elements/_typography.css');
-
 .step6-error {
   padding: 1rem;
   color: #fff;
