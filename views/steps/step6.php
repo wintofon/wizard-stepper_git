@@ -227,7 +227,7 @@ $bootstrapJsRel  = file_exists($root.'assets/js/bootstrap.bundle.min.js')
 $featherLocal    = $root.'node_modules/feather-icons/dist/feather.min.js';
 $chartJsLocal    = $root.'node_modules/chart.js/dist/chart.umd.min.js';
 $countUpLocal    = $root.'node_modules/countup.js/dist/countUp.umd.js';
-$step6JsRel      = file_exists($root.'assets/js/step6.js')
+//$step6JsRel      = file_exists($root.'assets/js/step6.js')
     ? asset('assets/js/step6.js')
     : '';
 
