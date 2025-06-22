@@ -11,7 +11,6 @@
 const BASE_URL = window.BASE_URL;
 document.addEventListener('DOMContentLoaded', () => {
   const dash = document.getElementById('wizard-dashboard');
-  if (!dash) return;
 
   let lastOk     = null;          // último snapshot correcto
   let errorCount = 0;             // errores consecutivos
@@ -19,10 +18,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* ---------- helpers ---------- */
   const paint = json =>
-    dash.innerHTML = `<pre style="margin:0;">${JSON.stringify(json, null, 2)}</pre>`;
+    console.log(JSON.stringify(json, null, 2));
 
   const warn  = msg =>
-    dash.innerHTML = `<pre style="margin:0;color:#ffb86c;">⚠️  ${msg}</pre>`;
+    console.warn(`⚠️  ${msg}`);
 
   /* ---------- fetch c/2 s ---------- */
   const fetchSession = async () => {
@@ -63,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const hint = `Fallo ${errorCount}/${MAX_ERR}: ${err.message}`;
 
       /* mantiene último JSON correcto si existe */
-      lastOk ? (paint(lastOk), warn(hint)) : (dash.textContent = hint);
+      lastOk ? (paint(lastOk), warn(hint)) : console.warn(hint);
     }
   };
 
