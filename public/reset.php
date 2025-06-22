@@ -101,7 +101,7 @@ dbg('🔄 Nueva sesión limpia generada');
   <meta charset="UTF-8">
   <title>Reiniciando Wizard CNC...</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="<?= asset('assets/css/base/reset.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/generic/reset.css') ?>">
   <script>
     const BASE_URL = <?= json_encode(BASE_URL) ?>;
   </script>
