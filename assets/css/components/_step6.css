@@ -64,16 +64,10 @@
 
 /* =========================  Grilla de tarjetas  ===================== */
 .cards-grid {
-  /*
-   * Display all step 6 cards stacked vertically. The previous grid
-   * layout placed cards side by side on wide screens. We switch to a
-   * flex column so each card occupies the full width of the container
-   * and appears one above the other.
-   */
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1rem;
-  align-items: stretch;
+  align-items: flex-start;
 }
 
 .cards-grid [class*="col-"] {flex: 0 0 auto !important;width: 100% !important;margin: 0 !important;}
