@@ -295,6 +295,9 @@ if (!file_exists($countUpLocal))   $assetErrors[] = 'CountUp.js faltante.';
 
 <body>
 <div class="container py-4">
+<?php else: ?>
+  <link rel="stylesheet" href="<?= asset('assets/css/step-common.css') ?>">
+  <link rel="stylesheet" href="<?= asset('assets/css/pages/_step6.css') ?>">
 <?php endif; ?>
 
 <?php if ($assetErrors): ?>
