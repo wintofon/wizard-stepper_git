@@ -255,6 +255,7 @@ if (!file_exists($countUpLocal)) $assetErrors[] = 'CountUp.js faltante.';
     $styles = [
       $bootstrapCss,
       'assets/css/objects/step-common.css',
+      'assets/css/components/main.css',
       'assets/css/objects/step6.css',
     ];
     include __DIR__ . '/../partials/styles.php';
