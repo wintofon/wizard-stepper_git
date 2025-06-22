@@ -15,9 +15,9 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Wizard CNC</title>
+  <link rel="stylesheet" href="<?= asset('assets/css/components/main.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/objects/wizard.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/objects/stepper.css') ?>">
-  <link rel="stylesheet" href="<?= asset('assets/css/components/main.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/components/footer-schneider.css') ?>">
   <script>
     window.BASE_URL = <?= json_encode(BASE_URL) ?>;
@@ -44,7 +44,7 @@
   </header>
 
   <!-- Botón reset -->
-  <div class="reset-wrap">
+  <div style="text-align:right; padding:.5rem 1rem;">
     <a href="public/reset.php" class="btn btn-outline-light" onclick="localStorage.clear()">
       <i data-feather="refresh-ccw" class="me-1"></i>
       Volver al inicio

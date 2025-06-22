@@ -335,7 +335,7 @@ if (!file_exists($countUpLocal))   $assetErrors[] = 'CountUp.js faltante.';
                   <span class="slider-bubble"></span>
                 </div>
                 <div id="textPasadasInfo" class="small text-secondary mt-1">1 pasada de <?= number_format($thickness, 2) ?> mm</div>
-                <div id="errorMsg" class="text-danger mt-2 small"></div>
+                <div id="errorMsg" class="text-danger mt-2 small" style="display:none"></div>
               </div>
           </div>
         </div>
@@ -474,13 +474,7 @@ if (!file_exists($countUpLocal))   $assetErrors[] = 'CountUp.js faltante.';
 <script src="<?= file_exists($chartJsLocal) ? asset('node_modules/chart.js/dist/chart.umd.min.js') : 'https://cdn.jsdelivr.net/npm/chart.js/dist/chart.umd.min.js' ?>"></script>
 <script src="<?= file_exists($countUpLocal) ? asset('node_modules/countup.js/dist/countUp.umd.js') : 'https://cdn.jsdelivr.net/npm/countup.js/dist/countUp.umd.min.js' ?>"></script>
 <?php if ($step6JsRel): ?><script src="<?= $step6JsRel ?>"></script><?php endif; ?>
-<script>
-  window.addEventListener('pageshow', e => {
-    if (e.persisted && typeof window.initStep6 === 'function') {
-      window.initStep6();
-    }
-  });
-</script>
+<script>window.addEventListener('pageshow', e=>{if(e.persisted){location.reload();}});</script>
 <script>feather.replace();</script>
 
 <?php if (!$embedded): ?></div><!-- .container -->
