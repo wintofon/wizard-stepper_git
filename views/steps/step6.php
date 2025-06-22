@@ -7,6 +7,9 @@
 
 declare(strict_types=1);
 
+if (!getenv('BASE_URL')) {
+    putenv('BASE_URL=' . rtrim(dirname($_SERVER['SCRIPT_NAME']), '/'));
+}
 require_once __DIR__ . '/../../src/Config/AppConfig.php';
 
 use App\Controller\ExpertResultController;
@@ -274,6 +277,12 @@ if (!file_exists($countUpLocal))   $assetErrors[] = 'CountUp.js faltante.';
     window.BASE_URL  = <?= json_encode(BASE_URL) ?>;
     window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
   </script>
+  <!-- DEBUG — eliminar después -->
+  <?php
+  echo '<!-- main.css = '.asset('assets/css/main.css').' -->';
+  echo '<!-- step-common.css = '.asset('assets/css/step-common.css').' -->';
+  echo '<!-- _step6.css = '.asset('assets/css/pages/_step6.css').' -->';
+  ?>
 </head>
 
 
