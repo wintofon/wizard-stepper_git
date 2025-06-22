@@ -5,7 +5,7 @@
  * TODO: Extend documentation.
  */
 @import url('../settings/_variables.css');
-@import url('../generic/_reset.css');
+@import url('../generic/reset.css');
 @import url('../elements/_typography.css');
 
 

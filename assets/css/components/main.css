@@ -7,7 +7,7 @@
 
 /* Global imports */
 @import url('../settings/_variables.css');
-@import url('../generic/_reset.css');
+@import url('../generic/reset.css');
 @import url('../elements/_typography.css');
 @import url('./_common.css');
 @import url('./_button.css');

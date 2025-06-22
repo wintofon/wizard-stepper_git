@@ -31,7 +31,7 @@ assets/css/
 ```css
 @import url('settings/_variables.css');
 @import url('tools/_mixins.css');
-@import url('generic/_reset.css');
+@import url('generic/reset.css');
 @import url('elements/_typography.css');
 @import url('objects/_layout.css');
 @import url('components/_button.css');
