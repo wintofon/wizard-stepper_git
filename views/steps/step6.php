@@ -279,11 +279,6 @@ if (!file_exists($countUpLocal))   $assetErrors[] = 'CountUp.js faltante.';
     window.BASE_URL  = <?= json_encode(BASE_URL) ?>;
     window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
   </script>
-  <!-- DEBUG — eliminar después -->
-  <?php
-  echo '<!-- main.css = '.asset('assets/css/components/main.css').' -->';
-  echo '<!-- step-common.css = '.asset('assets/css/objects/step-common.css').' -->';
-  ?>
 </head>
 
 
