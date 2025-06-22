@@ -9,9 +9,7 @@
  * → No sobreescribe reglas de stepper.css ni Bootstrap
  */
 
-@import url('../settings/_variables.css');
-@import url('../generic/reset.css');
-@import url('../elements/_typography.css');
+
 
 /* =======================  Paleta y texto base  ====================== */
 
