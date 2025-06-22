@@ -26,6 +26,9 @@
 <link rel="stylesheet" href="<?= asset('assets/css/objects/stepper.css') ?>">
 <link rel="stylesheet" href="<?= asset('assets/css/objects/step-common.css') ?>">
 
+  <!-- Bootstrap for step 6 -->
+  <link rel="stylesheet" href="<?= asset('assets/css/generic/bootstrap.min.css') ?>">
+
 <link rel="stylesheet" href="<?= asset('assets/css/components/components.css') ?>">
 <link rel="stylesheet" href="<?= asset('assets/css/components/main.css') ?>">
 <link rel="stylesheet" href="<?= asset('assets/css/components/footer-schneider.css') ?>">
@@ -81,6 +84,7 @@
   <?php endif; ?>
   <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
   <script>feather.replace();</script>
+  <script src="<?= asset('assets/js/bootstrap.bundle.min.js') ?>"></script>
   <script src="<?= asset('assets/js/wizard_stepper.js') ?>" defer></script>
   <script src="<?= asset('assets/js/dashboard.js') ?>" defer></script>
 
