@@ -9,6 +9,7 @@
     "chokidar-cli": "^3.0.0",
     "concurrently": "^9.1.2",
     "eslint": "^9.29.0",
+    "lightningcss": "^1.23.0",
     "postcss": "^8.5.6",
     "postcss-cli": "^11.0.1",
     "postcss-preset-env": "^10.2.3",
@@ -23,7 +24,10 @@
   "scripts": {
     "build": "postcss 'assets/css/**/*.css' -r",
     "watch": "chokidar 'assets/css/**/*.css' -c \"npm run build\"",
-    "lint:css": "stylelint 'assets/css/**/*.css'"
+    "lint:css": "stylelint 'assets/css/**/*.css'",
+    "audit:css": "node scripts/purgecss-audit.js",
+    "analyze:css": "node scripts/lightningcss-report.js",
+    "build:css": "node scripts/build-css.js"
   },
   "keywords": [],
   "author": "",

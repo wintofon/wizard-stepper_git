@@ -1,0 +1,39 @@
+name: CSS Audit
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  css-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npm run audit:css
+      - run: npm run build:css
+      - name: Compare CSS size
+        run: |
+          SIZE=$(stat -c%s dist/style.min.css)
+          echo "size=$SIZE" >> $GITHUB_OUTPUT
+        id: size
+      - uses: actions/upload-artifact@v4
+        with:
+          name: css-reports
+          path: reports/
+      - name: Fail if CSS increased more than 5%
+        run: |
+          LAST=$(curl -sL "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/latest/download/style.min.css" | wc -c || echo 0)
+          CURR=$(stat -c%s dist/style.min.css)
+          THRESHOLD=$(( LAST + LAST / 20 ))
+          if [ $CURR -gt $THRESHOLD ]; then
+            echo "CSS size increased more than 5%" && exit 1
+          fi
+      - name: Notify
+        if: failure()
+        run: echo "Send notification with reports"

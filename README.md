@@ -52,14 +52,34 @@ vendor/bin/phpunit
 ```
 
 ## Auditing unused CSS
-
-Run the PurgeCSS audit script to see which selectors are not used by the PHP views or JavaScript modules:
+Run the PurgeCSS audit script to see unused selectors and generate a report:
 
 ```bash
-node scripts/purgecss-audit.js
+npm run audit:css
 ```
 
-The script generates `reports/report-unused-selectors.json` with all removed selectors.
+For a LightningCSS analysis run:
+
+```bash
+npm run analyze:css
+```
+
+Reports are saved under `reports/`.
+
+## Building optimized CSS
+
+Generate a production bundle and validate size:
+
+```bash
+npm run build:css
+```
+
+## Keeping CSS Lean
+
+- Remove unused selectors regularly with `npm run audit:css`.
+- Review `reports/unused-selectors.json` and clean obsolete rules.
+- Keep ITCSS comments like `/*! ITCSS */` to maintain structure.
+
 
 ## License
 
