@@ -11,19 +11,19 @@
 
 
 .form-label {
-  color: #a7b1bb;
+  color: var(--text-color-sec);
   font-weight: 600;
 }
 
 .form-control {
-  background-color: #1e293b;
-  border-color: #334156;
-  color: #e0e0e0;
+  background-color: var(--bg-panel);
+  border-color: var(--border-panel);
+  color: var(--text-color);
 }
 
 .form-control:disabled {
-  background-color: #334156;
-  color: #a7b1bb;
+  background-color: var(--border-panel);
+  color: var(--text-color-sec);
 }
 
 .alert-danger {

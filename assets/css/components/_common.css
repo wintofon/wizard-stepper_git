@@ -14,7 +14,7 @@
 }
 
 .lead {
-  color: #cbd5e1;
+  color: var(--text-color-muted);
   font-size: 1.2rem;
   margin-bottom: 2rem;
 }
