@@ -144,13 +144,20 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
 <meta charset="utf-8">
 <title>Paso 4 – Material</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
-<link rel="stylesheet" href="<?= asset('assets/css/material.css') ?>">
+<?php
+  $styles = [
+    'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
+    'assets/css/material.css',
+  ];
+  $embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
+  include __DIR__ . '/../../partials/styles.php';
+?>
+<?php if (!$embedded): ?>
 <script>
   window.BASE_URL = <?= json_encode(BASE_URL) ?>;
   window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
 </script>
+<?php endif; ?>
 </head><body>
 <main class="container py-4">
 <h2 class="step-title"><i data-feather="layers"></i> Material y espesor</h2>

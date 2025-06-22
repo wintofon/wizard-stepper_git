@@ -25,12 +25,19 @@ $thickness  = $_SESSION['thickness']  ?? null;
   <title>Herramientas compatibles</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="csrf-token" content="<?= htmlspecialchars($csrf) ?>">
-  <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
-  <link rel="stylesheet" href="<?= asset('assets/css/pages/_step3.css') ?>">
+  <?php
+    $styles = [
+      'assets/css/pages/_step3.css',
+    ];
+    $embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
+    include __DIR__ . '/../../partials/styles.php';
+  ?>
+  <?php if (!$embedded): ?>
   <script>
     window.BASE_URL = <?= json_encode(BASE_URL) ?>;
     window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
   </script>
+  <?php endif; ?>
 </head>
 <body>
   <main class="container py-4">
