@@ -8,7 +8,7 @@
 declare(strict_types=1);
 
 if (!getenv('BASE_URL')) {
-    // Sube 3 niveles: /views/steps/step6.php → /
+    // Sube 3 niveles: /views/steps/step6.php → /wizard-stepper_git
     putenv(
         'BASE_URL=' . rtrim(
             dirname(dirname(dirname($_SERVER['SCRIPT_NAME']))),
@@ -30,6 +30,7 @@ require_once __DIR__ . '/../../includes/wizard_helpers.php';
 // ¿Vista embebida por load-step.php?
 // ────────────────────────────────────────────────────────────────
 $embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
+
 
 if (!$embedded) {
     /* Cabeceras de seguridad */
