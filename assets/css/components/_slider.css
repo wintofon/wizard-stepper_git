@@ -21,7 +21,7 @@
 /* Barra base del input range */
 input[type="range"].form-range {
   appearance: none;
-  background: none;
+  background: #212529; /* UNIFICADO A DARK */
   cursor: pointer;
   height: 6px;
   width: 100%;
@@ -36,7 +36,7 @@ input[type="range"].form-range:focus {
 /* Estilo del thumb en navegadores WebKit */
 input[type="range"].form-range::-webkit-slider-thumb {
   appearance: none;
-  background: var(--accent-color);
+  background: #212529; /* UNIFICADO A DARK */
   border: 2px solid var(--bg-header);
   border-radius: 50%;
   cursor: pointer;
@@ -53,7 +53,7 @@ input[type="range"].form-range:focus::-webkit-slider-thumb {
 /* Thumb para Firefox y navegadores MS */
 input[type="range"].form-range::-moz-range-thumb,
 input[type="range"].form-range::-ms-thumb {
-  background: var(--accent-color);
+  background: #212529; /* UNIFICADO A DARK */
   border: 2px solid var(--bg-header);
   border-radius: 50%;
   cursor: pointer;
@@ -65,16 +65,7 @@ input[type="range"].form-range::-ms-thumb {
 input[type="range"].form-range::-webkit-slider-runnable-track,
 input[type="range"].form-range::-moz-range-track,
 input[type="range"].form-range::-ms-track {
-  background:
-    linear-gradient(to right,
-      var(--accent-color) 0%,
-      var(--accent-color) calc(var(--val) * 1%),
-      var(--border-color) calc(var(--val) * 1%),
-      var(--border-color) 100%)
-    no-repeat,
-    repeating-linear-gradient(to right,
-      transparent 0 calc(var(--step-pct) * 1% - 1px),
-      var(--accent-color-light) calc(var(--step-pct) * 1% - 1px) calc(var(--step-pct) * 1%));
+  background: #212529; /* UNIFICADO A DARK */
   background-size: 100% 100%, 100% 100%;
   border-radius: 3px;
   height: 6px;
@@ -82,7 +73,7 @@ input[type="range"].form-range::-ms-track {
 
 /* Pequeña etiqueta fija con el valor */
 .badge-value {
-  background: var(--accent-color);
+  background: #212529; /* UNIFICADO A DARK */
   border-radius: 0.25rem;
   color: #fff;
   font-size: 0.75rem;
@@ -96,7 +87,7 @@ input[type="range"].form-range::-ms-track {
 
 /* Burbuja flotante que sigue al thumb */
 .slider-bubble {
-  background: var(--accent-color);
+  background: #212529; /* UNIFICADO A DARK */
   border-radius: 4px;
   color: var(--bg-body);
   font-size: 0.75rem;

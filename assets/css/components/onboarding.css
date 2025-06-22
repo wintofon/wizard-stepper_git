@@ -14,7 +14,7 @@
 
 
 .disclaimer {
-  background: var(--bg-panel);
+  background: #212529; /* UNIFICADO A DARK */
   border: 1px solid #facc15;
   border-radius: 8px;
   color: #facc15;
@@ -40,7 +40,7 @@
 
 .mode-option {
   align-items: flex-start;
-  background: #0f172a;
+  background: #212529; /* UNIFICADO A DARK */
   border: 1px solid var(--border-panel);
   border-radius: 0.5rem;
   color: #e2e8f0;
@@ -52,7 +52,7 @@
 }
 
 .mode-option:hover {
-  background: var(--bg-panel);
+  background: #212529; /* UNIFICADO A DARK */
 }
 
 .mode-option input {

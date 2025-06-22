@@ -34,6 +34,6 @@
 }
 
 .badge.bg-info.text-dark {
-  background-color: #38bdf8 !important;
+  background-color: #212529 !important; /* UNIFICADO A DARK */
   color: #0c4a6e !important;
 }

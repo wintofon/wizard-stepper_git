@@ -8,7 +8,7 @@
 /* Reusable fresa card styles */
 
 .fresa-card {
-  background: #161b22;
+  background: #212529; /* UNIFICADO A DARK */
   border: 1px solid #2c2f33;
   border-radius: 8px;
   margin-bottom: 1rem;
@@ -17,7 +17,7 @@
 }
 
 .fresa-card:hover {
-  background-color: #1f2a36;
+  background-color: #212529; /* UNIFICADO A DARK */
 }
 
 .estrella {

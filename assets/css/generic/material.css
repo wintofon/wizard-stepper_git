@@ -12,7 +12,7 @@
 @import url('../elements/_typography.css');
 
 body {
-  background-color: #0d1117;
+  background-color: #212529; /* UNIFICADO A DARK */
   color: #e0e0e0;
 }
 
@@ -22,7 +22,7 @@ body {
 }
 
 .btn-cat.active {
-  background: #0d6efd !important;
+  background: #212529 !important; /* UNIFICADO A DARK */
   color: #fff !important;
 }
 
@@ -32,13 +32,13 @@ body {
 }
 
 .btn-mat.active {
-  background: #198754 !important;
+  background: #212529 !important; /* UNIFICADO A DARK */
   color: #fff !important;
 }
 
 /* Dropdown búsqueda */
 .dropdown-search {
-  background: #000;
+  background: #212529; /* UNIFICADO A DARK */
   border: 1px solid #444;
   display: none;
   max-height: 200px;
@@ -55,11 +55,11 @@ body {
 }
 
 .dropdown-search .item:hover {
-  background: #333;
+  background: #212529; /* UNIFICADO A DARK */
 }
 
 .dropdown-search .hl {
-  background: #ffd54f;
+  background: #212529; /* UNIFICADO A DARK */
   color: #000;
 }
 
