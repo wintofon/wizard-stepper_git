@@ -259,3 +259,6 @@ body{
     transition:transform .2s ease, filter .2s ease;
   }
 }
+
+.reset-wrap{ text-align:right; padding:.5rem 1rem; }
+
