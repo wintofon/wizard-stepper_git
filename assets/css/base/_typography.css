@@ -4,6 +4,7 @@
  * Related files: See others in this project.
  * TODO: Extend documentation.
  */
+
 /* Tipografía base para todo el sitio */
 body {
   font-family: var(--font-family-base, 'Segoe UI', Roboto, sans-serif);

@@ -33,9 +33,9 @@ body {
   background: var(--bg-header);
   border-bottom: 1px solid var(--border-color);
   color: var(--accent-color);
+  cursor: default; /* resaltable si es colapsable */
   font-weight: 600;
   text-align: center;
-  cursor: default; /* resaltable si es colapsable */
 }
 
 .card.h-100 {
@@ -65,10 +65,10 @@ body {
 
 /* =========================  Grilla de tarjetas  ===================== */
 .cards-grid {
+  align-items: flex-start;
   display: grid;
   gap: 1rem;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  align-items: flex-start;
 }
 
 .cards-grid [class*="col-"] {flex: 0 0 auto !important;margin: 0 !important;width: 100% !important;}
@@ -103,7 +103,7 @@ body {
 /* ===========================  Notas  =============================== */
 .notes-card {padding: 0.8rem;}
 .notes-list {list-style: none;margin: 0;padding: 0;}
-.notes-list li {display: flex;gap: 0.5rem;padding: 0.25rem 0;align-items: flex-start;}
+.notes-list li {align-items: flex-start;display: flex;gap: 0.5rem;padding: 0.25rem 0;}
 .notes-list li i {color: var(--accent-color);font-size: 1rem;margin-top: 0.2rem;}
 .notes-list li div {color: var(--text-color);font-size: 0.9rem;}
 
@@ -111,25 +111,25 @@ body {
 
 /* ============================  Spinner  ============================ */
 .spinner-overlay {
-  position: absolute;
-  inset: 0;
+  align-items: center;
   background: rgb(0 0 0 / 50%);
   border-radius: 0.5rem;
   display: flex;
-  align-items: center;
+  inset: 0;
   justify-content: center;
+  position: absolute;
   visibility: hidden;
   z-index: 10;
 }
 .spinner-overlay.show {visibility: visible;}
 
 .spinner-border {
-  border: 4px solid var(--accent-color-light);
-  border-top: 4px solid var(--accent-color);
-  border-radius: 50%;
-  width: var(--spinner-size);
-  height: var(--spinner-size);
   animation: spin 0.8s linear infinite;
+  border: 4px solid var(--accent-color-light);
+  border-radius: 50%;
+  border-top: 4px solid var(--accent-color);
+  height: var(--spinner-size);
+  width: var(--spinner-size);
 }
 
 @keyframes spin {to {transform: rotate(360deg);}}
@@ -140,31 +140,32 @@ body.debug-mode .card {outline: 1px dashed magenta;}
 .debug-outline {outline: 2px solid #e00 !important;}
 
 .debug-panel {
-  position: fixed;
-  left: 0; right: 0; bottom: 0;
-  background: rgb(0 0 0 / 80%);
+  background: rgb(0 0 0 / 80%); bottom: 0;
   color: #0f0;
+  display: none;
   font-family: Consolas, monospace;
   font-size: 0.85rem;
+  left: 0;
   max-height: 150px;
   overflow-y: auto;
   padding: 0.5rem;
+  position: fixed; right: 0;
   z-index: 9999;
-  display: none;
 }
 .debug-panel.show {display: block;}
 
 /* ==========================  Mobile tweaks  ======================== */
 @media (width <= 991px) {
   .content-main {margin-bottom: 12rem;}
+
   .slider-box {
-    position: fixed;
+    background: var(--bg-card);
     bottom: 0; left: 0;
-    width: 100%;
     max-height: 50%;
     overflow-y: auto;
-    background: var(--bg-card);
     padding: 0.5rem;
+    position: fixed;
+    width: 100%;
     z-index: 1040;
   }
 }
