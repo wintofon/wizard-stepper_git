@@ -187,16 +187,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta charset="utf-8">
   <title>Paso 3 – Tipo de mecanizado & estrategia</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Bootstrap 5 -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="<?= asset('assets/css/main.css') ?>">
-  <!-- Estilos compartidos -->
-  <link rel="stylesheet" href="<?= asset('assets/css/step-common.css') ?>">
-  <link rel="stylesheet" href="<?= asset('assets/css/strategy.css') ?>">
+  <?php
+    $styles = [
+      'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
+      'assets/css/step-common.css',
+      'assets/css/strategy.css',
+    ];
+    $embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
+    include __DIR__ . '/../../partials/styles.php';
+  ?>
+  <?php if (!$embedded): ?>
   <script>
     window.BASE_URL = <?= json_encode(BASE_URL) ?>;
     window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
   </script>
+  <?php endif; ?>
 </head>
 <body>
 <main class="container py-4">
