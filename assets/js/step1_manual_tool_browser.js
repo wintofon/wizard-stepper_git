@@ -14,8 +14,9 @@
 (() => {
   const BASE_URL = window.BASE_URL;
   /* -------- utilidades comunes ------------------------------------ */
+  const L = window.Logger;
   const dbg = (...m) => {          // visible en consola
-    console.log('[STEP-1]', ...m);
+    L.log('[STEP-1]', ...m);
     window.dbg?.('[STEP-1]', ...m);   // si existe helper global
   };
   const debounce = (fn, ms = 300) => {
@@ -45,7 +46,7 @@
       dbg('facets cargadas');
     })
     .catch(err => {
-      console.error('❌ tools_facets.php:', err);
+      L.error('❌ tools_facets.php:', err);
       facetBox.innerHTML = '<div class="text-danger p-2">Error al cargar filtros</div>';
     });
 
@@ -107,7 +108,7 @@
     }
     import(`${BASE_URL}/assets/js/step1_manual_lazy_loader.js`)
       .then(m => m.initLazy())
-      .catch(console.error);
+      .catch(L.error);
   }
 
   /* ========== AJAX → tools_ajax.php =============================== */

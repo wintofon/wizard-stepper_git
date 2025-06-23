@@ -273,7 +273,9 @@ if (!file_exists($countUpLocal)) $assetErrors[] = 'CountUp.js faltante.';
     <script>
       window.BASE_URL  = <?= json_encode(BASE_URL) ?>;
       window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
+      window.DEBUG = <?= isset($DEBUG) && $DEBUG ? 'true' : 'false' ?>;
     </script>
+    <script src="<?= asset('assets/js/logger.js') ?>"></script>
   <?php endif; ?>
 </head>
 <body>
