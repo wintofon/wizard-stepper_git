@@ -134,9 +134,7 @@ if (!isset($pdo) || !($pdo instanceof PDO)) {
 $root = dirname(__DIR__, 2) . '/';
 foreach ([
   
-    'src/Model/ToolModel.php',
-    'src/Model/ConfigModel.php',
-    'src/Utils/CNCCalculator.php'
+
 ] as $rel) {
     if (!is_readable($root.$rel)) {
         http_response_code(500);
