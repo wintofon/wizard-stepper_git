@@ -67,8 +67,7 @@ $_SESSION['rate_limit'][$clientIp] = array_filter(
     fn(int $t)=>($t+300) > time()
 );
 if ($_SERVER['REQUEST_METHOD']==='POST' && count($_SESSION['rate_limit'][$clientIp])>=10) {
-    http_response_code(429);
-    exit('<h1 style="color:red;text-align:center;margin-top:2rem;">429 – Demasiados intentos.</h1>');
+    respondError(200, '429 – Demasiados intentos.');
 }
 
 //

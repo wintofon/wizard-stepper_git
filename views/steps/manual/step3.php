@@ -88,8 +88,7 @@ $_SESSION['rate_limit'][$ip] = array_filter(
 );
 if ($_SERVER['REQUEST_METHOD'] === 'POST' &&
     count($_SESSION['rate_limit'][$ip]) >= 10) {
-    http_response_code(429);
-    exit('<h1>Demasiados intentos. Probá más tarde.</h1>');
+    respondError(200, 'Demasiados intentos. Probá más tarde.');
 }
 
 /* ──────────────────────────────────────────────────────
