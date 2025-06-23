@@ -50,8 +50,5 @@ if ($embedded) { ?>
 </head><body class="p-4" style="font-family:Arial,Helvetica,sans-serif;">
   <h2>Hola Step 6 ✅ (stand-alone)</h2>
   <p>Si ves esto directamente, el wrapper funciona y no contamina el DOM embebido.</p>
-  <script>
-    window.step6Params = <?= $jsonParams ?>;
-    window.step6Csrf   = '<?= $csrfToken ?>';
-  </script>
+
 </body></html>
