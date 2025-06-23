@@ -273,4 +273,3 @@ window.initStep6 = function () {
     window.step6ErrorHandlerAdded = true;
   }
 };
-
