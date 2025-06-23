@@ -2,19 +2,24 @@
 
 
 <?php
-declare(strict_types=1);
 /**
- * File: views/steps/step6.php
- * Descripción: Paso 6 – Resultados expertos del Wizard CNC
- * Versión pulida: se corrigieron nombres de IDs, clases CSS, chequeos de constantes y algunas advertencias PHP.
+ * File: step5.php
  *
- * Entradas:
- *   - GET  "debug"  para activar modo detallado
- *   - POST "csrf_token" sólo cuando se envía el formulario local
- * Salidas:
- *   - HTML completo o fragmento embebible según $embedded
- *   - window.step6Params y window.step6Csrf para el JS
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * @TODO Extend documentation.
  */
+/**
+ * Paso 5 (Auto) – Configurar router
+ * Protegido con CSRF, controla flujo y valida:
+ *   – rpm_min > 0
+ *   – rpm_max > 0
+ *   – rpm_min < rpm_max
+ *   – feed_max > 0
+ *   – hp       > 0
+ * Después guarda en sesión y avanza a step6.php
+ */
+declare(strict_types=1);
 
 
 
