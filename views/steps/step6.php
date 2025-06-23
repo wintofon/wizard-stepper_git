@@ -23,8 +23,7 @@ declare(strict_types=1);
 /* -------------------------------------------------------------------------- */
 /* 1)  SESIÓN SEGURA Y CONTROL DE FLUJO                                        */
 /* -------------------------------------------------------------------------- */
-// Si la sesión aún no está activa, se crea con cookies seguras.
-if (session_status() !== PHP_SESSION_ACTIVE) {
+/* // Si la sesión aún no está activa, se crea con cookies seguras.
     session_start([
         'cookie_secure'   => true,      // sólo cookie en HTTPS
         'cookie_httponly' => true,      // inaccesible para JS
@@ -37,8 +36,70 @@ if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 5
     header('Location: step1.php');
     exit;
 }
+/* 
+if (!getenv('BASE_URL')) {
+    // Sube 3 niveles: /views/steps/step6.php → /wizard-stepper_git
+    putenv(
+        'BASE_URL=' . rtrim(
+            dirname(dirname(dirname($_SERVER['SCRIPT_NAME']))),
+            '/'
+        )
+    );
+}
+require_once __DIR__ . '/../../src/Config/AppConfig.php';
 
-/* -------------------------------------------------------------------------- */
+use App\Controller\ExpertResultController;
+
+// ────────────────────────────────────────────────────────────────
+// Utilidades / helpers
+// ────────────────────────────────────────────────────────────────
+
+require_once __DIR__ . '/../../includes/wizard_helpers.php';
+
+// ────────────────────────────────────────────────────────────────
+// ¿Vista embebida por load-step.php?
+// ────────────────────────────────────────────────────────────────
+$embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
+
+// ────────────────────────────────────────────────────────────────
+// Sesión segura (siempre antes de imprimir cabeceras)
+// ────────────────────────────────────────────────────────────────
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path'     => '/',
+        'secure'   => true,
+        'httponly' => true,
+        'samesite' => 'Strict'
+    ]);
+    session_start();
+}
+
+if (!$embedded) {
+    /* Cabeceras de seguridad */
+    header('Content-Type: text/html; charset=UTF-8');
+    header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
+    header('X-Frame-Options: DENY');
+    header('X-Content-Type-Options: nosniff');
+    header('Referrer-Policy: no-referrer');
+    header("Permissions-Policy: geolocation=(), microphone=()");
+    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+    header('Pragma: no-cache');
+    header(
+        "Content-Security-Policy: default-src 'self';"
+        . " script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;"
+        . " style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;"
+    );
+}
+
+// ────────────────────────────────────────────────────────────────
+// Debug opcional
+// ────────────────────────────────────────────────────────────────
+$DEBUG = filter_input(INPUT_GET, 'debug', FILTER_VALIDATE_BOOLEAN);
+if ($DEBUG && is_readable(__DIR__ . '/../../includes/debug.php')) {
+    require_once __DIR__ . '/../../includes/debug.php';
+}
+/* -------------------------------------------------------------------------/* 
 /* 2)  DEPENDENCIAS                                                            */
 /* -------------------------------------------------------------------------- */
 require_once __DIR__ . '/../../includes/db.php';    // $pdo conexión PDO
