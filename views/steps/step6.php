@@ -74,7 +74,7 @@ $fz   = number_format($par['fz0'],    4, '.', '');
     <input type="hidden" name="step" value="6">
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
 
-    <div class="row g-3">
+    <div class="col-md-3">
 
       <!-- Métricas -->
       <div class="col-md-3">
