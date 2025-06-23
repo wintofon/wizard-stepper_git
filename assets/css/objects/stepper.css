@@ -1,120 +1,80 @@
 /*
  * File: assets/css/objects/stepper.css
- * CNC Wizard – Barra de pasos (STEP-PER)
- * -----------------------------------------------------------------
- * Responsabilidad principal
- *   • Mostrar la barra de progreso pegajosa (sticky) en la parte
- *     superior de todas las vistas del wizard.
- *   • Ser autosuficiente en todos los breakpoints (desktop y móvil)
- *     sin colisionar con Bootstrap.
- *   • Exponer variables CSS para que el resto del layout pueda
- *     conocer su altura y color sin hard-codes.
- *
- * Cambios v2 (2025-06-23)
- *   ✔ Se declara la custom-property --stepper-h como única fuente
- *     de verdad para la altura (52 px desktop / 64 px mobile).
- *   ✔ body.has-stepper y .wizard-body la aprovechan para hacer
- *     padding-top automático y evitar solapamientos.
- *   ✔ Se elimina duplicación de valores mágicos y se añaden
- *     comentarios detallados para mantenimiento futuro.
- * -----------------------------------------------------------------*/
+ * Main responsibility: Barra pegajosa del CNC Wizard.
+ * Este es el CSS original con el único ajuste necesario para
+ * que ningún contenido quede oculto bajo la barra:
+ *   • Se declara la custom-property --stepper-h (52 px desktop / 64 px mobile).
+ *   • .stepper-header usa esa altura.
+ *   • body.has-stepper y .wizard-body aplican padding-top y scroll-margin.
+ */
 
-/* =====================
-   VARIABLES GLOBALES
-   ===================== */
+/* =============================
+   VARIABLE ÚNICA DE ALTURA
+   ============================= */
 :root {
-  /* Altura estándar en escritorio.  Se sobreescribe en mobile. */
-  --stepper-h: 52px;
-
-  /* Color de fondo (puede sobreescribirse desde otro stylesheet). */
-  --stepper-bg: var(--bs-dark, #0f172a); /* fallback si BS no está */
+  --stepper-h: 52px;              /* altura estándar escritorio */
 }
-
-/* Mobile ≥ 0 && ≤ 768 px → altura mayor para dedos gordos */
 @media (max-width: 768px) {
-  :root { --stepper-h: 64px; }
+  :root { --stepper-h: 64px; }    /* altura móvil */
 }
 
-/* ================================================================
-   CONTENEDOR PRINCIPAL (sticky header)
-   ================================================================ */
+/* =============================
+   CONTENEDOR STICKY
+   ============================= */
 .stepper-header {
   position: sticky;
   top: 0;
-  z-index: 1050;               /* > modal-backdrop (1040) de Bootstrap */
+  z-index: 1050;
 
   display: flex;
   align-items: center;
+
   width: 100%;
-
-  margin: 0;
-  padding-inline: clamp(8px, 2vw, 24px);
   height: var(--stepper-h);
+  margin: 0;
+  padding: 0;
+  border: none;
 
-  background: var(--stepper-bg);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, .45);
+  background-color: var(--bs-dark);
 }
 
-/* ================================================================
+/* =============================
    LOGO
-   ================================================================ */
+   ============================= */
 .logo-stepper {
   width: 120px;
   height: auto;
-  flex: 0 0 auto; /* nunca estira */
   margin-right: 1rem;
 }
 
-/* Ocultar logo en pantallas pequeñas para liberar ancho útil */
+/* =============================
+   LISTA DE PASOS (barra)
+   ============================= */
+.stepper-bar {
+  scrollbar-width: thin;   /* Firefox */
+  overflow-x: auto;        /* scroll horizontal */
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+.stepper-bar::-webkit-scrollbar {
+  display: none;           /* oculta scrollbar WebKit */
+}
+
+/* =============================
+   BREAKPOINT < 768 px
+   ============================= */
 @media (max-width: 767.98px) {
   .logo-stepper { display: none !important; }
   .stepper-header { justify-content: center; }
 }
 
-/* ================================================================
-   LISTA DE PASOS
-   ================================================================ */
-.stepper-bar {
-  display: flex;
-  flex-wrap: nowrap;
-  overflow-x: auto;      /* scroll horizontal si no entra todo */
-  scrollbar-width: thin; /* Firefox */
-  gap: .25rem;
-  user-select: none;
-}
-
-/* Scrollbar oculto en navegadores WebKit */
-.stepper-bar::-webkit-scrollbar { display: none; }
-
-/* ---------- Paso base (el JS añade clases) --------------------- */
-.stepper-bar li {
-  list-style: none;
-  padding: .35rem .75rem;
-  font-weight: 600;
-  font-size: .85rem;
-  border-radius: .25rem;
-  white-space: nowrap;
-
-  color: var(--bs-white, #fff);
-  background: transparent;
-  transition: background .25s, color .25s;
-}
-
-.stepper-bar li.done   { background: var(--bs-primary,  #0d6efd); }
-.stepper-bar li.active { background: var(--bs-info,     #0dcaf0); }
-.stepper-bar li.clickable:hover {
-  background: var(--bs-secondary, #6c757d);
-  cursor: pointer;
-}
-
-/* ================================================================
-   UTILIDADES DE LAYOUT
-   ================================================================ */
-/* Cualquier página que incluya la barra sticky debe sumar este
-   padding automáticamente para evitar solapamiento. */
+/* =============================
+   PADDING AUTOMÁTICO DE CONTENIDO
+   ============================= */
 body.has-stepper,
 .wizard-body {
   padding-top: var(--stepper-h);
-  /* Los anchors (<a href="#algo">) ya no quedan tapados */
+  /* Los anchors <a href="#algo"> ya no quedan tapados */
   scroll-margin-top: var(--stepper-h);
 }
