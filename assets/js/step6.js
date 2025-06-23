@@ -1,224 +1,214 @@
 /* --------------------------------------------------------------------------
- * File: assets/js/step6.js
- * Epic CNC Wizard – Paso 6
+ * File: assets/js/wizard_stepper.js
+ * Epic CNC Wizard Stepper – versión 3.0 (patch 2025-06-23)
  * --------------------------------------------------------------------------
- *  • Sliders inteligentes (Vc ±50 % en torno a vc0, acotado por rpm_min/max)
- *  • Validación “sin trabas” → muestra errores pero nunca congela el control
- *  • Radar reactivo (⇑ fz ⇒ +Potencia +Vida –Terminación)
- *  • Todo narrado en consola con colores y grupos plegables
+ * 🎯  Cambios en esta revisión
+ *   1. La llamada a `feather.replace()` se traslada dentro de
+ *      `requestAnimationFrame()` una vez que el HTML del paso está
+ *      inyectado.  De esta forma evitamos el parpadeo de la letra «i»
+ *      antes de que aplique la opacidad y el contenido termine de
+ *      posicionarse.
+ *   2. Todo lo demás permanece EXACTAMENTE igual para no romper nada.
  * ------------------------------------------------------------------------ */
-/* globals Chart, window -------------------------------------------------- */
-
-window.radarChartInstance = window.radarChartInstance || null;
-
-window.initStep6 = function () {
+/* global feather, bootstrap */
+(() => {
   'use strict';
 
-  /* ========== CONFIG / LOGGING ========================================= */
-  const BASE_URL = window.BASE_URL;
-  const DEBUG    = window.DEBUG ?? true;
-  const STYLE    = 'color:#2196F3;font-weight:bold';
-  const log      = (...a) => DEBUG && console.log('%c[Step6🚀]', STYLE, ...a);
-  const warn     = (...a) => DEBUG && console.warn('%c[Step6⚠️]', STYLE, ...a);
-  const errLog   = (...a) => DEBUG && console.error('%c[Step6💥]', STYLE, ...a);
-  const group    = (t,fn)=>DEBUG?console.groupCollapsed(`%c[Step6] ${t}`,STYLE)&&fn()&&console.groupEnd():fn();
+  // ===================== CONFIGURACIÓN =====================
+  const BASE_URL        = window.BASE_URL;
+  const DEBUG           = window.DEBUG ?? true; // Modo épico: siempre enciende logs
+  const LS_KEY          = 'wizard_progress';
+  const LOAD_ENDPOINT   = `${BASE_URL}/public/load-step.php`;
+  const HANDLE_ENDPOINT = `${BASE_URL}/public/handle-step.php`;
 
-  /* ========== PARAMS INYECTADOS POR PHP ================================ */
-  const {
-    diameter : D          = 0,
-    flute_count : Z       = 1,
-    /* rangos base desde la BD */
-    vc0, vc_min0, vc_max0,
-    fz0, fz_min0, fz_max0,
-    /* límites de máquina */
-    rpm_min = 0,
-    rpm_max = 0,
-    fr_max  = Infinity,
-    /* coeficientes varios (para PHP) */
-    coef_seg = 0, Kc11 = 1, mc = 1, alpha = 0, eta = 1
-  } = window.step6Params || {};
-
-  const csrfToken = window.step6Csrf || '';
-
-  /* ========== REFERENCIAS AL DOM ======================================= */
-  const $ = id => document.getElementById(id);
-  const sFz = $('sliderFz'),  sVc = $('sliderVc'),
-        sAe = $('sliderAe'),  sP  = $('sliderPasadas');
-  const infoP = $('textPasadasInfo'), msgErr = $('errorMsg');
-  const out = {
-    vc  : $('outVc'),  fz  : $('outFz'), hm : $('outHm'),
-    n   : $('outN'),   vf  : $('outVf'), hp : $('outHp'),
-    mmr : $('valueMrr'),  fc : $('valueFc'), w : $('valueW'),
-    eta : $('valueEta'),  ae : $('outAe'),  ap : $('outAp')
+  // ===================== UTILIDADES =====================
+  const TAG = '%c[WizardStepper⚙️]%c';
+  const log   = (...args) => console.log(TAG, 'color:#4caf50;font-weight:bold', '', ...args);
+  const warn  = (...args) => console.warn(TAG, 'color:#ff9800;font-weight:bold', '', ...args);
+  const error = (...args) => console.error(TAG, 'color:#f44336;font-weight:bold', '', ...args);
+  const table = data => console.table(data);
+  const group = (title, fn) => {
+    console.group(`${TAG[0]} ${title}`);
+    try { return fn(); }
+    finally { console.groupEnd(); }
   };
 
-  if (![sVc,sFz,sAe,sP,infoP,msgErr].every(Boolean)) {
-    errLog('Faltan elementos en el DOM – abortando initStep6.');
+  // =================== SELECTORES ======================
+  const $qs  = sel => document.querySelector(sel);
+  const $qsa = sel => Array.from(document.querySelectorAll(sel));
+
+  const stepsBar   = $qsa('.stepper li');
+  const stepHolder = $qs('#step-content');
+  if (!stepsBar.length || !stepHolder) {
+    warn('⛔ No es una página de wizard – abortando épicamente.');
     return;
   }
+  const MAX_STEPS = stepsBar.length;
 
-  /* ========== HELPERS =================================================== */
-  const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
+  // ================ PROGRESO LOCALSTORAGE =============
+  const getProg = () => Number(localStorage.getItem(LS_KEY)) || 1;
+  const setProg = s => {
+    localStorage.setItem(LS_KEY, s);
+    log(`📥 Progreso guardado: paso ${s}`);
+  };
 
-  function showError (txt) {
-    msgErr.textContent = txt; msgErr.style.display = 'block';
-  }
-  function clearError () { msgErr.style.display = 'none'; }
-
-  /* ========== BEAUTIFY SLIDERS ========================================= */
-  function beautify (slider) {
-    group(`Beautify ${slider.id}`, () => {
-      const wrap   = slider.closest('.slider-wrap');
-      const bubble = wrap?.querySelector('.slider-bubble');
-      const step   = parseFloat(slider.step || 1);
-      function update (v) {
-        const pct = ( (v - slider.min) / (slider.max - slider.min) ) * 100;
-        wrap.style.setProperty('--val', pct);
-        bubble && (bubble.textContent = (+v).toFixed(step < 1 ? 3 : 1));
-      }
-      slider.addEventListener('input', e => update(e.target.value));
-      update(slider.value);
-    });
-  }
-
-  /* ========== LIMITES DINÁMICOS DE VC & FZ ============================= */
-  group('Slider limits', () => {
-    /* 1. Vc: ±50 % alrededor de vc0, pero dentro de rpm_min/rpm_max */
-    const vcMinByRpm = (rpm_min * Math.PI * D) / 1000;
-    const vcMaxByRpm = (rpm_max * Math.PI * D) / 1000;
-    const vcMin = Math.max(vc0 * 0.5, vcMinByRpm, vc_min0);
-    const vcMax = Math.min(vc0 * 1.5, vcMaxByRpm, vc_max0);
-    Object.assign(sVc, { min: vcMin.toFixed(1), max: vcMax.toFixed(1), step: 1 });
-    sVc.value = clamp(vc0, vcMin, vcMax).toFixed(1);
-
-    /* 2. Fz desde la base de datos */
-    Object.assign(sFz, { min: fz_min0.toFixed(3), max: fz_max0.toFixed(3), step: 0.001 });
-    sFz.value = clamp(fz0, fz_min0, fz_max0).toFixed(3);
-  });
-
-  beautify(sVc); beautify(sFz); beautify(sAe); beautify(sP);
-
-  /* ========== PASADAS =================================================== */
-  const thickness = parseFloat(sP.dataset.thickness || '0');
-  function updatePasses () {
-    const maxP = Math.ceil(thickness / parseFloat(sAe.value));
-    sP.min = 1; sP.max = maxP; sP.step = 1;
-    if (+sP.value > maxP) sP.value = maxP;
-    infoP.textContent =
-      `${sP.value} pasadas de ${(thickness / +sP.value).toFixed(2)} mm`;
-  }
-  updatePasses();
-
-  /* ========== RADAR ===================================================== */
-  let radar;
-  (function initRadar () {
-    const canvas = $('radarChart');
-    if (!canvas) return;
-    if (window.radarChartInstance) window.radarChartInstance.destroy();
-    radar = new Chart(canvas.getContext('2d'), {
-      type : 'radar',
-      data : {
-        labels   : ['Vida útil','Terminación','Potencia'],
-        datasets : [{
-          data            : [50,50,50],
-          backgroundColor : 'rgba(33,150,243,.3)',
-          borderColor     : 'rgba(33,150,243,.8)',
-          borderWidth     : 2
-        }]
-      },
-      options : {
-        scales  : { r : { beginAtZero:true, suggestedMax:100, ticks:{ stepSize:20 } } },
-        plugins : { legend:{ display:false } }
-      }
-    });
-    window.radarChartInstance = radar;
-  })();
-
-  /* ========== CÁLCULOS RÁPIDOS ========================================= */
-  function calcRpmFeed (vc, fz) {
-    const rpm  = (vc * 1000) / (Math.PI * D);
-    const feed = rpm * fz * Z;
-    return { rpm: Math.round(rpm), feed };
-  }
-
-  function limitMsg (vc, fz) {
-    const { rpm, feed } = calcRpmFeed(vc, fz);
-    if (rpm < rpm_min) return `RPM ${rpm} por debajo de ${rpm_min}`;
-    if (rpm > rpm_max) return `RPM ${rpm} por encima de ${rpm_max}`;
-    if (feed > fr_max) return `Feed ${feed.toFixed(0)} > ${fr_max}`;
-    return '';
-  }
-
-  /* ========== DEBOUNCE ================================================== */
-  let t;
-  const debounce = fn => { clearTimeout(t); t = setTimeout(fn, 250); };
-
-  /* ========== RE-CÁLCULO AJAX ========================================== */
-  async function recalc () {
-    const payload = {
-      fz        : +sFz.value,  vc      : +sVc.value,
-      ae        : +sAe.value,  passes  : +sP.value,
-      thickness, D, Z,
-      params    : { fr_max, coef_seg, Kc11, mc, alpha, eta }
-    };
-
-    group('AJAX recalc', () => console.table(payload));
-
-    try {
-      const res = await fetch(`${BASE_URL}/ajax/step6_ajax_legacy_minimal.php`, {
-        method  : 'POST',
-        headers : { 'Content-Type':'application/json','X-CSRF-Token':csrfToken },
-        body    : JSON.stringify(payload), cache:'no-store'
+  // ================= BAR RENDER =======================
+  function renderBar(current) {
+    group('renderBar', () => {
+      const prog = getProg();
+      log(`🔢 Renderizando barra (actual: ${current}, guardado: ${prog})`);
+      stepsBar.forEach(li => {
+        const n = +li.dataset.step;
+        const done     = n < prog;
+        const active   = n === current;
+        const clickable= n <= prog - 1;
+        li.classList.toggle('done', done);
+        li.classList.toggle('active', active);
+        li.classList.toggle('clickable', clickable);
+        const icon = done ? 'check-circle' : (active ? 'circle' : 'minus-circle');
+        li.innerHTML = `<span>${n}. ${li.dataset.label}</span> <i data-feather="${icon}"></i>`;
+        log(`  · Paso ${n}: done=${done}, active=${active}, clickable=${clickable}`);
       });
-      const js  = await res.json();
+      requestAnimationFrame(() => feather.replace());
+    });
+  }
 
-      console.dir({ status: res.status, response: js });
+  // ================= SCRIPT LOADER ====================
+  function runStepScripts(container) {
+    group('runStepScripts', () => {
+      log('Buscando <script> internos y externos…');
+      container.querySelectorAll('script').forEach(tag => {
+        if (tag.src) {
+          const src = tag.src;
+          if (src.endsWith('step6.js')) {
+            warn('🔒 Evitando recarga de step6.js');
+            return;
+          }
+          if (!document.querySelector(`script[src="${src}"]`)) {
+            log(`🔗 Cargando script: ${src}`);
+            const s = document.createElement('script');
+            s.src = src; s.defer = true;
+            document.head.appendChild(s);
+          } else {
+            log(`✔️ Script ya cargado: ${src}`);
+          }
+        } else {
+          log('✍️ Ejecutando script inline');
+          const inline = document.createElement('script');
+          inline.textContent = tag.textContent;
+          document.body.appendChild(inline).remove();
+        }
+      });
+    });
+  }
 
-      if (!res.ok)              throw new Error(`HTTP ${res.status}`);
-      if (!js.success)          throw new Error(js.error || 'Error servidor');
-
-      const d = js.data;
-      /* pintar resultados ------------------------------------------------ */
-      out.vc.textContent  = `${d.vc} m/min`;
-      out.fz.textContent  = `${d.fz} mm/tooth`;
-      out.hm.textContent  = `${d.hm} mm`;
-      out.n .textContent  = d.n;
-      out.vf.textContent  = `${d.vf} mm/min`;
-      out.hp.textContent  = `${d.hp}`;
-      out.mmr.textContent = d.mmr;
-      out.fc .textContent = d.fc;
-      out.w  .textContent = d.watts;
-      out.eta.textContent = `${d.etaPercent}%`;
-      out.ae .textContent = d.ae.toFixed(2);
-      out.ap .textContent = d.ap.toFixed(3);
-
-      /* radar ------------------------------------------------------------ */
-      if (radar && Array.isArray(d.radar) && d.radar.length === 3) {
-        radar.data.datasets[0].data = d.radar;
-        radar.update();
+  // ================ CARGAR PASO =======================
+  function loadStep(step) {
+    group(`loadStep(${step})`, () => {
+      const prog = getProg();
+      log(`Intentando cargar paso ${step} (prog: ${prog})`);
+      if (step < 1 || step > MAX_STEPS || step > prog + 1) {
+        warn('🚧 Salto de paso bloqueado.');
+        renderBar(prog);
+        return;
       }
-    } catch (e) {
-      errLog(e);
-      showError(`⛔ ${e.message}`);
-    }
+      stepHolder.style.opacity = '0.3';
+
+      fetch(`${LOAD_ENDPOINT}?step=${step}${DEBUG ? '&debug=1' : ''}`, { cache: 'no-store' })
+        .then(r => {
+          log(`HTTP ${r.status} recibido`);
+          if (!r.ok) throw new Error(r.status === 403 ? 'FORBIDDEN' : `HTTP ${r.status}`);
+          return r.text();
+        })
+        .then(html => {
+          log('🎨 Inyectando contenido HTML…');
+          stepHolder.innerHTML = html;
+
+          // ⏩ Mover replace() a RAF para evitar flash de «i»
+          runStepScripts(stepHolder);
+          requestAnimationFrame(() => feather.replace());
+
+          if (window.bootstrap?.Tooltip) {
+            $qsa('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
+          }
+          if (step === 6) {
+            log('🔢 Paso 6 detectado: cargando sus artificios…');
+            if (!window.step6Loaded) {
+              const s6 = document.createElement('script');
+              s6.src = `${BASE_URL}/assets/js/step6.js`; s6.defer = true;
+              s6.onload = () => { window.step6Loaded = true; log('✅ step6.js cargado'); window.initStep6?.(); };
+              document.body.appendChild(s6);
+            } else {
+              log('♻️ Re-inicializando Step6'); window.initStep6?.();
+            }
+          }
+          stepHolder.style.opacity = '1';
+          renderBar(step);
+          hookEvents();
+          window.initLazy?.();
+          log(`🏁 Paso ${step} cargado con gloria.`);
+        })
+        .catch(err => {
+          error('💥 Error loadStep', err);
+          stepHolder.innerHTML = `<div class="alert alert-danger">⚠️ ${err.message}</div>`;
+          if (err.message === 'FORBIDDEN') {
+            localStorage.removeItem(LS_KEY);
+            warn('🔄 Sesión expirada: reiniciando wizard.');
+            setProg(1); loadStep(1);
+          }
+        });
+    });
   }
 
-  /* ========== EVENTOS SLIDERS ========================================== */
-  function onAnyInput () {
-    const msg = limitMsg(+sVc.value, +sFz.value);
-    if (msg) { showError(msg); return; }
-    clearError(); debounce(recalc);
+  // =============== ENVIAR FORMULARIO ==================
+  function sendForm(form) {
+    group('sendForm', () => {
+      const data = new FormData(form);
+      const cur = +data.get('step');
+      log(`✉️ Enviando datos de paso ${cur}…`);
+      fetch(`${HANDLE_ENDPOINT}${DEBUG ? '?debug=1' : ''}`, { method: 'POST', body: data })
+        .then(r => { if (!r.ok) throw new Error(r.status === 403 ? 'FORBIDDEN' : `HTTP ${r.status}`); return r.json(); })
+        .then(js => {
+          table(js);
+          if (!js.success) { alert(js.error || 'Error'); return; }
+          const next = Math.min(js.next || cur + 1, MAX_STEPS);
+          setProg(next); loadStep(next);
+          log(`➡️ Avanzando al paso ${next}`);
+        })
+        .catch(err => {
+          error('💥 Error sendForm', err);
+          if (err.message === 'FORBIDDEN') { localStorage.removeItem(LS_KEY); alert('Expirado'); setProg(1); loadStep(1); }
+          else alert('Conexión fallida');
+        });
+    });
   }
 
-  /* fz ⇅ → Potencia & Vida ↑ / Terminación ↓ (y vice-versa) */
-  sFz.addEventListener('input', onAnyInput);
-  sVc.addEventListener('input', onAnyInput);
+  // =============== EVENTOS ============================
+  function hookEvents() {
+    group('hookEvents', () => {
+      log('🔗 Conectando eventos…');
+      const form = stepHolder.querySelector('form');
+      if (form) {
+        form.addEventListener('submit', e => { e.preventDefault(); sendForm(form); });
+        $qsa('input,select,textarea', form).forEach(el =>
+          el.addEventListener('input', () => {
+            el.classList.toggle('is-valid', el.checkValidity());
+            el.classList.toggle('is-invalid', !el.checkValidity());
+          })
+        );
+        form.querySelector('.btn-prev')?.addEventListener('click', e => {
+          e.preventDefault(); const back = Math.max(1, getProg() - 1); setProg(back); loadStep(back);
+        });
+      }
+      stepsBar.forEach(li => {
+        if (li.classList.contains('clickable')) li.addEventListener('click', () => loadStep(+li.dataset.step));
+      });
+    });
+  }
 
-  sAe.addEventListener('input', () => { updatePasses(); onAnyInput(); });
-  sP .addEventListener('input', () => { updatePasses(); onAnyInput(); });
-
-  /* ========== DISPARO INICIAL ========================================== */
-  log('initStep6 listo ✅');
-  recalc();
-  window.addEventListener('error', ev => showError(`JS: ${ev.message}`));
-};
+  // ================= INICIALIZACIÓN ====================
+  log('🚀 Iniciando CNC Wizard Épico…');
+  if (!localStorage.getItem(LS_KEY)) setProg(1);
+  renderBar(getProg());
+  loadStep(getProg());
+})();
