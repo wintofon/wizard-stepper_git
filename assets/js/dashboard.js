@@ -9,6 +9,7 @@
     pero texto contaminado con warnings, BOM, etc.).        */
 
 const BASE_URL = window.BASE_URL;
+const L = window.Logger;
 document.addEventListener('DOMContentLoaded', () => {
   const dash = document.getElementById('wizard-dashboard');
 
@@ -17,15 +18,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const MAX_ERR  = 5;             // corta peticiones tras este nº
 
   /* ---------- helpers ---------- */
-  const paint = json =>
-    console.log(JSON.stringify(json, null, 2));
+  const paint = json => L.table(json);
 
-  const warn  = msg =>
-    console.warn(`⚠️  ${msg}`);
+  const warn  = msg => L.warn(msg);
 
   /* ---------- fetch c/2 s ---------- */
   const fetchSession = async () => {
     if (errorCount >= MAX_ERR) return;
+    const endG = L.group('Dashboard fetchSession');
+    L.log('start', { errorCount });
 
     try {
       const headers = window.csrfToken ? { 'X-CSRF-Token': window.csrfToken } : {};
@@ -55,14 +56,17 @@ document.addEventListener('DOMContentLoaded', () => {
       paint(data);                                  // ✔️ snapshot ok
       lastOk     = data;
       errorCount = 0;
+      L.log('snapshot ok');
     } catch (err) {
-      console.warn('[Dashboard] Respuesta inválida:', err.message);
+      L.error('Respuesta inválida', err);
 
       errorCount++;
       const hint = `Fallo ${errorCount}/${MAX_ERR}: ${err.message}`;
 
       /* mantiene último JSON correcto si existe */
-      lastOk ? (paint(lastOk), warn(hint)) : console.warn(hint);
+      lastOk ? (paint(lastOk), warn(hint)) : L.warn(hint);
+    } finally {
+      endG();
     }
   };
 

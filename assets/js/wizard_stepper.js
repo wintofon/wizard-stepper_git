@@ -9,23 +9,23 @@
   'use strict';
 
   const BASE_URL = window.BASE_URL;
-  const DEBUG = true;
+  const DEBUG = !!window.DEBUG;
+  const L = window.Logger;
   const LS_KEY = 'wizard_progress';
   const LOAD_ENDPOINT = `${BASE_URL}/public/load-step.php`;
   const HANDLE_ENDPOINT = `${BASE_URL}/public/handle-step.php`;
 
   const $qs  = sel => document.querySelector(sel);
   const $qsa = sel => [...document.querySelectorAll(sel)];
-  const log  = (...args) => DEBUG && console.log('[Stepper]', ...args);
+  const log  = (...args) => L.log(...args);
   const group = (title, fn) => {
-    if (!DEBUG) return fn();
-    console.group(title); try { fn(); } finally { console.groupEnd(); }
+    const end = L.group(title);
+    const res = fn();
+    if (res && typeof res.then === 'function') return res.finally(end);
+    end();
+    return res;
   };
-  const dbgMsg = txt => {
-    if (!DEBUG) return;
-    const ts = new Date().toLocaleTimeString();
-    console.log(`[${ts}] ${txt}`);
-  };
+  const dbgMsg = txt => L.log(txt);
 
   const stepsBar   = $qsa('.stepper li');
   const stepHolder = $qs('#step-content');
@@ -54,6 +54,8 @@
 
   /** Ejecuta scripts <script> embebidos en el HTML del paso (necesario para los AJAX). */
   const runStepScripts = container => {
+    const end = L.group('runStepScripts');
+    L.log('container', container);
     // Ensure any <script> tags returned via AJAX are executed
     [...container.querySelectorAll('script')].forEach(tag => {
       if (tag.src) {
@@ -65,7 +67,7 @@
           if (tag.nonce) s.nonce = tag.nonce;  // mantener CSP
           s.defer = true;
           s.onload = () => log(`[stepper.js] Cargado: ${tag.src}`);
-          s.onerror = () => console.error(`[stepper.js] ⚠️ Falló carga: ${tag.src}`);
+          s.onerror = () => L.error(`⚠️ Falló carga: ${tag.src}`);
           document.head.appendChild(s);
         }
       } else {
@@ -78,15 +80,17 @@
           document.body.appendChild(inlineScript).remove();
           log('[stepper.js] Ejecutado inline script');
         } catch (err) {
-          console.warn('[stepper.js] Error ejecutando inline script', err);
+          L.warn('Error ejecutando inline script', err);
         }
       }
     });
+    end();
   };
 
 
   /** Carga por AJAX el paso y lo inyecta, ejecutando inicializadores de JS y dependencias */
   const loadStep = step => group(`loadStep(${step})`, () => {
+    L.log('input', { step });
     const prog = getProg();
     if (step < 1 || step > MAX_STEPS || step > prog + 1) {
       dbgMsg('🔒 Salto bloqueado');
@@ -125,7 +129,7 @@
               log('[stepper.js] 🔢 step6.js cargado OK');
               if (typeof window.initStep6 === 'function') window.initStep6();
             };
-            script.onerror = () => console.error('[stepper.js] ⚠️ Error cargando step6.js');
+            script.onerror = () => L.error('⚠️ Error cargando step6.js');
             document.body.appendChild(script);
           } else {
             if (typeof window.initStep6 === 'function') window.initStep6();
@@ -137,9 +141,10 @@
         hookEvents();
         if (typeof window.initLazy === 'function') window.initLazy();
         dbgMsg(`🧭 Paso ${step} cargado correctamente`);
+        L.log('loaded', step);
       })
       .catch(err => {
-        log('Error loadStep', err);
+        L.error('Error loadStep', err);
         stepHolder.innerHTML =
           `<div class="alert alert-danger">⚠️ Error cargando el paso ${step}: ${err.message}</div>`;
         dbgMsg(err.message);
@@ -155,6 +160,7 @@
   const sendForm = form => group('sendForm', () => {
     const data = new FormData(form);
     const cur = Number(data.get('step'));
+    L.log('form data', Object.fromEntries(data.entries()));
 
     fetch(`${HANDLE_ENDPOINT}${DEBUG ? '?debug=1' : ''}`, { method: 'POST', body: data })
       .then(r => {
@@ -171,10 +177,11 @@
         let next = (typeof js.next === 'number') ? js.next : cur + 1;
         if (next > MAX_STEPS) next = MAX_STEPS;
         setProg(next);
+        L.log('next step', next);
         loadStep(next);
       })
       .catch(err => {
-        log('Error sendForm', err);
+        L.error('Error sendForm', err);
         if (err.message === 'FORBIDDEN') {
           localStorage.removeItem(LS_KEY);
           alert('Sesión expirada. Reinicio.');
