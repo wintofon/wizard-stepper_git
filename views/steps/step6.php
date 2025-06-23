@@ -21,9 +21,7 @@ if (empty($_SESSION['csrf_token'])) {
 $csrf = $_SESSION['csrf_token'];
 
 # ── Modelos & datos ────────────────────────────────────────────
-require_once __DIR__.'/../../includes/db.php';              // → $pdo
-require_once __DIR__.'/../../src/Model/ToolModel.php';
-require_once __DIR__.'/../../src/Controller/ExpertResultController.php';
+
 
 $tool = ToolModel::getTool($pdo, $_SESSION['tool_table'], $_SESSION['tool_id']) ?? [];
 $par  = ExpertResultController::getResultData($pdo, $_SESSION);
@@ -41,10 +39,7 @@ $fz    = number_format($par['fz0'],   4, '.', '');
 <html lang="es"><head>
 <meta charset="utf-8">
 <title>Paso 6 – Resultados</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-<link rel="stylesheet" href="assets/css/objects/step-common.css">
-<link rel="stylesheet" href="assets/css/components/_step6.css">
+
 <script>
   window.step6Params = <?= $json ?>;
   window.step6Csrf   = '<?= $csrf ?>';
