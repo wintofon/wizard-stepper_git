@@ -1,214 +1,275 @@
-/* --------------------------------------------------------------------------
- * File: assets/js/wizard_stepper.js
- * Epic CNC Wizard Stepper – versión 3.0 (patch 2025-06-23)
- * --------------------------------------------------------------------------
- * 🎯  Cambios en esta revisión
- *   1. La llamada a `feather.replace()` se traslada dentro de
- *      `requestAnimationFrame()` una vez que el HTML del paso está
- *      inyectado.  De esta forma evitamos el parpadeo de la letra «i»
- *      antes de que aplique la opacidad y el contenido termine de
- *      posicionarse.
- *   2. Todo lo demás permanece EXACTAMENTE igual para no romper nada.
- * ------------------------------------------------------------------------ */
-/* global feather, bootstrap */
-(() => {
-  'use strict';
+/*
+ * File: step6.js
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * TODO: Extend documentation.
+ */
+/** Ubicación: C:\xampp\htdocs\wizard-stepper_git\assets\js\step6.js */
+/* global Chart */
 
-  // ===================== CONFIGURACIÓN =====================
-  const BASE_URL        = window.BASE_URL;
-  const DEBUG           = window.DEBUG ?? true; // Modo épico: siempre enciende logs
-  const LS_KEY          = 'wizard_progress';
-  const LOAD_ENDPOINT   = `${BASE_URL}/public/load-step.php`;
-  const HANDLE_ENDPOINT = `${BASE_URL}/public/handle-step.php`;
+// Mantiene la instancia del gráfico entre ejecuciones
+window.radarChartInstance = window.radarChartInstance || null;
 
-  // ===================== UTILIDADES =====================
-  const TAG = '%c[WizardStepper⚙️]%c';
-  const log   = (...args) => console.log(TAG, 'color:#4caf50;font-weight:bold', '', ...args);
-  const warn  = (...args) => console.warn(TAG, 'color:#ff9800;font-weight:bold', '', ...args);
-  const error = (...args) => console.error(TAG, 'color:#f44336;font-weight:bold', '', ...args);
-  const table = data => console.table(data);
-  const group = (title, fn) => {
-    console.group(`${TAG[0]} ${title}`);
-    try { return fn(); }
-    finally { console.groupEnd(); }
-  };
+window.initStep6 = function () {
+  const BASE_URL = window.BASE_URL;
+  const DEBUG = window.DEBUG ?? false;
+  const TAG = '[WizardStepper]';
+  const logger = (lvl, ...a) => { if (!DEBUG) return; const ts = new Date().toISOString(); console[lvl](`${TAG} ${ts}`, ...a); };
+  const log = (...a) => logger('log', ...a);
+  const warn = (...a) => logger('warn', ...a);
+  const error = (...a) => logger('error', ...a);
+  const table = d => { if (DEBUG) console.table(d); };
+  const group = (title, fn) => { if (!DEBUG) return fn(); console.group(`${TAG} ${new Date().toISOString()} ${title}`); try { return fn(); } finally { console.groupEnd(); } };
+  // 1. Parámetros inyectados por PHP
+  const {
+    diameter: D = 0,
+    flute_count: Z = 1,
+    rpm_min: rpmMin = 0,
+    rpm_max: rpmMax = 0,
+    fr_max = Infinity,
+    coef_seg = 0,
+    Kc11 = 1,
+    mc = 1,
+    alpha = 0,
+    eta = 1,
+  } = window.step6Params || {};
 
-  // =================== SELECTORES ======================
-  const $qs  = sel => document.querySelector(sel);
-  const $qsa = sel => Array.from(document.querySelectorAll(sel));
+  const csrfToken = window.step6Csrf;
 
-  const stepsBar   = $qsa('.stepper li');
-  const stepHolder = $qs('#step-content');
-  if (!stepsBar.length || !stepHolder) {
-    warn('⛔ No es una página de wizard – abortando épicamente.');
-    return;
-  }
-  const MAX_STEPS = stepsBar.length;
+  // 2. Referencias al DOM
+  const sFz   = document.getElementById('sliderFz'),
+        sVc   = document.getElementById('sliderVc'),
+        sAe   = document.getElementById('sliderAe'),
+        sP    = document.getElementById('sliderPasadas'),
+        infoP = document.getElementById('textPasadasInfo'),
+        err   = document.getElementById('errorMsg'),
+        out   = {
+          vc:  document.getElementById('outVc'),
+          fz:  document.getElementById('outFz'),
+          hm:  document.getElementById('outHm'),
+          n:   document.getElementById('outN'),
+          vf:  document.getElementById('outVf'),
+          hp:  document.getElementById('outHp'),
+          mmr: document.getElementById('valueMrr'),
+          fc:  document.getElementById('valueFc'),
+          w:   document.getElementById('valueW'),
+          eta: document.getElementById('valueEta'),
+          ae:  document.getElementById('outAe'),  // ← nuevo
+        ap:  document.getElementById('outAp')   // ← nuevo
+      };
 
-  // ================ PROGRESO LOCALSTORAGE =============
-  const getProg = () => Number(localStorage.getItem(LS_KEY)) || 1;
-  const setProg = s => {
-    localStorage.setItem(LS_KEY, s);
-    log(`📥 Progreso guardado: paso ${s}`);
-  };
-
-  // ================= BAR RENDER =======================
-  function renderBar(current) {
-    group('renderBar', () => {
-      const prog = getProg();
-      log(`🔢 Renderizando barra (actual: ${current}, guardado: ${prog})`);
-      stepsBar.forEach(li => {
-        const n = +li.dataset.step;
-        const done     = n < prog;
-        const active   = n === current;
-        const clickable= n <= prog - 1;
-        li.classList.toggle('done', done);
-        li.classList.toggle('active', active);
-        li.classList.toggle('clickable', clickable);
-        const icon = done ? 'check-circle' : (active ? 'circle' : 'minus-circle');
-        li.innerHTML = `<span>${n}. ${li.dataset.label}</span> <i data-feather="${icon}"></i>`;
-        log(`  · Paso ${n}: done=${done}, active=${active}, clickable=${clickable}`);
-      });
-      requestAnimationFrame(() => feather.replace());
+  function enhanceSlider(slider) {
+    return group('enhanceSlider', () => {
+    log('slider', slider);
+    const wrap = slider.closest('.slider-wrap');
+    if (!wrap) return;
+    const bubble = wrap.querySelector('.slider-bubble');
+    const min = parseFloat(slider.min || 0);
+    const max = parseFloat(slider.max || 1);
+    const step = parseFloat(slider.step || 1);
+    wrap.style.setProperty('--step-pct', (step / (max - min)) * 100);
+    function update(val) {
+      const pct = ((val - min) / (max - min)) * 100;
+      wrap.style.setProperty('--val', pct);
+      if (bubble) bubble.textContent = parseFloat(val).toFixed(step < 1 ? 2 : 0);
+    }
+    slider.addEventListener('input', e => update(parseFloat(e.target.value)));
+    update(parseFloat(slider.value));
+    log('return void');
     });
   }
 
-  // ================= SCRIPT LOADER ====================
-  function runStepScripts(container) {
-    group('runStepScripts', () => {
-      log('Buscando <script> internos y externos…');
-      container.querySelectorAll('script').forEach(tag => {
-        if (tag.src) {
-          const src = tag.src;
-          if (src.endsWith('step6.js')) {
-            warn('🔒 Evitando recarga de step6.js');
-            return;
-          }
-          if (!document.querySelector(`script[src="${src}"]`)) {
-            log(`🔗 Cargando script: ${src}`);
-            const s = document.createElement('script');
-            s.src = src; s.defer = true;
-            document.head.appendChild(s);
-          } else {
-            log(`✔️ Script ya cargado: ${src}`);
-          }
-        } else {
-          log('✍️ Ejecutando script inline');
-          const inline = document.createElement('script');
-          inline.textContent = tag.textContent;
-          document.body.appendChild(inline).remove();
-        }
-      });
+  // 3. Límites de Vc desde rpmMin/rpmMax
+  const vcMinAllowed = (rpmMin * Math.PI * D) / 1000;
+  const vcMaxAllowed = (rpmMax * Math.PI * D) / 1000;
+  sVc.min = vcMinAllowed.toFixed(1);
+  sVc.max = vcMaxAllowed.toFixed(1);
+  if (+sVc.value < vcMinAllowed) sVc.value = vcMinAllowed.toFixed(1);
+  if (+sVc.value > vcMaxAllowed) sVc.value = vcMaxAllowed.toFixed(1);
+
+  // 4. Radar Chart init
+  const canvas = document.getElementById('radarChart');
+  if (window.radarChartInstance) {
+    window.radarChartInstance.destroy();
+  }
+  const ctx = canvas.getContext('2d');
+  window.radarChartInstance = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: ['Vida útil','Terminación','Potencia'],
+      datasets:[{
+        data:[0,0,0],
+        backgroundColor:'rgba(79,195,247,0.35)',
+        borderColor:'rgba(79,195,247,0.8)',
+        borderWidth:2
+      }]
+    },
+    options:{scales:{r:{max:100,ticks:{stepSize:20}}},plugins:{legend:{display:false}}}
+  });
+  const radar = window.radarChartInstance;
+
+  // 5. Mostrar/ocultar errores
+  function showError(msg) {
+    err.style.display = 'block';
+    err.textContent = msg;
+  }
+  function clearError() {
+    err.style.display = 'none';
+    err.textContent = '';
+  }
+
+  // 6. Calcular feedrate Vf
+  function computeFeed(vc, fz) {
+    return group('computeFeed', () => {
+      log('inputs', { vc, fz });
+      const rpm = (vc * 1000) / (Math.PI * D);
+      const result = rpm * fz * Z;
+      log('return', result);
+      return result;
     });
   }
 
-  // ================ CARGAR PASO =======================
-  function loadStep(step) {
-    group(`loadStep(${step})`, () => {
-      const prog = getProg();
-      log(`Intentando cargar paso ${step} (prog: ${prog})`);
-      if (step < 1 || step > MAX_STEPS || step > prog + 1) {
-        warn('🚧 Salto de paso bloqueado.');
-        renderBar(prog);
-        return;
+  // 7. Bloqueo de slider
+  function lockSlider(slider, msg) {
+    if (!slider.dataset.prevValue) slider.dataset.prevValue = slider.value;
+    slider.value = slider.dataset.prevValue;
+    slider.disabled = true;
+    showError(msg);
+  }
+  function unlockSlider(slider) {
+    slider.disabled = false;
+    slider.dataset.prevValue = '';
+  }
+
+  // 8. Pasadas slider / info
+  const thickness = parseFloat(sP.dataset.thickness);
+  function updatePasadasSlider() {
+    const maxP = Math.ceil(thickness / parseFloat(sAe.value));
+    sP.min = 1; sP.max = maxP; sP.step = 1;
+    if (sP.value > maxP) sP.value = maxP;
+  }
+  function updatePasadasInfo() {
+    const p = +sP.value;
+    infoP.textContent = `${p} pasadas de ${(thickness/p).toFixed(2)} mm`;
+  }
+
+  // 9. Debounce
+  let timer;
+  function scheduleRecalc() {
+    clearError();
+    clearTimeout(timer);
+    timer = setTimeout(recalc, 200);
+  }
+
+  // 10. Handler común para fz/vc
+  function onParamChange() {
+    group('onParamChange', () => {
+      log('vc', sVc.value, 'fz', sFz.value);
+    clearError();
+    const vc = parseFloat(sVc.value),
+          fz = parseFloat(sFz.value),
+          feed = computeFeed(vc, fz);
+
+    if (feed > fr_max) {
+      lockSlider(this, `Feedrate supera límite (${fr_max}). Ajusta el otro valor.`);
+      return;
+    }
+    if (feed <= 0) {
+      lockSlider(this, `Feedrate demasiado bajo.`);
+      return;
+    }
+    unlockSlider(sVc);
+    unlockSlider(sFz);
+    scheduleRecalc();
+    log('return void');
+    });
+  }
+
+  // 11. Conectar listeners
+  sFz.addEventListener('input', onParamChange);
+  sVc.addEventListener('input', onParamChange);
+  sAe.addEventListener('input', () => {
+    updatePasadasSlider();
+    updatePasadasInfo();
+    scheduleRecalc();
+  });
+  sP.addEventListener('input', () => {
+    updatePasadasInfo();
+    scheduleRecalc();
+  });
+
+  // 12. AJAX + recalc
+  async function recalc() {
+    return group('recalc', async () => {
+    const payload = {
+      fz:        parseFloat(sFz.value),
+      vc:        parseFloat(sVc.value),
+      ae:        parseFloat(sAe.value),
+      passes:    parseInt(sP.value,10),
+      thickness: thickness,
+      D, Z,
+      params:    { fr_max, coef_seg, Kc11, mc, alpha, eta }
+    };
+
+    table(payload);
+    try {
+      const res = await fetch(`${BASE_URL}/ajax/step6_ajax_legacy_minimal.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        },
+        body: JSON.stringify(payload),
+        cache: 'no-store'
+      });
+      if (res.status === 403) {
+        return showError('Sesión expirada. Recargá la página.');
       }
-      stepHolder.style.opacity = '0.3';
-
-      fetch(`${LOAD_ENDPOINT}?step=${step}${DEBUG ? '&debug=1' : ''}`, { cache: 'no-store' })
-        .then(r => {
-          log(`HTTP ${r.status} recibido`);
-          if (!r.ok) throw new Error(r.status === 403 ? 'FORBIDDEN' : `HTTP ${r.status}`);
-          return r.text();
-        })
-        .then(html => {
-          log('🎨 Inyectando contenido HTML…');
-          stepHolder.innerHTML = html;
-
-          // ⏩ Mover replace() a RAF para evitar flash de «i»
-          runStepScripts(stepHolder);
-          requestAnimationFrame(() => feather.replace());
-
-          if (window.bootstrap?.Tooltip) {
-            $qsa('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
-          }
-          if (step === 6) {
-            log('🔢 Paso 6 detectado: cargando sus artificios…');
-            if (!window.step6Loaded) {
-              const s6 = document.createElement('script');
-              s6.src = `${BASE_URL}/assets/js/step6.js`; s6.defer = true;
-              s6.onload = () => { window.step6Loaded = true; log('✅ step6.js cargado'); window.initStep6?.(); };
-              document.body.appendChild(s6);
-            } else {
-              log('♻️ Re-inicializando Step6'); window.initStep6?.();
-            }
-          }
-          stepHolder.style.opacity = '1';
-          renderBar(step);
-          hookEvents();
-          window.initLazy?.();
-          log(`🏁 Paso ${step} cargado con gloria.`);
-        })
-        .catch(err => {
-          error('💥 Error loadStep', err);
-          stepHolder.innerHTML = `<div class="alert alert-danger">⚠️ ${err.message}</div>`;
-          if (err.message === 'FORBIDDEN') {
-            localStorage.removeItem(LS_KEY);
-            warn('🔄 Sesión expirada: reiniciando wizard.');
-            setProg(1); loadStep(1);
-          }
-        });
-    });
-  }
-
-  // =============== ENVIAR FORMULARIO ==================
-  function sendForm(form) {
-    group('sendForm', () => {
-      const data = new FormData(form);
-      const cur = +data.get('step');
-      log(`✉️ Enviando datos de paso ${cur}…`);
-      fetch(`${HANDLE_ENDPOINT}${DEBUG ? '?debug=1' : ''}`, { method: 'POST', body: data })
-        .then(r => { if (!r.ok) throw new Error(r.status === 403 ? 'FORBIDDEN' : `HTTP ${r.status}`); return r.json(); })
-        .then(js => {
-          table(js);
-          if (!js.success) { alert(js.error || 'Error'); return; }
-          const next = Math.min(js.next || cur + 1, MAX_STEPS);
-          setProg(next); loadStep(next);
-          log(`➡️ Avanzando al paso ${next}`);
-        })
-        .catch(err => {
-          error('💥 Error sendForm', err);
-          if (err.message === 'FORBIDDEN') { localStorage.removeItem(LS_KEY); alert('Expirado'); setProg(1); loadStep(1); }
-          else alert('Conexión fallida');
-        });
-    });
-  }
-
-  // =============== EVENTOS ============================
-  function hookEvents() {
-    group('hookEvents', () => {
-      log('🔗 Conectando eventos…');
-      const form = stepHolder.querySelector('form');
-      if (form) {
-        form.addEventListener('submit', e => { e.preventDefault(); sendForm(form); });
-        $qsa('input,select,textarea', form).forEach(el =>
-          el.addEventListener('input', () => {
-            el.classList.toggle('is-valid', el.checkValidity());
-            el.classList.toggle('is-invalid', !el.checkValidity());
-          })
-        );
-        form.querySelector('.btn-prev')?.addEventListener('click', e => {
-          e.preventDefault(); const back = Math.max(1, getProg() - 1); setProg(back); loadStep(back);
-        });
+      if (!res.ok) {
+        return showError(`AJAX error ${res.status}`);
       }
-      stepsBar.forEach(li => {
-        if (li.classList.contains('clickable')) li.addEventListener('click', () => loadStep(+li.dataset.step));
-      });
+      const msg = await res.json();
+      if (!msg.success) {
+        return showError(`Servidor: ${msg.error}`);
+      }
+      const d = msg.data;
+
+      // 13. Pinta resultados
+      out.vc.textContent  = `${d.vc} m/min`;
+      out.fz.textContent  = `${d.fz} mm/tooth`;
+      out.hm.textContent  = `${d.hm} mm`;
+      out.n.textContent   = d.n;
+      out.vf.textContent  = `${d.vf} mm/min`;
+      out.hp.textContent  = `${d.hp} HP`;
+      out.mmr.textContent = d.mmr;
+      out.fc.textContent  = d.fc;
+      out.w.textContent   = d.watts;
+      out.eta.textContent = d.etaPercent;
+      // ← Aquí pintamos los nuevos
+      out.ae.textContent  = d.ae.toFixed(2);
+      out.ap.textContent  = d.ap.toFixed(3);
+
+      // 14. Radar
+      if (Array.isArray(d.radar) && d.radar.length === 3) {
+        radar.data.datasets[0].data = d.radar;
+        radar.update();
+      }
+      table(d);
+    } catch (e) {
+      error('recalc error', e);
+      showError(`Conexión fallida: ${e.message}`);
+    }
+    log('return void');
     });
   }
 
-  // ================= INICIALIZACIÓN ====================
-  log('🚀 Iniciando CNC Wizard Épico…');
-  if (!localStorage.getItem(LS_KEY)) setProg(1);
-  renderBar(getProg());
-  loadStep(getProg());
-})();
+  // 15. Kickoff
+  [sFz, sVc, sAe, sP].forEach(enhanceSlider);
+  updatePasadasSlider();
+  updatePasadasInfo();
+  recalc();
+  if (!window.step6ErrorHandlerAdded) {
+    window.addEventListener('error', ev => showError(`JS: ${ev.message}`));
+    window.step6ErrorHandlerAdded = true;
+  }
+};
