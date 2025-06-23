@@ -3,15 +3,15 @@
  * File: views/steps/step6.php
  * Descripción: Paso 6 – Resultados expertos del Wizard CNC
  *
- * 🔧 Fix 2025‑06‑23 (v2):
- *   1. Fragmento limpio al embeber: sólo <div class="step6"> y la config JS.
- *   2. Doctype, head, body, footer y scripts globales sólo si !$embedded.
- *   3. Parciales adicionales también sujetos a esa condición.
- *   4. Scripts externos se cargan on‑demand para evitar duplicados.
- *   5. feather.replace() se ejecuta una sola vez vía requestAnimationFrame.
- *   6. Se eliminaron espacios extra fuera del fragmento.
+ * 🔧 Correcciones clave (2025‑06‑23):
+ *   1. Header, footer y scripts globales sólo se imprimen cuando $embedded === false
+ *      para evitar que el fragmento AJAX contamine el DOM del stepper.
+ *   2. feather.replace() se dispara dentro de requestAnimationFrame para que siempre
+ *      ocurra después de que el DOM esté listo.
+ *   3. Todos los <script src> marcados con defer, reduciendo el bloqueo de render.
+ *   4. No se retiró ninguna lógica business; se tocó únicamente el marco HTML.
  *
- * 👉 Si necesitás debuggear, usá ?debug=1 en la URL.
+ * 👉 Si necesitás debuggear, usá ?debug=1 en la URL y se activan trazas extra.
  */
 
 declare(strict_types=1);
@@ -254,43 +254,46 @@ if (!file_exists($countUpLocal))
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Cutting Data – Paso&nbsp;6</title>
-<?php
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cutting Data – Paso&nbsp;6</title>
+  <?php
     $styles = [
-        $cssBootstrapRel,
-        'assets/css/settings/settings.css',
-        'assets/css/generic/generic.css',
-        'assets/css/elements/elements.css',
-        'assets/css/objects/objects.css',
-        'assets/css/objects/wizard.css',
-        'assets/css/objects/stepper.css',
-        'assets/css/objects/step-common.css',
-        'assets/css/objects/step6.css',
-        'assets/css/components/components.css',
-        'assets/css/components/main.css',
-        'assets/css/components/footer-schneider.css',
-        'assets/css/utilities/utilities.css',
+      $cssBootstrapRel,
+      'assets/css/settings/settings.css',
+      'assets/css/generic/generic.css',
+      'assets/css/elements/elements.css',
+      'assets/css/objects/objects.css',
+      'assets/css/objects/wizard.css',
+      'assets/css/objects/stepper.css',
+      'assets/css/objects/step-common.css',
+      'assets/css/objects/step6.css',
+      'assets/css/components/components.css',
+      'assets/css/components/main.css',
+      'assets/css/components/footer-schneider.css',
+      'assets/css/utilities/utilities.css',
     ];
     include __DIR__ . '/../partials/styles.php';
-?>
-    <script>
-        window.BASE_URL  = <?= json_encode(BASE_URL) ?>;
-        window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
-    </script>
+  ?>
+  <script>
+    window.BASE_URL  = <?= json_encode(BASE_URL) ?>;
+    window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
+  </script>
 </head>
 <body>
-<?php if ($assetErrors): ?>
-    <div class="alert alert-warning text-dark m-3">
-        <strong>⚠️ Archivos faltantes (se usarán CDNs):</strong>
-        <ul>
-        <?php foreach ($assetErrors as $err): ?>
-            <li><?= htmlspecialchars($err, ENT_QUOTES) ?></li>
-        <?php endforeach; ?>
-        </ul>
-</div>
 <?php endif; ?>
+
+<?php if ($assetErrors): ?>
+  <div class="alert alert-warning text-dark m-3">
+    <strong>⚠️ Archivos faltantes (se usarán CDNs):</strong>
+    <ul>
+      <?php foreach ($assetErrors as $err): ?>
+        <li><?= htmlspecialchars($err, ENT_QUOTES) ?></li>
+      <?php endforeach; ?>
+    </ul>
+  </div>
+<?php endif; ?>
+
 <div class="step6">
 <div class="content-main">
   <div class="container py-4">
@@ -639,12 +642,16 @@ if (!file_exists($countUpLocal))
 
 <!-- SCRIPTS -->
 <script>window.step6Params = <?= $jsonParams ?>; window.step6Csrf = '<?= $csrfToken ?>';</script>
+<?php if (!$embedded): ?>
 <script src="<?= $bootstrapJsRel ?>" defer></script>
 <script src="<?= asset('node_modules/feather-icons/dist/feather.min.js') ?>" defer></script>
 <script src="<?= asset('node_modules/chart.js/dist/chart.umd.min.js') ?>" defer></script>
 <script src="<?= asset('node_modules/countup.js/dist/countUp.umd.js') ?>" defer></script>
 <script src="<?= $step6JsRel ?>" defer></script>
 <script>requestAnimationFrame(() => feather.replace());</script>
+<?php endif; ?>
+
+<?php if (!$embedded): ?>
 </body>
 </html>
 <?php endif; ?>
