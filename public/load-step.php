@@ -5,49 +5,48 @@
  * Cargador asincrónico de vistas para el CNC Wizard Stepper
  * ---------------------------------------------------------------------------
  * RESPONSABILIDAD
- *   • Validar sesión, progreso y modo antes de servir un paso.
- *   • Incluir la vista correspondiente en modo “embebido” (sin <html> global).
- *   • Blindar contra CSRF, SSRF y ataques de caché con cabeceras duras.
- *   • Devolver códigos HTTP claros y, opcionalmente, JSON de error si el
- *     request incluye `Accept: application/json`.
+ *   • Verificar sesión, progreso y modo (auto | manual) antes de servir un paso
+ *   • Incluir la vista en modo embebido (sin <html> global)
+ *   • Blindar contra CSRF/SSRF y forzar cabeceras seguras
+ *   • Devolver errores claros: JSON (si se pide) u HTML placeholder
  *
- * Punto de entrada:   wizard.php → fetch('load-step.php?step=N')
- * Parámetros GET:
- *   - step   (int 1-6)  Paso solicitado
- *   - debug  (bool)     Habilita trazas dbg()
+ * Endpoint: wizard.php  → fetch('load-step.php?step=N')
+ * GET params:
+ *   step   (int 1-6)  Paso solicitado
+ *   debug  (bool)     Activa trazas dbg()
  *
  * Sesión esperada:
- *   - wizard_state    = 'wizard'
- *   - wizard_progress = 1-6 (último paso completado)
- *   - tool_mode       = 'manual' | 'auto'
+ *   wizard_state    = 'wizard'
+ *   wizard_progress = 1-6  (último paso completado)
+ *   tool_mode       = 'manual' | 'auto'
  *
- * 2025-06-23 (blindaje total):
- *   ✔ Cabeceras CSP, HSTS, X-Frame-Options, Referrer-Policy
- *   ✔ startSecureSession() con cookies SameSite=Strict + regeneración
- *   ✔ Helper respondError() → HTML o JSON según header Accept
- *   ✔ Sanitizado estricto de “step” y fallback a 1
- *   ✔ Forzado WIZARD_EMBEDDED=true antes de incluir la vista
- *   ✔ Stub dbg() silencioso si no se carga includes/debug.php
+ * 2025-06-23  (v2 ultra-blindada)
  */
 
 declare(strict_types=1);
 
 /* -------------------------------------------------------------------------- */
-/* 0)  CONSTANTES BÁSICAS                                                     */
+/* 0)  BOOTSTRAP BÁSICO                                                       */
 /* -------------------------------------------------------------------------- */
-$ROOT_DIR = dirname(__DIR__);               // → /project_root
-$BASE_URL = getenv('BASE_URL')
-         ?: rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/');
-putenv("BASE_URL={$BASE_URL}");
+define('ROOT_DIR', dirname(__DIR__));           // /project_root
+define('BASE_URL', getenv('BASE_URL')
+    ?: rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/'));
+putenv('BASE_URL=' . BASE_URL);
 
 /* -------------------------------------------------------------------------- */
-/* 1)  DEPENDENCIAS CORE (no autoload para mayor compatibilidad)              */
+/* 1)  DEPENDENCIAS CORE                                                      */
 /* -------------------------------------------------------------------------- */
-require_once "{$ROOT_DIR}/src/Config/AppConfig.php";
-require_once "{$ROOT_DIR}/src/Utils/Session.php";      // sendSecurityHeaders(), startSecureSession()
+require_once ROOT_DIR . '/src/Config/AppConfig.php';
+require_once ROOT_DIR . '/src/Utils/Session.php';        // sendSecurityHeaders(), startSecureSession()
+
+/* Autoload PSR-4 si existe vendor/autoload.php */
+$autoload = ROOT_DIR . '/vendor/autoload.php';
+if (is_readable($autoload)) {
+    require_once $autoload;
+}
 
 /* -------------------------------------------------------------------------- */
-/* 2)  CABECERAS DE SEGURIDAD Y  NO-CACHING                                   */
+/* 2)  CABECERAS DE SEGURIDAD                                                 */
 /* -------------------------------------------------------------------------- */
 sendSecurityHeaders('text/html; charset=UTF-8', 63072000, true);
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
@@ -59,40 +58,37 @@ header('Pragma: no-cache');
 startSecureSession();
 
 /* -------------------------------------------------------------------------- */
-/* 4)  DEBUG OPCIONAL (stub si no existe)                                     */
+/* 4)  DEBUG (stub si no existe)                                              */
 /* -------------------------------------------------------------------------- */
 $DEBUG = filter_input(INPUT_GET, 'debug', FILTER_VALIDATE_BOOLEAN);
-if ($DEBUG && is_readable("{$ROOT_DIR}/includes/debug.php")) {
-    require_once "{$ROOT_DIR}/includes/debug.php";
-    dbg('🔧 load-step.php DEBUG activo');
-} else {
-    if (!function_exists('dbg')) {
-        function dbg(...$args): void { /* no-op */ }
-    }
+if ($DEBUG && is_readable(ROOT_DIR . '/includes/debug.php')) {
+    require_once ROOT_DIR . '/includes/debug.php';
+    dbg('🔧 DEBUG activo – load-step.php');
+} elseif (!function_exists('dbg')) {
+    function dbg(...$a): void { /* no-op */ }
 }
 
 /* -------------------------------------------------------------------------- */
-/* 5)  CONEXIÓN BD (por si las vistas la necesitan)                           */
+/* 5)  DB CONNECTION (on-demand para las vistas)                              */
 /* -------------------------------------------------------------------------- */
-$dbFile = "{$ROOT_DIR}/includes/db.php";
+$dbFile = ROOT_DIR . '/includes/db.php';
 if (!is_readable($dbFile)) {
-    respondError(500, 'Error interno: falta includes/db.php');
+    respondError(500, 'Falta includes/db.php');
 }
 require_once $dbFile;
-dbg('✔ Conexión BD incluida');
+dbg('✔ DB incluida');
 
 /* -------------------------------------------------------------------------- */
-/* 6)  FUNCIÓN AUXILIAR: responder error sin romper el DOM                    */
+/* 6)  HELPER GLOBAL respondError()                                           */
 /* -------------------------------------------------------------------------- */
-function respondError(int $code, string $msg): void
+function respondError(int $code, string $msg): never
 {
     http_response_code($code);
-    $prefersJson = strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false;
-    if ($prefersJson) {
+    $wantsJson = str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json');
+    if ($wantsJson) {
         header('Content-Type: application/json; charset=UTF-8');
         echo json_encode(['error' => $msg], JSON_UNESCAPED_UNICODE);
     } else {
-        // HTML simple (el contenedor .step-error se inyecta sin <html>)
         echo '<div class="step-error alert alert-danger m-3">' .
              htmlspecialchars($msg, ENT_QUOTES) .
              '</div>';
@@ -101,50 +97,51 @@ function respondError(int $code, string $msg): void
 }
 
 /* -------------------------------------------------------------------------- */
-/* 7)  LEER Y VALIDAR “step”                                                  */
+/* 7)  PARÁMETRO “step”                                                       */
 /* -------------------------------------------------------------------------- */
 $step = filter_input(INPUT_GET, 'step', FILTER_VALIDATE_INT, [
-    'options' => ['min_range' => 1, 'max_range' => 6]
+    'options' => ['min_range' => 1, 'max_range' => 6],
 ]) ?: 1;
 dbg("📥 Paso solicitado: {$step}");
 
 /* -------------------------------------------------------------------------- */
-/* 8)  VALIDAR ESTADO WIZARD EN SESIÓN                                        */
+/* 8)  VALIDAR ESTADO WIZARD                                                  */
 /* -------------------------------------------------------------------------- */
 if (($_SESSION['wizard_state'] ?? '') !== 'wizard') {
     if ($step === 1) {
         $_SESSION['wizard_state']    = 'wizard';
-        $_SESSION['wizard_progress'] = $_SESSION['wizard_progress'] ?? 1;
+        $_SESSION['wizard_progress'] = 1;
         session_regenerate_id(true);
-        dbg('⚙️ Estado wizard inicializado');
+        dbg('⚙️ Wizard iniciado (paso 1)');
     } else {
-        respondError(403, 'Acceso prohibido: iniciá el wizard desde el paso 1.');
+        respondError(403, 'Iniciá el wizard desde el paso 1.');
     }
 }
 
 $currentProgress = (int)($_SESSION['wizard_progress'] ?? 1);
 $maxAllowedStep  = $currentProgress + 1;
+
 if ($step > $maxAllowedStep) {
-    dbg("🚫 Paso {$step} > permitido {$maxAllowedStep}");
+    dbg("🚫 step{$step} > permitido {$maxAllowedStep}");
     header("Location: load-step.php?step={$maxAllowedStep}");
     exit;
 }
-dbg("🔢 Progreso actual: {$currentProgress} (ok) — a servir step{$step}");
+dbg("🔢 Progreso actual OK ({$currentProgress})");
 
 /* -------------------------------------------------------------------------- */
-/* 9)  DETECTAR MODO (auto / manual)                                          */
+/* 9)  DETECTAR MODO                                                          */
 /* -------------------------------------------------------------------------- */
 $mode = ($_SESSION['tool_mode'] ?? 'manual') === 'auto' ? 'auto' : 'manual';
 dbg("🧭 Modo: {$mode}");
 
 /* -------------------------------------------------------------------------- */
-/* 10) RESOLVER ARCHIVO DE VISTA                                              */
+/* 10)  RESOLVER VISTA                                                        */
 /* -------------------------------------------------------------------------- */
-$viewBase = "{$ROOT_DIR}/views/steps";
+$viewBase = ROOT_DIR . '/views/steps';
 $viewPath = null;
 foreach ([
     "{$viewBase}/{$mode}/step{$step}.php",
-    "{$viewBase}/step{$step}.php"
+    "{$viewBase}/step{$step}.php",
 ] as $candidate) {
     if (is_readable($candidate)) {
         $viewPath = $candidate;
@@ -152,17 +149,16 @@ foreach ([
     }
 }
 if (!$viewPath) {
-    respondError(404, "Vista no encontrada para el paso {$step} (modo {$mode}).");
+    respondError(404, "Vista paso {$step} (modo {$mode}) no encontrada.");
 }
-dbg("✔ View encontrada: {$viewPath}");
+dbg("✔ Vista: {$viewPath}");
 
 /* -------------------------------------------------------------------------- */
-/* 11) DEFINIR CONSTANTE Y CARGAR VISTA EMBEBIDA                              */
+/* 11)  CARGAR VISTA EMBEBIDA                                                 */
 /* -------------------------------------------------------------------------- */
 define('WIZARD_EMBEDDED', true);
 include $viewPath;
 
 /* -------------------------------------------------------------------------- */
-/* 12) FIN                                                                   */
+/* 12)  FIN                                                                   */
 /* -------------------------------------------------------------------------- */
-// No se imprime nada extra aquí: la vista es responsable de su contenido.
