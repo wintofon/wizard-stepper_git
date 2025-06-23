@@ -1,15 +1,8 @@
 <?php
 /**
  * File: views/steps/step6.php
- * ---------------------------------------------------------------------
- * Paso 6 – Resultados expertos del Wizard CNC.
- *
- * Entradas  : valores en $_SESSION establecidos por los pasos previos.
- *             En POST se espera 'csrf_token' para validación manual.
- * Salidas   : HTML completo o fragmento (si WIZARD_EMBEDDED).
- *
- * Flujo CSRF: el token se genera al iniciar sesión y se valida únicamente
- *             para peticiones POST (form o AJAX).
+ * Descripción: Paso 6 – Resultados expertos del Wizard CNC
+ * Versión pulida: se corrigieron nombres de IDs, clases CSS, chequeos de constantes y algunas advertencias PHP.
  */
 
 declare(strict_types=1);
@@ -24,9 +17,12 @@ if (!getenv('BASE_URL')) {
     );
 }
 require_once __DIR__ . '/../../src/Config/AppConfig.php';
-require_once __DIR__ . '/../../src/Utils/Session.php';
 
 use App\Controller\ExpertResultController;
+
+// ────────────────────────────────────────────────────────────────
+// Utilidades / helpers
+// ────────────────────────────────────────────────────────────────
 
 require_once __DIR__ . '/../../includes/wizard_helpers.php';
 
@@ -35,37 +31,35 @@ require_once __DIR__ . '/../../includes/wizard_helpers.php';
 // ────────────────────────────────────────────────────────────────
 $embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
 
+if (!$embedded) {
+    /* Cabeceras de seguridad */
+    header('Content-Type: text/html; charset=UTF-8');
+    header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
+    header('X-Frame-Options: DENY');
+    header('X-Content-Type-Options: nosniff');
+    header('Referrer-Policy: no-referrer');
+    header("Permissions-Policy: geolocation=(), microphone=()");
+    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+    header('Pragma: no-cache');
+    header(
+        "Content-Security-Policy: default-src 'self';"
+        . " script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;"
+        . " style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;"
+    );
+}
+
 // ────────────────────────────────────────────────────────────────
 // Sesión segura
 // ────────────────────────────────────────────────────────────────
-startSecureSession();
-$csrfToken = generateCsrfToken();
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !validateCsrfToken($_POST['csrf_token'] ?? null)) {
-    http_response_code(403);
-    exit('Error CSRF: petición no autorizada.');
-}
-
-// ────────────────────────────────────────────────────────────────
-// Validar claves requeridas antes de cargar modelos o DB
-// ────────────────────────────────────────────────────────────────
-$requiredKeys = [
-    'tool_table','tool_id','material','trans_id',
-    'rpm_min','rpm_max','fr_max','thickness',
-    'strategy','hp'
-];
-$missing = array_filter($requiredKeys, fn($k) => empty($_SESSION[$k]));
-if ($missing) {
-    http_response_code(400);
-    echo "<pre class='step6-error'>ERROR – faltan claves en sesión:\n" . implode(', ', $missing) . "</pre>";
-    exit;
-}
-
-if (!$embedded) {
-    sendSecurityHeaders('text/html; charset=UTF-8');
-    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
-    header('Pragma: no-cache');
-    header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;");
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path'     => '/',
+        'secure'   => true,
+        'httponly' => true,
+        'samesite' => 'Strict'
+    ]);
+    session_start();
 }
 
 // ────────────────────────────────────────────────────────────────
@@ -98,6 +92,34 @@ $_SESSION['trans_id'] = $_SESSION['transmission_id'] ?? ($_SESSION['trans_id']  
 $_SESSION['fr_max']   = $_SESSION['feed_max']        ?? ($_SESSION['fr_max']     ?? null);
 $_SESSION['strategy'] = $_SESSION['strategy_id']     ?? ($_SESSION['strategy']   ?? null);
 
+// ────────────────────────────────────────────────────────────────
+// CSRF token
+// ────────────────────────────────────────────────────────────────
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+$csrfToken = $_SESSION['csrf_token'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!hash_equals($csrfToken, (string)($_POST['csrf_token'] ?? ''))) {
+        http_response_code(403);
+        exit('Error CSRF: petición no autorizada.');
+    }
+}
+
+// ────────────────────────────────────────────────────────────────
+// Validar claves requeridas
+// ────────────────────────────────────────────────────────────────
+$requiredKeys = [
+    'tool_table','tool_id','material','trans_id',
+    'rpm_min','rpm_max','fr_max','thickness',
+    'strategy','hp'
+];
+$missing = array_filter($requiredKeys, fn($k) => empty($_SESSION[$k]));
+if ($missing) {
+    http_response_code(400);
+    echo "<pre class='step6-error'>ERROR – faltan claves en sesión:\n" . implode(', ', $missing) . "</pre>";
+    exit;
+}
 
 // ────────────────────────────────────────────────────────────────
 // Cargar modelos y utilidades
@@ -196,33 +218,22 @@ $notesArray = $params['notes'] ?? [];
 // ────────────────────────────────────────────────────────────────
 // Assets locales / CDN fall-back
 // ────────────────────────────────────────────────────────────────
-$styles = [
-    'assets/css/generic/bootstrap.min.css',
-    'assets/css/settings/settings.css',
-    'assets/css/generic/generic.css',
-    'assets/css/elements/elements.css',
-    'assets/css/objects/objects.css',
-    'assets/css/objects/wizard.css',
-    'assets/css/objects/stepper.css',
-    'assets/css/objects/step-common.css',
-    'assets/css/objects/step6.css',
-    'assets/css/components/components.css',
-    'assets/css/components/main.css',
-    'assets/css/components/footer-schneider.css',
-    'assets/css/utilities/utilities.css',
-];
-
-$bootstrapJsRel = file_exists($root.'assets/js/bootstrap.bundle.min.js')
+$cssBootstrapRel = file_exists($root.'assets/css/generic/bootstrap.min.css')
+    ? asset('assets/css/generic/bootstrap.min.css')
+    : '';
+$bootstrapJsRel  = file_exists($root.'assets/js/bootstrap.bundle.min.js')
     ? asset('assets/js/bootstrap.bundle.min.js')
-    : 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js';
+    : '';
 $featherLocal    = $root.'node_modules/feather-icons/dist/feather.min.js';
 $chartJsLocal    = $root.'node_modules/chart.js/dist/chart.umd.min.js';
 $countUpLocal    = $root.'node_modules/countup.js/dist/countUp.umd.js';
-$step6JsRel      = file_exists($root.'assets/js/step6.js') ? asset('assets/js/step6.js') : '';
+$step6JsRel      = file_exists($root.'assets/js/step6.js')
+    ? asset('assets/js/step6.js')
+    : '';
 
 $assetErrors = [];
-if (!file_exists($root.'assets/js/bootstrap.bundle.min.js'))
-    $assetErrors[] = 'Bootstrap JS no encontrado localmente.';
+if (!$cssBootstrapRel)           $assetErrors[] = 'Bootstrap CSS no encontrado localmente.';
+if (!$bootstrapJsRel)            $assetErrors[] = 'Bootstrap JS no encontrado localmente.';
 if (!file_exists($featherLocal)) $assetErrors[] = 'Feather Icons JS faltante.';
 if (!file_exists($chartJsLocal)) $assetErrors[] = 'Chart.js faltante.';
 if (!file_exists($countUpLocal)) $assetErrors[] = 'CountUp.js faltante.';
@@ -238,13 +249,32 @@ if (!file_exists($countUpLocal)) $assetErrors[] = 'CountUp.js faltante.';
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Cutting Data – Paso&nbsp;6</title>
-<?php endif; ?>
-<?php include __DIR__ . '/../partials/styles.php'; ?>
-<?php if (!$embedded): ?>
-  <script>
-    window.BASE_URL  = <?= json_encode(BASE_URL) ?>;
-    window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
-  </script>
+  <?php
+    $bootstrapCss = $cssBootstrapRel
+      ?: 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css';
+    $styles = [
+      $bootstrapCss,
+      'assets/css/settings/settings.css',
+      'assets/css/generic/generic.css',
+      'assets/css/elements/elements.css',
+      'assets/css/objects/objects.css',
+      'assets/css/objects/wizard.css',
+      'assets/css/objects/stepper.css',
+      'assets/css/objects/step-common.css',
+      'assets/css/objects/step6.css',
+      'assets/css/components/components.css',
+      'assets/css/components/main.css',
+      'assets/css/components/footer-schneider.css',
+      'assets/css/utilities/utilities.css',
+    ];
+    include __DIR__ . '/../partials/styles.php';
+  ?>
+  <?php if (!$embedded): ?>
+    <script>
+      window.BASE_URL  = <?= json_encode(BASE_URL) ?>;
+      window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
+    </script>
+  <?php endif; ?>
 </head>
 <body>
 <?php endif; ?>

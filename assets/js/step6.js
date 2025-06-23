@@ -26,12 +26,8 @@ window.initStep6 = function () {
     flute_count: Z,
     rpm_min: rpmMin,
     rpm_max: rpmMax,
-    fr_max = Number.POSITIVE_INFINITY,
-    coef_seg = 1,
-    Kc11 = 1200,
-    mc = 0.2,
-    alpha = 0,
-    eta = 1,
+    fr_max,
+    coef_seg, Kc11, mc, alpha, eta,
   } = window.step6Params || {};
 
   const csrfToken = window.step6Csrf;
@@ -131,16 +127,12 @@ window.initStep6 = function () {
 
   // 7. Bloqueo de slider
   function lockSlider(slider, msg) {
-    if (!slider.dataset.limitValue) {
-      slider.dataset.limitValue = slider.value;
-    }
     slider.value = slider.dataset.limitValue;
     slider.disabled = true;
     showError(msg);
   }
   function unlockSlider(slider) {
     slider.disabled = false;
-    delete slider.dataset.limitValue;
   }
 
   // 8. Pasadas slider / info
