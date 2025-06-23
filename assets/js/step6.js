@@ -1,275 +1,199 @@
 /*
  * File: step6.js
- * Main responsibility: Part of the CNC Wizard Stepper.
- * Related files: See others in this project.
- * TODO: Extend documentation.
+ * Epic CNC Wizard Step 6 – límites estrictos y radar avanzado 🌟
+ *
+ * Main responsibility:
+ *   Control de sliders con límites inflexibles, recálculos AJAX y radar chart mejorado,
+ *   todo narrado en la consola con estilo épico.
+ * Related: ajax/step6_ajax_legacy_minimal.php
+ * TODO: Agregar notificaciones sonoras y accesibilidad ARIA.
  */
-/** Ubicación: C:\xampp\htdocs\wizard-stepper_git\assets\js\step6.js */
-/* global Chart */
+/* global Chart, window */
 
-// Mantiene la instancia del gráfico entre ejecuciones
-window.radarChartInstance = window.radarChartInstance || null;
+(() => {
+  'use strict';
 
-window.initStep6 = function () {
+  // ================= CONFIG & LOGGING ==================
   const BASE_URL = window.BASE_URL;
-  const DEBUG = window.DEBUG ?? false;
-  const TAG = '[WizardStepper]';
-  const logger = (lvl, ...a) => { if (!DEBUG) return; const ts = new Date().toISOString(); console[lvl](`${TAG} ${ts}`, ...a); };
-  const log = (...a) => logger('log', ...a);
-  const warn = (...a) => logger('warn', ...a);
-  const error = (...a) => logger('error', ...a);
-  const table = d => { if (DEBUG) console.table(d); };
-  const group = (title, fn) => { if (!DEBUG) return fn(); console.group(`${TAG} ${new Date().toISOString()} ${title}`); try { return fn(); } finally { console.groupEnd(); } };
-  // 1. Parámetros inyectados por PHP
+  const DEBUG    = window.DEBUG ?? true;
+  const STYLE    = 'color:#e91e63;font-weight:bold';
+  const log      = (...a) => DEBUG && console.log('%c[Step6🚀]', STYLE, ...a);
+  const warn     = (...a) => DEBUG && console.warn('%c[Step6⚠️]', STYLE, ...a);
+  const errorLog = (...a) => DEBUG && console.error('%c[Step6💥]', STYLE, ...a);
+  const table    = d => DEBUG && console.table(d);
+  const group    = (t, fn) => {
+    if (!DEBUG) return fn();
+    console.group(`%c[Step6] ${t}`, STYLE);
+    try { return fn(); } finally { console.groupEnd(); }
+  };
+
+  // ========== PARAMS INYECTADOS ===========
   const {
     diameter: D = 0,
     flute_count: Z = 1,
-    rpm_min: rpmMin = 0,
-    rpm_max: rpmMax = 0,
+    rpm_min = 0,
+    rpm_max = 0,
     fr_max = Infinity,
     coef_seg = 0,
     Kc11 = 1,
     mc = 1,
     alpha = 0,
-    eta = 1,
+    eta = 1
   } = window.step6Params || {};
-
   const csrfToken = window.step6Csrf;
+  log('Parámetros:', {D, Z, rpm_min, rpm_max, fr_max});
 
-  // 2. Referencias al DOM
-  const sFz   = document.getElementById('sliderFz'),
-        sVc   = document.getElementById('sliderVc'),
-        sAe   = document.getElementById('sliderAe'),
-        sP    = document.getElementById('sliderPasadas'),
-        infoP = document.getElementById('textPasadasInfo'),
-        err   = document.getElementById('errorMsg'),
-        out   = {
-          vc:  document.getElementById('outVc'),
-          fz:  document.getElementById('outFz'),
-          hm:  document.getElementById('outHm'),
-          n:   document.getElementById('outN'),
-          vf:  document.getElementById('outVf'),
-          hp:  document.getElementById('outHp'),
-          mmr: document.getElementById('valueMrr'),
-          fc:  document.getElementById('valueFc'),
-          w:   document.getElementById('valueW'),
-          eta: document.getElementById('valueEta'),
-          ae:  document.getElementById('outAe'),  // ← nuevo
-        ap:  document.getElementById('outAp')   // ← nuevo
-      };
-
-  function enhanceSlider(slider) {
-    return group('enhanceSlider', () => {
-    log('slider', slider);
-    const wrap = slider.closest('.slider-wrap');
-    if (!wrap) return;
-    const bubble = wrap.querySelector('.slider-bubble');
-    const min = parseFloat(slider.min || 0);
-    const max = parseFloat(slider.max || 1);
-    const step = parseFloat(slider.step || 1);
-    wrap.style.setProperty('--step-pct', (step / (max - min)) * 100);
-    function update(val) {
-      const pct = ((val - min) / (max - min)) * 100;
-      wrap.style.setProperty('--val', pct);
-      if (bubble) bubble.textContent = parseFloat(val).toFixed(step < 1 ? 2 : 0);
-    }
-    slider.addEventListener('input', e => update(parseFloat(e.target.value)));
-    update(parseFloat(slider.value));
-    log('return void');
-    });
+  // ========== DOM ELEMENTS ===========
+  const getEl = id => document.getElementById(id);
+  const sFz   = getEl('sliderFz');
+  const sVc   = getEl('sliderVc');
+  const sAe   = getEl('sliderAe');
+  const sP    = getEl('sliderPasadas');
+  const infoP = getEl('textPasadasInfo');
+  const err   = getEl('errorMsg');
+  const out   = {
+    vc: getEl('outVc'), fz: getEl('outFz'), hm: getEl('outHm'), n: getEl('outN'),
+    vf: getEl('outVf'), hp: getEl('outHp'), mmr: getEl('valueMrr'), fc: getEl('valueFc'),
+    w: getEl('valueW'), eta: getEl('valueEta'), ae: getEl('outAe'), ap: getEl('outAp')
+  };
+  if (!sFz || !sVc || !sAe || !sP || !infoP || !err || !out.vc) {
+    errorLog('DOM faltante – abortando Step6');
+    return;
   }
 
-  // 3. Límites de Vc desde rpmMin/rpmMax
-  const vcMinAllowed = (rpmMin * Math.PI * D) / 1000;
-  const vcMaxAllowed = (rpmMax * Math.PI * D) / 1000;
-  sVc.min = vcMinAllowed.toFixed(1);
-  sVc.max = vcMaxAllowed.toFixed(1);
-  if (+sVc.value < vcMinAllowed) sVc.value = vcMinAllowed.toFixed(1);
-  if (+sVc.value > vcMaxAllowed) sVc.value = vcMaxAllowed.toFixed(1);
-
-  // 4. Radar Chart init
-  const canvas = document.getElementById('radarChart');
-  if (window.radarChartInstance) {
-    window.radarChartInstance.destroy();
-  }
-  const ctx = canvas.getContext('2d');
-  window.radarChartInstance = new Chart(ctx, {
-    type: 'radar',
-    data: {
-      labels: ['Vida útil','Terminación','Potencia'],
-      datasets:[{
-        data:[0,0,0],
-        backgroundColor:'rgba(79,195,247,0.35)',
-        borderColor:'rgba(79,195,247,0.8)',
-        borderWidth:2
-      }]
-    },
-    options:{scales:{r:{max:100,ticks:{stepSize:20}}},plugins:{legend:{display:false}}}
-  });
-  const radar = window.radarChartInstance;
-
-  // 5. Mostrar/ocultar errores
+  // ========== UTILITIES ===========
   function showError(msg) {
-    err.style.display = 'block';
     err.textContent = msg;
+    err.style.display = 'block';
+    warn(msg);
   }
   function clearError() {
     err.style.display = 'none';
     err.textContent = '';
   }
+  function clamp(val, min, max) {
+    return Math.min(Math.max(val, min), max);
+  }
 
-  // 6. Calcular feedrate Vf
+  // ========== SLIDER ENHANCER ===========
+  function enhance(slider) {
+    group(`Enhance ${slider.id}`, () => {
+      const wrap = slider.closest('.slider-wrap');
+      const bubble = wrap?.querySelector('.slider-bubble');
+      const min = parseFloat(slider.min);
+      const max = parseFloat(slider.max);
+      const step = parseFloat(slider.step);
+      function update(val) {
+        const v = clamp(val, min, max);
+        const pct = ((v - min) / (max - min)) * 100;
+        wrap.style.setProperty('--val', pct);
+        if (bubble) bubble.textContent = v.toFixed(step<1?2:0);
+      }
+      slider.addEventListener('input', e => update(parseFloat(e.target.value)));
+      update(parseFloat(slider.value));
+      log(`${slider.id} listo con límites [${min},${max}]`);
+    });
+  }
+
+  // ========== VC LIMITS ===========
+  group('vcLimits', () => {
+    const minVc = (rpm_min * Math.PI * D) / 1000;
+    const maxVc = (rpm_max * Math.PI * D) / 1000;
+    sVc.min = minVc.toFixed(1);
+    sVc.max = maxVc.toFixed(1);
+    sVc.value = clamp(parseFloat(sVc.value), minVc, maxVc).toFixed(1);
+    log('VC límites establecidos:', {minVc, maxVc});
+  });
+
+  // ========== RADAR SETUP ===========
+  let radar = window.radarChartInstance;
+  const canvas = getEl('radarChart');
+  if (canvas) {
+    if (radar) radar.destroy();
+    radar = new Chart(canvas.getContext('2d'), {
+      type: 'radar',
+      data: { labels:['Vida útil','Terminación','Potencia'], datasets:[{ data:[0,0,0], backgroundColor:'rgba(233,30,99,0.3)', borderColor:'rgba(233,30,99,0.8)', borderWidth:2 }] },
+      options: { scales:{r:{max:100,ticks:{stepSize:20}}}, plugins:{legend:{display:false}} }
+    });
+    window.radarChartInstance = radar;
+    log('Radar inicializado con colores épicos');
+  } else {
+    warn('Canvas radar no encontrado');
+  }
+
+  // ========== CALCS & AJAX ===========
   function computeFeed(vc, fz) {
     return group('computeFeed', () => {
-      log('inputs', { vc, fz });
-      const rpm = (vc * 1000) / (Math.PI * D);
-      const result = rpm * fz * Z;
-      log('return', result);
-      return result;
+      const rpm = (vc*1000)/(Math.PI*D);
+      const feed = rpm*fz*Z;
+      log('feed:', feed);
+      return feed;
     });
   }
-
-  // 7. Bloqueo de slider
-  function lockSlider(slider, msg) {
-    if (!slider.dataset.prevValue) slider.dataset.prevValue = slider.value;
-    slider.value = slider.dataset.prevValue;
-    slider.disabled = true;
-    showError(msg);
+  const thickness = parseFloat(sP.dataset.thickness) || 0;
+  function updatePasses() {
+    const maxPass = Math.max(1, Math.ceil(thickness/parseFloat(sAe.value)));
+    sP.min = 1; sP.max = maxPass; sP.value = clamp(parseInt(sP.value,10),1,maxPass);
+    infoP.textContent = `${sP.value} pasadas (${(thickness/sP.value).toFixed(2)} mm)`;
   }
-  function unlockSlider(slider) {
-    slider.disabled = false;
-    slider.dataset.prevValue = '';
+  let debounce;
+  function schedule() {
+    clearError(); clearTimeout(debounce);
+    debounce = setTimeout(recalc, 300);
   }
-
-  // 8. Pasadas slider / info
-  const thickness = parseFloat(sP.dataset.thickness);
-  function updatePasadasSlider() {
-    const maxP = Math.ceil(thickness / parseFloat(sAe.value));
-    sP.min = 1; sP.max = maxP; sP.step = 1;
-    if (sP.value > maxP) sP.value = maxP;
-  }
-  function updatePasadasInfo() {
-    const p = +sP.value;
-    infoP.textContent = `${p} pasadas de ${(thickness/p).toFixed(2)} mm`;
-  }
-
-  // 9. Debounce
-  let timer;
-  function scheduleRecalc() {
-    clearError();
-    clearTimeout(timer);
-    timer = setTimeout(recalc, 200);
-  }
-
-  // 10. Handler común para fz/vc
-  function onParamChange() {
+  function onChange(e) {
     group('onParamChange', () => {
-      log('vc', sVc.value, 'fz', sFz.value);
-    clearError();
-    const vc = parseFloat(sVc.value),
-          fz = parseFloat(sFz.value),
-          feed = computeFeed(vc, fz);
-
-    if (feed > fr_max) {
-      lockSlider(this, `Feedrate supera límite (${fr_max}). Ajusta el otro valor.`);
-      return;
-    }
-    if (feed <= 0) {
-      lockSlider(this, `Feedrate demasiado bajo.`);
-      return;
-    }
-    unlockSlider(sVc);
-    unlockSlider(sFz);
-    scheduleRecalc();
-    log('return void');
+      const vc = parseFloat(sVc.value);
+      const fz = parseFloat(sFz.value);
+      clearError();
+      const feed = computeFeed(vc,fz);
+      if (feed>fr_max) return showError(`Feed > ${fr_max}`);
+      if (feed<=0) return showError('Feed ≤ 0');
+      schedule();
     });
   }
+  [sFz,sVc].forEach(el=>el.addEventListener('input',onChange));
+  sAe.addEventListener('input',()=>{ updatePasses(); schedule(); });
+  sP.addEventListener('input',()=>{ updatePasses(); schedule(); });
 
-  // 11. Conectar listeners
-  sFz.addEventListener('input', onParamChange);
-  sVc.addEventListener('input', onParamChange);
-  sAe.addEventListener('input', () => {
-    updatePasadasSlider();
-    updatePasadasInfo();
-    scheduleRecalc();
-  });
-  sP.addEventListener('input', () => {
-    updatePasadasInfo();
-    scheduleRecalc();
-  });
-
-  // 12. AJAX + recalc
   async function recalc() {
     return group('recalc', async () => {
-    const payload = {
-      fz:        parseFloat(sFz.value),
-      vc:        parseFloat(sVc.value),
-      ae:        parseFloat(sAe.value),
-      passes:    parseInt(sP.value,10),
-      thickness: thickness,
-      D, Z,
-      params:    { fr_max, coef_seg, Kc11, mc, alpha, eta }
-    };
-
-    table(payload);
-    try {
-      const res = await fetch(`${BASE_URL}/ajax/step6_ajax_legacy_minimal.php`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': csrfToken
-        },
-        body: JSON.stringify(payload),
-        cache: 'no-store'
-      });
-      if (res.status === 403) {
-        return showError('Sesión expirada. Recargá la página.');
+      const payload = {fz:+sFz.value,vc:+sVc.value,ae:+sAe.value,passes:+sP.value,thickness,D,Z,params:{fr_max,coef_seg,Kc11,mc,alpha,eta}};
+      table(payload);
+      try {
+        const res = await fetch(`${BASE_URL}/ajax/step6_ajax_legacy_minimal.php`,{ method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':csrfToken},body:JSON.stringify(payload),cache:'no-store'});
+        if(!res.ok) throw new Error(res.status===403?'Sesión expirada':`HTTP ${res.status}`);
+        const js = await res.json();
+        if(!js.success) throw new Error(js.error||'Error servidor');
+        const d = js.data;
+        // pintar
+        out.vc.textContent = `${d.vc} m/min`;
+        out.fz.textContent = `${d.fz} mm/tooth`;
+        out.hm.textContent = `${d.hm} mm`;
+        out.n.textContent = d.n;
+        out.vf.textContent = `${d.vf} mm/min`;
+        out.hp.textContent = `${d.hp} HP`;
+        out.mmr.textContent = d.mmr;
+        out.fc.textContent = d.fc;
+        out.w.textContent = d.watts;
+        out.eta.textContent = `${d.etaPercent}%`;
+        out.ae.textContent = d.ae.toFixed(2);
+        out.ap.textContent = d.ap.toFixed(3);
+        if(radar && Array.isArray(d.radar) && d.radar.length===3){
+          radar.data.datasets[0].data = d.radar;
+          radar.update();
+          log('Radar data:',d.radar);
+        }
+      } catch(err) {
+        errorLog('recalc:',err);
+        showError(err.message);
       }
-      if (!res.ok) {
-        return showError(`AJAX error ${res.status}`);
-      }
-      const msg = await res.json();
-      if (!msg.success) {
-        return showError(`Servidor: ${msg.error}`);
-      }
-      const d = msg.data;
-
-      // 13. Pinta resultados
-      out.vc.textContent  = `${d.vc} m/min`;
-      out.fz.textContent  = `${d.fz} mm/tooth`;
-      out.hm.textContent  = `${d.hm} mm`;
-      out.n.textContent   = d.n;
-      out.vf.textContent  = `${d.vf} mm/min`;
-      out.hp.textContent  = `${d.hp} HP`;
-      out.mmr.textContent = d.mmr;
-      out.fc.textContent  = d.fc;
-      out.w.textContent   = d.watts;
-      out.eta.textContent = d.etaPercent;
-      // ← Aquí pintamos los nuevos
-      out.ae.textContent  = d.ae.toFixed(2);
-      out.ap.textContent  = d.ap.toFixed(3);
-
-      // 14. Radar
-      if (Array.isArray(d.radar) && d.radar.length === 3) {
-        radar.data.datasets[0].data = d.radar;
-        radar.update();
-      }
-      table(d);
-    } catch (e) {
-      error('recalc error', e);
-      showError(`Conexión fallida: ${e.message}`);
-    }
-    log('return void');
     });
   }
 
-  // 15. Kickoff
-  [sFz, sVc, sAe, sP].forEach(enhanceSlider);
-  updatePasadasSlider();
-  updatePasadasInfo();
-  recalc();
-  if (!window.step6ErrorHandlerAdded) {
-    window.addEventListener('error', ev => showError(`JS: ${ev.message}`));
-    window.step6ErrorHandlerAdded = true;
-  }
-};
+  // ========== INIT ===========
+  log('🔧 initStep6 started');
+  [sFz,sVc,sAe,sP].forEach(enhance);
+  updatePasses(); recalc();
+  window.addEventListener('error',e=>showError(e.message));
+})();
