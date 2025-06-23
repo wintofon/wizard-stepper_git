@@ -105,7 +105,7 @@ body{
 
   width:max-content;                       /* ancho = suma de hijos        */
   margin:0 auto;                           /* bloc centrado horizontal     */
-  padding:0;                               /* reset lista                  */
+  padding:0 14px;                          /* compensar tapas laterales    */
 
   list-style:none;                         /* sin bullets                  */
 
