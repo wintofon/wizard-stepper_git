@@ -25,6 +25,8 @@
 <link rel="stylesheet" href="<?= asset('assets/css/objects/wizard.css') ?>">
 <link rel="stylesheet" href="<?= asset('assets/css/objects/stepper.css') ?>">
 <link rel="stylesheet" href="<?= asset('assets/css/objects/step-common.css') ?>">
+  <!-- Estilos específicos del paso 6 -->
+  <link rel="stylesheet" href="<?= asset('assets/css/objects/step6.css') ?>">
 
   <!-- Bootstrap for step 6 -->
   <link rel="stylesheet" href="<?= asset('assets/css/generic/bootstrap.min.css') ?>">
