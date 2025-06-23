@@ -98,7 +98,27 @@ $requiredKeys = [
 
 
 
+/* -------------------------------------------------------------------------- */
+/* 6)  CARGAR DATOS DE HERRAMIENTA Y PARÁMETROS BASE                           */
+/* -------------------------------------------------------------------------- */
+$toolData = ToolModel::getTool(
+    $pdo,
+    (string)$_SESSION['tool_table'],
+    (int)$_SESSION['tool_id']
+) ?: null;
 
+if (!$toolData) {
+    http_response_code(404);
+    exit('Herramienta no encontrada.');
+}
+
+$params = ExpertResultController::getResultData($pdo, $_SESSION);
+$jsonParams = json_encode($params, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+if ($jsonParams === false) {
+    http_response_code(500);
+    exit('No se pudo serializar parámetros técnicos.');
+}
 
 
 
