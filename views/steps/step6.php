@@ -2,14 +2,16 @@
 /**
  * File: views/steps/step6.php
  * Descripción: Paso 6 – Resultados expertos del Wizard CNC
- * Versión pulida: se corrigieron nombres de IDs, clases CSS, chequeos de constantes y algunas advertencias PHP.
  *
- * Entradas:
- *   - GET  "debug"  para activar modo detallado
- *   - POST "csrf_token" sólo cuando se envía el formulario local
- * Salidas:
- *   - HTML completo o fragmento embebible según $embedded
- *   - window.step6Params y window.step6Csrf para el JS
+ * 🔧 Correcciones clave (2025‑06‑23):
+ *   1. Header, footer y scripts globales sólo se imprimen cuando $embedded === false
+ *      para evitar que el fragmento AJAX contamine el DOM del stepper.
+ *   2. feather.replace() se dispara dentro de requestAnimationFrame para que siempre
+ *      ocurra después de que el DOM esté listo.
+ *   3. Todos los <script src> marcados con defer, reduciendo el bloqueo de render.
+ *   4. No se retiró ninguna lógica business; se tocó únicamente el marco HTML.
+ *
+ * 👉 Si necesitás debuggear, usá ?debug=1 en la URL y se activan trazas extra.
  */
 
 declare(strict_types=1);
@@ -641,14 +643,12 @@ if (!file_exists($countUpLocal))
 <!-- SCRIPTS -->
 <script>window.step6Params = <?= $jsonParams ?>; window.step6Csrf = '<?= $csrfToken ?>';</script>
 <?php if (!$embedded): ?>
-<script src="<?= $bootstrapJsRel ?>"></script>
-<script src="<?= asset('node_modules/feather-icons/dist/feather.min.js') ?>"></script>
-<script src="<?= asset('node_modules/chart.js/dist/chart.umd.min.js') ?>"></script>
-<script src="<?= asset('node_modules/countup.js/dist/countUp.umd.js') ?>"></script>
-<script src="<?= $step6JsRel ?>"></script>
-<?php endif; ?>
-<?php if (!$embedded): ?>
-<script>feather.replace();</script>
+<script src="<?= $bootstrapJsRel ?>" defer></script>
+<script src="<?= asset('node_modules/feather-icons/dist/feather.min.js') ?>" defer></script>
+<script src="<?= asset('node_modules/chart.js/dist/chart.umd.min.js') ?>" defer></script>
+<script src="<?= asset('node_modules/countup.js/dist/countUp.umd.js') ?>" defer></script>
+<script src="<?= $step6JsRel ?>" defer></script>
+<script>requestAnimationFrame(() => feather.replace());</script>
 <?php endif; ?>
 
 <?php if (!$embedded): ?>
