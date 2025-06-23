@@ -20,17 +20,15 @@ const materialId = parseInt(
 const strategyMeta = document.querySelector('meta[name="strategy-id"]');
 const strategyId = strategyMeta ? parseInt(strategyMeta.content, 10) : null;
 
-import Logger from './logger.js';
-const L = Logger;
-L.log('Sentinel:', sentinel);
+console.log('Sentinel:', sentinel);
 
 const scrollContainer = document.querySelector('.list-scroll-container');
 const observer = new IntersectionObserver(
   (entries) => {
     entries.forEach((entry) => {
-      L.log('Observer entry:', entry);
+      console.log('Observer entry:', entry);
       if (entry.isIntersecting) {
-        L.log('Sentinel visible \u2192 loadPage()');
+        console.log('Sentinel visible \u2192 loadPage()');
         loadPage();
       }
     });
@@ -41,7 +39,7 @@ const observer = new IntersectionObserver(
 export async function loadPage() {
   if (loading || !hasMore || !tbody) return;
   if (!Number.isInteger(materialId)) {
-    L.warn('Missing material_id; aborting lazy load');
+    console.warn('Missing material_id; aborting lazy load');
     hasMore = false;
     return;
   }
@@ -90,7 +88,7 @@ export async function loadPage() {
       tbody.appendChild(end);
     }
   } catch (err) {
-    L.error('loadPage error', err);
+    console.error("loadPage error:", err);
   } finally {
     loading = false;
   }

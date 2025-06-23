@@ -12,7 +12,6 @@ window.radarChartInstance = window.radarChartInstance || null;
 
 window.initStep6 = function () {
   const BASE_URL = window.BASE_URL;
-  const L = window.Logger;
   // 1. Parámetros inyectados por PHP
   const {
     diameter: D,
@@ -97,7 +96,6 @@ window.initStep6 = function () {
   function showError(msg) {
     err.style.display = 'block';
     err.textContent = msg;
-    L.warn(msg);
   }
   function clearError() {
     err.style.display = 'none';
@@ -146,7 +144,6 @@ window.initStep6 = function () {
     const vc = parseFloat(sVc.value),
           fz = parseFloat(sFz.value),
           feed = computeFeed(vc, fz);
-    L.log('param change', { vc, fz, feed });
 
     if (feed > fr_max) {
       this.dataset.limitValue = this.value;
@@ -187,8 +184,6 @@ window.initStep6 = function () {
       D, Z,
       params:    { fr_max, coef_seg, Kc11, mc, alpha, eta }
     };
-    const endG = L.group('recalc');
-    L.log('payload', payload);
 
     try {
       const res = await fetch(`${BASE_URL}/ajax/step6_ajax_legacy_minimal.php`, {
@@ -211,7 +206,6 @@ window.initStep6 = function () {
         return showError(`Servidor: ${msg.error}`);
       }
       const d = msg.data;
-      L.table(d);
 
       // 13. Pinta resultados
       out.vc.textContent  = `${d.vc} m/min`;
@@ -235,9 +229,6 @@ window.initStep6 = function () {
       }
     } catch (e) {
       showError(`Conexión fallida: ${e.message}`);
-      L.error('recalc error', e);
-    } finally {
-      endG();
     }
   }
 

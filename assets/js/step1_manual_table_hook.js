@@ -4,9 +4,8 @@
  * Related files: See others in this project.
  * TODO: Extend documentation.
  */
-import Logger from './logger.js';
 export function dbg(...m) {
-  Logger.log(...m);
+  console.log('[DBG]', ...m);
 }
 
 export function initToolTable() {
