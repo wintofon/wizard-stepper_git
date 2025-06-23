@@ -76,10 +76,6 @@
       container.querySelectorAll('script').forEach(tag => {
         if (tag.src) {
           const src = tag.src;
-          if (src.endsWith('step6.js')) {
-            warn('🔒 Evitando recarga de step6.js');
-            return;
-          }
           if (!document.querySelector(`script[src="${src}"]`)) {
             log(`🔗 Cargando script: ${src}`);
             const s = document.createElement('script');
@@ -123,17 +119,6 @@
           feather.replace();
           if (window.bootstrap?.Tooltip) {
             $qsa('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
-          }
-          if (step === 6) {
-            log('🔢 Paso 6 detectado: cargando sus artificios…');
-            if (!window.step6Loaded) {
-              const s6 = document.createElement('script');
-              s6.src = `${BASE_URL}/assets/js/step6.js`; s6.defer = true;
-              s6.onload = () => { window.step6Loaded = true; log('✅ step6.js cargado'); window.initStep6?.(); };
-              document.body.appendChild(s6);
-            } else {
-              log('♻️ Re-inicializando Step6'); window.initStep6?.();
-            }
           }
           stepHolder.style.opacity = '1';
           renderBar(step);
