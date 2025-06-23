@@ -49,10 +49,10 @@
         <span>Te guiamos paso a paso para elegir la herramienta ideal según tu experiencia, material y tipo de corte.</span>
       </label>
     </div>
-    <button class="btn btn-primary btn-lg mt-4">Continuar</button>
   </form>
 </main>
 <script src="https://unpkg.com/lucide@latest"></script>
+<script src="<?= asset('assets/js/select_mode.js') ?>"></script>
 <script>lucide.createIcons();</script>
 </body>
 </html>
