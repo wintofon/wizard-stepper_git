@@ -4,9 +4,14 @@
  *
  * Main responsibility: Part of the CNC Wizard Stepper.
  *
- * Called by: assets/js/step6.js to compute machining parameters
- * Important JSON fields: fz, vc, ae, passes, thickness, D, Z, params[*]
- * Uses session key: $_SESSION['csrf_token'] for validation
+ * Endpoint llamado por assets/js/step6.js para recalcular parámetros.
+ *
+ * Entradas JSON (POST):
+ *   - fz, vc, ae, passes, thickness, D, Z
+ *   - params{ fr_max, coef_seg, Kc11, mc, alpha, eta, ... }
+ * Salida JSON:
+ *   { success: bool, data: {...}, error?: string }
+ * Requiere token CSRF vía header X-CSRF-Token y usa $_SESSION['csrf_token'].
  * @TODO Extend documentation.
  */
 /**
