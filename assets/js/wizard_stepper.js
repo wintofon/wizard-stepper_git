@@ -116,7 +116,9 @@
         runStepScripts(stepHolder);
 
         // Inicializadores JS globales (Feather, Bootstrap tooltips)
-        if (window.feather) feather.replace();
+        if (window.feather) {
+          requestAnimationFrame(() => feather.replace());
+        }
         if (window.bootstrap && bootstrap.Tooltip) {
           document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
             new bootstrap.Tooltip(el);

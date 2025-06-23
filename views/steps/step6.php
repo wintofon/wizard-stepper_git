@@ -647,7 +647,9 @@ if (!file_exists($countUpLocal))
 <script src="<?= asset('node_modules/countup.js/dist/countUp.umd.js') ?>"></script>
 <script src="<?= $step6JsRel ?>"></script>
 <?php endif; ?>
+<?php if (!$embedded): ?>
 <script>feather.replace();</script>
+<?php endif; ?>
 
 <?php if (!$embedded): ?>
 </body>
