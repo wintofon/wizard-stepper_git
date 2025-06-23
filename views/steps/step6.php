@@ -25,7 +25,6 @@ if (!getenv('BASE_URL')) {
 // ────────────────────────────────────────────────────────────────
 // ¿Vista embebida por load-step.php?
 // ────────────────────────────────────────────────────────────────
-$embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
 
 // ────────────────────────────────────────────────────────────────
 // Sesión segura (siempre antes de imprimir cabeceras)
