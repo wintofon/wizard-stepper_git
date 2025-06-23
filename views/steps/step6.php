@@ -64,37 +64,40 @@ $embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* -------------------------------------------------------------------------- */
-/* 3)  TOKEN CSRF                                                              */
+/* 4)  TOKEN CSRF                          corregido                                    */
 /* -------------------------------------------------------------------------- */
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 $csrfToken = $_SESSION['csrf_token'];
 
-dbg('🔑 CSRF token listo');
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!hash_equals($csrfToken, (string)($_POST['csrf_token'] ?? ''))) {
+        http_response_code(403);
+        exit('Error CSRF');
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* -------------------------------------------------------------------------- */
 /* 4)  CARGAR TRANSMISIONES DESDE BD                                           */
