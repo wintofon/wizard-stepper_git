@@ -75,22 +75,6 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
 
-if (!$embedded) {
-    /* Cabeceras de seguridad */
-    header('Content-Type: text/html; charset=UTF-8');
-    header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
-    header('X-Frame-Options: DENY');
-    header('X-Content-Type-Options: nosniff');
-    header('Referrer-Policy: no-referrer');
-    header("Permissions-Policy: geolocation=(), microphone=()");
-    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
-    header('Pragma: no-cache');
-    header(
-        "Content-Security-Policy: default-src 'self';"
-        . " script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;"
-        . " style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;"
-    );
-}
 
 // ────────────────────────────────────────────────────────────────
 // Debug opcional
