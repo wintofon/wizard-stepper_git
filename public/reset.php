@@ -87,19 +87,31 @@ foreach (glob("$sessionFiles/sess_*") as $file) {
 }
 dbg('🧨 Archivos de sesión eliminados');
 
-// [G] Forzar nueva sesión limpia
+// [G] Purgar cachés de servidor para evitar desincronización
+if (function_exists('apcu_clear_cache')) {
+    apcu_clear_cache();
+    dbg('⚡ Caché APCu limpiada');
+}
+if (function_exists('opcache_reset')) {
+    opcache_reset();
+    dbg('🐘 OPcache reiniciada');
+}
+clearstatcache();
+dbg('📇 Cachés de estado de archivos limpiadas');
+
+// [H] Forzar nueva sesión limpia
 session_start();
 session_regenerate_id(true);
 session_destroy();
 dbg('🔄 Nueva sesión limpia generada');
 
-// [H] HTML de destrucción y redirección
+// [I] HTML de destrucción y redirección
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Reiniciando Wizard CNC...</title>
+  <title>Reset Épico del Wizard CNC</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="<?= asset('assets/css/generic/reset.css') ?>">
   <script>
@@ -108,8 +120,8 @@ dbg('🔄 Nueva sesión limpia generada');
 </head>
 <body class="center-screen">
   <div class="message-box">
-    <h1>Reiniciando Wizard CNC...</h1>
-    <p>Espere un instante...</p>
+    <h1>¡Reset total en progreso!</h1>
+    <p>Destruyendo reliquias y sincronizando el universo...</p>
   </div>
 
   <script>
