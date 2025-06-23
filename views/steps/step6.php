@@ -133,12 +133,6 @@ if (!isset($pdo) || !($pdo instanceof PDO)) {
 // ────────────────────────────────────────────────────────────────
 
 
-$jsonParams = json_encode($params, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-if ($jsonParams === false) {
-    http_response_code(500);
-    exit('Error interno: no se pudo serializar parámetros técnicos.');
-}
-
 // ────────────────────────────────────────────────────────────────
 // Variables de salida (HTML / JS)
 // ────────────────────────────────────────────────────────────────
