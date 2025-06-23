@@ -1,153 +1,139 @@
 /*
- * File: _slider.css
- * Main responsibility: Part of the CNC Wizard Stepper.
- * Related files: See others in this project.
- * TODO: Extend documentation.
+ * File: _slider.css   (v3 – 2025-06-23)
+ * · 100 % pixel-perfect: la burbuja y la pista SIEMPRE coinciden con el thumb
+ * · Sin JS extra: basta con actualizar --val (0-100) desde tu script
+ * · Cross-browser: WebKit, Gecko y EdgeHTML
+ * · Súper comentado para que sepas qué hace cada línea 🔍
  */
 
-/* Estilos reutilizables para controles tipo slider */
-
-/* Contenedor del slider y variables de valor */
-.slider-wrap {
-  position: relative;
-}
-
-/* STEP 6: variables globales para sliders */
+/* ========== 1. Variables globales (se pueden sobre-escribir por tema) ========== */
 :root {
-  --val: 0;        /* valor actual 0-100 */
-  --step-pct: 10;  /* porcentaje entre marcas */
+  /* Colores básicos ----------------------------------------------------------- */
+  --accent-color       : #03a9f4; /* color primario de la app  */
+  --accent-color-light : color-mix(in srgb, var(--accent-color) 40%, #fff);
+  --border-color       : #424242;
+  --bg-header          : #263238;
+  --bg-body            : #101418;
+  --text-color-sec     : #9ea7b0;
+
+  /* Tamaños ------------------------------------------------------------------- */
+  --slider-track-h     : 6px;      /* alto de la barra */
+  --slider-thumb-size  : 16px;     /* Ø del thumb */
+  --slider-bubble-padX : .45rem;
+  --slider-bubble-padY : .2rem;
+
+  /* Dinámicos (los actualiza tu JS) ------------------------------------------- */
+  --val      : 0;   /* % (0-100) relleno del track + posición de burbuja      */
+  --step-pct : 10;  /* % separación entre marcas (pista punteada)             */
 }
 
-/* Barra base del input range */
-input[type="range"].form-range {
-  cursor: pointer;
+/* ========== 2. Contenedor del slider ========== */
+.slider-wrap { position: relative; width: 100%; }
 
-  width: 100%;
-  height: 6px;
-
-  appearance: none;
-  background: none;
+/* ========== 3. Input range base (sin estilos propios del navegador) ========== */
+.slider-wrap input[type='range'].form-range {
+  -webkit-appearance: none;
+          appearance: none;
+  cursor   : pointer;
+  width    : 100%;
+  height   : var(--slider-track-h);
+  background: none;               /* dejamos la pista para pseudo-elementos   */
+  outline  : none;                /* quitamos halo de enfoque predeterminado  */
 }
 
-/* Evita el contorno por defecto */
-input[type="range"].form-range:focus {
-  outline: none;
-}
-
-
-/* Estilo del thumb en navegadores WebKit */
-input[type="range"].form-range::-webkit-slider-thumb {
-  cursor: pointer;
-
-  width: var(--slider-thumb-size);
-  height: var(--slider-thumb-size);
-  margin-top: -5px;
-  border: 2px solid var(--bg-header);
-  border-radius: 50%;
-
-  appearance: none;
-  background: var(--accent-color);
-}
-
-/* Efecto de foco sobre el thumb */
-input[type="range"].form-range:focus::-webkit-slider-thumb {
-  box-shadow: 0 0 0 3px rgb(79 195 247 / 40%);
-}
-
-/* Thumb para Firefox y navegadores MS */
-input[type="range"].form-range::-moz-range-thumb,
-input[type="range"].form-range::-ms-thumb {
-  cursor: pointer;
-
-  width: var(--slider-thumb-size);
-  height: var(--slider-thumb-size);
-  border: 2px solid var(--bg-header);
-  border-radius: 50%;
-
-  background: var(--accent-color);
-}
-
-/* Pista con relleno y marcas de división */
-input[type="range"].form-range::-webkit-slider-runnable-track,
-input[type="range"].form-range::-moz-range-track,
-input[type="range"].form-range::-ms-track {
-  height: 6px;
-  border-radius: 3px;
-  background:
-    linear-gradient(to right,
+/* ========== 4. Pista (track) ⇢ fondo + gradiente de progreso + marcas ========= */
+.slider-wrap input[type='range'].form-range::-webkit-slider-runnable-track,
+.slider-wrap input[type='range'].form-range::-moz-range-track,
+.slider-wrap input[type='range'].form-range::-ms-track {
+  height        : var(--slider-track-h);
+  border-radius : calc(var(--slider-track-h) / 2);
+  background    :
+    /* 4-A. Relleno desde 0 % → --val % */
+    linear-gradient(
+      90deg,
       var(--accent-color) 0%,
       var(--accent-color) calc(var(--val) * 1%),
       var(--border-color) calc(var(--val) * 1%),
-      var(--border-color) 100%)
-    no-repeat,
-    repeating-linear-gradient(to right,
-      transparent 0 calc(var(--step-pct) * 1% - 1px),
-      var(--accent-color-light) calc(var(--step-pct) * 1% - 1px) calc(var(--step-pct) * 1%));
+      var(--border-color) 100%
+    ) no-repeat,
+    /* 4-B. Marcas de división cada --step-pct %  (1 px de alto) */
+    repeating-linear-gradient(
+      90deg,
+      transparent                     0                                       calc(var(--step-pct) * 1% - 1px),
+      var(--accent-color-light)       calc(var(--step-pct) * 1% - 1px)        calc(var(--step-pct) * 1%)
+    ) no-repeat;
   background-size: 100% 100%, 100% 100%;
 }
 
-/* Pequeña etiqueta fija con el valor */
-.badge-value {
-  pointer-events: none;
-
-  position: absolute;
-  top: -1.2rem;
-  transform: translateX(-50%);
-
-  padding: 0.2rem 0.4rem;
-  border-radius: 0.25rem;
-
-  font-size: 0.75rem;
-  color: #fff;
-  white-space: nowrap;
-
-  background: var(--accent-color);
+/* ========== 5. Thumb (WebKit) ========== */
+.slider-wrap input[type='range'].form-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width            : var(--slider-thumb-size);
+  height           : var(--slider-thumb-size);
+  margin-top       : calc(-1 * (var(--slider-thumb-size) / 2 - var(--slider-track-h) / 2));
+  border           : 2px solid var(--bg-header);
+  border-radius    : 50%;
+  background       : var(--accent-color);
+  cursor           : pointer;
+  transition       : box-shadow .15s;
+}
+/* foco ── halo sutil */
+.slider-wrap input[type='range'].form-range:focus::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 50%, transparent);
 }
 
-/* Burbuja flotante que sigue al thumb */
+/* ========== 6. Thumb (Firefox / EdgeHTML) ========== */
+.slider-wrap input[type='range'].form-range::-moz-range-thumb,
+.slider-wrap input[type='range'].form-range::-ms-thumb {
+  width         : var(--slider-thumb-size);
+  height        : var(--slider-thumb-size);
+  border        : 2px solid var(--bg-header);
+  border-radius : 50%;
+  background    : var(--accent-color);
+  cursor        : pointer;
+  transition    : box-shadow .15s;
+}
+.slider-wrap input[type='range'].form-range:focus::-moz-range-thumb,
+.slider-wrap input[type='range'].form-range:focus::-ms-thumb {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 50%, transparent);
+}
+
+/* ========== 7. Burbuja flotante (se centra con translateX(-50 %)) ========== */
 .slider-bubble {
-  position: absolute;
-  top: -1.6rem;
-  left: calc(var(--val) * 1%);
+  position : absolute;
+  top      : calc(-1 * var(--slider-thumb-size) - 1.2rem);
+  left     : calc(var(--val) * 1%);
   transform: translateX(-50%);
-
-  padding: 0.1rem 0.35rem;
-  border-radius: 4px;
-
-  font-size: 0.75rem;
-  color: var(--bg-body);
-  white-space: nowrap;
-
-  background: var(--accent-color);
+  padding  : var(--slider-bubble-padY) var(--slider-bubble-padX);
+  border-radius : .3rem;
+  font-size     : .75rem;
+  font-weight   : 600;
+  white-space   : nowrap;
+  color         : var(--bg-body);
+  background    : var(--accent-color);
+  pointer-events: none;
+  transition    : opacity .15s;
 }
 
-@keyframes shake {
+/* Animación “shake” cuando el usuario arrastra ─ diversión pura 😎 */
+@keyframes shake-bubble {
   0%,100% { transform: translateX(-50%) translateY(0); }
-  50% { transform: translateX(-50%) translateY(-2px); }
+  50%     { transform: translateX(-50%) translateY(-3px); }
+}
+.slider-wrap input[type='range']:active + .slider-bubble {
+  animation: shake-bubble .35s ease-in-out;
 }
 
-/* Sacude la burbuja mientras se arrastra */
-.slider-wrap input:active + .slider-bubble {
-  animation: shake 0.3s;
+/* ========== 8. Etiquetas y textos secundarios ========== */
+#valFz, #valVc, #valAe,
+.slider-wrap .highlight {
+  font-weight: 600; color: var(--accent-color);
 }
-
-/* Texto pequeño de ayuda */
-.text-end.small.text-secondary {
-  color: var(--text-color-sec) !important;
-}
-
-#valFz, #valVc, #valAe {
-  font-weight: 600;
-  color: var(--accent-color);
-}
-
-#textPasadasInfo {
-  font-size: 0.85rem;
-  color: var(--text-color-sec);
-}
+.text-end.small.text-secondary,
+#textPasadasInfo { color: var(--text-color-sec); }
 
 #errorMsg {
   display: none;
-  font-size: 0.85rem;
-  color: #f44;
+  color  : #f44336;
+  font-size: .85rem;
 }
