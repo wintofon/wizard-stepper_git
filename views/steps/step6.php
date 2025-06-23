@@ -1,16 +1,17 @@
 <?php declare(strict_types=1);
 /**
- * Paso 6 – Resultados (mini & embebible) — versión **clean**
- * ----------------------------------------------------------------
- * Replica la estructura exacta del paso 5 (grid Bootstrap en filas
- * de 4 columnas) para que el stepper no se deforme.
- *   • Si WIZARD_EMBEDDED está definido, simplemente escupe el <main>
- *     sin scripts globales y el wizard lo incrusta.
- *   • El bloque de métricas usa el mismo patrón visual que el paso 5
- *     (input-group con span valores).
+ * Paso 6 (mini, embebible) — mismo layout que step5
+ * --------------------------------------------------
+ * - 100 % la misma estructura visual: <main class="container py-4">
+ * - Usa el mismo id="routerForm" para evitar que el stepper JS se rompa.
+ * - Muestra 4 métricas (RPM, Feedrate, Vc, fz) en la misma grilla «row g-3»
+ *   con los mismos input-group e input-group-text del paso 5.
+ * - No hay controles editables — sólo span con datos calculados.
+ * - Sigue respetando WIZARD_EMBEDDED: si está definido, sólo se imprime
+ *   el <main> sin los scripts globales.
  */
 
-/* 1) Sesión y flujo */
+/* 1) Sesión + flujo */
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start([
         'cookie_secure'   => true,
@@ -23,8 +24,8 @@ if ((int)($_SESSION['wizard_progress'] ?? 0) < 5) {
     exit;
 }
 
-/* 2) Dependencias */
-require_once __DIR__ . '/../../includes/db.php'; // → $pdo
+/* 2) Dependencias mínimas */
+require_once __DIR__ . '/../../includes/db.php';                    // → $pdo
 require_once __DIR__ . '/../../src/Model/ToolModel.php';
 require_once __DIR__ . '/../../src/Controller/ExpertResultController.php';
 
@@ -32,19 +33,19 @@ require_once __DIR__ . '/../../src/Controller/ExpertResultController.php';
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
-$csrf = $_SESSION['csrf_token'];
+$csrfToken = $_SESSION['csrf_token'];
 
-/* 4) Datos */
-$tool = ToolModel::getTool($pdo, $_SESSION['tool_table'], $_SESSION['tool_id']) ?? [];
-$par  = ExpertResultController::getResultData($pdo, $_SESSION) ?? [];
+/* 4) Datos básicos */
+$tool   = ToolModel::getTool($pdo, $_SESSION['tool_table'] ?? '', $_SESSION['tool_id'] ?? 0) ?? [];
+$params = ExpertResultController::getResultData($pdo, $_SESSION) ?? [];
 
 $code = htmlspecialchars($tool['tool_code'] ?? '—');
 $name = htmlspecialchars($tool['name']      ?? '—');
 
-$rpm  = number_format($par['rpm0']  ?? 0, 0, '.', '');
-$feed = number_format($par['feed0'] ?? 0, 0, '.', '');
-$vc   = number_format($par['vc0']   ?? 0, 1, '.', '');
-$fz   = number_format($par['fz0']   ?? 0, 4, '.', '');
+$rpm  = number_format($params['rpm0']  ?? 0, 0, '.', '');
+$feed = number_format($params['feed0'] ?? 0, 0, '.', '');
+$vc   = number_format($params['vc0']   ?? 0, 1, '.', '');
+fz    = number_format($params['fz0']   ?? 0, 4, '.', '');
 
 $embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
 ?>
@@ -57,7 +58,7 @@ $embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
   $styles = [
     'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
     'assets/css/objects/step-common.css',
-    'assets/css/components/_step6.css',
+    'assets/css/components/_step5.css',   // mismo css que usa el step 5
   ];
   include __DIR__ . '/../partials/styles.php';
 ?>
@@ -70,34 +71,34 @@ $embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
 </head><body>
 <main class="container py-4">
   <h2 class="step-title"><i data-feather="bar-chart-2"></i> Resultados</h2>
-  <p class="step-desc">Revisá los parámetros calculados y continuá.</p>
+  <p class="step-desc">Parámetros calculados para tu combinación.</p>
 
-  <!-- Resumen herramienta → mismo formato que el paso 5  -->
-  <div class="card mb-4 shadow-sm">
-    <div class="card-body text-center">
-      <h5 class="mb-1 fw-bold"><?= $code ?></h5>
-      <small class="text-muted"><?= $name ?></small>
-    </div>
-  </div>
-
-  <!-- Grid con 4 métricas clave (estructura exacta paso 5) -->
-  <form method="post" id="resultsForm" class="needs-validation" novalidate>
+  <form id="routerForm" method="post">
     <input type="hidden" name="step" value="6">
-    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf) ?>">
+    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
 
+    <!-- Nombre herramienta (igual estilo que selección en step5) -->
+    <div class="mb-4">
+      <label class="form-label d-block">Herramienta seleccionada</label>
+      <div class="btn btn-outline-secondary w-100 text-start disabled">
+        <strong><?= $code ?></strong> &nbsp; <small class="text-muted"><?= $name ?></small>
+      </div>
+    </div>
+
+    <!-- Grilla 4 métricas → misma estructura visual que step5 -->
     <div class="row g-3">
-      <?php $metrics=[
-        ['rpm','RPM',      $rpm,  'rev/min'],
-        ['feed','Feedrate',$feed, 'mm/min'],
-        ['vc','Vc',        $vc,   'm/min'],
-        ['fz','fz',        $fz,   'mm/z'],
+      <?php $rows=[
+        ['rpm_show',  'RPM'      , $rpm , 'rev/min'],
+        ['feed_show', 'Feedrate' , $feed, 'mm/min'],
+        ['vc_show',   'Vc'       , $vc  , 'm/min'],
+        ['fz_show',   'fz'       , $fz  , 'mm/z'],
       ];
-      foreach($metrics as [$id,$label,$val,$unit]): ?>
+      foreach($rows as [$id,$label,$value,$unit]): ?>
         <div class="col-md-3">
-          <label class="form-label" for="<?= $id ?>_show"><?= $label ?></label>
+          <label class="form-label" for="<?= $id ?>"><?= $label ?></label>
           <div class="input-group">
-            <span id="<?= $id ?>_show" class="form-control bg-light fw-bold text-end">
-              <?= $val ?>
+            <span id="<?= $id ?>" class="form-control bg-light fw-bold text-end">
+              <?= $value ?>
             </span>
             <span class="input-group-text"><?= $unit ?></span>
           </div>
