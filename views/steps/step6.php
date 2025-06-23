@@ -3,13 +3,6 @@
  * File: views/steps/step6.php
  * Descripción: Paso 6 – Resultados expertos del Wizard CNC
  * Versión pulida: se corrigieron nombres de IDs, clases CSS, chequeos de constantes y algunas advertencias PHP.
- *
- * Entradas:
- *   - GET  "debug"  para activar modo detallado
- *   - POST "csrf_token" sólo cuando se envía el formulario local
- * Salidas:
- *   - HTML completo o fragmento embebible según $embedded
- *   - window.step6Params y window.step6Csrf para el JS
  */
 
 declare(strict_types=1);
@@ -38,20 +31,6 @@ require_once __DIR__ . '/../../includes/wizard_helpers.php';
 // ────────────────────────────────────────────────────────────────
 $embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
 
-// ────────────────────────────────────────────────────────────────
-// Sesión segura (siempre antes de imprimir cabeceras)
-// ────────────────────────────────────────────────────────────────
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_set_cookie_params([
-        'lifetime' => 0,
-        'path'     => '/',
-        'secure'   => true,
-        'httponly' => true,
-        'samesite' => 'Strict'
-    ]);
-    session_start();
-}
-
 if (!$embedded) {
     /* Cabeceras de seguridad */
     header('Content-Type: text/html; charset=UTF-8');
@@ -70,11 +49,39 @@ if (!$embedded) {
 }
 
 // ────────────────────────────────────────────────────────────────
+// Sesión segura
+// ────────────────────────────────────────────────────────────────
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path'     => '/',
+        'secure'   => true,
+        'httponly' => true,
+        'samesite' => 'Strict'
+    ]);
+    session_start();
+}
+
+// ────────────────────────────────────────────────────────────────
 // Debug opcional
 // ────────────────────────────────────────────────────────────────
 $DEBUG = filter_input(INPUT_GET, 'debug', FILTER_VALIDATE_BOOLEAN);
 if ($DEBUG && is_readable(__DIR__ . '/../../includes/debug.php')) {
     require_once __DIR__ . '/../../includes/debug.php';
+}
+
+// ────────────────────────────────────────────────────────────────
+// Conexión BD
+// ────────────────────────────────────────────────────────────────
+$dbFile = __DIR__ . '/../../includes/db.php';
+if (!is_readable($dbFile)) {
+    http_response_code(500);
+    exit('Error interno: falta el archivo de conexión a la BD.');
+}
+require_once $dbFile;           //-> $pdo
+if (!isset($pdo) || !($pdo instanceof PDO)) {
+    http_response_code(500);
+    exit('Error interno: no hay conexión a la base de datos.');
 }
 
 // ────────────────────────────────────────────────────────────────
@@ -112,20 +119,6 @@ if ($missing) {
     http_response_code(400);
     echo "<pre class='step6-error'>ERROR – faltan claves en sesión:\n" . implode(', ', $missing) . "</pre>";
     exit;
-}
-
-// ────────────────────────────────────────────────────────────────
-// Conexión BD
-// ────────────────────────────────────────────────────────────────
-$dbFile = __DIR__ . '/../../includes/db.php';
-if (!is_readable($dbFile)) {
-    http_response_code(500);
-    exit('Error interno: falta el archivo de conexión a la BD.');
-}
-require_once $dbFile;           //-> $pdo
-if (!isset($pdo) || !($pdo instanceof PDO)) {
-    http_response_code(500);
-    exit('Error interno: no hay conexión a la base de datos.');
 }
 
 // ────────────────────────────────────────────────────────────────
@@ -223,26 +216,27 @@ try {
 $notesArray = $params['notes'] ?? [];
 
 // ────────────────────────────────────────────────────────────────
-// Assets locales
+// Assets locales / CDN fall-back
 // ────────────────────────────────────────────────────────────────
-$cssBootstrapRel = asset('assets/css/generic/bootstrap.min.css');
-$bootstrapJsRel  = asset('assets/js/bootstrap.bundle.min.js');
+$cssBootstrapRel = file_exists($root.'assets/css/generic/bootstrap.min.css')
+    ? asset('assets/css/generic/bootstrap.min.css')
+    : '';
+$bootstrapJsRel  = file_exists($root.'assets/js/bootstrap.bundle.min.js')
+    ? asset('assets/js/bootstrap.bundle.min.js')
+    : '';
 $featherLocal    = $root.'node_modules/feather-icons/dist/feather.min.js';
 $chartJsLocal    = $root.'node_modules/chart.js/dist/chart.umd.min.js';
 $countUpLocal    = $root.'node_modules/countup.js/dist/countUp.umd.js';
-$step6JsRel      = asset('assets/js/step6.js');
+$step6JsRel      = file_exists($root.'assets/js/step6.js')
+    ? asset('assets/js/step6.js')
+    : '';
 
 $assetErrors = [];
-if (!is_readable($root.'assets/css/generic/bootstrap.min.css'))
-    $assetErrors[] = 'Bootstrap CSS no encontrado localmente.';
-if (!is_readable($root.'assets/js/bootstrap.bundle.min.js'))
-    $assetErrors[] = 'Bootstrap JS no encontrado localmente.';
-if (!file_exists($featherLocal))
-    $assetErrors[] = 'Feather Icons JS faltante.';
-if (!file_exists($chartJsLocal))
-    $assetErrors[] = 'Chart.js faltante.';
-if (!file_exists($countUpLocal))
-    $assetErrors[] = 'CountUp.js faltante.';
+if (!$cssBootstrapRel)           $assetErrors[] = 'Bootstrap CSS no encontrado localmente.';
+if (!$bootstrapJsRel)            $assetErrors[] = 'Bootstrap JS no encontrado localmente.';
+if (!file_exists($featherLocal)) $assetErrors[] = 'Feather Icons JS faltante.';
+if (!file_exists($chartJsLocal)) $assetErrors[] = 'Chart.js faltante.';
+if (!file_exists($countUpLocal)) $assetErrors[] = 'CountUp.js faltante.';
 
 // =====================================================================
 // =========================  COMIENZA SALIDA  ==========================
@@ -256,8 +250,10 @@ if (!file_exists($countUpLocal))
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Cutting Data – Paso&nbsp;6</title>
   <?php
+    $bootstrapCss = $cssBootstrapRel
+      ?: 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css';
     $styles = [
-      $cssBootstrapRel,
+      $bootstrapCss,
       'assets/css/settings/settings.css',
       'assets/css/generic/generic.css',
       'assets/css/elements/elements.css',
@@ -273,10 +269,12 @@ if (!file_exists($countUpLocal))
     ];
     include __DIR__ . '/../partials/styles.php';
   ?>
-  <script>
-    window.BASE_URL  = <?= json_encode(BASE_URL) ?>;
-    window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
-  </script>
+  <?php if (!$embedded): ?>
+    <script>
+      window.BASE_URL  = <?= json_encode(BASE_URL) ?>;
+      window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
+    </script>
+  <?php endif; ?>
 </head>
 <body>
 <?php endif; ?>
