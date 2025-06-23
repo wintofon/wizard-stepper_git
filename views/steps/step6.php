@@ -13,10 +13,11 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
         'cookie_samesite' => 'Strict',
     ]);
 }
-if ((int)($_SESSION['wizard_progress'] ?? 0) < 5) {
+if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 5) {
     header('Location: step1.php');
     exit;
 }
+
 
 /* 2) Dependencias */
 require_once __DIR__ . '/../../includes/db.php';                 // → $pdo
