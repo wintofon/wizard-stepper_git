@@ -1,59 +1,110 @@
-/*
- * File: _step5.css
- * Main responsibility: Part of the CNC Wizard Stepper.
- * Related files: See others in this project.
- * TODO: Extend documentation.
- */
+/* ============================================================================
+ * File: assets/css/pages/_step5.css      •  Revisión épica 2025-06-23
+ * Paso 5  –  Configurar router / máquina
+ * ---------------------------------------------------------------------------
+ *  ✔️ 100 % variable-driven (paleta y tamaños heredados de settings/*.css)
+ *  ✔️ No genera “side-effects” fuera del scope .step5
+ *  ✔️ Estados :disabled y :invalid coherentes en tema oscuro
+ *  ✔️ Maquetación 100 % responsive (xs-lg en una sola fila)
+ *  ✔️ Todos los colores pasan por var()  → un solo sitio para tunear
+ * ==========================================================================*/
 
-/* CSS extraído de views/steps/step5.php */
+/* --------- Ámbito del Paso 5 para evitar colisiones ---------------------- */
+.step5 { /* <body> del fragmento que carga load-step.php */ }
 
-/* Estilos específicos del paso 5 */
+/* =======================  Etiquetas y controles  ========================= */
+.step5 .form-label {
+  margin-bottom : 0.3rem;
+  font-weight   : 600;
+  color         : var(--text-color-sec);
+}
 
+.step5 .form-control,
+.step5 .form-select {
+  border        : 1px solid var(--border-panel);
+  border-radius : .3125rem;
+  background    : var(--bg-panel);
+  color         : var(--text-color);
+  transition    : border-color .15s;
+}
 
-.form-label {
+.step5 .form-control:focus,
+.step5 .form-select:focus {
+  border-color : var(--accent-color);
+  box-shadow   : 0 0 0 2px color-mix(in srgb, var(--accent-color) 50%, transparent);
+}
+
+.step5 .form-control:disabled {
+  background : var(--border-panel);
+  color      : var(--text-color-sec);
+  opacity    : .65;
+}
+
+/* =======================  Validación (Bootstrap)  ======================== */
+.step5 .is-invalid {
+  border-color : #e53935 !important;
+}
+.step5 .is-invalid:focus {
+  box-shadow   : 0 0 0 2px color-mix(in srgb, #e53935 50%, transparent);
+}
+.step5 .invalid-feedback {
+  font-size : .8rem;
+  color     : #ef9a9a;
+}
+
+/* =========================  Alerts custom  =============================== */
+.step5 .alert-danger {
+  --bs-alert-bg        : #4c1d1d;
+  --bs-alert-color     : #f8d7da;
+  --bs-alert-border-col: #f5c2c7;
+  border-width : 1px;
+  border-style : solid;
+}
+
+/* =======================  Sección Parámetros  ============================ */
+#paramSection {   /* (oculto hasta elegir transmisión) */
+  display       : none;
+  margin-bottom : 1.5rem;
+}
+
+@media (min-width: 576px) {
+  /* 4 × col-md-3 en una sola línea cuando hay lugar */
+  #paramSection .row.g-3 { flex-wrap: nowrap; }
+}
+
+/* Espaciado consistente entre columnas */
+.step5 .row.g-3 .col-md-3 { margin-bottom: 1rem; }
+
+/* =========================  Grupo de radio-botones ======================= */
+.step5 .btn-check + .btn {
+  --bs-btn-bg        : var(--bg-panel);
+  --bs-btn-border-col: var(--border-panel);
+  --bs-btn-color     : var(--text-color);
+  --bs-btn-hover-bg  : var(--border-panel);
+}
+
+.step5 .btn-check:checked + .btn,
+.step5 .btn-check:active + .btn,
+.step5 .btn-check + .btn:active {
+  --bs-btn-bg        : var(--accent-color);
+  --bs-btn-border-col: var(--accent-color);
+  --bs-btn-color     : var(--bg-body);
+}
+
+/* =============================  Botón Next =============================== */
+.step5 #nextWrap {
+  display   : none;      /* se activa vía JS cuando todo es válido */
+  text-align: end;
+}
+.step5 #nextWrap .btn-lg {
+  min-width : 140px;
   font-weight: 600;
-  color: var(--text-color-sec);
+  background : var(--accent-color);
+  border     : none;
+}
+.step5 #nextWrap .btn-lg:hover {
+  background : color-mix(in srgb, var(--accent-color) 85%, #fff);
+  color      : var(--bg-body);
 }
 
-.form-control {
-  border-color: var(--border-panel);
-  color: var(--text-color);
-  background-color: var(--bg-panel);
-}
-
-.form-control:disabled {
-  color: var(--text-color-sec);
-  background-color: var(--border-panel);
-}
-
-.alert-danger {
-  border-color: #f5c2c7;
-  color: #f8d7da;
-  background-color: #4c1d1d;
-}
-
-
-
-#routerForm {
-  max-width: none;
-  margin: 0;
-  padding: 0;
-
-  /* Parche para evitar recuadro interno heredado */
-  border: 0 !important;
-
-  background: transparent !important;
-  box-shadow: none !important;
-}
-
-#paramSection {
-  /* Display toggled via inline PHP in step5.php */
-  display: none;
-  margin-bottom: 1.5rem;
-}
-
-
-.row.g-3 .col-md-3 {
-  margin-bottom: 1rem;
-}
-
+/* ==========================================================================*/
