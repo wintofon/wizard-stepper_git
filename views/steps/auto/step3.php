@@ -372,7 +372,7 @@ try {
         const selectBtn = document.createElement('button');
         selectBtn.type = 'button';
         selectBtn.className = 'btn btn-select';
-        selectBtn.textContent = 'Seleccionar';
+        selectBtn.innerHTML = 'Seleccionar <i data-feather="arrow-right" class="ms-1"></i>';
         // Pasamos datos tool_id y source_table para el POST
         selectBtn.dataset.tool_id   = tool.tool_id;
         selectBtn.dataset.tool_tbl  = tool.source_table;
@@ -383,6 +383,10 @@ try {
 
         container.appendChild(card);
       });
+
+      if (window.feather) {
+        feather.replace();
+      }
 
       attachCardListeners();
       dbg('ℹ [step3.js] Se han generado ' + allTools.length + ' tarjetas.');

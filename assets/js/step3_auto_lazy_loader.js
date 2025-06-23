@@ -86,7 +86,7 @@ function createCard(t) {
   const btn = document.createElement('button');
   btn.type = 'button';
   btn.className = 'btn btn-select';
-  btn.textContent = 'Seleccionar';
+  btn.innerHTML = 'Seleccionar <i data-feather="arrow-right" class="ms-1"></i>';
   btn.dataset.tool_id = t.tool_id;
   btn.dataset.tool_tbl = t.source_table;
   btnCol.appendChild(btn);
@@ -108,6 +108,9 @@ async function fetchPage() {
       container.appendChild(createCard(t));
       if (t.diameter_mm) diamSet.add(parseFloat(t.diameter_mm).toFixed(3));
     });
+    if (window.feather) {
+      feather.replace();
+    }
     addFilterOptions();
     hasMore = data.has_more;
     if (hasMore) page++; else observer.unobserve(sentinel);
