@@ -12,7 +12,7 @@
 
 declare(strict_types=1);
 
-/* 1) Sesión segura y flujo ---------------------------------------------------*/
+/* 1) Sesión segura y flujo */
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start([
         'cookie_secure'   => true,
@@ -20,15 +20,16 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
         'cookie_samesite' => 'Strict',
     ]);
 }
-if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 5) {
+if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 4) {
     header('Location: step1.php');
     exit;
 }
 
-/* 2) Dependencias (por ahora solo debug) ------------------------------------*/
+/* 2) Dependencias */
+require_once __DIR__ . '/../../includes/db.php';
 require_once __DIR__ . '/../../includes/debug.php';
 
-/* 3) CSRF token -------------------------------------------------------------*/
+/* 3) CSRF token */
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
