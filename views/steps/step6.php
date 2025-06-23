@@ -49,53 +49,6 @@ $fz   = number_format($par['fz0'],   4, '.', '');
 <link rel="stylesheet" href="assets/css/objects/step-common.css">
 <link rel="stylesheet" href="assets/css/components/_step6.css"><!-- tu hoja mínima -->
 </head><body>
-<main class="container py-4">
 
-<h2 class="step-title"><i data-feather="bar-chart-2"></i> Resultados</h2>
-<p class="step-desc">Revisá los parámetros calculados y continuá.</p>
-
-<!-- Tarjeta resumen -->
-<div class="card mb-4 shadow-sm">
-  <div class="card-body text-center">
-    <h5 class="mb-1"><?= $code ?></h5>
-    <small class="text-muted"><?= $name ?></small>
-  </div>
-</div>
-
-<!-- Resultados en mismo grid que el paso 5 -->
-<form class="needs-validation" method="post" novalidate>
-  <input type="hidden" name="step" value="6">
-  <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-
-  <div class="row g-3">
-    <?php
-      $fields = [
-        ['RPM',        $rpm, 'rpm'],
-        ['Feedrate',   $vf , 'mm/min'],
-        ['Vc',         $vc , 'm/min'],
-        ['fz',         $fz , 'mm/z'],
-      ];
-      foreach ($fields as [$label,$val,$unit]): ?>
-      <div class="col-md-3">
-        <label class="form-label"><?= $label ?></label>
-        <div class="input-group">
-          <span class="form-control bg-light fw-bold text-end"><?= $val ?></span>
-          <span class="input-group-text"><?= $unit ?></span>
-        </div>
-      </div>
-    <?php endforeach; ?>
-  </div>
-
-  <div class="text-end mt-4">
-    <button class="btn btn-primary btn-lg">
-      Siguiente <i data-feather="arrow-right" class="ms-1"></i>
-    </button>
-  </div>
-</form>
-
-</main>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
-<script>feather.replace();</script>
+hola
 </body></html>
