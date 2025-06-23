@@ -152,6 +152,7 @@ h2.fw-bold {           /* Título principal de la página */
 */
 .thumb.portrait {
   transform: rotate(90deg);
+
   /* 
     Al rotar, intercambiamos ancho y alto para que siga
     ajustándose al contenedor de 80px de ancho original:
