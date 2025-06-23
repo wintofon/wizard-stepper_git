@@ -10,6 +10,14 @@
 
 const BASE_URL = window.BASE_URL;
 document.addEventListener('DOMContentLoaded', () => {
+  const DEBUG = window.DEBUG ?? false;
+  const TAG = '[WizardStepper]';
+  const logger = (lvl, ...a) => { if (!DEBUG) return; const ts = new Date().toISOString(); console[lvl](`${TAG} ${ts}`, ...a); };
+  const log = (...a) => logger('log', ...a);
+  const warn = (...a) => logger('warn', ...a);
+  const error = (...a) => logger('error', ...a);
+  const table = data => { if (DEBUG) console.table(data); };
+  const group = (title, fn) => { if (!DEBUG) return fn(); console.group(`${TAG} ${new Date().toISOString()} ${title}`); try { return fn(); } finally { console.groupEnd(); } };
   const dash = document.getElementById('wizard-dashboard');
 
   let lastOk     = null;          // último snapshot correcto
@@ -17,14 +25,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const MAX_ERR  = 5;             // corta peticiones tras este nº
 
   /* ---------- helpers ---------- */
-  const paint = json =>
-    console.log(JSON.stringify(json, null, 2));
-
-  const warn  = msg =>
-    console.warn(`⚠️  ${msg}`);
+  const paint = json => table(json);
 
   /* ---------- fetch c/2 s ---------- */
-  const fetchSession = async () => {
+  const fetchSession = async () => group('fetchSession', async () => {
+    log('param none');
     if (errorCount >= MAX_ERR) return;
 
     try {
@@ -53,18 +58,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const data = JSON.parse(text);                // ahora seguro
       paint(data);                                  // ✔️ snapshot ok
+      log('return data');
       lastOk     = data;
       errorCount = 0;
     } catch (err) {
-      console.warn('[Dashboard] Respuesta inválida:', err.message);
+      warn('Respuesta inválida:', err.message);
 
       errorCount++;
       const hint = `Fallo ${errorCount}/${MAX_ERR}: ${err.message}`;
 
       /* mantiene último JSON correcto si existe */
-      lastOk ? (paint(lastOk), warn(hint)) : console.warn(hint);
+      lastOk ? (paint(lastOk), warn(hint)) : warn(hint);
     }
-  };
+  });
 
   fetchSession();                  // primera llamada inmediata
   setInterval(fetchSession, 2000); // bucle
