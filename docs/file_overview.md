@@ -44,9 +44,7 @@ This document lists source files with certain extensions and their roles in the 
 | ./assets/js/step1_manual_table_hook.js | partial/component |
 | ./assets/js/step1_manual_tool_browser.js | partial/component |
 | ./assets/js/step3_auto_lazy_loader.js | partial/component |
-| ./assets/js/step3_auto_strategy_selector.js | partial/component |
 | ./assets/js/step6.js | partial/component |
-| ./assets/js/step7_expert_calculator.js | partial/component |
 | ./assets/js/welcome_init.js | partial/component |
 | ./assets/js/wizard_stepper.js | partial/component |
 | ./cnc_calculador.sql | config |
