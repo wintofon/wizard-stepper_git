@@ -12,7 +12,7 @@ if (!getenv('BASE_URL')) {
         )
     );
 }
-require_once __DIR__ . '/../../src/Config/AppConfig.php';
+// require_once __DIR__ . '/../../src/Config/AppConfig.php';
 
 // use App\Controller\ExpertResultController;
 
@@ -20,7 +20,7 @@ require_once __DIR__ . '/../../src/Config/AppConfig.php';
 // Utilidades / helpers
 // ────────────────────────────────────────────────────────────────
 
-require_once __DIR__ . '/../../includes/wizard_helpers.php';
+// require_once __DIR__ . '/../../includes/wizard_helpers.php';
 
 // ────────────────────────────────────────────────────────────────
 // ¿Vista embebida por load-step.php?
