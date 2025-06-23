@@ -292,6 +292,8 @@ if (!file_exists($countUpLocal)) $assetErrors[] = 'CountUp.js faltante.';
 
 <div class="content-main">
   <div class="container py-4">
+    <h2 class="step-title"><i data-feather="bar-chart-2"></i> Resultados</h2>
+    <p class="step-desc">Ajustá los parámetros y revisá los datos de corte.</p>
   <!-- BLOQUE CENTRAL -->
   <div class="row gx-3 mb-4 cards-grid">
     <div class="col-12 col-lg-4 mb-3 area-tool">
