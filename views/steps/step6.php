@@ -236,7 +236,7 @@ if (!file_exists($countUpLocal))
 // =========================  COMIENZA SALIDA  ==========================
 // =====================================================================
 ?>
-<?php if (!$embedded): ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
