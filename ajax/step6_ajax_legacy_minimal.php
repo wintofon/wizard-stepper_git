@@ -14,8 +14,7 @@
  * Requires CSRF token via header X-CSRF-Token matching $_SESSION['csrf_token'].
  */
 
-/** Location: C:\xampp\htdocs\wizard-stepper_git\ajax\step6_ajax_legacy_minimal.php */
-
+// Location: C:\xampp\htdocs\wizard-stepper_git\ajax\step6_ajax_legacy_minimal.php
 declare(strict_types=1);
 
 // Ensure BASE_URL is set when running under /ajax
@@ -36,7 +35,7 @@ session_start();
 // 0. CSRF validation
 $token = (string)($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
 $sessionToken = $_SESSION['csrf_token'] ?? null;
-if ($sessionToken === null || !hash_equals($sessionToken, $token)) {
+if (!$sessionToken || !hash_equals($sessionToken, $token)) {
     http_response_code(403);
     echo json_encode(['success' => false, 'error' => 'CSRF validation failed']);
     exit;
