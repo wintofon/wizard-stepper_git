@@ -13,10 +13,7 @@
   <?php
  
   ?>
-  <script>
-    window.BASE_URL  = <?= json_encode(BASE_URL) ?>;
-    window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
-  </script>
+
 </head>
 <body>
 <?php endif; ?>
