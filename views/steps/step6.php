@@ -226,10 +226,6 @@ $assetErrors = [];
 <!-- … (todo el bloque HTML que ya tenías permanece igual) … -->
 
 <!-- SCRIPTS -->
-<script>window.step6Params = <?= $jsonParams ?>; window.step6Csrf = '<?= $csrfToken ?>';</script>
-<script src="<?= $bootstrapJsRel ?>"></script>
 
-<script src="<?= $step6JsRel ?>"></script>
-<script>feather.replace();</script>
 </body>
 </html>
