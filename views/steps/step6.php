@@ -218,7 +218,7 @@ $assetErrors = [];
     'assets/css/components/footer-schneider.css',
     'assets/css/utilities/utilities.css',
   ];
-  include __DIR__ . '/../partials/styles.php';
+  
 ?>
   <script>
     window.BASE_URL  = <?= json_encode(BASE_URL) ?>;
