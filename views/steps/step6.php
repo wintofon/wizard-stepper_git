@@ -35,7 +35,7 @@ if (empty($_SESSION['csrf_token'])) {
 }
 $csrfToken = $_SESSION['csrf_token'];
 
-/* 4) Datos básicos */
+/* 4) Datos básicos 
 /* $tool   = ToolModel::getTool($pdo, $_SESSION['tool_table'] ?? '', $_SESSION['tool_id'] ?? 0) ?? [];
 $params = ExpertResultController::getResultData($pdo, $_SESSION) ?? [];
 
@@ -48,6 +48,7 @@ $vc   = number_format($params['vc0']   ?? 0, 1, '.', '');
 fz    = number_format($params['fz0']   ?? 0, 4, '.', '');
 */
 $embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
+  include __DIR__ . '/../partials/styles.php';
 ?>
 <!DOCTYPE html>
 <html lang="es"><head>
