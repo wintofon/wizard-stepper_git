@@ -17,3 +17,8 @@
   height: 1px;
   visibility: hidden;
 }
+
+#diaFilter.form-select {
+  color: var(--text-color);
+  background-color: var(--bg-card);
+}

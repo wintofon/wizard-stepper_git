@@ -30,14 +30,17 @@
 /* Opción de selección en listados */
 .btn-select {
   border: none;
-  color: #0d1117;
-  background-color: #4fc3f7;
+  padding: 0.5rem 1rem;
+  color: #fff;
+  background-color: #0d6efd;
+  display: inline-flex;
+  align-items: center;
 }
 
 /* Resalta la opción seleccionada */
 .btn-select:hover {
+  background-color: #0b5ed7;
   color: #fff;
-  background-color: #0d6efd;
 }
 
 /* Variante con borde para acciones secundarias */

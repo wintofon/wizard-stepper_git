@@ -21,3 +21,8 @@ h2 {
   color: var(--text-color-sec);
 }
 
+#diaFilter.form-select {
+  color: var(--text-color);
+  background-color: var(--bg-card);
+}
+
