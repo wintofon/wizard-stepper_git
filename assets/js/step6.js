@@ -22,16 +22,12 @@ window.initStep6 = function () {
   const group = (title, fn) => { if (!DEBUG) return fn(); console.group(`${TAG} ${new Date().toISOString()} ${title}`); try { return fn(); } finally { console.groupEnd(); } };
   // 1. Parámetros inyectados por PHP
   const {
-    diameter: D = 0,
-    flute_count: Z = 1,
-    rpm_min: rpmMin = 0,
-    rpm_max: rpmMax = 0,
-    fr_max = Infinity,
-    coef_seg = 0,
-    Kc11 = 1,
-    mc = 1,
-    alpha = 0,
-    eta = 1,
+    diameter: D,
+    flute_count: Z,
+    rpm_min: rpmMin,
+    rpm_max: rpmMax,
+    fr_max,
+    coef_seg, Kc11, mc, alpha, eta,
   } = window.step6Params || {};
 
   const csrfToken = window.step6Csrf;
@@ -131,14 +127,12 @@ window.initStep6 = function () {
 
   // 7. Bloqueo de slider
   function lockSlider(slider, msg) {
-    if (!slider.dataset.prevValue) slider.dataset.prevValue = slider.value;
-    slider.value = slider.dataset.prevValue;
+    slider.value = slider.dataset.limitValue;
     slider.disabled = true;
     showError(msg);
   }
   function unlockSlider(slider) {
     slider.disabled = false;
-    slider.dataset.prevValue = '';
   }
 
   // 8. Pasadas slider / info
@@ -171,10 +165,12 @@ window.initStep6 = function () {
           feed = computeFeed(vc, fz);
 
     if (feed > fr_max) {
+      this.dataset.limitValue = this.value;
       lockSlider(this, `Feedrate supera límite (${fr_max}). Ajusta el otro valor.`);
       return;
     }
     if (feed <= 0) {
+      this.dataset.limitValue = this.value;
       lockSlider(this, `Feedrate demasiado bajo.`);
       return;
     }
