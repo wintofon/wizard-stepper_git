@@ -290,6 +290,7 @@ if (!file_exists($countUpLocal)) $assetErrors[] = 'CountUp.js faltante.';
   </div>
 <?php endif; ?>
 
+<div class="step6">
 <div class="content-main">
   <div class="container py-4">
     <h2 class="step-title"><i data-feather="bar-chart-2"></i> Resultados</h2>
@@ -632,6 +633,7 @@ if (!file_exists($countUpLocal)) $assetErrors[] = 'CountUp.js faltante.';
   </div>
 </div>
 </div><!-- .content-main -->
+</div><!-- .step6 -->
 <section id="wizard-dashboard"></section>
 
 <!-- SCRIPTS -->
