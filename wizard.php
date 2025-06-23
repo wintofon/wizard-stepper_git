@@ -68,7 +68,8 @@ startSecureSession();
 // [E] OVERRIDE DE ESTADO “mode” POR GET
 //     Y LIMPIEZA DE localStorage
 // -------------------------------------------
-if (filter_input(INPUT_GET, 'state', FILTER_SANITIZE_STRING) === 'mode') {
+$stateOverride = filter_input(INPUT_GET, 'state', FILTER_UNSAFE_RAW);
+if (trim((string)$stateOverride) === 'mode') {
     $_SESSION['wizard_state'] = 'mode';
     session_regenerate_id(true);
     dbg('⤴ Forzado a estado = mode vía GET');
@@ -101,7 +102,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tool_mode'])) {
     }
 
     // Saneamiento y validación de “tool_mode”
-    $modeRaw = filter_input(INPUT_POST, 'tool_mode', FILTER_SANITIZE_STRING) ?? '';
+    $modeRaw = filter_input(INPUT_POST, 'tool_mode', FILTER_UNSAFE_RAW);
+    $modeRaw = trim((string)$modeRaw);
     $mode = ($modeRaw === 'auto') ? 'auto' : 'manual';
 
     // Guardar en sesión
