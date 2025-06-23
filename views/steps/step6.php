@@ -1,14 +1,5 @@
-
-
-
 <?php declare(strict_types=1); // 👈 todo junto, sin espacios antes
 
-/**
- * File: views/steps/step6.php
- * …
- */
-
-// acá sigue tu código…
 
 
 
