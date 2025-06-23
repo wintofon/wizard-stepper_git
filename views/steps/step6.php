@@ -23,7 +23,7 @@ declare(strict_types=1);
 /* -------------------------------------------------------------------------- */
 /* 1)  SESIÓN SEGURA Y CONTROL DE FLUJO                                        */
 /* -------------------------------------------------------------------------- */
-/* // Si la sesión aún no está activa, se crea con cookies seguras.
+ // Si la sesión aún no está activa, se crea con cookies seguras.
     session_start([
         'cookie_secure'   => true,      // sólo cookie en HTTPS
         'cookie_httponly' => true,      // inaccesible para JS
