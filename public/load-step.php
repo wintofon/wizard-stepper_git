@@ -1,168 +1,140 @@
-<?php
+/* ============================================================================
+ * File: wizard_stepper.js  (fragmento clave)
+ * ---------------------------------------------------------------------------
+ * Función loadStep(step) – Cargador robusto, blindado y anti-errores
+ * ---------------------------------------------------------------------------
+ * • Carga asincrónica de cada vista del wizard vía fetch → load-step.php
+ * • Diferencia respuestas HTML vs JSON (errores) sin romper el DOM
+ * • Traza cada evento importante en consola con estilos ANSI-CSS
+ * • Contiene helpers showStepError() e initialiseStepScripts()
+ * • Compatible con Feather Icons, Chart.js, sliders y cualquier init per-paso
+ * • No depende de jQuery – puro ES2021
+ * ========================================================================= */
+
+/* --------------------------- CONFIGURACIÓN -------------------------------- */
+const STEP_CONTAINER_SELECTOR = '#wizard-step';   // wrapper donde inyectar la vista
+const BASE_URL                = window.BASE_URL || '';   // definido por PHP
+const DEBUG                   = window.DEBUG ?? true;    // activar/Desactivar logs
+
+/* --------------------------- HELPERS DE LOG -------------------------------- */
+const LOG_STYLE = 'color:#4caf50;font-weight:bold';
+const ERR_STYLE = 'color:#f44336;font-weight:bold';
+
+function log(...a)  { DEBUG && console.log('%c[Wizard]', LOG_STYLE, ...a); }
+function error(...a){ console.error('%c[Wizard]', ERR_STYLE, ...a);        }
+
+/* --------------------------- FUNCIÓN PRINCIPAL ----------------------------- */
 /**
- * File: load-step.php
- * ---------------------------------------------------------------------------
- * Cargador asincrónico de vistas para el CNC Wizard Stepper
- * ---------------------------------------------------------------------------
- * RESPONSABILIDAD
- *   • Validar sesión, progreso y modo antes de servir un paso.
- *   • Incluir la vista correspondiente en modo “embebido” (sin <html> global).
- *   • Blindar contra CSRF, SSRF y ataques de caché con cabeceras duras.
- *   • Devolver códigos HTTP claros y, opcionalmente, JSON de error si el
- *     request incluye `Accept: application/json`.
- *
- * Punto de entrada:   wizard.php → fetch('load-step.php?step=N')
- * Parámetros GET:
- *   - step   (int 1-6)  Paso solicitado
- *   - debug  (bool)     Habilita trazas dbg()
- *
- * Sesión esperada:
- *   - wizard_state    = 'wizard'
- *   - wizard_progress = 1-6 (último paso completado)
- *   - tool_mode       = 'manual' | 'auto'
- *
- * 2025-06-23 (blindaje total):
- *   ✔ Cabeceras CSP, HSTS, X-Frame-Options, Referrer-Policy
- *   ✔ startSecureSession() con cookies SameSite=Strict + regeneración
- *   ✔ Helper respondError() → HTML o JSON según header Accept
- *   ✔ Sanitizado estricto de “step” y fallback a 1
- *   ✔ Forzado WIZARD_EMBEDDED=true antes de incluir la vista
- *   ✔ Stub dbg() silencioso si no se carga includes/debug.php
+ * Carga dinámica de un paso del wizard y reemplaza el contenedor.
+ * @param {number} step Valor entre 1 y 6 inclusive.
+ * @returns {Promise<void>}
  */
+export async function loadStep(step = 1) {
+  // Sanity check
+  if (step < 1 || step > 6) {
+    error('Paso inválido:', step);
+    showStepError('Paso solicitado fuera de rango (1-6).');
+    return;
+  }
 
-declare(strict_types=1);
+  const stepContainer = document.querySelector(STEP_CONTAINER_SELECTOR);
+  if (!stepContainer) {
+    error('No existe el contenedor', STEP_CONTAINER_SELECTOR);
+    return;
+  }
 
-/* -------------------------------------------------------------------------- */
-/* 0)  CONSTANTES BÁSICAS                                                     */
-/* -------------------------------------------------------------------------- */
-$ROOT_DIR = dirname(__DIR__);               // → /project_root
-$BASE_URL = getenv('BASE_URL')
-         ?: rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/');
-putenv("BASE_URL={$BASE_URL}");
-
-/* -------------------------------------------------------------------------- */
-/* 1)  DEPENDENCIAS CORE (no autoload para mayor compatibilidad)              */
-/* -------------------------------------------------------------------------- */
-require_once "{$ROOT_DIR}/src/Config/AppConfig.php";
-require_once "{$ROOT_DIR}/src/Utils/Session.php";      // sendSecurityHeaders(), startSecureSession()
-
-/* -------------------------------------------------------------------------- */
-/* 2)  CABECERAS DE SEGURIDAD Y  NO-CACHING                                   */
-/* -------------------------------------------------------------------------- */
-sendSecurityHeaders('text/html; charset=UTF-8', 63072000, true);
-header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
-header('Pragma: no-cache');
-
-/* -------------------------------------------------------------------------- */
-/* 3)  SESIÓN SEGURA                                                          */
-/* -------------------------------------------------------------------------- */
-startSecureSession();
-
-/* -------------------------------------------------------------------------- */
-/* 4)  DEBUG OPCIONAL (stub si no existe)                                     */
-/* -------------------------------------------------------------------------- */
-$DEBUG = filter_input(INPUT_GET, 'debug', FILTER_VALIDATE_BOOLEAN);
-if ($DEBUG && is_readable("{$ROOT_DIR}/includes/debug.php")) {
-    require_once "{$ROOT_DIR}/includes/debug.php";
-    dbg('🔧 load-step.php DEBUG activo');
-} else {
-    if (!function_exists('dbg')) {
-        function dbg(...$args): void { /* no-op */ }
+  const url  = `${BASE_URL}/load-step.php?step=${step}`;
+  const opts = {
+    method      : 'GET',
+    credentials : 'same-origin', // Cookies de sesión
+    headers     : {
+      'Accept'           : 'text/html, application/json',
+      'X-Requested-With' : 'fetch'
     }
-}
+  };
 
-/* -------------------------------------------------------------------------- */
-/* 5)  CONEXIÓN BD (por si las vistas la necesitan)                           */
-/* -------------------------------------------------------------------------- */
-$dbFile = "{$ROOT_DIR}/includes/db.php";
-if (!is_readable($dbFile)) {
-    respondError(500, 'Error interno: falta includes/db.php');
-}
-require_once $dbFile;
-dbg('✔ Conexión BD incluida');
+  log(`→ solicitando Paso ${step}…`, url);
 
-/* -------------------------------------------------------------------------- */
-/* 6)  FUNCIÓN AUXILIAR: responder error sin romper el DOM                    */
-/* -------------------------------------------------------------------------- */
-function respondError(int $code, string $msg): void
-{
-    http_response_code($code);
-    $prefersJson = strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false;
-    if ($prefersJson) {
-        header('Content-Type: application/json; charset=UTF-8');
-        echo json_encode(['error' => $msg], JSON_UNESCAPED_UNICODE);
-    } else {
-        // HTML simple (el contenedor .step-error se inyecta sin <html>)
-        echo '<div class="step-error alert alert-danger m-3">' .
-             htmlspecialchars($msg, ENT_QUOTES) .
-             '</div>';
+  try {
+    const resp = await fetch(url, opts);
+
+    /* 1) Errores HTTP crudos (404/500) */
+    if (!resp.ok) {
+      throw new Error(`HTTP ${resp.status} – ${resp.statusText}`);
     }
-    exit;
-}
 
-/* -------------------------------------------------------------------------- */
-/* 7)  LEER Y VALIDAR “step”                                                  */
-/* -------------------------------------------------------------------------- */
-$step = filter_input(INPUT_GET, 'step', FILTER_VALIDATE_INT, [
-    'options' => ['min_range' => 1, 'max_range' => 6]
-]) ?: 1;
-dbg("📥 Paso solicitado: {$step}");
-
-/* -------------------------------------------------------------------------- */
-/* 8)  VALIDAR ESTADO WIZARD EN SESIÓN                                        */
-/* -------------------------------------------------------------------------- */
-if (($_SESSION['wizard_state'] ?? '') !== 'wizard') {
-    if ($step === 1) {
-        $_SESSION['wizard_state']    = 'wizard';
-        $_SESSION['wizard_progress'] = $_SESSION['wizard_progress'] ?? 1;
-        session_regenerate_id(true);
-        dbg('⚙️ Estado wizard inicializado');
-    } else {
-        respondError(403, 'Acceso prohibido: iniciá el wizard desde el paso 1.');
+    /* 2) Diferenciar JSON (error) vs HTML (vista) */
+    const ctype = resp.headers.get('content-type') || '';
+    if (ctype.includes('application/json')) {
+      const data = await resp.json();
+      const msg  = data.error || 'Error desconocido en el servidor.';
+      showStepError(msg);
+      error('Respuesta JSON de error:', data);
+      return;
     }
+
+    /* 3) Contenido HTML : insertar seguro */
+    const html = await resp.text();
+    stepContainer.innerHTML = html;
+    log(`✓ Paso ${step} cargado y renderizado`);
+
+    /* 4) Reinicializar scripts/icons específicos del paso */
+    initialiseStepScripts(step);
+
+  } catch (err) {
+    /* 5) Falla de red, excepción JS, CORS, etc. */
+    error('loadStep() atrapó excepción:', err);
+    showStepError('No se pudo cargar el paso. Verificá tu conexión o recargá.');
+  }
 }
 
-$currentProgress = (int)($_SESSION['wizard_progress'] ?? 1);
-$maxAllowedStep  = $currentProgress + 1;
-if ($step > $maxAllowedStep) {
-    dbg("🚫 Paso {$step} > permitido {$maxAllowedStep}");
-    header("Location: load-step.php?step={$maxAllowedStep}");
-    exit;
+/* --------------------- VISUALIZACIÓN DE ERRORES EN DOM -------------------- */
+/**
+ * Muestra un alerta Bootstrap dentro del contenedor del wizard.
+ * @param {string} message Texto del error.
+ */
+function showStepError(message) {
+  const stepContainer = document.querySelector(STEP_CONTAINER_SELECTOR);
+  if (!stepContainer) return;
+  stepContainer.innerHTML =
+    `<div class="alert alert-danger my-4" role="alert">
+       ${message}
+     </div>`;
 }
-dbg("🔢 Progreso actual: {$currentProgress} (ok) — a servir step{$step}");
 
-/* -------------------------------------------------------------------------- */
-/* 9)  DETECTAR MODO (auto / manual)                                          */
-/* -------------------------------------------------------------------------- */
-$mode = ($_SESSION['tool_mode'] ?? 'manual') === 'auto' ? 'auto' : 'manual';
-dbg("🧭 Modo: {$mode}");
+/* ----------------- INICIALIZADORES ESPECÍFICOS POR PASO ------------------- */
+/**
+ * Re-inicializa iconos, sliders, charts, etc. después de inyectar la vista.
+ * @param {number} step Paso recién cargado.
+ */
+function initialiseStepScripts(step) {
+  /* Feather Icons */
+  if (window.feather) requestAnimationFrame(() => window.feather.replace());
 
-/* -------------------------------------------------------------------------- */
-/* 10) RESOLVER ARCHIVO DE VISTA                                              */
-/* -------------------------------------------------------------------------- */
-$viewBase = "{$ROOT_DIR}/views/steps";
-$viewPath = null;
-foreach ([
-    "{$viewBase}/{$mode}/step{$step}.php",
-    "{$viewBase}/step{$step}.php"
-] as $candidate) {
-    if (is_readable($candidate)) {
-        $viewPath = $candidate;
-        break;
-    }
+  /* Chart.js o sliders: agregá lo que necesites */
+  switch (step) {
+    case 6:
+      if (typeof window.initStep6 === 'function') {
+        window.initStep6(); // tu JS específico del Paso 6
+      }
+      break;
+    // Otros pasos...
+  }
+
+  log(`→ Scripts inicializados para Step ${step}`);
 }
-if (!$viewPath) {
-    respondError(404, "Vista no encontrada para el paso {$step} (modo {$mode}).");
-}
-dbg("✔ View encontrada: {$viewPath}");
 
-/* -------------------------------------------------------------------------- */
-/* 11) DEFINIR CONSTANTE Y CARGAR VISTA EMBEBIDA                              */
-/* -------------------------------------------------------------------------- */
-define('WIZARD_EMBEDDED', true);
-include $viewPath;
+/* ---------------------- API GLOBAL OPCIONAL ------------------------------- */
+window.loadStep = loadStep;
 
-/* -------------------------------------------------------------------------- */
-/* 12) FIN                                                                   */
-/* -------------------------------------------------------------------------- */
-// No se imprime nada extra aquí: la vista es responsable de su contenido.
+/* ---------------------- AUTO-LOAD INICIAL (activo) ------------------------ */
+/*  ▸ Llama automáticamente al paso almacenado en data-initial-step del <body>
+ *    (lo configura wizard.php) o default = 1.
+ *  ▸ Garantiza que, al refrescar la página, el usuario retome donde quedó.
+ */
+document.addEventListener('DOMContentLoaded', () => {
+  const initialStepAttr = document.body.dataset.initialStep || '1';
+  const initialStep = parseInt(initialStepAttr, 10);
+  log(`🌐 Auto-load inicial: paso ${initialStep}`);
+  loadStep(initialStep);
+});
