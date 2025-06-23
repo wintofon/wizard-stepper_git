@@ -8,10 +8,9 @@
  * • No incluye BD ni lógica pesada todavía.
  * • Imprime “Hola Step 6” y expone un objeto vacío window.step6Params.
  */
-
 declare(strict_types=1);
 
-// 1 ) Sesión segura y flujo --------------------------------------------------
+/* 1) Sesión segura y flujo */
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start([
         'cookie_secure'   => true,
@@ -19,17 +18,27 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
         'cookie_samesite' => 'Strict',
     ]);
 }
-if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 5) {
+if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 4) {
     header('Location: step1.php');
     exit;
 }
 
-// 2 ) Detectar si esta vista se carga embebida -------------------------------
-$embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
+/* 2) Dependencias */
+require_once __DIR__ . '/../../includes/db.php';
+require_once __DIR__ . '/../../includes/debug.php';
 
-// 3 ) Parámetros iniciales (vacíos por ahora) --------------------------------
-$jsonParams = '{}';
-$csrfToken   = $_SESSION['csrf_token'] ?? '';
+/* 3) CSRF token */
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+$csrfToken = $_SESSION['csrf_token'];
+
+
+
+
+
+
+
 
 // 4 ) Fragmento limpio para modo embebido -----------------------------------
 if ($embedded) { ?>
