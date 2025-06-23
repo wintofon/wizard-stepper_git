@@ -1,94 +1,77 @@
 /*
  * File: dashboard.js
- * Epic CNC Wizard Dashboard – versión gloriosa ⚡
- *
- * Main responsibility:
- *   Consultar el estado de sesión vía AJAX, procesar JSON 'casi-JSON'
- *   y mostrar snapshots en la consola con estilo épico.
- * Related files: session-api.php
- * TODO: Añadir efectos de sonido y fuegos artificiales.
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * TODO: Extend documentation.
  */
-/* global BASE_URL, window */
-(() => {
-  'use strict';
+/*  wizard/assets/js/dashboard.js  —  v2
+    Refuerzo contra respuestas “casi-JSON” (cabecera JSON
+    pero texto contaminado con warnings, BOM, etc.).        */
 
-  // ================= CONFIGURACIÓN ===================
-  const DEBUG      = window.DEBUG ?? true;
-  const BASE       = window.BASE_URL;
-  const MAX_ERR    = 5;
-  const TAG_STYLE  = 'color:#009688;font-weight:bold';
-  let errorCount   = 0;
-  let lastSnapshot = null;
+const BASE_URL = window.BASE_URL;
+document.addEventListener('DOMContentLoaded', () => {
+  const DEBUG = window.DEBUG ?? false;
+  const TAG = '[WizardStepper]';
+  const logger = (lvl, ...a) => { if (!DEBUG) return; const ts = new Date().toISOString(); console[lvl](`${TAG} ${ts}`, ...a); };
+  const log = (...a) => logger('log', ...a);
+  const warn = (...a) => logger('warn', ...a);
+  const error = (...a) => logger('error', ...a);
+  const table = data => { if (DEBUG) console.table(data); };
+  const group = (title, fn) => { if (!DEBUG) return fn(); console.group(`${TAG} ${new Date().toISOString()} ${title}`); try { return fn(); } finally { console.groupEnd(); } };
+  const dash = document.getElementById('wizard-dashboard');
 
-  // =================== LOGGING =======================
-  function log(...args)   { console.log('%c[Dashboard🌐]', TAG_STYLE, ...args); }
-  function warn(...args)  { console.warn('%c[Dashboard⚠️]', TAG_STYLE, ...args); }
-  function error(...args) { console.error('%c[Dashboard💥]', TAG_STYLE, ...args); }
-  function table(data)    { console.table(data); }
-  function group(title, fn) {
-    console.group(`%c[Dashboard⏳] ${title}`, TAG_STYLE);
-    try { return fn(); }
-    finally { console.groupEnd(); }
-  }
+  let lastOk     = null;          // último snapshot correcto
+  let errorCount = 0;             // errores consecutivos
+  const MAX_ERR  = 5;             // corta peticiones tras este nº
 
-  // ================== FETCH SESSION ==================
-  async function fetchSession() {
-    return group('fetchSession', async () => {
-      log('Iniciando fetch de sesión…');
-      if (errorCount >= MAX_ERR) {
-        warn(`Se alcanzó el máximo de ${MAX_ERR} errores. Pausando fetch.`);
-        return;
+  /* ---------- helpers ---------- */
+  const paint = json => table(json);
+
+  /* ---------- fetch c/2 s ---------- */
+  const fetchSession = async () => group('fetchSession', async () => {
+    log('param none');
+    if (errorCount >= MAX_ERR) return;
+
+    try {
+      const headers = window.csrfToken ? { 'X-CSRF-Token': window.csrfToken } : {};
+      const res  = await fetch(`${BASE_URL}/public/session-api.php?debug=1`, {
+        cache: 'no-store',
+        headers
+      });
+      const cTyp = res.headers.get('Content-Type') || '';
+
+      if (!res.ok || !cTyp.includes('application/json')) {
+        throw new Error(`HTTP ${res.status} – Content-Type “${cTyp}”`);
       }
 
-      try {
-        const headers = window.csrfToken ? { 'X-CSRF-Token': window.csrfToken } : {};
-        const response = await fetch(`${BASE}/public/session-api.php?debug=1`, {
-          cache: 'no-store',
-          headers
-        });
-        log(`Respuesta HTTP ${response.status}`);
+      /* — NEW — lee texto y limpia basura previa --------------- */
+      let text = await res.text();
+      text     = text.trimStart();                   // quita espacios/BOM
 
-        const contentType = response.headers.get('Content-Type') || '';
-        if (!response.ok || !contentType.includes('application/json')) {
-          throw new Error(`HTTP ${response.status} – Content-Type “${contentType}”`);
-        }
+      /* Si empieza con ‘{’ o ‘[’ extrae desde ahí (ignora “v{…”) */
+      const firstBrace = text.search(/[{[]/);
+      if (firstBrace > 0) text = text.slice(firstBrace);
 
-        // Leer y limpiar texto
-        let text = await response.text();
-        text = text.trimStart();
-        const braceIndex = text.search(/[{[]/);
-        if (braceIndex > 0) {
-          log('Eliminando basura antes del JSON…');
-          text = text.slice(braceIndex);
-        }
-        if (!text.startsWith('{') && !text.startsWith('[')) {
-          throw new Error('Payload no parece JSON');
-        }
-
-        const data = JSON.parse(text);
-        log('Snapshot válido recibido');
-        table(data);
-        lastSnapshot = data;
-        errorCount = 0;
-      } catch (ex) {
-        warn('Error al parsear session-api:', ex.message);
-        errorCount++;
-        const hint = `Fallo ${errorCount}/${MAX_ERR}: ${ex.message}`;
-        if (lastSnapshot) {
-          warn('▶️ Re-renderizando último snapshot válido');
-          table(lastSnapshot);
-          warn(hint);
-        } else {
-          warn(hint);
-        }
+      if (!text.startsWith('{') && !text.startsWith('[')) {
+        throw new Error('payload no parece JSON');
       }
-    });
-  }
 
-  // ================= INICIALIZACIÓN ==================
-  document.addEventListener('DOMContentLoaded', () => {
-    log('📅 DOM listo – arrancando bucle de sesión cada 2s');
-    fetchSession();
-    setInterval(fetchSession, 2000);
+      const data = JSON.parse(text);                // ahora seguro
+      paint(data);                                  // ✔️ snapshot ok
+      log('return data');
+      lastOk     = data;
+      errorCount = 0;
+    } catch (err) {
+      warn('Respuesta inválida:', err.message);
+
+      errorCount++;
+      const hint = `Fallo ${errorCount}/${MAX_ERR}: ${err.message}`;
+
+      /* mantiene último JSON correcto si existe */
+      lastOk ? (paint(lastOk), warn(hint)) : warn(hint);
+    }
   });
-})();
+
+  fetchSession();                  // primera llamada inmediata
+  setInterval(fetchSession, 2000); // bucle
+});

@@ -1,57 +1,23 @@
 /*
  * File: welcome_init.js
- * Epic CNC Wizard Welcome Init – versión legendaria 🚀
- *
- * Main responsibility:
- *   Control del botón de inicio, limpieza de sesión y localStorage,
- *   y narración épica en la consola para guiar al usuario.
- * Related files: reset.php, wizard.php
- * TODO: Extender con mensajes de audio dramático.
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * TODO: Extend documentation.
  */
-/* global BASE_URL */
-
-// Espera a que el DOM esté listo para iniciar la odisea
-console.group("%c[WelcomeInit🛡️] Iniciando bienvenida épica","color:#2196f3;font-weight:bold");
-console.log("🔍 Buscando botón de inicio…");
-
+// File: wizard/assets/js/welcome_init.js
+// Controla el botón de inicio y limpia sesión/localStorage
+const BASE_URL = window.BASE_URL;
 document.addEventListener('DOMContentLoaded', () => {
-  console.log("📦 DOM cargado: preparándose para la aventura...");
-
   const btnStart = document.getElementById('btn-start');
-  if (!btnStart) {
-    console.error("❌ Botón '#btn-start' no encontrado. Fin de la saga.");
-    console.groupEnd();
-    return;
-  }
-
-  console.log("✅ Botón encontrado: listo para el gran comienzo.");
+  if (!btnStart) return;
 
   btnStart.addEventListener('click', () => {
-    console.group("%c[WelcomeInit🛡️] Click en INICIAR","color:#4caf50;font-weight:bold");
-    console.log("🗡️ Desatando reset ÉPICO de sesión... ", `${BASE_URL}/public/reset.php`);
-
-    // Llamada al reset en backend
+    // Destruye sesión PHP y localStorage antes de ir a selección de modo
     fetch(`${BASE_URL}/public/reset.php`, { method: 'GET' })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-        console.log("🔄 Núcleo PHP aniquilado con gloria.");
-      })
-      .catch(err => {
-        console.warn("⚠️ Error destruyendo sesión:", err);
-      })
       .finally(() => {
-        console.log("🧹 Limpiando progreso en localStorage...");
         localStorage.removeItem('wizard_progress');
-        console.log("✅ localStorage limpio.");
-
-        console.log("🛰️ Sincronización total completada.");
-
-        const nextUrl = `${BASE_URL}/wizard.php?state=mode`;
-        console.log("🚀 Redirigiendo a selección de modo:", nextUrl);
-        console.groupEnd();
-        window.location.href = nextUrl;
+        // Redirige a la selección de modo
+        window.location.href = `${BASE_URL}/wizard.php?state=mode`;
       });
   });
 });

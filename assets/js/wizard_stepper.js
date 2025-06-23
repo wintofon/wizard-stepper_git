@@ -1,192 +1,243 @@
 /*
  * File: wizard_stepper.js
- * Epic CNC Wizard Stepper – version 3.0
- *
- * ¡Este script es una oda a la narración épica! Cada acción, cada paso
- * y cada evento se reflejan orgullosamente en la consola para tu deleite.
- * TODO: Extender documentación con diagramas UML y poesía inspiracional.
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * TODO: Extend documentation.
  */
 /* global feather, bootstrap */
 (() => {
   'use strict';
 
-  // ===================== CONFIGURACIÓN =====================
-  const BASE_URL        = window.BASE_URL;
-  const DEBUG           = window.DEBUG ?? true; // Modo épico: siempre enciende logs
-  const LS_KEY          = 'wizard_progress';
-  const LOAD_ENDPOINT   = `${BASE_URL}/public/load-step.php`;
+  const BASE_URL = window.BASE_URL;
+  const DEBUG = window.DEBUG ?? false;
+  const LS_KEY = 'wizard_progress';
+  const LOAD_ENDPOINT = `${BASE_URL}/public/load-step.php`;
   const HANDLE_ENDPOINT = `${BASE_URL}/public/handle-step.php`;
 
-  // ===================== UTILIDADES =====================
-  const TAG = '%c[WizardStepper⚙️]%c';
-  const log   = (...args) => console.log(TAG, 'color:#4caf50;font-weight:bold', '', ...args);
-  const warn  = (...args) => console.warn(TAG, 'color:#ff9800;font-weight:bold', '', ...args);
-  const error = (...args) => console.error(TAG, 'color:#f44336;font-weight:bold', '', ...args);
-  const table = data => console.table(data);
+  const TAG = '[WizardStepper]';
+  const $qs  = sel => document.querySelector(sel);
+  const $qsa = sel => [...document.querySelectorAll(sel)];
+  const logger = (lvl, ...a) => {
+    if (!DEBUG) return;
+    const ts = new Date().toISOString();
+    console[lvl](`${TAG} ${ts}`, ...a);
+  };
+  const log    = (...a) => logger('log', ...a);
+  const warn   = (...a) => logger('warn', ...a);
+  const error  = (...a) => logger('error', ...a);
+  const table  = (data) => { if (DEBUG) console.table(data); };
   const group = (title, fn) => {
-    console.group(`${TAG[0]} ${title}`);
+    if (!DEBUG) return fn();
+    console.group(`${TAG} ${new Date().toISOString()} ${title}`);
     try { return fn(); }
     finally { console.groupEnd(); }
   };
 
-  // =================== SELECTORES ======================
-  const $qs  = sel => document.querySelector(sel);
-  const $qsa = sel => Array.from(document.querySelectorAll(sel));
-
   const stepsBar   = $qsa('.stepper li');
   const stepHolder = $qs('#step-content');
   if (!stepsBar.length || !stepHolder) {
-    warn('⛔ No es una página de wizard – abortando épicamente.');
+    log('No es página de wizard – abortando script.');
     return;
   }
   const MAX_STEPS = stepsBar.length;
 
-  // ================ PROGRESO LOCALSTORAGE =============
   const getProg = () => Number(localStorage.getItem(LS_KEY)) || 1;
-  const setProg = s => {
-    localStorage.setItem(LS_KEY, s);
-    log(`📥 Progreso guardado: paso ${s}`);
+  const setProg = s => localStorage.setItem(LS_KEY, s);
+
+  const renderBar = current => {
+    const prog = getProg();
+    // Iterate all steps to mark progress and enable completed ones
+    stepsBar.forEach(li => {
+      const n = Number(li.dataset.step);
+      li.classList.toggle('done',      n < prog);
+      li.classList.toggle('active',    n === current);
+      li.classList.toggle('clickable', n <= prog - 1);
+      li.innerHTML =
+        `<span>${n}. ${li.dataset.label}</span>` +
+        (n < prog ? ' ✅' : n === current ? ' 🟢' : '');
+    });
   };
 
-  // ================= BAR RENDER =======================
-  function renderBar(current) {
-    group('renderBar', () => {
-      const prog = getProg();
-      log(`🔢 Renderizando barra (actual: ${current}, guardado: ${prog})`);
-      stepsBar.forEach(li => {
-        const n = +li.dataset.step;
-        const done     = n < prog;
-        const active   = n === current;
-        const clickable= n <= prog - 1;
-        li.classList.toggle('done', done);
-        li.classList.toggle('active', active);
-        li.classList.toggle('clickable', clickable);
-        const icon = done ? 'check-circle' : (active ? 'circle' : 'minus-circle');
-        li.innerHTML = `<span>${n}. ${li.dataset.label}</span> <i data-feather="${icon}"></i>`;
-        log(`  · Paso ${n}: done=${done}, active=${active}, clickable=${clickable}`);
-      });
-      feather.replace();
+  /** Ejecuta scripts <script> embebidos en el HTML del paso (necesario para los AJAX). */
+  const runStepScripts = container => group('runStepScripts', () => {
+    log('param container', container);
+    // Ensure any <script> tags returned via AJAX are executed
+    [...container.querySelectorAll('script')].forEach(tag => {
+      if (tag.src) {
+        // Scripts externos (sólo si no están cargados aún)
+        if (!document.querySelector(`head script[src="${tag.src}"]`)) {
+          const s = document.createElement('script');
+          s.src = tag.src;
+          if (tag.type) s.type = tag.type;     // preservar type="module" si existe
+          if (tag.nonce) s.nonce = tag.nonce;  // mantener CSP
+          s.defer = true;
+          s.onload = () => log(`[stepper.js] Cargado: ${tag.src}`);
+          s.onerror = () => error(`⚠️ Falló carga: ${tag.src}`);
+          document.head.appendChild(s);
+        }
+      } else {
+        // Scripts inline (vital para cada paso)
+        try {
+          const inlineScript = document.createElement('script');
+          if (tag.type) inlineScript.type = tag.type;
+          if (tag.nonce) inlineScript.nonce = tag.nonce;
+          inlineScript.textContent = tag.textContent;
+          document.body.appendChild(inlineScript).remove();
+          log('[stepper.js] Ejecutado inline script');
+        } catch (err) {
+          warn('Error ejecutando inline script', err);
+        }
+      }
     });
-  }
+    log('return void');
+  });
 
-  // ================= SCRIPT LOADER ====================
-  function runStepScripts(container) {
-    group('runStepScripts', () => {
-      log('Buscando <script> internos y externos…');
-      container.querySelectorAll('script').forEach(tag => {
-        if (tag.src) {
-          const src = tag.src;
-          if (!document.querySelector(`script[src="${src}"]`)) {
-            log(`🔗 Cargando script: ${src}`);
-            const s = document.createElement('script');
-            s.src = src; s.defer = true;
-            document.head.appendChild(s);
+
+  /** Carga por AJAX el paso y lo inyecta, ejecutando inicializadores de JS y dependencias */
+  const loadStep = step => group(`loadStep(${step})`, () => {
+    log('param step', step);
+    const prog = getProg();
+    if (step < 1 || step > MAX_STEPS || step > prog + 1) {
+      log('🔒 Salto bloqueado');
+      renderBar(prog);
+      return;
+    }
+
+    stepHolder.style.opacity = '.3';
+    fetch(`${LOAD_ENDPOINT}?step=${step}${DEBUG ? '&debug=1' : ''}`, { cache: 'no-store' })
+      .then(r => {
+        log('fetch status', r.status);
+        if (r.status === 403) throw new Error('FORBIDDEN');
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.text();
+      })
+      .then(html => {
+        stepHolder.innerHTML = html;
+        runStepScripts(stepHolder);
+
+        // Inicializadores JS globales (Feather, Bootstrap tooltips)
+        if (window.feather) feather.replace();
+        if (window.bootstrap && bootstrap.Tooltip) {
+          document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+            new bootstrap.Tooltip(el);
+          });
+        }
+
+        // Step 6 has heavy calculations so its JS is loaded on demand
+        if (step === 6) {
+          if (!window.step6Loaded) {
+            const script = document.createElement('script');
+            script.src = `${BASE_URL}/assets/js/step6.js`;
+            script.defer = true;
+            script.onload = () => { 
+              window.step6Loaded = true;
+              log('[stepper.js] 🔢 step6.js cargado OK');
+              if (typeof window.initStep6 === 'function') window.initStep6();
+            };
+            script.onerror = () => error('⚠️ Error cargando step6.js');
+            document.body.appendChild(script);
           } else {
-            log(`✔️ Script ya cargado: ${src}`);
+            if (typeof window.initStep6 === 'function') window.initStep6();
           }
-        } else {
-          log('✍️ Ejecutando script inline');
-          const inline = document.createElement('script');
-          inline.textContent = tag.textContent;
-          document.body.appendChild(inline).remove();
+        }
+
+        stepHolder.style.opacity = '1';
+        renderBar(step);
+        hookEvents();
+        if (typeof window.initLazy === 'function') window.initLazy();
+        log(`🧭 Paso ${step} cargado correctamente`);
+        log('return', step);
+      })
+      .catch(err => {
+        error('Error loadStep', err);
+        stepHolder.innerHTML =
+          `<div class="alert alert-danger">⚠️ Error cargando el paso ${step}: ${err.message}</div>`;
+        warn(err.message);
+        if (err.message === 'FORBIDDEN') {
+          localStorage.removeItem(LS_KEY);
+          warn('⚠️ Sesión desfasada. Reinicio.');
+          renderBar(1);
+          loadStep(1);
         }
       });
-    });
-  }
+  });
 
-  // ================ CARGAR PASO =======================
-  function loadStep(step) {
-    group(`loadStep(${step})`, () => {
-      const prog = getProg();
-      log(`Intentando cargar paso ${step} (prog: ${prog})`);
-      if (step < 1 || step > MAX_STEPS || step > prog + 1) {
-        warn('🚧 Salto de paso bloqueado.');
-        renderBar(prog);
-        return;
-      }
-      stepHolder.style.opacity = '0.3';
+  const sendForm = form => group('sendForm', () => {
+    log('param form', form);
+    const data = new FormData(form);
+    const cur = Number(data.get('step'));
 
-      fetch(`${LOAD_ENDPOINT}?step=${step}${DEBUG? '&debug=1':''}`, { cache: 'no-store' })
-        .then(r => {
-          log(`HTTP ${r.status} recibido`);
-          if (!r.ok) throw new Error(r.status === 403 ? 'FORBIDDEN' : `HTTP ${r.status}`);
-          return r.text();
-        })
-        .then(html => {
-          log('🎨 Inyectando contenido HTML…');
-          stepHolder.innerHTML = html;
-          runStepScripts(stepHolder);
-          feather.replace();
-          if (window.bootstrap?.Tooltip) {
-            $qsa('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
-          }
-          stepHolder.style.opacity = '1';
-          renderBar(step);
-          hookEvents();
-          window.initLazy?.();
-          log(`🏁 Paso ${step} cargado con gloria.`);
-        })
-        .catch(err => {
-          error('💥 Error loadStep', err);
-          stepHolder.innerHTML = `<div class="alert alert-danger">⚠️ ${err.message}</div>`;
-          if (err.message === 'FORBIDDEN') {
-            localStorage.removeItem(LS_KEY);
-            warn('🔄 Sesión expirada: reiniciando wizard.');
-            setProg(1); loadStep(1);
-          }
-        });
-    });
-  }
-
-  // =============== ENVIAR FORMULARIO ==================
-  function sendForm(form) {
-    group('sendForm', () => {
-      const data = new FormData(form);
-      const cur = +data.get('step');
-      log(`✉️ Enviando datos de paso ${cur}…`);
-      fetch(`${HANDLE_ENDPOINT}${DEBUG? '?debug=1':''}`, { method: 'POST', body: data })
-        .then(r => { if (!r.ok) throw new Error(r.status===403?'FORBIDDEN':`HTTP ${r.status}`); return r.json(); })
-        .then(js => {
-          table(js);
-          if (!js.success) { alert(js.error||'Error'); return; }
-          const next = Math.min(js.next||cur+1, MAX_STEPS);
-          setProg(next); loadStep(next);
-          log(`➡️ Avanzando al paso ${next}`);
-        })
-        .catch(err => {
-          error('💥 Error sendForm', err);
-          if (err.message==='FORBIDDEN') { localStorage.removeItem(LS_KEY); alert('Expirado'); setProg(1); loadStep(1); }
-          else alert('Conexión fallida');
-        });
-    });
-  }
-
-  // =============== EVENTOS ============================
-  function hookEvents() {
-    group('hookEvents', () => {
-      log('🔗 Conectando eventos…');
-      const form = stepHolder.querySelector('form');
-      if (form) {
-        form.addEventListener('submit', e => { e.preventDefault(); sendForm(form); });
-        $qsa('input,select,textarea', form).forEach(el =>
-          el.addEventListener('input', () => {
-            el.classList.toggle('is-valid', el.checkValidity());
-            el.classList.toggle('is-invalid', !el.checkValidity());
-          })
-        );
-        form.querySelector('.btn-prev')?.addEventListener('click', e => {
-          e.preventDefault(); const back = Math.max(1,getProg()-1); setProg(back); loadStep(back);
-        });
-      }
-      stepsBar.forEach(li => {
-        if (li.classList.contains('clickable')) li.addEventListener('click', () => loadStep(+li.dataset.step));
+    fetch(`${HANDLE_ENDPOINT}${DEBUG ? '?debug=1' : ''}`, { method: 'POST', body: data })
+      .then(r => {
+        log('handle-step status', r.status);
+        if (r.status === 403) throw new Error('FORBIDDEN');
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then(js => {
+        table(js);
+        if (!js.success) {
+          alert(js.error || 'Error al procesar');
+          return;
+        }
+        let next = (typeof js.next === 'number') ? js.next : cur + 1;
+        if (next > MAX_STEPS) next = MAX_STEPS;
+        setProg(next);
+        loadStep(next);
+        log('return', next);
+      })
+      .catch(err => {
+        error('Error sendForm', err);
+        if (err.message === 'FORBIDDEN') {
+          localStorage.removeItem(LS_KEY);
+          alert('Sesión expirada. Reinicio.');
+          renderBar(1);
+          loadStep(1);
+        } else {
+          alert('Fallo de conexión');
+          warn(err.message);
+        }
       });
-    });
-  }
+  });
 
-  // ================= INICIALIZACIÓN ====================
-  log('🚀 Iniciando CNC Wizard Epico…');
-  if (!localStorage.getItem(LS_KEY)) setProg(1);
+  const hookEvents = () => group('hookEvents', () => {
+    log('param none');
+    // Attach validation and navigation handlers for the current step
+    const form = stepHolder.querySelector('form');
+    if (form) {
+      form.addEventListener('submit', e => {
+        e.preventDefault(); sendForm(form);
+      });
+      // Live validation on every form field
+      form.querySelectorAll('input,select,textarea').forEach(el =>
+        el.addEventListener('input', () => {
+          el.classList.toggle('is-valid', el.checkValidity());
+          el.classList.toggle('is-invalid', !el.checkValidity());
+        })
+      );
+      const prevBtn = form.querySelector('.btn-prev');
+      if (prevBtn) prevBtn.onclick = e => {
+        e.preventDefault();
+        const back = Math.max(1, getProg() - 1);
+        setProg(back);
+        loadStep(back);
+      };
+    }
+
+    // Allow navigation to already-completed steps
+    stepsBar.forEach(li => {
+      if (!li.classList.contains('clickable')) return;
+      li.onclick = () => {
+        const n = Number(li.dataset.step);
+        if (n <= getProg()) loadStep(n);
+      };
+    });
+    log('return void');
+  });
+
+  // INICIALIZACIÓN
+  if (!localStorage.getItem(LS_KEY)) localStorage.setItem(LS_KEY, 1);
   renderBar(getProg());
   loadStep(getProg());
+
 })();

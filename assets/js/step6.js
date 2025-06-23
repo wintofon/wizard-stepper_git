@@ -273,10 +273,3 @@ window.initStep6 = function () {
     window.step6ErrorHandlerAdded = true;
   }
 };
-
-// Ejecutar automáticamente al cargar el script
-if (document.readyState !== 'loading') {
-  window.initStep6();
-} else {
-  document.addEventListener('DOMContentLoaded', () => window.initStep6());
-}

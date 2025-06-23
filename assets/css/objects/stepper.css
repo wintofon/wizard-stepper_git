@@ -1,36 +1,18 @@
 /*
- * File: assets/css/objects/stepper.css
- * Main responsibility: Barra pegajosa del CNC Wizard.
- * Este es el CSS original con el único ajuste necesario para
- * que ningún contenido quede oculto bajo la barra:
- *   • Se declara la custom-property --stepper-h (52 px desktop / 64 px mobile).
- *   • .stepper-header usa esa altura.
- *   • body.has-stepper y .wizard-body aplican padding-top y scroll-margin.
+ * File: stepper.css
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * TODO: Extend documentation.
  */
-
-/* =============================
-   VARIABLE ÚNICA DE ALTURA
-   ============================= */
-:root {
-  --stepper-h: 52px;              /* altura estándar escritorio */
-}
-@media (max-width: 768px) {
-  :root { --stepper-h: 64px; }    /* altura móvil */
-}
-
-/* =============================
-   CONTENEDOR STICKY
-   ============================= */
 .stepper-header {
   position: sticky;
-  top: 0;
   z-index: 1050;
+  top: 0;
 
   display: flex;
   align-items: center;
 
   width: 100%;
-  height: var(--stepper-h);
   margin: 0;
   padding: 0;
   border: none;
@@ -38,44 +20,31 @@
   background-color: var(--bs-dark);
 }
 
-/* =============================
-   LOGO
-   ============================= */
 .logo-stepper {
   width: 120px;
   height: auto;
   margin-right: 1rem;
 }
 
-/* =============================
-   LISTA DE PASOS (barra)
-   ============================= */
 .stepper-bar {
-  scrollbar-width: thin;   /* Firefox */
-  overflow-x: auto;        /* scroll horizontal */
+  scrollbar-width: thin; /* Firefox */
+  overflow-x: auto; /* permite scrolleo horizontal */
   display: flex;
   flex-wrap: nowrap;
 }
 
 .stepper-bar::-webkit-scrollbar {
-  display: none;           /* oculta scrollbar WebKit */
+  display: none; /* oculta scrollbar en navegadores WebKit */
 }
 
-/* =============================
-   BREAKPOINT < 768 px
-   ============================= */
-@media (max-width: 767.98px) {
-  .logo-stepper { display: none !important; }
-  .stepper-header { justify-content: center; }
-}
+/* Responsivo: ocultar logo en pantallas <768px */
+@media (width <= 767.98px) {
+  .logo-stepper {
+    display: none !important;
+  }
 
-/* =============================
-   PADDING AUTOMÁTICO DE CONTENIDO
-   ============================= */
-body.has-stepper,
-.wizard-body {
-  /* Se eliminó el padding superior para que el stepper quede pegado al borde */
-  padding-top: 0;
-  /* Los anchors <a href="#algo"> ya no quedan tapados */
-  scroll-margin-top: var(--stepper-h);
+  .stepper-header {
+    justify-content: center;
+  }
+
 }
