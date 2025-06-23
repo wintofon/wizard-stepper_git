@@ -187,8 +187,8 @@ try {
 $notesArray = $params['notes'] ?? [];
 
 /* ───── Assets locales ───── */
-$cssBootstrapRel = asset('assets/css/generic/bootstrap.min.css');
-$bootstrapJsRel  = asset('assets/js/bootstrap.bundle.min.js');
+/*$cssBootstrapRel = asset('assets/css/generic/bootstrap.min.css');
+/*$bootstrapJsRel  = asset('assets/js/bootstrap.bundle.min.js');
 /* $step6JsRel      = asset('assets/js/step6.js');*/
 $assetErrors = [];
 
