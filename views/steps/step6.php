@@ -37,10 +37,7 @@ if ($embedded) { ?>
   <h2>Hola Step 6 ✅</h2>
   <p>Versión mínima embebida sin dependencias.</p>
 </div>
-<script>
-  window.step6Params = <?= $jsonParams ?>;
-  window.step6Csrf   = '<?= $csrfToken ?>';
-</script>
+
 <?php return; }
 
 // 5 ) Stand-alone (debug directo) -------------------------------------------
