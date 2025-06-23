@@ -254,9 +254,18 @@ if (!file_exists($countUpLocal)) $assetErrors[] = 'CountUp.js faltante.';
       ?: 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css';
     $styles = [
       $bootstrapCss,
+      'assets/css/settings/settings.css',
+      'assets/css/generic/generic.css',
+      'assets/css/elements/elements.css',
+      'assets/css/objects/objects.css',
+      'assets/css/objects/wizard.css',
+      'assets/css/objects/stepper.css',
       'assets/css/objects/step-common.css',
-      'assets/css/components/main.css',
       'assets/css/objects/step6.css',
+      'assets/css/components/components.css',
+      'assets/css/components/main.css',
+      'assets/css/components/footer-schneider.css',
+      'assets/css/utilities/utilities.css',
     ];
     include __DIR__ . '/../partials/styles.php';
   ?>
@@ -281,7 +290,8 @@ if (!file_exists($countUpLocal)) $assetErrors[] = 'CountUp.js faltante.';
   </div>
 <?php endif; ?>
 
-<div class="container-fluid py-3 content-main">
+<div class="content-main">
+  <div class="container py-4">
   <!-- BLOQUE CENTRAL -->
   <div class="row gx-3 mb-4 cards-grid">
     <div class="col-12 col-lg-4 mb-3 area-tool">
@@ -618,37 +628,17 @@ if (!file_exists($countUpLocal)) $assetErrors[] = 'CountUp.js faltante.';
       </div>
     </div>
   </div>
+</div>
 </div><!-- .content-main -->
+<section id="wizard-dashboard"></section>
 
 <!-- SCRIPTS -->
 <script>window.step6Params = <?= $jsonParams ?>; window.step6Csrf = '<?= $csrfToken ?>';</script>
-<?php if ($bootstrapJsRel): ?>
-  <script src="<?= $bootstrapJsRel ?>"></script>
-<?php else: ?>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<?php endif; ?>
-<script src="<?= file_exists($featherLocal)
-  ? asset('node_modules/feather-icons/dist/feather.min.js')
-  : 'https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js' ?>"></script>
-<script src="<?= file_exists($chartJsLocal)
-  ? asset('node_modules/chart.js/dist/chart.umd.min.js')
-  : 'https://cdn.jsdelivr.net/npm/chart.js/dist/chart.umd.min.js' ?>"></script>
-<script src="<?= file_exists($countUpLocal)
-  ? asset('node_modules/countup.js/dist/countUp.umd.js')
-  : 'https://cdn.jsdelivr.net/npm/countup.js/dist/countUp.umd.min.js' ?>"></script>
-<?php if (!$embedded && $step6JsRel): ?>
-  <script src="<?= $step6JsRel ?>"></script>
-<?php endif; ?>
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    if (typeof window.initStep6 === 'function') initStep6();
-  });
-  window.addEventListener('pageshow', e => {
-    if (!e.persisted && typeof window.initStep6 === 'function') {
-      initStep6();
-    }
-  });
-</script>
+<script src="<?= $bootstrapJsRel ?>"></script>
+<script src="<?= asset('node_modules/feather-icons/dist/feather.min.js') ?>"></script>
+<script src="<?= asset('node_modules/chart.js/dist/chart.umd.min.js') ?>"></script>
+<script src="<?= asset('node_modules/countup.js/dist/countUp.umd.js') ?>"></script>
+<script src="<?= $step6JsRel ?>"></script>
 <script>feather.replace();</script>
 
 <?php if (!$embedded): ?>
