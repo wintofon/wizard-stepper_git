@@ -141,15 +141,7 @@ $thickness      = (float)$_SESSION['thickness'];
 $powerAvail     = (float)$_SESSION['hp'];
 
 // Nombre de transmisión
-try {
-    $transName = $pdo->prepare('SELECT name FROM transmissions WHERE id = ?');
-    $transName->execute([(int)$_SESSION['trans_id']]);
-    $transName = $transName->fetchColumn() ?: 'N/D';
-} catch (Throwable $e) {
-    $transName = 'N/D';
-}
 
-$notesArray = $params['notes'] ?? [];
 
 // ────────────────────────────────────────────────────────────────
 // Assets locales
