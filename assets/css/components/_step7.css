@@ -1,0 +1,140 @@
+/* ============================================================================
+ * File: assets/css/pages/_step6.css      •  Revisión épica 2025-06-23
+ * Paso 7 — Resultados y ajuste fino
+ * ---------------------------------------------------------------------------
+ *  ✔ Cohesión visual con _step5.css y el resto del wizard
+ *  ✔ 100 % variable-driven (usa las vars globales de settings/_variables.css)
+ *  ✔ Grid CSS fluido: las tarjetas se auto-acomodan (no más “desfasajes”)
+ *  ✔ Radar siempre centrado; canvas escala al contenedor
+ *  ✔ Ferrea separación de alcance -> todo va bajo .step7
+ * ==========================================================================*/
+
+@import url('../settings/_variables.css');
+
+/* -------------------------------------------------------------------------
+ * Tarjetas genéricas
+ * ---------------------------------------------------------------------- */
+.step7 .card,
+.step7 .config-card-static,
+.step7 .notes-card {
+  margin-bottom : 1rem;
+  border        : 1px solid var(--border-color);
+  border-radius : .5rem;
+  background    : var(--bg-card);
+  overflow      : hidden;                /* quita “sangrados” de sombras */
+}
+
+.step7 .card.h-100 { display: flex; flex-direction: column; }
+
+.step7 .card-header {
+  border-bottom : 1px solid var(--border-color);
+  background    : var(--bg-header);
+  color         : var(--accent-color);
+  font-weight   : 600;
+  text-align    : center;
+  cursor        : default;               /* pasa a pointer si colapsable */
+}
+
+/* -------------------------------------------------------------------------
+ * Tool card
+ * ---------------------------------------------------------------------- */
+.step7 .tool-image   { display:block; max-height:120px; margin:.75rem auto; object-fit:contain; }
+.step7 .tool-name    { margin-top:.5rem;  font:600 1.1rem/1 var(--ff-base); }
+.step7 .tool-type    { font-size:.95rem;  color:var(--text-color-sec); }
+
+/* Especificaciones (ul/li) */
+.step7 .spec-list          { margin:0; padding-left:0; list-style:disc inside; }
+.step7 .spec-list li       { display:flex; justify-content:space-between; margin-bottom:.4rem; }
+.step7 .spec-list li span:first-child { color:var(--text-color-sec); }
+.step7 .spec-list li span:last-child  { font-weight:600; color:var(--accent-color); }
+
+/* -------------------------------------------------------------------------
+ * Grid de tarjetas
+ * ---------------------------------------------------------------------- */
+.step7 .cards-grid {
+  --gap: 1rem;
+  display:grid;
+  gap: var(--gap);
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  align-items:start;
+}
+
+/* -------------------------------------------------------------------------
+ * Sliders (comparten _slider.css); sólo ajustes de layout aquí
+ * ---------------------------------------------------------------------- */
+.step7 .form-label   { margin-bottom:.35rem; font-weight:600; }
+.step7 #errorMsg     { display:none; font-size:.85rem; color:#f44; }
+
+/* -------------------------------------------------------------------------
+ * Resultados compactos
+ * ---------------------------------------------------------------------- */
+.step7 .result-box {
+  flex:1;
+  min-width:80px;
+  margin:.3rem;
+  padding:.5rem;
+  border:1px solid var(--border-color);
+  border-radius:.25rem;
+  text-align:center;
+}
+.step7 .param-label  { font-size:.75rem; color:var(--text-color-sec); }
+.step7 .fw-bold      { font:700 1.1rem/1 var(--ff-base); color:var(--accent-color); }
+
+/* Garantizar que el canvas nunca desborde */
+.step7 #radarChart   { width:100% !important; height:auto !important; }
+
+/* -------------------------------------------------------------------------
+ * Configuración estática
+ * ---------------------------------------------------------------------- */
+.step7 .config-card-static       { padding:.8rem; }
+.step7 .config-section-title     { margin-bottom:.25rem; font-weight:600; color:var(--text-color-sec); }
+.step7 .config-item              { display:flex; justify-content:space-between; margin:.25rem 0; }
+.step7 .label-static             { color:var(--text-color-sec); }
+.step7 .value-static             { font-weight:600; color:var(--accent-color); }
+.step7 .section-divider          { margin:.5rem 0; border-bottom:1px solid rgb(255 255 255 / 10%); }
+
+/* -------------------------------------------------------------------------
+ * Notas
+ * ---------------------------------------------------------------------- */
+.step7 .notes-card   { padding:.8rem; }
+.step7 .notes-list   { margin:0; padding:0; list-style:none; }
+.step7 .notes-list li{ display:flex; gap:.5rem; align-items:flex-start; padding:.25rem 0; }
+.step7 .notes-list i { margin-top:.2rem; font-size:1rem; color:var(--accent-color); }
+.step7 .notes-list div{ font-size:.9rem; color:var(--text-color); }
+
+/* -------------------------------------------------------------------------
+ * Overlay Spinner
+ * ---------------------------------------------------------------------- */
+.step7 .spinner-overlay {
+  position:absolute; inset:0; z-index:10;
+  display:flex; justify-content:center; align-items:center;
+  background:rgb(0 0 0 / 50%);
+  border-radius:.5rem;
+  visibility:hidden;
+}
+.step7 .spinner-overlay.show { visibility:visible; }
+
+.step7 .spinner-border {
+  --sz: var(--spinner-size, 3rem);
+  width:var(--sz); height:var(--sz);
+  border:4px solid var(--accent-color-light);
+  border-top-color:var(--accent-color);
+  border-radius:50%;
+  animation:spin .8s linear infinite;
+}
+@keyframes spin { to{ transform:rotate(360deg); } }
+
+/* -------------------------------------------------------------------------
+ * Debug helper (solo se activa si el cuerpo tiene .debug-mode)
+ * ---------------------------------------------------------------------- */
+.step7 body.debug-mode *         { outline:1px solid rgb(255 0 0 / 20%); }
+.step7 body.debug-mode .card     { outline:1px dashed magenta; }
+
+/* -------------------------------------------------------------------------
+ * Mobile tweaks → el layout grid ya se adapta, así que no se necesita nada
+ * ---------------------------------------------------------------------- */
+
+/* Indicador en headers colapsables (sin molestar al stepper) */
+.step7 .card-header[data-bs-toggle="collapse"] { cursor:pointer; }
+
+/* ======================================================================= */

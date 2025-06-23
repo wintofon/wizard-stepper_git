@@ -152,14 +152,14 @@ switch ($state) {
         // Leemos “tool_mode” de sesión (por defecto manual)
         $mode = $_SESSION['tool_mode'] ?? 'manual';
 
-        // Etiquetas para la barra de progreso (1..6)
+        // Etiquetas para la barra de progreso (1..7)
         $labels = [
             1 => $mode === 'auto' ? 'Material + Espesor'    : 'Herramienta',
             2 => $mode === 'auto' ? 'Estrategia'            : 'Detalles Herramienta',
             3 => $mode === 'auto' ? 'Recomend. Herramienta' : 'Estrategia',
             4 => $mode === 'auto' ? 'Detalles Herramienta'  : 'Material + Espesor',
             5 => 'Máquina',
-            6 => 'Resultado'
+            6 => 'Máquina', 7 => 'Resultado'
         ];
 
         // Obtenemos el arreglo de pasos desde StepperFlow

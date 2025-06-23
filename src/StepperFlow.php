@@ -7,15 +7,15 @@
  * @TODO Extend documentation.
  */
 /** File: src/StepperFlow.php
- *  Responsibility: define flujos de 6 pasos
+ *  Responsibility: define flujos de 7 pasos
  */
 namespace IndustrialWizard;
 
 class StepperFlow
 {
     public const FLOWS = [
-        'manual' => [1,2,3,4,5,6],
-        'auto'   => [1,2,3,4,5,6]
+        'manual' => [1,2,3,4,5,6,7],
+        'auto'   => [1,2,3,4,5,6,7]
     ];
 
     public static function get(string $mode): array

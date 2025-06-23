@@ -14,7 +14,7 @@
  *   – rpm_min < rpm_max
  *   – feed_max > 0
  *   – hp       > 0
- * Después guarda en sesión y avanza a step6.php
+ * Después guarda en sesión y avanza a step7.php
  */
 declare(strict_types=1);
 
@@ -88,10 +88,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'rpm_max'         => $rpmm,
             'feed_max'        => $feed,
             'hp'              => $hp,
-            'wizard_progress' => 6,
+            'wizard_progress' => 7,
         ];
         session_write_close();
-        header('Location: step6.php');
+        header('Location: step7.php');
         exit;
     }
 }

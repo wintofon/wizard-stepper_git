@@ -93,7 +93,7 @@ dbg('✔ Estado wizard: OK');
 // [7] VALIDAR PARÁMETRO “step”
 // ─────────────────────────────────────────────────────────────
 $step = filter_var($requestedStep, FILTER_VALIDATE_INT, [
-    'options' => ['min_range' => 1, 'max_range' => 6]
+    'options' => ['min_range' => 1, 'max_range' => 7]
 ]);
 if ($step === false || $step === null) {
     dbg('❌ Parámetro step inválido');
