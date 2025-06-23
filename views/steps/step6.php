@@ -89,6 +89,65 @@ $_SESSION['trans_id'] = $_SESSION['transmission_id'] ?? ($_SESSION['trans_id']  
 $_SESSION['fr_max']   = $_SESSION['feed_max']        ?? ($_SESSION['fr_max']     ?? null);
 $_SESSION['strategy'] = $_SESSION['strategy_id']     ?? ($_SESSION['strategy']   ?? null);
 
+// ────────────────────────────────────────────────────────────────
+// CSRF token
+// ────────────────────────────────────────────────────────────────
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+$csrfToken = $_SESSION['csrf_token'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!hash_equals($csrfToken, (string)($_POST['csrf_token'] ?? ''))) {
+        http_response_code(403);
+        exit('Error CSRF: petición no autorizada.');
+    }
+}
+
+// ────────────────────────────────────────────────────────────────
+// Validar claves requeridas
+// ────────────────────────────────────────────────────────────────
+$requiredKeys = [
+    'tool_table','tool_id','material','trans_id',
+    'rpm_min','rpm_max','fr_max','thickness',
+    'strategy','hp'
+];
+$missing = array_filter($requiredKeys, fn($k) => empty($_SESSION[$k]));
+if ($missing) {
+    http_response_code(400);
+    echo "<pre class='step6-error'>ERROR – faltan claves en sesión:\n" . implode(', ', $missing) . "</pre>";
+    exit;
+}
+
+// ────────────────────────────────────────────────────────────────
+// Conexión BD
+// ────────────────────────────────────────────────────────────────
+$dbFile = __DIR__ . '/../../includes/db.php';
+if (!is_readable($dbFile)) {
+    http_response_code(500);
+    exit('Error interno: falta el archivo de conexión a la BD.');
+}
+require_once $dbFile;           //-> $pdo
+if (!isset($pdo) || !($pdo instanceof PDO)) {
+    http_response_code(500);
+    exit('Error interno: no hay conexión a la base de datos.');
+}
+
+// ────────────────────────────────────────────────────────────────
+// Cargar modelos y utilidades
+// ────────────────────────────────────────────────────────────────
+$root = dirname(__DIR__, 2) . '/';
+foreach ([
+    'src/Controller/ExpertResultController.php',
+    'src/Model/ToolModel.php',
+    'src/Model/ConfigModel.php',
+    'src/Utils/CNCCalculator.php'
+] as $rel) {
+    if (!is_readable($root.$rel)) {
+        http_response_code(500);
+        exit("Error interno: falta {$rel}");
+    }
+    require_once $root.$rel;
+}
 
 // ────────────────────────────────────────────────────────────────
 // Datos herramienta y parámetros base
