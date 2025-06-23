@@ -164,22 +164,16 @@ body.debug-mode .card {outline: 1px dashed magenta;}
 .debug-panel.show {display: block;}
 
 /* ==========================  Mobile tweaks  ======================== */
+/*
+ * Mobile tweaks
+ * La versión actual del Paso 6 ya no utiliza un contenedor
+ * fijo para los sliders, por lo que este bloque generaba un
+ * margen inferior excesivo y estilos huérfanos. Se elimina
+ * el layout fijo y el margen extra para evitar distorsiones
+ * en pantallas pequeñas.
+ */
 @media (width <= 991px) {
-  .content-main {margin-bottom: 12rem;}
-
-  .slider-box {
-    position: fixed;
-    z-index: 1040;
-    bottom: 0; left: 0;
-
-    overflow-y: auto;
-
-    width: 100%;
-    max-height: 50%;
-    padding: 0.5rem;
-
-    background: var(--bg-card);
-  }
+  /* Sin margen adicional ni slider-box flotante */
 }
 
 /* Indicador de cabezales colapsables (sin interferir con stepper) */
