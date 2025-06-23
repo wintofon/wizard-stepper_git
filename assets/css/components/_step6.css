@@ -1,110 +1,140 @@
 /* ============================================================================
  * File: assets/css/pages/_step6.css      •  Revisión épica 2025-06-23
- * Paso 6  –  Configurar router / máquina
+ * Paso 6 — Resultados y ajuste fino
  * ---------------------------------------------------------------------------
- *  ✔️ 100 % variable-driven (paleta y tamaños heredados de settings/*.css)
- *  ✔️ No genera “side-effects” fuera del scope .step6
- *  ✔️ Estados :disabled y :invalid coherentes en tema oscuro
- *  ✔️ Maquetación 100 % responsive (xs-lg en una sola fila)
- *  ✔️ Todos los colores pasan por var()  → un solo sitio para tunear
+ *  ✔ Cohesión visual con _step5.css y el resto del wizard
+ *  ✔ 100 % variable-driven (usa las vars globales de settings/_variables.css)
+ *  ✔ Grid CSS fluido: las tarjetas se auto-acomodan (no más “desfasajes”)
+ *  ✔ Radar siempre centrado; canvas escala al contenedor
+ *  ✔ Ferrea separación de alcance -> todo va bajo .step6
  * ==========================================================================*/
 
-/* --------- Ámbito del Paso 6 para evitar colisiones ---------------------- */
-.step6 { /* <body> del fragmento que carga load-step.php */ }
+@import url('../settings/_variables.css');
 
-/* =======================  Etiquetas y controles  ========================= */
-.step6 .form-label {
-  margin-bottom : 0.3rem;
+/* -------------------------------------------------------------------------
+ * Tarjetas genéricas
+ * ---------------------------------------------------------------------- */
+.step6 .card,
+.step6 .config-card-static,
+.step6 .notes-card {
+  margin-bottom : 1rem;
+  border        : 1px solid var(--border-color);
+  border-radius : .5rem;
+  background    : var(--bg-card);
+  overflow      : hidden;                /* quita “sangrados” de sombras */
+}
+
+.step6 .card.h-100 { display: flex; flex-direction: column; }
+
+.step6 .card-header {
+  border-bottom : 1px solid var(--border-color);
+  background    : var(--bg-header);
+  color         : var(--accent-color);
   font-weight   : 600;
-  color         : var(--text-color-sec);
+  text-align    : center;
+  cursor        : default;               /* pasa a pointer si colapsable */
 }
 
-.step6 .form-control,
-.step6 .form-select {
-  border        : 1px solid var(--border-panel);
-  border-radius : .3125rem;
-  background    : var(--bg-panel);
-  color         : var(--text-color);
-  transition    : border-color .15s;
+/* -------------------------------------------------------------------------
+ * Tool card
+ * ---------------------------------------------------------------------- */
+.step6 .tool-image   { display:block; max-height:120px; margin:.75rem auto; object-fit:contain; }
+.step6 .tool-name    { margin-top:.5rem;  font:600 1.1rem/1 var(--ff-base); }
+.step6 .tool-type    { font-size:.95rem;  color:var(--text-color-sec); }
+
+/* Especificaciones (ul/li) */
+.step6 .spec-list          { margin:0; padding-left:0; list-style:disc inside; }
+.step6 .spec-list li       { display:flex; justify-content:space-between; margin-bottom:.4rem; }
+.step6 .spec-list li span:first-child { color:var(--text-color-sec); }
+.step6 .spec-list li span:last-child  { font-weight:600; color:var(--accent-color); }
+
+/* -------------------------------------------------------------------------
+ * Grid de tarjetas
+ * ---------------------------------------------------------------------- */
+.step6 .cards-grid {
+  --gap: 1rem;
+  display:grid;
+  gap: var(--gap);
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  align-items:start;
 }
 
-.step6 .form-control:focus,
-.step6 .form-select:focus {
-  border-color : var(--accent-color);
-  box-shadow   : 0 0 0 2px color-mix(in srgb, var(--accent-color) 50%, transparent);
-}
+/* -------------------------------------------------------------------------
+ * Sliders (comparten _slider.css); sólo ajustes de layout aquí
+ * ---------------------------------------------------------------------- */
+.step6 .form-label   { margin-bottom:.35rem; font-weight:600; }
+.step6 #errorMsg     { display:none; font-size:.85rem; color:#f44; }
 
-.step6 .form-control:disabled {
-  background : var(--border-panel);
-  color      : var(--text-color-sec);
-  opacity    : .65;
+/* -------------------------------------------------------------------------
+ * Resultados compactos
+ * ---------------------------------------------------------------------- */
+.step6 .result-box {
+  flex:1;
+  min-width:80px;
+  margin:.3rem;
+  padding:.5rem;
+  border:1px solid var(--border-color);
+  border-radius:.25rem;
+  text-align:center;
 }
+.step6 .param-label  { font-size:.75rem; color:var(--text-color-sec); }
+.step6 .fw-bold      { font:700 1.1rem/1 var(--ff-base); color:var(--accent-color); }
 
-/* =======================  Validación (Bootstrap)  ======================== */
-.step6 .is-invalid {
-  border-color : #e53935 !important;
-}
-.step6 .is-invalid:focus {
-  box-shadow   : 0 0 0 2px color-mix(in srgb, #e53935 50%, transparent);
-}
-.step6 .invalid-feedback {
-  font-size : .8rem;
-  color     : #ef9a9a;
-}
+/* Garantizar que el canvas nunca desborde */
+.step6 #radarChart   { width:100% !important; height:auto !important; }
 
-/* =========================  Alerts custom  =============================== */
-.step6 .alert-danger {
-  --bs-alert-bg        : #4c1d1d;
-  --bs-alert-color     : #f8d7da;
-  --bs-alert-border-col: #f5c2c7;
-  border-width : 1px;
-  border-style : solid;
-}
+/* -------------------------------------------------------------------------
+ * Configuración estática
+ * ---------------------------------------------------------------------- */
+.step6 .config-card-static       { padding:.8rem; }
+.step6 .config-section-title     { margin-bottom:.25rem; font-weight:600; color:var(--text-color-sec); }
+.step6 .config-item              { display:flex; justify-content:space-between; margin:.25rem 0; }
+.step6 .label-static             { color:var(--text-color-sec); }
+.step6 .value-static             { font-weight:600; color:var(--accent-color); }
+.step6 .section-divider          { margin:.5rem 0; border-bottom:1px solid rgb(255 255 255 / 10%); }
 
-/* =======================  Sección Parámetros  ============================ */
-#paramSection {   /* (oculto hasta elegir transmisión) */
-  display       : none;
-  margin-bottom : 1.5rem;
-}
+/* -------------------------------------------------------------------------
+ * Notas
+ * ---------------------------------------------------------------------- */
+.step6 .notes-card   { padding:.8rem; }
+.step6 .notes-list   { margin:0; padding:0; list-style:none; }
+.step6 .notes-list li{ display:flex; gap:.5rem; align-items:flex-start; padding:.25rem 0; }
+.step6 .notes-list i { margin-top:.2rem; font-size:1rem; color:var(--accent-color); }
+.step6 .notes-list div{ font-size:.9rem; color:var(--text-color); }
 
-@media (min-width: 576px) {
-  /* 4 × col-md-3 en una sola línea cuando hay lugar */
-  #paramSection .row.g-3 { flex-wrap: nowrap; }
+/* -------------------------------------------------------------------------
+ * Overlay Spinner
+ * ---------------------------------------------------------------------- */
+.step6 .spinner-overlay {
+  position:absolute; inset:0; z-index:10;
+  display:flex; justify-content:center; align-items:center;
+  background:rgb(0 0 0 / 50%);
+  border-radius:.5rem;
+  visibility:hidden;
 }
+.step6 .spinner-overlay.show { visibility:visible; }
 
-/* Espaciado consistente entre columnas */
-.step6 .row.g-3 .col-md-3 { margin-bottom: 1rem; }
+.step6 .spinner-border {
+  --sz: var(--spinner-size, 3rem);
+  width:var(--sz); height:var(--sz);
+  border:4px solid var(--accent-color-light);
+  border-top-color:var(--accent-color);
+  border-radius:50%;
+  animation:spin .8s linear infinite;
+}
+@keyframes spin { to{ transform:rotate(360deg); } }
 
-/* =========================  Grupo de radio-botones ======================= */
-.step6 .btn-check + .btn {
-  --bs-btn-bg        : var(--bg-panel);
-  --bs-btn-border-col: var(--border-panel);
-  --bs-btn-color     : var(--text-color);
-  --bs-btn-hover-bg  : var(--border-panel);
-}
+/* -------------------------------------------------------------------------
+ * Debug helper (solo se activa si el cuerpo tiene .debug-mode)
+ * ---------------------------------------------------------------------- */
+.step6 body.debug-mode *         { outline:1px solid rgb(255 0 0 / 20%); }
+.step6 body.debug-mode .card     { outline:1px dashed magenta; }
 
-.step6 .btn-check:checked + .btn,
-.step6 .btn-check:active + .btn,
-.step6 .btn-check + .btn:active {
-  --bs-btn-bg        : var(--accent-color);
-  --bs-btn-border-col: var(--accent-color);
-  --bs-btn-color     : var(--bg-body);
-}
+/* -------------------------------------------------------------------------
+ * Mobile tweaks → el layout grid ya se adapta, así que no se necesita nada
+ * ---------------------------------------------------------------------- */
 
-/* =============================  Botón Next =============================== */
-.step6 #nextWrap {
-  display   : none;      /* se activa vía JS cuando todo es válido */
-  text-align: end;
-}
-.step6 #nextWrap .btn-lg {
-  min-width : 140px;
-  font-weight: 600;
-  background : var(--accent-color);
-  border     : none;
-}
-.step6 #nextWrap .btn-lg:hover {
-  background : color-mix(in srgb, var(--accent-color) 85%, #fff);
-  color      : var(--bg-body);
-}
+/* Indicador en headers colapsables (sin molestar al stepper) */
+.step6 .card-header[data-bs-toggle="collapse"] { cursor:pointer; }
 
-/* ==========================================================================*/
+/* ======================================================================= */
