@@ -83,6 +83,9 @@
   <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
   <script>feather.replace();</script>
   <script src="<?= asset('assets/js/bootstrap.bundle.min.js') ?>"></script>
+  <!-- Step 6 dependencies -->
+  <script src="<?= asset('node_modules/chart.js/dist/chart.umd.min.js') ?>" defer></script>
+  <script src="<?= asset('node_modules/countup.js/dist/countUp.umd.js') ?>" defer></script>
   <script src="<?= asset('assets/js/wizard_stepper.js') ?>" defer></script>
   <script src="<?= asset('assets/js/dashboard.js') ?>" defer></script>
 
