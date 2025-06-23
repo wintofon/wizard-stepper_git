@@ -9,22 +9,28 @@
   'use strict';
 
   const BASE_URL = window.BASE_URL;
-  const DEBUG = true;
+  const DEBUG = window.DEBUG ?? false;
   const LS_KEY = 'wizard_progress';
   const LOAD_ENDPOINT = `${BASE_URL}/public/load-step.php`;
   const HANDLE_ENDPOINT = `${BASE_URL}/public/handle-step.php`;
 
+  const TAG = '[WizardStepper]';
   const $qs  = sel => document.querySelector(sel);
   const $qsa = sel => [...document.querySelectorAll(sel)];
-  const log  = (...args) => DEBUG && console.log('[Stepper]', ...args);
+  const logger = (lvl, ...a) => {
+    if (!DEBUG) return;
+    const ts = new Date().toISOString();
+    console[lvl](`${TAG} ${ts}`, ...a);
+  };
+  const log    = (...a) => logger('log', ...a);
+  const warn   = (...a) => logger('warn', ...a);
+  const error  = (...a) => logger('error', ...a);
+  const table  = (data) => { if (DEBUG) console.table(data); };
   const group = (title, fn) => {
     if (!DEBUG) return fn();
-    console.group(title); try { fn(); } finally { console.groupEnd(); }
-  };
-  const dbgMsg = txt => {
-    if (!DEBUG) return;
-    const ts = new Date().toLocaleTimeString();
-    console.log(`[${ts}] ${txt}`);
+    console.group(`${TAG} ${new Date().toISOString()} ${title}`);
+    try { return fn(); }
+    finally { console.groupEnd(); }
   };
 
   const stepsBar   = $qsa('.stepper li');
@@ -53,7 +59,8 @@
   };
 
   /** Ejecuta scripts <script> embebidos en el HTML del paso (necesario para los AJAX). */
-  const runStepScripts = container => {
+  const runStepScripts = container => group('runStepScripts', () => {
+    log('param container', container);
     // Ensure any <script> tags returned via AJAX are executed
     [...container.querySelectorAll('script')].forEach(tag => {
       if (tag.src) {
@@ -65,7 +72,7 @@
           if (tag.nonce) s.nonce = tag.nonce;  // mantener CSP
           s.defer = true;
           s.onload = () => log(`[stepper.js] Cargado: ${tag.src}`);
-          s.onerror = () => console.error(`[stepper.js] ⚠️ Falló carga: ${tag.src}`);
+          s.onerror = () => error(`⚠️ Falló carga: ${tag.src}`);
           document.head.appendChild(s);
         }
       } else {
@@ -78,18 +85,20 @@
           document.body.appendChild(inlineScript).remove();
           log('[stepper.js] Ejecutado inline script');
         } catch (err) {
-          console.warn('[stepper.js] Error ejecutando inline script', err);
+          warn('Error ejecutando inline script', err);
         }
       }
     });
-  };
+    log('return void');
+  });
 
 
   /** Carga por AJAX el paso y lo inyecta, ejecutando inicializadores de JS y dependencias */
   const loadStep = step => group(`loadStep(${step})`, () => {
+    log('param step', step);
     const prog = getProg();
     if (step < 1 || step > MAX_STEPS || step > prog + 1) {
-      dbgMsg('🔒 Salto bloqueado');
+      log('🔒 Salto bloqueado');
       renderBar(prog);
       return;
     }
@@ -125,7 +134,7 @@
               log('[stepper.js] 🔢 step6.js cargado OK');
               if (typeof window.initStep6 === 'function') window.initStep6();
             };
-            script.onerror = () => console.error('[stepper.js] ⚠️ Error cargando step6.js');
+            script.onerror = () => error('⚠️ Error cargando step6.js');
             document.body.appendChild(script);
           } else {
             if (typeof window.initStep6 === 'function') window.initStep6();
@@ -136,16 +145,17 @@
         renderBar(step);
         hookEvents();
         if (typeof window.initLazy === 'function') window.initLazy();
-        dbgMsg(`🧭 Paso ${step} cargado correctamente`);
+        log(`🧭 Paso ${step} cargado correctamente`);
+        log('return', step);
       })
       .catch(err => {
-        log('Error loadStep', err);
+        error('Error loadStep', err);
         stepHolder.innerHTML =
           `<div class="alert alert-danger">⚠️ Error cargando el paso ${step}: ${err.message}</div>`;
-        dbgMsg(err.message);
+        warn(err.message);
         if (err.message === 'FORBIDDEN') {
           localStorage.removeItem(LS_KEY);
-          dbgMsg('⚠️ Sesión desfasada. Reinicio.');
+          warn('⚠️ Sesión desfasada. Reinicio.');
           renderBar(1);
           loadStep(1);
         }
@@ -153,6 +163,7 @@
   });
 
   const sendForm = form => group('sendForm', () => {
+    log('param form', form);
     const data = new FormData(form);
     const cur = Number(data.get('step'));
 
@@ -164,6 +175,7 @@
         return r.json();
       })
       .then(js => {
+        table(js);
         if (!js.success) {
           alert(js.error || 'Error al procesar');
           return;
@@ -172,9 +184,10 @@
         if (next > MAX_STEPS) next = MAX_STEPS;
         setProg(next);
         loadStep(next);
+        log('return', next);
       })
       .catch(err => {
-        log('Error sendForm', err);
+        error('Error sendForm', err);
         if (err.message === 'FORBIDDEN') {
           localStorage.removeItem(LS_KEY);
           alert('Sesión expirada. Reinicio.');
@@ -182,12 +195,13 @@
           loadStep(1);
         } else {
           alert('Fallo de conexión');
-          dbgMsg(err.message);
+          warn(err.message);
         }
       });
   });
 
-  const hookEvents = () => {
+  const hookEvents = () => group('hookEvents', () => {
+    log('param none');
     // Attach validation and navigation handlers for the current step
     const form = stepHolder.querySelector('form');
     if (form) {
@@ -218,7 +232,8 @@
         if (n <= getProg()) loadStep(n);
       };
     });
-  };
+    log('return void');
+  });
 
   // INICIALIZACIÓN
   if (!localStorage.getItem(LS_KEY)) localStorage.setItem(LS_KEY, 1);

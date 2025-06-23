@@ -12,6 +12,14 @@ window.radarChartInstance = window.radarChartInstance || null;
 
 window.initStep6 = function () {
   const BASE_URL = window.BASE_URL;
+  const DEBUG = window.DEBUG ?? false;
+  const TAG = '[WizardStepper]';
+  const logger = (lvl, ...a) => { if (!DEBUG) return; const ts = new Date().toISOString(); console[lvl](`${TAG} ${ts}`, ...a); };
+  const log = (...a) => logger('log', ...a);
+  const warn = (...a) => logger('warn', ...a);
+  const error = (...a) => logger('error', ...a);
+  const table = d => { if (DEBUG) console.table(d); };
+  const group = (title, fn) => { if (!DEBUG) return fn(); console.group(`${TAG} ${new Date().toISOString()} ${title}`); try { return fn(); } finally { console.groupEnd(); } };
   // 1. Parámetros inyectados por PHP
   const {
     diameter: D,
@@ -47,6 +55,8 @@ window.initStep6 = function () {
       };
 
   function enhanceSlider(slider) {
+    return group('enhanceSlider', () => {
+    log('slider', slider);
     const wrap = slider.closest('.slider-wrap');
     if (!wrap) return;
     const bubble = wrap.querySelector('.slider-bubble');
@@ -61,6 +71,8 @@ window.initStep6 = function () {
     }
     slider.addEventListener('input', e => update(parseFloat(e.target.value)));
     update(parseFloat(slider.value));
+    log('return void');
+    });
   }
 
   // 3. Límites de Vc desde rpmMin/rpmMax
@@ -104,8 +116,13 @@ window.initStep6 = function () {
 
   // 6. Calcular feedrate Vf
   function computeFeed(vc, fz) {
-    const rpm = (vc * 1000) / (Math.PI * D);
-    return rpm * fz * Z;
+    return group('computeFeed', () => {
+      log('inputs', { vc, fz });
+      const rpm = (vc * 1000) / (Math.PI * D);
+      const result = rpm * fz * Z;
+      log('return', result);
+      return result;
+    });
   }
 
   // 7. Bloqueo de slider
@@ -140,6 +157,8 @@ window.initStep6 = function () {
 
   // 10. Handler común para fz/vc
   function onParamChange() {
+    group('onParamChange', () => {
+      log('vc', sVc.value, 'fz', sFz.value);
     clearError();
     const vc = parseFloat(sVc.value),
           fz = parseFloat(sFz.value),
@@ -158,6 +177,8 @@ window.initStep6 = function () {
     unlockSlider(sVc);
     unlockSlider(sFz);
     scheduleRecalc();
+    log('return void');
+    });
   }
 
   // 11. Conectar listeners
@@ -175,6 +196,7 @@ window.initStep6 = function () {
 
   // 12. AJAX + recalc
   async function recalc() {
+    return group('recalc', async () => {
     const payload = {
       fz:        parseFloat(sFz.value),
       vc:        parseFloat(sVc.value),
@@ -185,6 +207,7 @@ window.initStep6 = function () {
       params:    { fr_max, coef_seg, Kc11, mc, alpha, eta }
     };
 
+    table(payload);
     try {
       const res = await fetch(`${BASE_URL}/ajax/step6_ajax_legacy_minimal.php`, {
         method: 'POST',
@@ -227,9 +250,13 @@ window.initStep6 = function () {
         radar.data.datasets[0].data = d.radar;
         radar.update();
       }
+      table(d);
     } catch (e) {
+      error('recalc error', e);
       showError(`Conexión fallida: ${e.message}`);
     }
+    log('return void');
+    });
   }
 
   // 15. Kickoff
