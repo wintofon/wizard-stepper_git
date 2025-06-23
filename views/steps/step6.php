@@ -228,9 +228,7 @@ $assetErrors = [];
 <!-- SCRIPTS -->
 <script>window.step6Params = <?= $jsonParams ?>; window.step6Csrf = '<?= $csrfToken ?>';</script>
 <script src="<?= $bootstrapJsRel ?>"></script>
-<script src="<?= asset('node_modules/feather-icons/dist/feather.min.js') ?>"></script>
-<script src="<?= asset('node_modules/chart.js/dist/chart.umd.min.js') ?>"></script>
-<script src="<?= asset('node_modules/countup.js/dist/countUp.umd.js') ?>"></script>
+
 <script src="<?= $step6JsRel ?>"></script>
 <script>feather.replace();</script>
 </body>
