@@ -1,6 +1,6 @@
 <?php
 /**
- * File: views/steps/auto/step5.php
+ * File: views/steps/auto/step6.php
  * -----------------------------------------------------------------------------
  * Paso 5 (Auto) – Configuración del router CNC
  * -----------------------------------------------------------------------------
@@ -32,7 +32,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     ]);
 }
 
-// Para llegar a Paso 5 el usuario debe haber completado hasta Paso 4.
+// Para llegar a Paso 4 el usuario debe haber completado hasta Paso 5.
 if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 5) {
     header('Location: step1.php');
     exit;
@@ -44,7 +44,7 @@ if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 5
 require_once __DIR__ . '/../../includes/db.php';    // $pdo conexión PDO
 require_once __DIR__ . '/../../includes/debug.php'; // dbg() helper opcional
 
-dbg('👋 Entrando a Step 5');
+dbg('👋 Entrando a Step 6');
 
 /* -------------------------------------------------------------------------- */
 /* 3)  TOKEN CSRF                                                              */
