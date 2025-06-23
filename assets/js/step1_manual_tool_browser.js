@@ -128,10 +128,11 @@
   function renderTable(){
     tableBody.innerHTML='';
     toolsData.forEach(t=>{
-      tableBody.insertAdjacentHTML('beforeend',`
+        tableBody.insertAdjacentHTML('beforeend',`
         <tr>
           <td><button class="btn btn-sm btn-primary select-btn"
-                 data-tool_id="${t.tool_id}" data-tbl="${t.tbl}">✓</button></td>
+                 data-tool_id="${t.tool_id}" data-tbl="${t.tbl}">
+                 Seleccionar <i class="bi bi-arrow-right"></i></button></td>
           <td><span class="badge bg-info text-dark">${t.brand}</span></td>
           <td>${t.series_code}</td>
           <td>${t.details.image?`<img src="${BASE_URL}/${t.details.image}" class="thumb">`:''}</td>

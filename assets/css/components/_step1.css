@@ -72,8 +72,8 @@
 }
 
 .thumb {               /* Miniaturas de marcas */
-  width: 40px;
-  height: 40px;
+  width: 80px;        /* ancho ampliado */
+  height: 80px;       /* mantiene proporción */
   border: 1px solid #ddd;
   object-fit: contain; /* evita distorsión de la imagen */
 }
