@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   btnStart.addEventListener('click', () => {
     console.group("%c[WelcomeInit🛡️] Click en INICIAR","color:#4caf50;font-weight:bold");
-    console.log("🗡️ Desatando reset épico de sesión... ", `${BASE_URL}/public/reset.php`);
+    console.log("🗡️ Desatando reset ÉPICO de sesión... ", `${BASE_URL}/public/reset.php`);
 
     // Llamada al reset en backend
     fetch(`${BASE_URL}/public/reset.php`, { method: 'GET' })
@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}`);
         }
-        console.log("🔄 Sesión PHP destruida con éxito.");
+        console.log("🔄 Núcleo PHP aniquilado con gloria.");
       })
       .catch(err => {
         console.warn("⚠️ Error destruyendo sesión:", err);
@@ -45,6 +45,8 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("🧹 Limpiando progreso en localStorage...");
         localStorage.removeItem('wizard_progress');
         console.log("✅ localStorage limpio.");
+
+        console.log("🛰️ Sincronización total completada.");
 
         const nextUrl = `${BASE_URL}/wizard.php?state=mode`;
         console.log("🚀 Redirigiendo a selección de modo:", nextUrl);
