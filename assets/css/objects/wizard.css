@@ -20,7 +20,8 @@
 */
 body.has-stepper,
 .wizard-body {
-  padding-top: var(--stepper-h);
+  /* Se eliminó el padding superior para que el stepper quede pegado al borde */
+  padding-top: 0;
   /* Si hay anchors (#id) en la página, que no queden tapados */
   scroll-margin-top: var(--stepper-h);
 }
