@@ -1,12 +1,16 @@
 <?php declare(strict_types=1);
 /**
- * Paso 6 – Resultados (mini + embebible) — versión 2
- * Ahora incluye la tarjeta “Resultados compactos” con
- * Feedrate y RPM en grande, manteniendo la misma estructura
- * visual del paso 5.
+ * Paso 6 – Resultados (mini & embebible) — versión **clean**
+ * ----------------------------------------------------------------
+ * Replica la estructura exacta del paso 5 (grid Bootstrap en filas
+ * de 4 columnas) para que el stepper no se deforme.
+ *   • Si WIZARD_EMBEDDED está definido, simplemente escupe el <main>
+ *     sin scripts globales y el wizard lo incrusta.
+ *   • El bloque de métricas usa el mismo patrón visual que el paso 5
+ *     (input-group con span valores).
  */
 
-/* 1) Sesión segura y flujo */
+/* 1) Sesión y flujo */
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start([
         'cookie_secure'   => true,
@@ -20,7 +24,7 @@ if ((int)($_SESSION['wizard_progress'] ?? 0) < 5) {
 }
 
 /* 2) Dependencias */
-require_once __DIR__ . '/../../includes/db.php';               // → $pdo
+require_once __DIR__ . '/../../includes/db.php'; // → $pdo
 require_once __DIR__ . '/../../src/Model/ToolModel.php';
 require_once __DIR__ . '/../../src/Controller/ExpertResultController.php';
 
@@ -28,20 +32,20 @@ require_once __DIR__ . '/../../src/Controller/ExpertResultController.php';
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
-$csrfToken = $_SESSION['csrf_token'];
+$csrf = $_SESSION['csrf_token'];
 
-/* 4) Datos herramienta + parámetros */
-$tool  = ToolModel::getTool($pdo, $_SESSION['tool_table'], $_SESSION['tool_id']) ?? [];
-$par   = ExpertResultController::getResultData($pdo, $_SESSION) ?? [];
+/* 4) Datos */
+$tool = ToolModel::getTool($pdo, $_SESSION['tool_table'], $_SESSION['tool_id']) ?? [];
+$par  = ExpertResultController::getResultData($pdo, $_SESSION) ?? [];
 
-$code  = htmlspecialchars($tool['tool_code'] ?? '—');
-$name  = htmlspecialchars($tool['name']      ?? '—');
-$rpm   = number_format($par['rpm0']  ?? 0, 0, '.', '');
-$feed  = number_format($par['feed0'] ?? 0, 0, '.', '');
-$vc    = number_format($par['vc0']   ?? 0, 1, '.', '');
-$fz    = number_format($par['fz0']   ?? 0, 4, '.', '');
+$code = htmlspecialchars($tool['tool_code'] ?? '—');
+$name = htmlspecialchars($tool['name']      ?? '—');
 
-/* 5) Estado embebido */
+$rpm  = number_format($par['rpm0']  ?? 0, 0, '.', '');
+$feed = number_format($par['feed0'] ?? 0, 0, '.', '');
+$vc   = number_format($par['vc0']   ?? 0, 1, '.', '');
+$fz   = number_format($par['fz0']   ?? 0, 4, '.', '');
+
 $embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
 ?>
 <!DOCTYPE html>
@@ -68,42 +72,33 @@ $embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
   <h2 class="step-title"><i data-feather="bar-chart-2"></i> Resultados</h2>
   <p class="step-desc">Revisá los parámetros calculados y continuá.</p>
 
-  <!-- Tarjeta de resultados compactos -->
-  <div class="card mb-4 shadow-sm">
-    <div class="card-body d-flex justify-content-around">
-      <div class="text-center">
-        <div class="small text-muted">Feedrate</div>
-        <div class="display-6 fw-bold"><?= $feed ?></div>
-        <small class="text-muted">mm/min</small>
-      </div>
-      <div class="text-center">
-        <div class="small text-muted">RPM</div>
-        <div class="display-6 fw-bold"><?= $rpm ?></div>
-        <small class="text-muted">rev/min</small>
-      </div>
-    </div>
-  </div>
-
-  <!-- Tarjeta resumen herramienta -->
+  <!-- Resumen herramienta → mismo formato que el paso 5  -->
   <div class="card mb-4 shadow-sm">
     <div class="card-body text-center">
-      <h5 class="mb-1"><?= $code ?></h5>
+      <h5 class="mb-1 fw-bold"><?= $code ?></h5>
       <small class="text-muted"><?= $name ?></small>
     </div>
   </div>
 
-  <!-- Grid de métricas básicas -->
-  <form method="post" class="needs-validation" novalidate>
+  <!-- Grid con 4 métricas clave (estructura exacta paso 5) -->
+  <form method="post" id="resultsForm" class="needs-validation" novalidate>
     <input type="hidden" name="step" value="6">
-    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf) ?>">
 
     <div class="row g-3">
-      <?php $arr=[ ['Vc',$vc,'m/min'], ['fz',$fz,'mm/z'] ];
-      foreach($arr as [$lbl,$val,$unit]): ?>
+      <?php $metrics=[
+        ['rpm','RPM',      $rpm,  'rev/min'],
+        ['feed','Feedrate',$feed, 'mm/min'],
+        ['vc','Vc',        $vc,   'm/min'],
+        ['fz','fz',        $fz,   'mm/z'],
+      ];
+      foreach($metrics as [$id,$label,$val,$unit]): ?>
         <div class="col-md-3">
-          <label class="form-label"><?= $lbl ?></label>
+          <label class="form-label" for="<?= $id ?>_show"><?= $label ?></label>
           <div class="input-group">
-            <span class="form-control bg-light fw-bold text-end"><?= $val ?></span>
+            <span id="<?= $id ?>_show" class="form-control bg-light fw-bold text-end">
+              <?= $val ?>
+            </span>
             <span class="input-group-text"><?= $unit ?></span>
           </div>
         </div>
