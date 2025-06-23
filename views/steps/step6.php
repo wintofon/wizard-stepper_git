@@ -2,6 +2,7 @@
 
 
 <?php
+declare(strict_types=1);
 /**
  * File: views/steps/step6.php
  * Descripción: Paso 6 – Resultados expertos del Wizard CNC
@@ -15,7 +16,7 @@
  *   - window.step6Params y window.step6Csrf para el JS
  */
 
-declare(strict_types=1);
+
 
 if (!getenv('BASE_URL')) {
     // Sube 3 niveles: /views/steps/step6.php → /wizard-stepper_git
