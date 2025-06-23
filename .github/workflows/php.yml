@@ -1,0 +1,66 @@
+name: PHP CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:       # permite dispararlo a mano desde la pestaña Actions
+
+permissions:
+  contents: read           # el job sólo necesita leer el repo
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php-versions: [ '8.1', '8.2', '8.3' ]   # ← agregá/sacá versiones acá
+
+    steps:
+      # 1) Checkout
+      - uses: actions/checkout@v4
+
+      # 2) Instalar la versión de PHP indicada en la matriz
+      - name: Set up PHP ${{ matrix.php-versions }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          coverage: none              # activá xdebug si necesitás coverage
+
+      # 3) Cache de Composer (usa el directorio real de cache)
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer packages
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-php-${{ matrix.php-versions }}-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-${{ matrix.php-versions }}-
+
+      # 4) Validar composer.json / composer.lock
+      - name: Validate composer files
+        run: composer validate --strict
+
+      # 5) Instalar dependencias
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      # 6) Generar autoloader optimizado
+      - name: Dump optimized autoloader
+        run: composer dump-autoload -o
+
+      # 7) Ejecutar test suite
+      - name: Run test suite
+        run: composer run-script test
+
+      # 8) (opcional) subir artefactos, coverage, etc.
+      # - name: Upload coverage
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: coverage-${{ matrix.php-versions }}
+      #     path: build/coverage
