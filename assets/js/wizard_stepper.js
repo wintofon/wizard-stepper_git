@@ -52,11 +52,18 @@
       li.classList.toggle('done',      n < prog);
       li.classList.toggle('active',    n === current);
       li.classList.toggle('clickable', n <= prog - 1);
-      li.innerHTML =
+     li.innerHTML =
         `<span>${n}. ${li.dataset.label}</span>` +
-        (n < prog ? ' ✅' : n === current ? ' 🟢' : '');
+        (n < prog
+          ? ' <i data-feather="check-circle"></i>'
+          : n === current
+            ? ' <i data-feather="circle"></i>'
+            : '');
     });
+    // Reemplazar iconos Feather después de actualizar la barra
+    if (window.feather) feather.replace();
   };
+
 
   /** Ejecuta scripts <script> embebidos en el HTML del paso (necesario para los AJAX). */
   const runStepScripts = container => group('runStepScripts', () => {
