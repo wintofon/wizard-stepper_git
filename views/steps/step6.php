@@ -1,25 +1,14 @@
 
 
 
-<?php
+<?php declare(strict_types=1); // 👈 todo junto, sin espacios antes
+
 /**
- * File: step5.php
- *
- * Main responsibility: Part of the CNC Wizard Stepper.
- * Related files: See others in this project.
- * @TODO Extend documentation.
+ * File: views/steps/step6.php
+ * …
  */
-/**
- * Paso 5 (Auto) – Configurar router
- * Protegido con CSRF, controla flujo y valida:
- *   – rpm_min > 0
- *   – rpm_max > 0
- *   – rpm_min < rpm_max
- *   – feed_max > 0
- *   – hp       > 0
- * Después guarda en sesión y avanza a step6.php
- */
-declare(strict_types=1);
+
+// acá sigue tu código…
 
 
 
