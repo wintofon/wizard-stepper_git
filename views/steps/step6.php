@@ -3,13 +3,15 @@
  * File: views/steps/step6.php
  * Descripción: Paso 6 – Resultados expertos del Wizard CNC
  *
- * 🔧 Correcciones clave (2025‑06‑23):
- *   1. Header, footer y scripts globales sólo se imprimen cuando $embedded === false
- *      para evitar que el fragmento AJAX contamine el DOM del stepper.
- *   2. feather.replace() se dispara dentro de requestAnimationFrame para que siempre
- *      ocurra después de que el DOM esté listo.
- *   3. Todos los <script src> marcados con defer, reduciendo el bloqueo de render.
- *   4. No se retiró ninguna lógica business; se tocó únicamente el marco HTML.
+ * 🔧 Ajustes clave (2025‑07‑13):
+ *   1. En modo embebido sólo se imprime el <div class="step6"> y el script
+ *      window.step6Params.
+ *   2. Doctype, <html>, <head>, <body>, footer y parciales se encierran en
+ *      `if (!$embedded)` para no contaminar el DOM.
+ *   3. Los <script src> externos se cargan una única vez desde wizard_stepper.js.
+ *   4. feather.replace() se ejecuta mediante requestAnimationFrame una sola vez.
+ *   5. Cualquier parcial adicional debe sumarse al mismo condicional.
+ *   6. Se eliminaron líneas en blanco extra para conservar el minidiff.
  *
  * 👉 Si necesitás debuggear, usá ?debug=1 en la URL y se activan trazas extra.
  */
@@ -649,9 +651,6 @@ if (!file_exists($countUpLocal))
 <script src="<?= asset('node_modules/countup.js/dist/countUp.umd.js') ?>" defer></script>
 <script src="<?= $step6JsRel ?>" defer></script>
 <script>requestAnimationFrame(() => feather.replace());</script>
-<?php endif; ?>
-
-<?php if (!$embedded): ?>
 </body>
 </html>
 <?php endif; ?>
