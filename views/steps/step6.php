@@ -41,11 +41,18 @@ if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 5
 /* -------------------------------------------------------------------------- */
 /* 2)  DEPENDENCIAS                                                            */
 /* -------------------------------------------------------------------------- */
-require_once __DIR__ . '/../../includes/db.php';    // $pdo conexión PDO
-require_once __DIR__ . '/../../includes/debug.php'; // dbg() helper opcional
+// BASE_URL (por si el front-controller no lo definió)
+if (!defined('BASE_URL') && !getenv('BASE_URL')) {
+    putenv('BASE_URL=' . rtrim(dirname(dirname(dirname($_SERVER['SCRIPT_NAME']))), '/'));
+}
 
-dbg('👋 Entrando a Step 6');
+require_once __DIR__ . '/../../src/Config/AppConfig.php';
+require_once __DIR__ . '/../../includes/wizard_helpers.php';
+require_once __DIR__ . '/../../includes/db.php';       // → $pdo (PDO)
+require_once __DIR__ . '/../../includes/debug.php';    // dbg() helper silencioso
 
+use App\Controller\ExpertResultController;
+use App\Model\ToolModel;
 /* -------------------------------------------------------------------------- */
 /* 3)  TOKEN CSRF                                                              */
 /* -------------------------------------------------------------------------- */
