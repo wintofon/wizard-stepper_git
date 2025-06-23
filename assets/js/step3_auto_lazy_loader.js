@@ -8,13 +8,12 @@ const container = document.getElementById('toolContainer');
 const sentinel = document.getElementById('scrollSentinel');
 const diaFilter = document.getElementById('diaFilter');
 const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
-const L = window.Logger;
 const materialId = parseInt(container.dataset.material, 10);
 const strategyId = parseInt(container.dataset.strategy, 10);
 const thickness = parseFloat(container.dataset.thickness || '0');
 
 window.dbg = function (...m) {
-  L.log(...m);
+  console.log('[STEP3]', ...m);
 };
 
 let page = 1;

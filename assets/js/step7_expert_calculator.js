@@ -12,10 +12,9 @@
 /* global module */
 
 function initExpertResult(P) {
-  const L = window.Logger;
   if (!P || typeof P !== 'object') {
     const msg = '❌ Error: No se recibió el objeto de parámetros (P) o no es válido.';
-    L.error(msg);
+    console.error(msg);
     return;
   }
 
@@ -23,7 +22,7 @@ function initExpertResult(P) {
   const missing = required.filter(k => P[k] === undefined);
   if (missing.length > 0) {
     const msg = '❌ Faltan datos en el objeto P: ' + missing.join(', ');
-    L.error(msg);
+    console.error(msg);
     return;
   }
 
@@ -53,7 +52,7 @@ function initExpertResult(P) {
     .map(([id]) => id);
   if (missingDom.length > 0) {
     const msg = '❌ Elementos del DOM faltantes: ' + missingDom.join(', ');
-    L.error(msg);
+    console.error(msg);
     return;
   }
 
@@ -198,7 +197,7 @@ function initExpertResult(P) {
     if (warnL) warnL.style.display = rpm < P.rpmMin ? 'block' : 'none';
     if (warnH) warnH.style.display = rpm > P.rpmMax ? 'block' : 'none';
 
-    L.log([
+    console.log([
       `MMR: ${mmr.toFixed(2)} mm³/min`,
       `RPM: ${Math.round(rpmClamped)}`,
       `Feed: ${Math.round(feed)} mm/min`,
