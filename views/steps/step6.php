@@ -164,24 +164,7 @@ $notesArray = $params['notes'] ?? [];
 // ────────────────────────────────────────────────────────────────
 // Assets locales
 // ────────────────────────────────────────────────────────────────
-$cssBootstrapRel = asset('assets/css/generic/bootstrap.min.css');
-$bootstrapJsRel  = asset('assets/js/bootstrap.bundle.min.js');
-$featherLocal    = $root.'node_modules/feather-icons/dist/feather.min.js';
-$chartJsLocal    = $root.'node_modules/chart.js/dist/chart.umd.min.js';
-$countUpLocal    = $root.'node_modules/countup.js/dist/countUp.umd.js';
-$step6JsRel      = asset('assets/js/step6.js');
 
-$assetErrors = [];
-if (!is_readable($root.'assets/css/generic/bootstrap.min.css'))
-    $assetErrors[] = 'Bootstrap CSS no encontrado localmente.';
-if (!is_readable($root.'assets/js/bootstrap.bundle.min.js'))
-    $assetErrors[] = 'Bootstrap JS no encontrado localmente.';
-if (!file_exists($featherLocal))
-    $assetErrors[] = 'Feather Icons JS faltante.';
-if (!file_exists($chartJsLocal))
-    $assetErrors[] = 'Chart.js faltante.';
-if (!file_exists($countUpLocal))
-    $assetErrors[] = 'CountUp.js faltante.';
 
 // =====================================================================
 // =========================  COMIENZA SALIDA  ==========================
