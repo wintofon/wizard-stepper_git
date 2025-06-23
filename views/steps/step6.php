@@ -93,14 +93,6 @@ $requiredKeys = [
     'rpm_min', 'rpm_max', 'feed_max', 'thickness',
     'strategy_id', 'hp'
 ];
-$missing = array_filter($requiredKeys, fn($k) => empty($_SESSION[$k]));
-if ($missing) {
-    dbg('🚫 Faltan claves en sesión: ' . implode(', ', $missing));
-    http_response_code(400);
-    echo "<pre class='step6-error'>ERROR – faltan datos de pasos previos: "
-        . implode(', ', $missing) . "</pre>";
-    exit;
-}
 
 
 
