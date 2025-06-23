@@ -1,23 +1,21 @@
 /*
  * File: step6.js
- * Ultimate CNC Wizard Step 6 – límites estrictos y lógica rebelde ⚔️
+ * Epic CNC Wizard Step 6 – sliders centrados y rango ±50%, recálculos y radar dinámico 🏹
  *
  * Main responsibilities:
- *   • Sliders de vc y fz con límites bidireccionales:
- *       – vc no puede sobrepasar RPM mínimo/máximo
- *       – fz no puede sobrepasar valores mínimos/máximos de paso por diente
- *   • Cálculo de feedrate independiente (solo fz modifica el avance)
- *   • Recálculos AJAX con CSRF para datos precisos
- *   • Radar Chart reflexivo: Vida Útil, Terminación y Potencia según fz;
- *     y actualización de Potencia vía slider de feedrate (mm³/min).
- *   • Console logs épicos en cada paso con `console.group`
+ *   • Slider VC centrado en rpm0 ±50% (rango dinámico)
+ *   • Slider FZ limitado según fz_min0 y fz_max0
+ *   • Cálculo de feedrate independiente con validaciones
+ *   • Recálculos AJAX seguros con CSRF
+ *   • Radar Chart reflexivo de VidaÚtil, Terminación y Potencia según fz
+ *   • Epic console logs via console.group, emojis, estilos
  *
  * Behavior:
- *   – Aumentar fz: ↑Potencia, ↑Vida Útil, ↓Terminación
- *   – Disminuir fz: ↓Potencia, ↓Vida Útil, ↑Terminación
- *   – Slider vc ajusta RPM y feedrate simultáneamente (ambos tienen restricciones)
+ *   – Aumentar fz: ↑Potencia, ↑VidaÚtil, ↓Terminación
+ *   – Disminuir fz: ↓Potencia, ↓VidaÚtil, ↑Terminación
+ *   – VC slider alterará rpm y feedrate dentro de ±50% del valor base
  *
- * Related files: ajax/step6_ajax_legacy_minimal.php
+ * Related: ajax/step6_ajax_legacy_minimal.php
  */
 /* global Chart, window */
 (() => {
@@ -26,10 +24,10 @@
   // ===== CONFIG & LOGGING =====
   const BASE_URL = window.BASE_URL;
   const DEBUG    = window.DEBUG ?? true;
-  const STYLE    = 'color:#9c27b0;font-weight:bold';
-  const log      = (...args) => DEBUG && console.log('%c[Step6🚀]', STYLE, ...args);
-  const warn     = (...args) => DEBUG && console.warn('%c[Step6⚠️]', STYLE, ...args);
-  const errorLog = (...args) => DEBUG && console.error('%c[Step6💥]', STYLE, ...args);
+  const STYLE    = 'color:#2196f3;font-weight:bold';
+  const log      = (...a) => DEBUG && console.log('%c[Step6🚀]', STYLE, ...a);
+  const warn     = (...a) => DEBUG && console.warn('%c[Step6⚠️]', STYLE, ...a);
+  const errorLog = (...a) => DEBUG && console.error('%c[Step6💥]', STYLE, ...a);
   const table    = data => DEBUG && console.table(data);
   const group    = (title, fn) => {
     if (!DEBUG) return fn();
@@ -41,8 +39,10 @@
   const {
     diameter: D = 0,
     flute_count: Z = 1,
-    rpm_min = 0,
-    rpm_max = 0,
+    rpm0 = 0,
+    fz0 = 0,
+    fz_min0 = 0,
+    fz_max0 = 1,
     fr_max = Infinity,
     coef_seg = 0,
     Kc11 = 1,
@@ -51,24 +51,24 @@
     eta = 1
   } = window.step6Params || {};
   const csrfToken = window.step6Csrf;
-  log('Loaded params:', { D, Z, rpm_min, rpm_max, fr_max });
+  log('Loaded params:', {D, Z, rpm0, fz0, fz_min0, fz_max0, fr_max});
 
   // ===== DOM ELEMENTS =====
   const $ = id => document.getElementById(id);
-  const sFz       = $('sliderFz');
-  const sVc       = $('sliderVc');
-  const sAe       = $('sliderAe');
-  const sP        = $('sliderPasadas');
-  const infoP     = $('textPasadasInfo');
-  const err       = $('errorMsg');
-  const out       = {
+  const sFz   = $('sliderFz');
+  const sVc   = $('sliderVc');
+  const sAe   = $('sliderAe');
+  const sP    = $('sliderPasadas');
+  const infoP = $('textPasadasInfo');
+  const err   = $('errorMsg');
+  const out   = {
     vc:    $('outVc'),    fz:    $('outFz'),    hm: $('outHm'),
     n:     $('outN'),     vf:    $('outVf'),    hp: $('outHp'),
     mmr:   $('valueMrr'), fc:    $('valueFc'),   w:  $('valueW'),
     eta:   $('valueEta'), ae:    $('outAe'),     ap: $('outAp')
   };
   if (![sFz, sVc, sAe, sP, infoP, err].every(Boolean) || !out.vc) {
-    errorLog('DOM elements missing. Aborting initStep6.');
+    errorLog('Missing DOM elements – aborting Step6.');
     return;
   }
 
@@ -78,53 +78,48 @@
     err.style.display = 'block';
     warn(msg);
   }
-
   function clearError() {
     err.style.display = 'none';
     err.textContent = '';
   }
-
   function clamp(val, min, max) {
     return Math.min(Math.max(val, min), max);
   }
 
   // ===== SLIDER ENHANCEMENT =====
-  function enhance(slider, min, max, precision) {
+  function enhance(slider, min, max, step) {
     group(`Enhance ${slider.id}`, () => {
-      const wrap   = slider.closest('.slider-wrap');
+      const wrap = slider.closest('.slider-wrap');
       const bubble = wrap.querySelector('.slider-bubble');
-      slider.min   = min;
-      slider.max   = max;
-      slider.step  = precision;
-
+      slider.min  = min;
+      slider.max  = max;
+      slider.step = step;
       function update(raw) {
         const v = clamp(raw, parseFloat(min), parseFloat(max));
         slider.value = v;
-        const pct = ((v - parseFloat(min)) / (parseFloat(max) - parseFloat(min))) * 100;
+        const pct = (v - parseFloat(min)) / (parseFloat(max) - parseFloat(min)) * 100;
         wrap.style.setProperty('--val', pct);
-        if (bubble) bubble.textContent = v.toFixed(precision < 1 ? 2 : 0);
+        if (bubble) bubble.textContent = v.toFixed(step < 1 ? 2 : 0);
       }
-
       slider.addEventListener('input', e => update(parseFloat(e.target.value)));
       update(parseFloat(slider.value));
-      log(`${slider.id} bounded [${min}, ${max}] with step ${precision}`);
+      log(`${slider.id} bounded [${min},${max}] step ${step}`);
     });
   }
 
   // ===== SET SLIDER LIMITS =====
   group('SetSliderLimits', () => {
-    // VC slider limits by rpm
-    const minVc = (rpm_min * Math.PI * D) / 1000;
-    const maxVc = (rpm_max * Math.PI * D) / 1000;
-    // FZ slider limits from params
-    const fzParams = window.step6Params || {};
-    const minFz = fzParams.fz_min0 ?? 0.001;
-    const maxFz = fzParams.fz_max0 ?? 1;
+    // VC: center at rpm0, ±50%
+    const vcMin = rpm0 * 0.5;
+    const vcMax = rpm0 * 1.5;
+    // FZ: use fz_min0, fz_max0
+    const fzMin = fz_min0;
+    const fzMax = fz_max0;
 
-    enhance(sVc, minVc, maxVc, 1);
-    enhance(sFz, minFz, maxFz, 0.001);
+    enhance(sVc, vcMin.toFixed(1), vcMax.toFixed(1), 1);
+    enhance(sFz, fzMin.toFixed(3), fzMax.toFixed(3), 0.001);
 
-    log('Slider limits set: VC:[minVc,maxVc], FZ:[minFz,maxFz]');
+    log('Slider limits set: VC in ±50% of rpm0, FZ within [min,max]');
   });
 
   // ===== RADAR INITIALIZATION =====
@@ -133,55 +128,36 @@
   if (canvas) {
     if (radar) radar.destroy();
     radar = new Chart(canvas.getContext('2d'), {
-      type: 'radar',
-      data: {
-        labels: ['Vida útil', 'Terminación', 'Potencia'],
-        datasets: [{
-          data: [50, 50, 50],
-          backgroundColor: 'rgba(156,39,176,0.3)',
-          borderColor:     'rgba(156,39,176,0.8)',
-          borderWidth: 2
-        }]
-      },
-      options: {
-        scales: {
-          r: {
-            beginAtZero: true,
-            suggestedMax: 100,
-            ticks: { stepSize: 20 }
-          }
-        },
-        plugins: { legend: { display: false } }
-      }
+      type: 'radar', data: {
+        labels: ['Vida útil','Terminación','Potencia'],
+        datasets:[{ data:[50,50,50], backgroundColor:'rgba(33,150,243,0.3)', borderColor:'rgba(33,150,243,0.8)', borderWidth:2 }]
+      }, options:{ scales:{r:{beginAtZero:true,suggestedMax:100,ticks:{stepSize:20}}}, plugins:{legend:{display:false}} }
     });
     window.radarChartInstance = radar;
-    log('Radar initialized with neutral start values');
-  } else warn('Radar canvas element not found');
+    log('Radar initialized at neutral');
+  } else warn('Radar canvas missing');
 
-  // ===== RECALCULATION LOGIC =====
-  function computeFeed(vc, fz) {
+  // ===== RECALC LOGIC =====
+  function computeFeed(vc,fz) {
     return group('computeFeed', () => {
-      const rpm  = (vc * 1000) / (Math.PI * D);
-      const feed = rpm * fz * Z;
-      log('Computed:', { rpm: rpm.toFixed(0), feed: feed.toFixed(2) });
-      return { rpm, feed };
+      const rpm  = vc;
+      const feedMm = rpm * fz * Z;
+      log('Computed feedrate', feedMm.toFixed(0));
+      return { rpm, feed: feedMm };
     });
   }
 
   const thickness = parseFloat(sP.dataset.thickness) || 0;
   function updatePasses() {
-    const maxP = Math.ceil(thickness / parseFloat(sAe.value));
-    sP.min = 1;
-    sP.max = maxP;
-    if (+sP.value > maxP) sP.value = maxP;
-    infoP.textContent = `${sP.value} pasadas de ${(thickness / +sP.value).toFixed(2)} mm`;
+    const maxPass = Math.ceil(thickness / parseFloat(sAe.value));
+    sP.min = 1; sP.max = maxPass;
+    if (+sP.value > maxPass) sP.value = maxPass;
+    infoP.textContent = `${sP.value} pasadas de ${(thickness/+sP.value).toFixed(2)} mm`;
   }
 
   let timer;
   function scheduleRecalc() {
-    clearError();
-    clearTimeout(timer);
-    timer = setTimeout(recalc, 300);
+    clearError(); clearTimeout(timer); timer = setTimeout(recalc, 300);
   }
 
   function onVCChange() {
@@ -189,16 +165,15 @@
       const vcVal = clamp(+sVc.value, +sVc.min, +sVc.max);
       sVc.value = vcVal;
       const { rpm, feed } = computeFeed(vcVal, +sFz.value);
-      if (rpm < rpm_min || rpm > rpm_max) {
-        showError(`RPM fuera de rango: ${rpm.toFixed(0)}`);
+      if (rpm < vcMin || rpm > vcMax) {
+        showError(`VC fuera de rango: ${rpm.toFixed(0)}`);
         return;
       }
       if (feed > fr_max) {
-        showError(`Feed > límite (${fr_max})`);
+        showError(`Feedrate > límite (${fr_max})`);
         return;
       }
-      // Update output
-      out.n.textContent = rpm.toFixed(0);
+      out.n.textContent  = rpm.toFixed(0);
       out.vf.textContent = feed.toFixed(0);
       scheduleRecalc();
     });
@@ -209,12 +184,10 @@
       const fzVal = clamp(+sFz.value, +sFz.min, +sFz.max);
       sFz.value = fzVal;
       const { rpm, feed } = computeFeed(+sVc.value, fzVal);
-      // Only feed validation
       if (feed > fr_max) {
-        showError(`Feed > límite (${fr_max})`);
+        showError(`Feedrate > límite (${fr_max})`);
         return;
       }
-      // Update feed display
       out.fz.textContent = fzVal.toFixed(3);
       out.vf.textContent = feed.toFixed(0);
       scheduleRecalc();
@@ -228,44 +201,27 @@
 
   async function recalc() {
     return group('recalc', async () => {
-      const payload = {
-        fz:     +sFz.value,
-        vc:     +sVc.value,
-        ae:     +sAe.value,
-        passes: +sP.value,
-        thickness,
-        D, Z,
-        params: { fr_max, coef_seg, Kc11, mc, alpha, eta }
-      };
+      const payload = { fz:+sFz.value, vc:+sVc.value, ae:+sAe.value, passes:+sP.value, thickness, D, Z, params:{fr_max,coef_seg,Kc11,mc,alpha,eta} };
       table(payload);
       try {
-        const res = await fetch(`${BASE_URL}/ajax/step6_ajax_legacy_minimal.php`, {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
-          body:    JSON.stringify(payload),
-          cache:   'no-store'
-        });
-        if (!res.ok) throw new Error(res.status === 403 ? 'Sesión expirada' : `HTTP ${res.status}`);
-        const js = await res.json();
-        if (!js.success) throw new Error(js.error || 'Error en servidor');
-        const d = js.data;
-        // Paint core results
-        out.vc.textContent    = `${d.vc} m/min`;
-        out.fz.textContent    = `${d.fz} mm/tooth`;
-        out.hm.textContent    = `${d.hm} mm`;
-        out.n.textContent     = d.n;
-        out.vf.textContent    = `${d.vf} mm/min`;
-        out.hp.textContent    = `${d.hp} HP`;
-        out.mmr.textContent   = d.mmr;
-        out.fc.textContent    = d.fc;
-        out.w.textContent     = d.watts;
-        out.eta.textContent   = `${d.etaPercent}%`;
-        out.ae.textContent    = d.ae.toFixed(2);
-        out.ap.textContent    = d.ap.toFixed(3);
-
-        // Radar logic: update life/polish/power based on d.radar
-        if (radar && Array.isArray(d.radar) && d.radar.length === 3) {
-          radar.data.datasets[0].data        = d.radar;
+        const res = await fetch(`${BASE_URL}/ajax/step6_ajax_legacy_minimal.php`, { method:'POST', headers:{'Content-Type':'application/json','X-CSRF-Token':csrfToken}, body:JSON.stringify(payload), cache:'no-store' });
+        if (!res.ok) throw new Error(res.status===403?'Sesión expirada':`HTTP ${res.status}`);
+        const js  = await res.json(); if (!js.success) throw new Error(js.error||'Error servidor');
+        const d   = js.data;
+        out.vc.textContent  = `${d.vc} m/min`;
+        out.fz.textContent  = `${d.fz} mm/tooth`;
+        out.hm.textContent  = `${d.hm} mm`;
+        out.n.textContent   = d.n;
+        out.vf.textContent  = `${d.vf} mm/min`;
+        out.hp.textContent  = `${d.hp} HP`;
+        out.mmr.textContent = d.mmr;
+        out.fc.textContent  = d.fc;
+        out.w.textContent   = d.watts;
+        out.eta.textContent = `${d.etaPercent}%`;
+        out.ae.textContent  = d.ae.toFixed(2);
+        out.ap.textContent  = d.ap.toFixed(3);
+        if (radar && Array.isArray(d.radar) && d.radar.length===3) {
+          radar.data.datasets[0].data = d.radar;
           const maxRadar = Math.max(...d.radar, 100) * 1.1;
           radar.options.scales.r.suggestedMax = maxRadar;
           radar.update();
@@ -280,7 +236,6 @@
 
   // ===== INITIALIZATION =====
   log('initStep6 started');
-  updatePasses();
-  recalc();
+  updatePasses(); recalc();
   window.addEventListener('error', e => showError(e.message));
 })();
