@@ -21,7 +21,7 @@
 declare(strict_types=1);
 
 /* -------------------------------------------------------------------------- */
-/* 1)  SESIÓN SEGURA Y CONTROL DE FLUJO                                        */
+/* 1)  SESIÓN SEGURA Y CONTROL DE FLUJO    - corregido                                    */
 /* -------------------------------------------------------------------------- */
 // Si la sesión aún no está activa, se crea con cookies seguras.
 if (session_status() !== PHP_SESSION_ACTIVE) {
@@ -39,7 +39,7 @@ if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 5
 }
 
 /* -------------------------------------------------------------------------- */
-/* 2)  DEPENDENCIAS                                                            */
+/* 2)  DEPENDENCIAS                         - corregido                                   */
 /* -------------------------------------------------------------------------- */
 // BASE_URL (por si el front-controller no lo definió)
 if (!defined('BASE_URL') && !getenv('BASE_URL')) {
@@ -53,6 +53,39 @@ require_once __DIR__ . '/../../includes/debug.php';    // dbg() helper silencios
 
 use App\Controller\ExpertResultController;
 use App\Model\ToolModel;
+
+
+
+/* -------------------------------------------------------------------------- */
+/* 3)  MODO EMBEBIDO (load-step.php)   _ CORREGUIDO                                        */
+/* -------------------------------------------------------------------------- */
+$embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* -------------------------------------------------------------------------- */
 /* 3)  TOKEN CSRF                                                              */
 /* -------------------------------------------------------------------------- */
