@@ -1,53 +1,71 @@
 <?php
 /**
- * File: step5.php
- *
- * Main responsibility: Part of the CNC Wizard Stepper.
- * Related files: See others in this project.
- * @TODO Extend documentation.
+ * File: views/steps/auto/step5.php
+ * -----------------------------------------------------------------------------
+ * Paso 5 (Auto) – Configuración del router CNC
+ * -----------------------------------------------------------------------------
+ * RESPONSABILIDAD
+ *   • Mostrar un formulario con las transmisiones disponibles                            
+ *   • Validar la selección del usuario y los parámetros numéricos ingresados            
+ *   • Guardar la configuración en sesión y avanzar a Paso 6                             
+ *                                                                                       
+ * PUNTOS CRÍTICOS                                                                        
+ *   1) Seguridad de sesión + cabeceras                                                   
+ *   2) Protección CSRF                                                                   
+ *   3) Validaciones servidor ↔ cliente (JS)                                              
+ *   4) Persistencia de valores previos (para UX)                                         
+ *                                                                                       
+ * NOTA: los estilos y el JS de Bootstrap se cargan vía CDN para simplicidad.             
  */
-/**
- * Paso 5 (Auto) – Configurar router
- * Protegido con CSRF, controla flujo y valida:
- *   – rpm_min > 0
- *   – rpm_max > 0
- *   – rpm_min < rpm_max
- *   – feed_max > 0
- *   – hp       > 0
- * Después guarda en sesión y avanza a step6.php
- */
+
 declare(strict_types=1);
 
-/* 1) Sesión segura y flujo */
+/* -------------------------------------------------------------------------- */
+/* 1)  SESIÓN SEGURA Y CONTROL DE FLUJO                                        */
+/* -------------------------------------------------------------------------- */
+// Si la sesión aún no está activa, se crea con cookies seguras.
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start([
-        'cookie_secure'   => true,
-        'cookie_httponly' => true,
-        'cookie_samesite' => 'Strict',
+        'cookie_secure'   => true,      // sólo cookie en HTTPS
+        'cookie_httponly' => true,      // inaccesible para JS
+        'cookie_samesite' => 'Strict',  // bloquea CSRF por navegação cruzada
     ]);
 }
+
+// Para llegar a Paso 5 el usuario debe haber completado hasta Paso 4.
 if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 5) {
     header('Location: step1.php');
     exit;
 }
 
-/* 2) Dependencias */
-require_once __DIR__ . '/../../includes/db.php';
-require_once __DIR__ . '/../../includes/debug.php';
+/* -------------------------------------------------------------------------- */
+/* 2)  DEPENDENCIAS                                                            */
+/* -------------------------------------------------------------------------- */
+require_once __DIR__ . '/../../includes/db.php';    // $pdo conexión PDO
+require_once __DIR__ . '/../../includes/debug.php'; // dbg() helper opcional
 
-/* 3) CSRF token */
+dbg('👋 Entrando a Step 5');
+
+/* -------------------------------------------------------------------------- */
+/* 3)  TOKEN CSRF                                                              */
+/* -------------------------------------------------------------------------- */
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 $csrfToken = $_SESSION['csrf_token'];
 
-/* 4) Transmisiones desde BD */
-$txList = $pdo->query("
-    SELECT id, name, rpm_min, rpm_max, feed_max, hp_default
-      FROM transmissions
-    ORDER BY name
-")->fetchAll(PDO::FETCH_ASSOC);
+dbg('🔑 CSRF token listo');
 
+/* -------------------------------------------------------------------------- */
+/* 4)  CARGAR TRANSMISIONES DESDE BD                                           */
+/* -------------------------------------------------------------------------- */
+$txList = $pdo->query(
+    'SELECT id, name, rpm_min, rpm_max, feed_max, hp_default
+       FROM transmissions
+   ORDER BY name'
+)->fetchAll(PDO::FETCH_ASSOC);
+
+// Mapeamos IDs → data para validar rápido el POST
 $validTx = [];
 foreach ($txList as $t) {
     $validTx[(int)$t['id']] = [
@@ -58,29 +76,40 @@ foreach ($txList as $t) {
     ];
 }
 
-/* 5) Procesar POST */
+dbg('⚙️ Transmisiones cargadas: '.count($txList));
+
+/* -------------------------------------------------------------------------- */
+/* 5)  PROCESAR ENVÍO DEL FORMULARIO                                           */
+/* -------------------------------------------------------------------------- */
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    /* 5.1) Validar token CSRF */
     if (!hash_equals($csrfToken, (string)($_POST['csrf_token'] ?? ''))) {
         $errors[] = 'Token de seguridad inválido. Recargá la página e intentá de nuevo.';
     }
+
+    /* 5.2) Controlar que el campo oculto step valga 5 */
     if ((int)($_POST['step'] ?? 0) !== 5) {
         $errors[] = 'Paso inválido. Reiniciá el asistente.';
     }
 
+    /* 5.3) Sanitizar / validar input numérico */
     $id   = filter_input(INPUT_POST, 'transmission_id', FILTER_VALIDATE_INT);
     $rpmn = filter_input(INPUT_POST, 'rpm_min',         FILTER_VALIDATE_INT);
     $rpmm = filter_input(INPUT_POST, 'rpm_max',         FILTER_VALIDATE_INT);
     $feed = filter_input(INPUT_POST, 'feed_max',        FILTER_VALIDATE_FLOAT);
     $hp   = filter_input(INPUT_POST, 'hp',              FILTER_VALIDATE_FLOAT);
 
+    /* 5.4) Reglas de negocio */
     if (!isset($validTx[$id]))           $errors[] = 'Elegí una transmisión válida.';
     if (!$rpmn || $rpmn <= 0)            $errors[] = 'La RPM mínima debe ser > 0.';
     if (!$rpmm || $rpmm <= 0)            $errors[] = 'La RPM máxima debe ser > 0.';
-    if ($rpmn && $rpmm && $rpmn >= $rpmm)$errors[] = 'La RPM mínima debe ser menor que la máxima.';
+    if ($rpmn && $rpmm && $rpmn >= $rpmm) $errors[] = 'La RPM mínima debe ser menor que la máxima.';
     if (!$feed || $feed <= 0)            $errors[] = 'El avance máximo debe ser > 0.';
     if (!$hp   || $hp   <= 0)            $errors[] = 'La potencia debe ser > 0.';
 
+    /* 5.5) En caso de OK, guardar en sesión y avanzar */
     if (!$errors) {
         $_SESSION += [
             'transmission_id' => $id,
@@ -91,12 +120,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'wizard_progress' => 5,
         ];
         session_write_close();
+        dbg('✅ Parámetros router guardados, redirigiendo a Step 6');
         header('Location: step6.php');
         exit;
     }
 }
 
-/* 6) Valores previos */
+/* -------------------------------------------------------------------------- */
+/* 6)  VALORES PREVIOS PARA RE-RENDER                                         */
+/* -------------------------------------------------------------------------- */
 $prev = [
     'transmission_id' => $_SESSION['transmission_id'] ?? '',
     'rpm_min'         => $_SESSION['rpm_min']        ?? '',
@@ -105,6 +137,11 @@ $prev = [
     'hp'              => $_SESSION['hp']             ?? '',
 ];
 $hasPrev = (int)$prev['transmission_id'] > 0;
+
+/* -------------------------------------------------------------------------- */
+/* 7)  RENDER HTML                                                            */
+/* -------------------------------------------------------------------------- */
+$embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
 ?>
 <!DOCTYPE html>
 <html lang="es"><head>
@@ -112,20 +149,26 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
 <title>Paso 5 – Configurá tu router</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <?php
+  /* 7.1) Cargar CSS */
   $styles = [
     'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
     'assets/css/objects/step-common.css',
     'assets/css/components/_step5.css',
   ];
-  $embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
   include __DIR__ . '/../partials/styles.php';
 ?>
 <?php if (!$embedded): ?>
-<script>
-  window.BASE_URL = <?= json_encode(BASE_URL) ?>;
+<script><!-- Exponer BASE_URL sólo cuando no está embebido -->
+  window.BASE_URL  = <?= json_encode(BASE_URL) ?>;
   window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
 </script>
 <?php endif; ?>
 </head><body>
-hOLA
+
+<!-- Placeholder simple de contenido -->
+<main class="container py-4">
+  <h1 class="display-6">Hola Step 5 ✅</h1>
+  <p>Falta integrar el formulario; este archivo es sólo plantilla comentada.</p>
+</main>
+
 </body></html>
