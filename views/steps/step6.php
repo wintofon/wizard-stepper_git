@@ -97,28 +97,66 @@ $requiredKeys = [
 
 
 
-
 /* -------------------------------------------------------------------------- */
 /* 6)  CARGAR DATOS DE HERRAMIENTA Y PARÁMETROS BASE                           */
 /* -------------------------------------------------------------------------- */
-$toolData = ToolModel::getTool(
-    $pdo,
-    (string)$_SESSION['tool_table'],
-    (int)$_SESSION['tool_id']
-) ?: null;
+
+/* 6.0) Asegurá que los modelos estén cargados (si usás Composer, omití esto) */
+$root = dirname(__DIR__, 3) . '/';  // → /project_root/
+foreach ([
+    'src/Model/ToolModel.php',
+    'src/Controller/ExpertResultController.php',
+] as $rel) {
+    $abs = $root . $rel;
+    if (is_readable($abs)) require_once $abs;
+}
+
+/* 6.1) Validar claves mínimas antes de ir a BD */
+$toolTable = (string)($_SESSION['tool_table'] ?? '');
+$toolId    = (int)($_SESSION['tool_id']      ?? 0);
+
+if (!$toolTable || !$toolId) {
+    dbg('🟥 tool_table o tool_id vacío en sesión', compact('toolTable', 'toolId'));
+    http_response_code(400);
+    exit('Faltan datos de herramienta (tool_table / tool_id).');
+}
+
+/* 6.2) Obtener datos de la herramienta */
+try {
+    $toolData = \App\Model\ToolModel::getTool($pdo, $toolTable, $toolId);
+} catch (Throwable $e) {
+    dbg('🟥 Error al consultar herramienta: ' . $e->getMessage());
+    http_response_code(500);
+    exit('Error interno al cargar la herramienta.');
+}
 
 if (!$toolData) {
     http_response_code(404);
-    exit('Herramienta no encontrada.');
+    exit('Herramienta no encontrada en la base de datos.');
 }
 
-$params = ExpertResultController::getResultData($pdo, $_SESSION);
-$jsonParams = json_encode($params, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-
-if ($jsonParams === false) {
+/* 6.3) Calcular parámetros técnicos del paso */
+try {
+    $params = \App\Controller\ExpertResultController::getResultData($pdo, $_SESSION);
+} catch (Throwable $e) {
+    dbg('🟥 Error getResultData: ' . $e->getMessage());
     http_response_code(500);
-    exit('No se pudo serializar parámetros técnicos.');
+    exit('No se pudieron calcular los parámetros técnicos.');
 }
+
+/* 6.4) Serializar en JSON para exponer a JS */
+try {
+    $jsonParams = json_encode(
+        $params,
+        JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR
+    );
+} catch (Throwable $e) {
+    dbg('🟥 json_encode falló: ' . $e->getMessage());
+    http_response_code(500);
+    exit('Error al serializar parámetros técnicos.');
+}
+
+dbg('✅ Herramienta cargada y parámetros listos');
 
 
 
