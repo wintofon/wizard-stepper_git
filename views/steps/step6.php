@@ -23,7 +23,8 @@ declare(strict_types=1);
 /* -------------------------------------------------------------------------- */
 /* 1)  SESIÓN SEGURA Y CONTROL DE FLUJO                                        */
 /* -------------------------------------------------------------------------- */
- // Si la sesión aún no está activa, se crea con cookies seguras.
+// Si la sesión aún no está activa, se crea con cookies seguras.
+if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start([
         'cookie_secure'   => true,      // sólo cookie en HTTPS
         'cookie_httponly' => true,      // inaccesible para JS
@@ -36,50 +37,8 @@ if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 5
     header('Location: step1.php');
     exit;
 }
-/* 
-if (!getenv('BASE_URL')) {
-    // Sube 3 niveles: /views/steps/step6.php → /wizard-stepper_git
-    putenv(
-        'BASE_URL=' . rtrim(
-            dirname(dirname(dirname($_SERVER['SCRIPT_NAME']))),
-            '/'
-        )
-    );
-}
-require_once __DIR__ . '/../../src/Config/AppConfig.php';
 
-use App\Controller\ExpertResultController;
-
-// ────────────────────────────────────────────────────────────────
-// Utilidades / helpers
-// ────────────────────────────────────────────────────────────────
-
-require_once __DIR__ . '/../../includes/wizard_helpers.php';
-
-// ────────────────────────────────────────────────────────────────
-// ¿Vista embebida por load-step.php?
-// ────────────────────────────────────────────────────────────────
-$embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
-
-// ────────────────────────────────────────────────────────────────
-// Sesión segura (siempre antes de imprimir cabeceras)
-// ────────────────────────────────────────────────────────────────
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_set_cookie_params([
-        'lifetime' => 0,
-        'path'     => '/',
-        'secure'   => true,
-        'httponly' => true,
-        'samesite' => 'Strict'
-    ]);
-    session_start();
-}
-
-
-// ────────────────────────────────────────────────────────────────
-// Debug opcional
-// ────────────────────────────────────────────────────────────────
-
+/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------/* 
 /* 2)  DEPENDENCIAS                                                            */
 /* -------------------------------------------------------------------------- */
