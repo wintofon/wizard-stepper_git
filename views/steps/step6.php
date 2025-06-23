@@ -53,17 +53,7 @@ $_SESSION['strategy'] = $_SESSION['strategy_id']     ?? ($_SESSION['strategy']  
 
 // ────────────────────────────────────────────────────────────────
 // CSRF token
-// ────────────────────────────────────────────────────────────────
-if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
-$csrfToken = $_SESSION['csrf_token'];
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!hash_equals($csrfToken, (string)($_POST['csrf_token'] ?? ''))) {
-        http_response_code(403);
-        exit('Error CSRF: petición no autorizada.');
-    }
-}
+
 
 // ────────────────────────────────────────────────────────────────
 // Validar claves requeridas
