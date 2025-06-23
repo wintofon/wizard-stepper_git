@@ -646,6 +646,15 @@ if (!file_exists($countUpLocal))
 <script src="<?= asset('node_modules/chart.js/dist/chart.umd.min.js') ?>"></script>
 <script src="<?= asset('node_modules/countup.js/dist/countUp.umd.js') ?>"></script>
 <script src="<?= $step6JsRel ?>"></script>
+<script>
+  // Cuando se navega hacia atrás, el evento DOMContentLoaded no se dispara.
+  // pageshow garantiza la inicialización tras volver del historial.
+  const startStep6 = () => {
+    if (typeof window.initStep6 === 'function') window.initStep6();
+  };
+  window.addEventListener('DOMContentLoaded', startStep6);
+  window.addEventListener('pageshow', startStep6);
+</script>
 <?php endif; ?>
 <script>feather.replace();</script>
 
