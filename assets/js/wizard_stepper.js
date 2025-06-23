@@ -124,22 +124,22 @@
         }
 
         // Step 6 has heavy calculations so its JS is loaded on demand
-        if (step === 6) {
-          if (!window.step6Loaded) {
-            const script = document.createElement('script');
-            script.src = `${BASE_URL}/assets/js/step6.js`;
-            script.defer = true;
-            script.onload = () => { 
-              window.step6Loaded = true;
-              log('[stepper.js] 🔢 step6.js cargado OK');
-              if (typeof window.initStep6 === 'function') window.initStep6();
-            };
-            script.onerror = () => error('⚠️ Error cargando step6.js');
-            document.body.appendChild(script);
-          } else {
-            if (typeof window.initStep6 === 'function') window.initStep6();
-          }
-        }
+      //   if (step === 6) {
+    //       if (!window.step6Loaded) {
+     //        const script = document.createElement('script');
+     //        script.src = `${BASE_URL}/assets/js/step6.js`;
+     //        script.defer = true;
+     //        script.onload = () => { 
+     //          window.step6Loaded = true;
+     //          log('[stepper.js] 🔢 step6.js cargado OK');
+      //         if (typeof window.initStep6 === 'function') window.initStep6();
+     //        };
+     //        script.onerror = () => error('⚠️ Error cargando step6.js');
+     //        document.body.appendChild(script);
+      //     } else {
+     //        if (typeof window.initStep6 === 'function') window.initStep6();
+     //      }
+     //    }
 
         stepHolder.style.opacity = '1';
         renderBar(step);
