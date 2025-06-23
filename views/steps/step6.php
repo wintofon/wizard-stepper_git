@@ -122,7 +122,7 @@ if (!isset($pdo) || !($pdo instanceof PDO)) {
 // ────────────────────────────────────────────────────────────────
 $root = dirname(__DIR__, 2) . '/';
 foreach ([
-    'src/Controller/ExpertResultController.php',
+   //  'src/Controller/ExpertResultController.php',
     'src/Model/ToolModel.php',
     'src/Model/ConfigModel.php',
     'src/Utils/CNCCalculator.php'
