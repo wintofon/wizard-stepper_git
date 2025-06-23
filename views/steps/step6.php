@@ -1,15 +1,19 @@
 <?php declare(strict_types=1);
 
 /**
- * File: views/steps/step6_min.php
+ * File: views/steps/step6.php
  *
- * Paso 6 (Auto) – Resumen de configuración antes de calcular datos
- *  – Requiere que el paso 5 haya completado y guardado las claves en sesión.
- *  – Muestra un resumen rápido de la máquina + material + herramienta.
- *  – Permite volver a editar (link a step5) o avanzar (POST → step7.php).
- *
- * ⚠️ No depende de modelos ni de la BD; todo sale de $_SESSION.
+ * Paso 6 (Auto) – Resumen previo al cálculo de parámetros.
+ * Versión liviana: NO accede a BD ni a modelos; todo sale de $_SESSION.
  */
+
+/* ───── 0) BASE_URL y constantes ───── */
+if (!getenv('BASE_URL')) {
+    // /views/steps/step6.php → /wizard-stepper_git
+    putenv('BASE_URL=' . rtrim(dirname(dirname(dirname($_SERVER['SCRIPT_NAME']))), '/'));
+}
+define('BASE_URL', getenv('BASE_URL'));
+define('BASE_HOST', $_SERVER['HTTP_HOST'] ?? 'localhost');
 
 /* ───── 1) Sesión segura y control de flujo ───── */
 if (session_status() !== PHP_SESSION_ACTIVE) {
@@ -24,26 +28,51 @@ if ((int)($_SESSION['wizard_progress'] ?? 0) < 5) {
     exit;
 }
 
-/* ───── 2) CSRF token ───── */
+/* ───── 2) Vista embebida? (load-step.php) ───── */
+$embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
+
+/* ───── 3) Cabeceras de seguridad ───── */
+if (!$embedded) {
+    header('Content-Type: text/html; charset=UTF-8');
+    header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
+    header('X-Frame-Options: DENY');
+    header('X-Content-Type-Options: nosniff');
+    header('Referrer-Policy: no-referrer');
+    header("Permissions-Policy: geolocation=(), microphone=()");
+    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+    header('Pragma: no-cache');
+    header(
+        "Content-Security-Policy: default-src 'self';"
+      . " script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;"
+      . " style-src  'self' 'unsafe-inline' https://cdn.jsdelivr.net;"
+    );
+}
+
+/* ───── 4) Debug opcional ───── */
+$DEBUG = filter_input(INPUT_GET, 'debug', FILTER_VALIDATE_BOOLEAN);
+if ($DEBUG) error_reporting(E_ALL);
+
+/* ───── 5) CSRF token ───── */
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 $csrf = $_SESSION['csrf_token'];
 
-/* ───── 3) Resumen de datos guardados ───── */
+/* ───── 6) Resumen de datos guardados ───── */
 $toolName  = $_SESSION['tool_code']     ?? '—';
 $material  = $_SESSION['material_name'] ?? '—';
 $strategy  = $_SESSION['strategy_name'] ?? '—';
-$txName    = $_SESSION['trans_name']    ?? '—';   // guardala en step5
+$txName    = $_SESSION['trans_name']    ?? '—';
 $rpmMin    = $_SESSION['rpm_min']       ?? '—';
 $rpmMax    = $_SESSION['rpm_max']       ?? '—';
 $feedMax   = $_SESSION['feed_max']      ?? '—';
 $hp        = $_SESSION['hp']            ?? '—';
 
-/* ───── 4) Procesar POST (Avanzar) ───── */
+/* ───── 7) Procesar POST (Avanzar) ───── */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!hash_equals($csrf, (string)($_POST['csrf_token'] ?? ''))) {
-        die('CSRF inválido');
+        http_response_code(403);
+        exit('CSRF inválido');
     }
     $_SESSION['wizard_progress'] = 6;
     session_write_close();
@@ -51,18 +80,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-/* ───── 5) Salida HTML ───── */
-?><!DOCTYPE html>
+/* ───── 8) LISTA de estilos igual que otros pasos ───── */
+$styles = [
+    'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
+    'assets/css/settings/settings.css',
+    'assets/css/generic/generic.css',
+    'assets/css/objects/step-common.css',
+    'assets/css/components/_step6.css',          // tu CSS específico (opcional)
+];
+
+/* ───── 9) Salida HTML ───── */
+?>
+<?php if (!$embedded): ?>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<title>Paso 6 – Revisá y continuá</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-<link rel="stylesheet" href="assets/css/objects/step-common.css">
-<link rel="stylesheet" href="assets/css/components/_step6.css"><!-- opcional -->
-</head>
-<body>
+<title>Paso 6 – Revisá y continuá</title>
+<?php
+  // mismo partial de estilos que usás en otros pasos
+  include __DIR__ . '/../partials/styles.php';
+?>
+<script>
+  window.BASE_URL  = <?= json_encode(BASE_URL) ?>;
+  window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
+</script>
+</head><body>
+<?php endif; ?>
+
 <main class="container py-4">
   <h2 class="step-title"><i data-feather="check-circle"></i> Revisá tu configuración</h2>
   <p class="step-desc">Si todo está correcto, continuá al cálculo de parámetros.</p>
@@ -70,28 +116,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <div class="card mb-4 shadow-sm">
     <div class="card-body">
       <h5 class="mb-3">Resumen</h5>
-      <ul class="list-group list-group-flush">
+      <ul class="list-group list-group-flush small">
         <li class="list-group-item d-flex justify-content-between">
-          <span>Herramienta:</span><strong><?= htmlspecialchars($toolName) ?></strong>
+          <span><i data-feather="tool"></i> Herramienta:</span>
+          <strong><?= htmlspecialchars($toolName) ?></strong>
         </li>
         <li class="list-group-item d-flex justify-content-between">
-          <span>Material:</span><strong><?= htmlspecialchars($material) ?></strong>
+          <span><i data-feather="layers"></i> Material:</span>
+          <strong><?= htmlspecialchars($material) ?></strong>
         </li>
         <li class="list-group-item d-flex justify-content-between">
-          <span>Estrategia:</span><strong><?= htmlspecialchars($strategy) ?></strong>
+          <span><i data-feather="activity"></i> Estrategia:</span>
+          <strong><?= htmlspecialchars($strategy) ?></strong>
         </li>
         <li class="list-group-item d-flex justify-content-between">
-          <span>Transmisión:</span><strong><?= htmlspecialchars($txName) ?></strong>
+          <span><i data-feather="cpu"></i> Transmisión:</span>
+          <strong><?= htmlspecialchars($txName) ?></strong>
         </li>
         <li class="list-group-item d-flex justify-content-between">
-          <span>RPM mín – máx:</span>
-          <strong><?= htmlspecialchars($rpmMin) ?> – <?= htmlspecialchars($rpmMax) ?> rpm</strong>
+          <span><i data-feather="refresh-ccw"></i> RPM mín – máx:</span>
+          <strong><?= htmlspecialchars($rpmMin) ?> – <?= htmlspecialchars($rpmMax) ?></strong>
         </li>
         <li class="list-group-item d-flex justify-content-between">
-          <span>Feedrate máx:</span><strong><?= htmlspecialchars($feedMax) ?> mm/min</strong>
+          <span><i data-feather="truck"></i> Feedrate máx:</span>
+          <strong><?= htmlspecialchars($feedMax) ?> mm/min</strong>
         </li>
         <li class="list-group-item d-flex justify-content-between">
-          <span>Potencia disponible:</span><strong><?= htmlspecialchars($hp) ?> HP</strong>
+          <span><i data-feather="zap"></i> Potencia disponible:</span>
+          <strong><?= htmlspecialchars($hp) ?> HP</strong>
         </li>
       </ul>
     </div>
@@ -101,7 +153,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <a href="step5.php" class="btn btn-outline-secondary">
       <i data-feather="arrow-left"></i> Volver a editar
     </a>
-
     <form method="post" class="mb-0">
       <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf) ?>">
       <button class="btn btn-primary btn-lg">
@@ -113,5 +164,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
 <script>feather.replace();</script>
-</body>
-</html>
+
+<?php if (!$embedded): ?>
+</body></html>
+<?php endif; ?>
