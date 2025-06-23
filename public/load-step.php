@@ -119,7 +119,13 @@ if ($step > $maxAllowedStep) {
 // ─────────────────────────────────────────────────────────────
 $modeRaw = $_SESSION['tool_mode'] ?? 'manual'; // set during step selection
 $mode    = ($modeRaw === 'auto') ? 'auto' : 'manual';
-dbg("🧭 Modo actual: {$mode}");
+dbg("🧭 Modo actual (antes de forzar): {$mode}");
+
+// 👉 FORZAR AUTO SÓLO PARA EL PASO 6
+if ($step === 6) {
+    $mode = 'auto';
+    dbg('🔧 Paso 6 detectado: forzando modo auto');
+}
 
 // ─────────────────────────────────────────────────────────────
 // [9] BUSCAR ARCHIVO DE VISTA DEL PASO
