@@ -128,18 +128,6 @@ if (!isset($pdo) || !($pdo instanceof PDO)) {
 // ────────────────────────────────────────────────────────────────
 // Cargar modelos y utilidades
 // ────────────────────────────────────────────────────────────────
-$root = dirname(__DIR__, 2) . '/';
-foreach ([
-  
-
-] as $rel) {
-    if (!is_readable($root.$rel)) {
-        http_response_code(500);
-        exit("Error interno: falta {$rel}");
-    }
-    require_once $root.$rel;
-}
-
 // ────────────────────────────────────────────────────────────────
 // Datos herramienta y parámetros base
 // ────────────────────────────────────────────────────────────────
