@@ -1,18 +1,13 @@
 <?php
 /**
  * File: step6_ajax_legacy_minimal.php
- * ------------------------------------------------------------------
- * Endpoint AJAX para el Paso 6.
  *
- * Entrada JSON esperada:
- *   {
- *     fz:number, vc:number, ae:number, passes:int,
- *     thickness:number, D:number, Z:int,
- *     params:{ fr_max:number, coef_seg:number, Kc11:number,
- *              mc:number, alpha:number, eta:number }
- *   }
- * Devuelve: { success:bool, data:{...}, error?:string }
- * El token CSRF debe enviarse en la cabecera "X-CSRF-Token".
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ *
+ * Called by: assets/js/step6.js to compute machining parameters
+ * Important JSON fields: fz, vc, ae, passes, thickness, D, Z, params[*]
+ * Uses session key: $_SESSION['csrf_token'] for validation
+ * @TODO Extend documentation.
  */
 /**
  * Ubicación: C:\xampp\htdocs\wizard-stepper_git\ajax\step6_ajax_legacy_minimal.php
@@ -30,15 +25,13 @@ if (!getenv('BASE_URL')) {
     putenv('BASE_URL=' . $base);
 }
 require_once __DIR__ . '/../src/Config/AppConfig.php';
-require_once __DIR__ . '/../src/Utils/Session.php';
 
 // Cabeceras JSON
 header('Content-Type: application/json; charset=UTF-8');
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 
 // Iniciar sesión para CSRF
-startSecureSession();
-generateCsrfToken();
+session_start(); // ensures $_SESSION['csrf_token'] is available
 
 // 0. CSRF: validar token enviado en header X-CSRF-Token
 $token = (string)($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
