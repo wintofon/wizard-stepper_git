@@ -1,231 +1,170 @@
 <?php declare(strict_types=1);
 
 /**
- * File: views/steps/step6.php
- * Descripción: Paso 6 – Resultados expertos del Wizard CNC
- * Versión sin modo embebido: siempre genera la página HTML completa.
- * Entradas:
- *   - GET  "debug"  para activar modo detallado
- *   - POST "csrf_token" sólo cuando se envía el formulario local
- * Salidas:
- *   - HTML completo
- *   - window.step6Params y window.step6Csrf para el JS
+ * Paso 6 – Resultados
+ * Versión “mini”: igual al paso 5 en estructura, pero mostrando todo el dashboard del 6.
+ *  – Requiere que el paso 5 haya guardado los datos en sesión.
+ *  – Sin modo embebido ni helpers asset().
  */
 
-if (!getenv('BASE_URL')) {
-    // /views/steps/step6.php → /wizard-stepper_git
-    putenv('BASE_URL=' . rtrim(dirname(dirname(dirname($_SERVER['SCRIPT_NAME']))), '/'));
-}
-require_once __DIR__ . '/../../src/Config/AppConfig.php';
-
-use App\Controller\ExpertResultController;
-
-/* ───── Utilidades ───── */
-require_once __DIR__ . '/../../includes/wizard_helpers.php';
-
-/* ───── Sesión segura ───── */
+# ───────────────── Sesión & flujo ─────────────────
 if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_set_cookie_params([
-        'lifetime' => 0,
-        'path'     => '/',
-        'secure'   => true,
-        'httponly' => true,
-        'samesite' => 'Strict'
+    session_start([
+        'cookie_secure'   => true,
+        'cookie_httponly' => true,
+        'cookie_samesite' => 'Strict',
     ]);
-    session_start();
 }
-
-/* ───── Cabeceras de seguridad (siempre) ───── */
-header('Content-Type: text/html; charset=UTF-8');
-header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
-header('X-Frame-Options: DENY');
-header('X-Content-Type-Options: nosniff');
-header('Referrer-Policy: no-referrer');
-header("Permissions-Policy: geolocation=(), microphone=()");
-header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
-header('Pragma: no-cache');
-header(
-    "Content-Security-Policy: default-src 'self';"
-  . " script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;"
-  . " style-src  'self' 'unsafe-inline' https://cdn.jsdelivr.net;"
-);
-
-/* ───── Debug opcional ───── */
-if (filter_input(INPUT_GET, 'debug', FILTER_VALIDATE_BOOLEAN)
-    && is_readable(__DIR__ . '/../../includes/debug.php')) {
-    require_once __DIR__ . '/../../includes/debug.php';
-}
-
-/* ───── Normalizar nombres en sesión ───── */
-$_SESSION['material'] = $_SESSION['material_id']     ?? ($_SESSION['material']   ?? null);
-$_SESSION['trans_id'] = $_SESSION['transmission_id'] ?? ($_SESSION['trans_id']   ?? null);
-$_SESSION['fr_max']   = $_SESSION['feed_max']        ?? ($_SESSION['fr_max']     ?? null);
-$_SESSION['strategy'] = $_SESSION['strategy_id']     ?? ($_SESSION['strategy']   ?? null);
-
-/* ───── CSRF token ───── */
-if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
-$csrfToken = $_SESSION['csrf_token'];
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!hash_equals($csrfToken, (string)($_POST['csrf_token'] ?? ''))) {
-        http_response_code(403);
-        exit('Error CSRF: petición no autorizada.');
-    }
-}
-
-/* ───── Validar claves requeridas ───── */
-$requiredKeys = [
-    'tool_table','tool_id','material','trans_id',
-    'rpm_min','rpm_max','fr_max','thickness',
-    'strategy','hp'
-];
-$missing = array_filter($requiredKeys, fn($k) => empty($_SESSION[$k]));
-if ($missing) {
-    http_response_code(400);
-    echo "<pre class='step6-error'>ERROR – faltan claves en sesión:\n" . implode(', ', $missing) . "</pre>";
+if ((int)($_SESSION['wizard_progress'] ?? 0) < 5) {
+    header('Location: step1.php');
     exit;
 }
 
-/* ───── Conexión BD ───── */
-$dbFile = __DIR__ . '/../../includes/db.php';
-if (!is_readable($dbFile)) {
-    http_response_code(500);
-    exit('Error interno: falta el archivo de conexión a la BD.');
+# ───────────────── CSRF ─────────────────
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
-require_once $dbFile;           // -> $pdo
-if (!isset($pdo) || !($pdo instanceof PDO)) {
-    http_response_code(500);
-    exit('Error interno: no hay conexión a la base de datos.');
-}
+$csrf = $_SESSION['csrf_token'];
 
-/* ───── Cargar modelos ───── */
-$root = dirname(__DIR__, 2) . '/';
-foreach ([
-    'src/Controller/ExpertResultController.php',
-    'src/Model/ToolModel.php',
-    'src/Model/ConfigModel.php',
-    'src/Utils/CNCCalculator.php'
-] as $rel) {
-    if (!is_readable($root.$rel)) {
-        http_response_code(500);
-        exit("Error interno: falta {$rel}");
-    }
-    require_once $root.$rel;
-}
+# ───────────────── Conexión BD + modelos ─────────────────
+require_once __DIR__.'/../../includes/db.php';      // → $pdo
+require_once __DIR__.'/../../src/Model/ToolModel.php';
+require_once __DIR__.'/../../src/Controller/ExpertResultController.php';
 
-/* ───── Datos herramienta y parámetros base ───── */
-$toolTable = (string)$_SESSION['tool_table'];
-$toolId    = (int)$_SESSION['tool_id'];
-$toolData  = ToolModel::getTool($pdo, $toolTable, $toolId) ?: null;
-if (!$toolData) {
-    http_response_code(404);
-    exit('Herramienta no encontrada.');
-}
+# ───────────────── Recuperar datos herramienta ─────────────────
+$toolData = ToolModel::getTool(
+    $pdo,
+    (string)$_SESSION['tool_table'],
+    (int)$_SESSION['tool_id']
+) ?: [];
 
-$params     = ExpertResultController::getResultData($pdo, $_SESSION);
-$jsonParams = json_encode($params, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-if ($jsonParams === false) {
-    http_response_code(500);
-    exit('Error interno: no se pudo serializar parámetros técnicos.');
-}
+$params = ExpertResultController::getResultData($pdo, $_SESSION);
+$jsonParams = json_encode($params, JSON_UNESCAPED_UNICODE);
 
-/* ───── Variables de salida (HTML / JS) ───── */
-$serialNumber  = htmlspecialchars($toolData['serie']       ?? '', ENT_QUOTES);
-$toolCode      = htmlspecialchars($toolData['tool_code']   ?? '', ENT_QUOTES);
-$toolName      = htmlspecialchars($toolData['name']        ?? 'N/A', ENT_QUOTES);
-$toolType      = htmlspecialchars($toolData['tool_type']   ?? 'N/A', ENT_QUOTES);
-$imageURL      = !empty($toolData['image'])             ? asset($toolData['image'])            : '';
-$vectorURL     = !empty($toolData['image_dimensions'])   ? asset($toolData['image_dimensions']) : '';
+# ───────────────── Variables para la vista ─────────────────
+$serial   = htmlspecialchars($toolData['serie']      ?? '', ENT_QUOTES);
+$code     = htmlspecialchars($toolData['tool_code']  ?? '', ENT_QUOTES);
+$name     = htmlspecialchars($toolData['name']       ?? 'N/D', ENT_QUOTES);
+$type     = htmlspecialchars($toolData['tool_type']  ?? 'N/D', ENT_QUOTES);
+$img      = htmlspecialchars($toolData['image']      ?? '', ENT_QUOTES);
+$vector   = htmlspecialchars($toolData['image_dimensions'] ?? '', ENT_QUOTES);
+$diameter = (float)($toolData['diameter_mm'] ?? 0);
 
-$diameterMb    = (float)($toolData['diameter_mm']       ?? 0);
-$shankMb       = (float)($toolData['shank_diameter_mm'] ?? 0);
-$fluteLenMb    = (float)($toolData['flute_length_mm']   ?? 0);
-$cutLenMb      = (float)($toolData['cut_length_mm']     ?? 0);
-$fullLenMb     = (float)($toolData['full_length_mm']    ?? 0);
-$fluteCountMb  = (int)  ($toolData['flute_count']        ?? 0);
-$coatingMb     = htmlspecialchars($toolData['coated']    ?? 'N/A', ENT_QUOTES);
-$materialMb    = htmlspecialchars($toolData['material']  ?? 'N/A', ENT_QUOTES);
-$brandMb       = htmlspecialchars($toolData['brand']     ?? 'N/A', ENT_QUOTES);
-$madeInMb      = htmlspecialchars($toolData['made_in']   ?? 'N/A', ENT_QUOTES);
+# Valores base
+$outN  = number_format((float)$params['rpm0'], 0, '.', '');
+$outVf = number_format((float)$params['feed0'], 0, '.', '');
+$outVc = number_format((float)$params['vc0'],   1, '.', '');
 
-$baseVc  = (float)$params['vc0'];
-$vcMinDb = (float)$params['vc_min0'];
-$vcMaxDb = (float)($params['vc_max0'] ?? $baseVc * 1.25);
-$baseFz  = (float)$params['fz0'];
-$fzMinDb = (float)$params['fz_min0'];
-$fzMaxDb = (float)$params['fz_max0'];
-$apSlot  = (float)$params['ap_slot'];
-$aeSlot  = (float)$params['ae_slot'];
-$rpmMin  = (float)$params['rpm_min'];
-$rpmMax  = (float)$params['rpm_max'];
-$frMax   = (float)$params['fr_max'];
-$baseRpm = (int)  $params['rpm0'];
-$baseFeed= (float)$params['feed0'];
-$baseMmr = (float)$params['mmr_base'];
-
-$outVf = number_format($baseFeed, 0, '.', '');
-$outN  = number_format($baseRpm, 0, '.', '');
-$outVc = number_format($baseVc,   1, '.', '');
-
-$materialName   = (string)($_SESSION['material_name']   ?? 'Genérico Fibrofácil (MDF)');
-$materialParent = (string)($_SESSION['material_parent'] ?? 'Maderas Naturales');
-$strategyName   = (string)($_SESSION['strategy_name']   ?? 'Grabado en V / 2.5D');
-$strategyParent = (string)($_SESSION['strategy_parent'] ?? 'Fresado');
-$thickness      = (float)$_SESSION['thickness'];
-$powerAvail     = (float)$_SESSION['hp'];
-
-/* Nombre de transmisión */
-try {
-    $transName = $pdo->prepare('SELECT name FROM transmissions WHERE id = ?');
-    $transName->execute([(int)$_SESSION['trans_id']]);
-    $transName = $transName->fetchColumn() ?: 'N/D';
-} catch (Throwable $e) {
-    $transName = 'N/D';
-}
-
-$notesArray = $params['notes'] ?? [];
-
-/* ───── Assets locales ───── */
-/*$cssBootstrapRel = asset('assets/css/generic/bootstrap.min.css');
-/*$bootstrapJsRel  = asset('assets/js/bootstrap.bundle.min.js');
-/* $step6JsRel      = asset('assets/js/step6.js');*/
-$assetErrors = [];
-
-/* ======================================================================
- * ==========================  COMIENZA SALIDA  ==========================
- * ====================================================================*/
 ?>
 <!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Cutting Data – Paso 6</title>
-<?php
+<html lang="es"><head>
+<meta charset="utf-8">
+<title>Paso 6 – Resultados</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="assets/css/objects/step-common.css">
+<link rel="stylesheet" href="assets/css/objects/step6.css">
+<script>
+  window.step6Params = <?= $jsonParams ?>;
+  window.step6Csrf   = '<?= $csrf ?>';
+</script>
+</head><body>
+<main class="container py-4">
 
-  
-?>
-  <script>
-    window.BASE_URL  = <?= json_encode(BASE_URL) ?>;
-    window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
-  </script>
-</head>
-<body>
-<?php if ($assetErrors): ?>
-  <div class="alert alert-warning text-dark m-3">
-    <strong>⚠️ Archivos faltantes (se usarán CDNs):</strong>
-    <ul>
-      <?php foreach ($assetErrors as $err): ?>
-        <li><?= htmlspecialchars($err, ENT_QUOTES) ?></li>
-      <?php endforeach; ?>
-    </ul>
+<h2 class="step-title"><i data-feather="bar-chart-2"></i> Resultados</h2>
+<p class="step-desc">Ajustá los parámetros y revisá los datos de corte.</p>
+
+<!-- │ TOOL CARD │ -->
+<div class="card mb-4 shadow-sm">
+  <div class="card-header text-center"><span>#<?= $serial ?> – <?= $code ?></span></div>
+  <div class="card-body text-center">
+    <?php if ($img) :?>
+      <img src="<?= $img ?>" class="tool-image mb-3" alt="Herramienta">
+    <?php endif;?>
+    <h5 class="tool-name mb-0"><?= $name ?></h5>
+    <small class="text-muted"><?= $type ?></small>
   </div>
-<?php endif; ?>
+</div>
 
-<!-- … (todo el bloque HTML que ya tenías permanece igual) … -->
+<!-- │ AJUSTES + RESULTADOS (layout compacto parecido al paso 5) │ -->
+<form id="step6Form" method="post" class="needs-validation" novalidate>
+  <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
 
-<!-- SCRIPTS -->
+  <div class="row g-3">
 
-</body>
-</html>
+    <!-- Ajustes rápidos -->
+    <div class="col-lg-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-header text-center"><h6 class="mb-0">Ajustes</h6></div>
+        <div class="card-body">
+          <label class="form-label">Vc (m/min)</label>
+          <input type="range" class="form-range" id="sliderVc"
+           min="<?= $params['vc_min0'] ?>" max="<?= $params['vc_max0'] ?>" step="0.1"
+           value="<?= $params['vc0'] ?>">
+          <label class="form-label mt-3">fz (mm/tooth)</label>
+          <input type="range" class="form-range" id="sliderFz"
+           min="<?= $params['fz_min0'] ?>" max="<?= $params['fz_max0'] ?>" step="0.0001"
+           value="<?= $params['fz0'] ?>">
+        </div>
+      </div>
+    </div>
+
+    <!-- Resultados compactos -->
+    <div class="col-lg-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-header text-center"><h6 class="mb-0">Resultados</h6></div>
+        <div class="card-body">
+          <div class="text-center mb-3">
+            <div class="display-6 fw-bold" id="outN"><?= $outN ?></div>
+            <small class="text-muted">RPM</small>
+          </div>
+          <div class="text-center">
+            <div class="display-6 fw-bold" id="outVf"><?= $outVf ?></div>
+            <small class="text-muted">mm/min</small>
+          </div>
+          <hr>
+          <div class="d-flex justify-content-between">
+            <span>Vc</span><strong id="outVc"><?= $outVc ?></strong>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span>fz</span><strong id="outFz"><?= $params['fz0'] ?></strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Radar chart -->
+    <div class="col-lg-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-header text-center"><h6 class="mb-0">Radar</h6></div>
+        <div class="card-body d-flex justify-content-center align-items-center">
+          <canvas id="radarChart" width="300" height="300"></canvas>
+        </div>
+      </div>
+    </div>
+
+  </div><!--/row-->
+
+  <!-- Botón Siguiente -->
+  <div class="text-end mt-4">
+    <button class="btn btn-primary btn-lg">Siguiente <i data-feather="arrow-right"></i></button>
+  </div>
+</form>
+
+</main>
+
+<!-- Libs JS (idénticas a paso 5) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/countup.js@2.8.0/dist/countUp.umd.js"></script>
+<script>
+feather.replace();
+/* Event listeners simples para actualizar etiquetas en vivo */
+const fmt=v=>(+v).toLocaleString('en-US',{maximumFractionDigits:3});
+const fz = document.getElementById('sliderFz');
+const vc = document.getElementById('sliderVc');
+fz.addEventListener('input',()=>outFz.textContent=fmt(fz.value));
+vc.addEventListener('input',()=>outVc.textContent=fmt(vc.value));
+</script>
+</body></html>
