@@ -21,8 +21,7 @@ if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 5
 
 /* 2) Dependencias */
 require_once __DIR__ . '/../../includes/db.php';                 // → $pdo
-require_once __DIR__ . '/../../src/Model/ToolModel.php';
-require_once __DIR__ . '/../../src/Controller/ExpertResultController.php';
+
 
 /* 3) CSRF */
 if (empty($_SESSION['csrf_token'])) {
