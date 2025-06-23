@@ -67,17 +67,22 @@ $embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
 /* -------------------------------------------------------------------------- */
 /* 4)  TOKEN CSRF                          corregido                                    */
 /* -------------------------------------------------------------------------- */
+/* 4) TOKEN CSRF (se emite, no se valida acá) */
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 $csrfToken = $_SESSION['csrf_token'];
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!hash_equals($csrfToken, (string)($_POST['csrf_token'] ?? ''))) {
+/* 5) SOLO validar CSRF si realmente llega un POST con datos esperados --------
+ * Nota: en este paso 6 no debería ocurrir.   */
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['csrf_token'])) {
+    if (!hash_equals($csrfToken, (string)$_POST['csrf_token'])) {
+        // devolver JSON de error si es llamada AJAX, o redirigir con mensaje
         http_response_code(403);
-        exit('Error CSRF');
+        exit('Sesión expirada: recargá la página.');
     }
 }
+
 
 
 /* -------------------------------------------------------------------------- */
