@@ -74,8 +74,9 @@
 .thumb {               /* Miniaturas de marcas */
   width: 80px;        /* ancho ampliado */
   height: auto;       /* mantiene proporción */
-  border: 1px solid #ddd;
+
   object-fit: contain; /* evita distorsión de la imagen */
+  transition: transform .2s;
 }
 
 .thumb:hover {         /* Aumento al pasar el mouse */
@@ -142,3 +143,19 @@ h2.fw-bold {           /* Título principal de la página */
   height: 1px;
 }
 
+/* ------------------------------------------------------------------
+   NUEVO: rotación de imágenes verticales
+   ------------------------------------------------------------------
+   Para que esto surta efecto, añade vía JS la clase `.portrait`
+   a cualquier `<img class="thumb">` que esté en vertical
+   (altura > anchura). Luego, CSS hará el resto:
+*/
+.thumb.portrait {
+  transform: rotate(90deg);
+  /* 
+    Al rotar, intercambiamos ancho y alto para que siga
+    ajustándose al contenedor de 80px de ancho original:
+  */
+  width: auto;
+  height: 80px;
+}
