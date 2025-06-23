@@ -143,13 +143,6 @@ foreach ([
 // ────────────────────────────────────────────────────────────────
 // Datos herramienta y parámetros base
 // ────────────────────────────────────────────────────────────────
-$toolTable = (string)$_SESSION['tool_table'];
-$toolId    = (int)$_SESSION['tool_id'];
-$toolData  = ToolModel::getTool($pdo, $toolTable, $toolId) ?: null;
-if (!$toolData) {
-    http_response_code(404);
-    exit('Herramienta no encontrada.');
-}
 
 
 $jsonParams = json_encode($params, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
