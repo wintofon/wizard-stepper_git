@@ -12,22 +12,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Cutting Data – Paso&nbsp;6</title>
   <?php
-    $styles = [
-      $cssBootstrapRel,
-      'assets/css/settings/settings.css',
-      'assets/css/generic/generic.css',
-      'assets/css/elements/elements.css',
-      'assets/css/objects/objects.css',
-      'assets/css/objects/wizard.css',
-      'assets/css/objects/stepper.css',
-      'assets/css/objects/step-common.css',
-      'assets/css/objects/step6.css',
-      'assets/css/components/components.css',
-      'assets/css/components/main.css',
-      'assets/css/components/footer-schneider.css',
-      'assets/css/utilities/utilities.css',
-    ];
-    include __DIR__ . '/../partials/styles.php';
+ 
   ?>
   <script>
     window.BASE_URL  = <?= json_encode(BASE_URL) ?>;
