@@ -53,8 +53,12 @@ $hpAvail    = (float)$_SESSION['hp'];
 /* 4) Datos herramienta */
 $tool = ToolModel::getTool($pdo, $toolTable, $toolId);
 if (!$tool) die("Fresa no encontrada");
-$D = (float)$tool['diameter_mm'];
-$Z = (int)$tool['flute_count'];
+ $D        = (float)$tool['diameter_mm'];
+  $Z        = (int)  $tool['flute_count'];
+  $shank    = (float)$tool['shank_diameter_mm'];
+  $fluteLen = (float)$tool['flute_length_mm'];
+  $cutLen   = (float)$tool['cut_length_mm'];
+  $fullLen  = (float)$tool['full_length_mm'];
 
 /* 5) Valores base fijos */
 $fz     = 0.1;
@@ -98,6 +102,13 @@ $Fct   = CNCCalculator::Fct($Kc11, $hm, $mc, $ap, $Z, $coefSeg, $alpha, $phi);
   <div class="row row-cols-1 row-cols-md-2 g-4">
     <?php
       $rows = [
+      ['D','Diámetro de corte','mm',$D,3],
+        ['shank','Diámetro de vástago','mm',$shank,3],
+        ['fluteLen','Longitud de filo','mm',$fluteLen,3],
+        ['cutLen','Longitud de corte','mm',$cutLen,3],
+        ['fullLen','Longitud total','mm',$fullLen,3],
+        ['Z','Número de filos','uds',$Z,0],
+        // — Cálculos base —
         ['fz','Avance por diente','mm/diente',$fz,4],
         ['vc','Velocidad de corte','m/min',$vc,1],
         ['rpm','Velocidad del husillo','RPM',$rpm,0],
