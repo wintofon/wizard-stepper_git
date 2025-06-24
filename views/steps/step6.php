@@ -11,8 +11,6 @@
 declare(strict_types=1);
 
 use App\Controller\ExpertResultController;
-use ToolModel;
-use CNCCalculator;
 
 require_once __DIR__ . '/../../src/Config/AppConfig.php';
 require_once __DIR__ . '/../../src/Utils/Session.php';
