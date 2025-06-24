@@ -18,7 +18,7 @@ if (!defined('WIZARD_EMBEDDED')) {
 }
 
 require_once __DIR__ . '/../../includes/db.php';
-require_once __DIR__ . '/../../src/Model/ToolModel.php';
+// require_once __DIR__ . '/../../src/Model/ToolModel.php';
 require_once __DIR__ . '/../../src/Utils/CNCCalculator.php';
 require_once __DIR__ . '/../../src/Model/ConfigModel.php';
 
