@@ -26,6 +26,7 @@ $fz      = isset($_POST['fz']) ? (float)$_POST['fz'] : 0.05;
 $vc      = isset($_POST['vc']) ? (float)$_POST['vc'] : 200.0;
 $ae      = isset($_POST['ae']) ? (float)$_POST['ae'] : $defaults['diameter'] / 2;
 $passes  = isset($_POST['passes']) ? (int)$_POST['passes'] : 1;
+$mcVal   = isset($_POST['mc']) ? (float)$_POST['mc'] : $defaults['mc'];
 
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -46,7 +47,7 @@ if (!$errors) {
     $frMax  = $defaults['feed_max'];
     $coefSeg = $defaults['coef_seg'];
     $Kc11 = $defaults['Kc11'];
-    $mc = $defaults['mc'];
+    $mc = $mcVal;
     $alpha = $defaults['rack_rad'];
     $eta = 0.85;
 
@@ -118,6 +119,10 @@ th{text-align:left;background:#f0f0f0;}
     <input type="range" id="sliderPasadas" min="1" max="10" step="1" value="<?=$passes?>">
     <span id="valPasadas"></span>
   </label>
+  <label>mc
+    <input type="range" id="sliderMc" name="mc" min="0.1" max="1" step="0.01" value="<?=htmlspecialchars($mcVal)?>">
+    <span id="valMc"></span>
+  </label>
   <div>
     <a href="step5.php" class="btn">Anterior</a>
     <button type="submit" class="btn btn-primary">Calcular</button>
@@ -141,7 +146,6 @@ const rpmMax = <?= $defaults['rpm_max'] ?>;
 const feedMax = <?= $defaults['feed_max'] ?>;
 const thickness = <?= $defaults['thickness'] ?>;
 const Kc11 = <?= $defaults['Kc11'] ?>;
-const mc = <?= $defaults['mc'] ?>;
 const coefSeg = <?= $defaults['coef_seg'] ?>;
 const alpha = <?= $defaults['rack_rad'] ?>;
 const eta = 0.85;
@@ -150,16 +154,19 @@ const vcInput = document.getElementById('sliderVc');
 const fzInput = document.getElementById('sliderFz');
 const aeInput = document.getElementById('sliderAe');
 const pInput  = document.getElementById('sliderPasadas');
+const mcInput = document.getElementById('sliderMc');
 const valVc = document.getElementById('valVc');
 const valFz = document.getElementById('valFz');
 const valAe = document.getElementById('valAe');
 const valP  = document.getElementById('valPasadas');
+const valMc = document.getElementById('valMc');
 
 function showVals(){
   valVc.textContent = vcInput.value;
   valFz.textContent = fzInput.value;
   valAe.textContent = aeInput.value;
   valP.textContent  = pInput.value;
+  valMc.textContent = mcInput.value;
 }
 
 function recalc(){
@@ -167,6 +174,7 @@ function recalc(){
   const fz = parseFloat(fzInput.value);
   const ae = parseFloat(aeInput.value);
   const passes = parseInt(pInput.value,10);
+  const mcVal = parseFloat(mcInput.value);
 
   const rpmCalc = (vc * 1000) / (Math.PI * D);
   const rpm = Math.max(rpmMin, Math.min(rpmCalc, rpmMax));
@@ -175,7 +183,7 @@ function recalc(){
   const hm = phi !== 0 ? (fz * (1 - Math.cos(phi)) / phi) : fz;
   const ap = thickness / Math.max(1, passes);
   const mmr = (ap * feed * ae) / 1000;
-  const Fct = Kc11 * Math.pow(hm, -mc) * ap * fz * Z * (1 + coefSeg * Math.tan(alpha));
+  const Fct = Kc11 * Math.pow(hm, -mcVal) * ap * fz * Z * (1 + coefSeg * Math.tan(alpha));
   const kW = (Fct * vc) / (60000 * eta);
   const watts = Math.round(kW * 1000);
   const hp = (kW * 1.341).toFixed(2);
@@ -189,7 +197,7 @@ function recalc(){
   document.getElementById('outWatts').textContent = watts;
 }
 
-[vcInput, fzInput, aeInput, pInput].forEach(el => {
+[vcInput, fzInput, aeInput, pInput, mcInput].forEach(el => {
   el.addEventListener('input', () => {
     showVals();
     recalc();
