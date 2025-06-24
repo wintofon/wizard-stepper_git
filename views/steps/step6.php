@@ -26,7 +26,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
         'cookie_samesite' => 'Strict',
     ]);
 }
-if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 4) {
+if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 5) {
     header('Location: step1.php');
     exit;
 }
