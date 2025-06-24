@@ -8,10 +8,10 @@
 (() => {
   'use strict';
 
-  const BASE_URL = window.BASE_URL;
-  const DEBUG = window.DEBUG ?? false;
-  const LS_KEY = 'wizard_progress';
-  const LOAD_ENDPOINT = `${BASE_URL}/public/load-step.php`;
+  const BASE_URL     = window.BASE_URL;
+  const DEBUG        = window.DEBUG ?? false;
+  const LS_KEY       = 'wizard_progress';
+  const LOAD_ENDPOINT   = `${BASE_URL}/public/load-step.php`;
   const HANDLE_ENDPOINT = `${BASE_URL}/public/handle-step.php`;
 
   const TAG = '[WizardStepper]';
@@ -27,7 +27,11 @@
   const stepsBar   = $qsa('.stepper li');
   const stepHolder = $qs('#step-content');
   const dbgBox     = $qs('#debug');
-  const dbgMsg     = txt => { if (!dbgBox) return; const ts = new Date().toLocaleTimeString(); dbgBox.textContent = `[${ts}] ${txt}\n` + dbgBox.textContent; };
+  const dbgMsg     = txt => {
+    if (!dbgBox) return;
+    const ts = new Date().toLocaleTimeString();
+    dbgBox.textContent = `[${ts}] ${txt}\n` + dbgBox.textContent;
+  };
 
   if (!stepsBar.length || !stepHolder) {
     log('No es página de wizard – abortando script.');
@@ -107,9 +111,6 @@
 
         if (window.bootstrap && bootstrap.Tooltip) {
           document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
-        }
-
-
         }
 
         stepHolder.style.opacity = '1';
@@ -197,4 +198,5 @@
   if (!localStorage.getItem(LS_KEY)) localStorage.setItem(LS_KEY, 1);
   renderBar(getProg());
   loadStep(getProg());
+
 })();
