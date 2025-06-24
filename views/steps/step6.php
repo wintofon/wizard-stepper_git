@@ -19,8 +19,8 @@ if (!defined('WIZARD_EMBEDDED')) {
 
 require_once __DIR__ . '/../../includes/db.php';
 // require_once __DIR__ . '/../../src/Model/ToolModel.php';
-require_once __DIR__ . '/../../src/Utils/CNCCalculator.php';
-require_once __DIR__ . '/../../src/Model/ConfigModel.php';
+// require_once __DIR__ . '/../../src/Utils/CNCCalculator.php';
+// require_once __DIR__ . '/../../src/Model/ConfigModel.php';
 
 // VALIDAR SESIÓN
 $keys = ['tool_id', 'tool_table', 'material_id', 'trans_id', 'thickness', 'rpm_min', 'rpm_max', 'fr_max'];
