@@ -35,6 +35,12 @@
 
   const stepsBar   = $qsa('.stepper li');
   const stepHolder = $qs('#step-content');
+  const dbgBox = $qs('#debug');
+  const dbgMsg = txt => {
+    if (!dbgBox) return;
+    const ts = new Date().toLocaleTimeString();
+    dbgBox.textContent = `[${ts}] ${txt}\n` + dbgBox.textContent;
+  };
   if (!stepsBar.length || !stepHolder) {
     log('No es página de wizard – abortando script.');
     return;
@@ -99,6 +105,7 @@
     const prog = getProg();
     if (step < 1 || step > MAX_STEPS || step > prog + 1) {
       log('🔒 Salto bloqueado');
+      dbgMsg('🔒 Salto bloqueado');
       renderBar(prog);
       return;
     }
@@ -148,16 +155,19 @@
         hookEvents();
         if (typeof window.initLazy === 'function') window.initLazy();
         log(`🧭 Paso ${step} cargado correctamente`);
+        dbgMsg(`🧭 Paso ${step} cargado correctamente`);
         log('return', step);
       })
       .catch(err => {
         error('Error loadStep', err);
+        dbgMsg(err.message);
         stepHolder.innerHTML =
           `<div class="alert alert-danger">⚠️ Error cargando el paso ${step}: ${err.message}</div>`;
         warn(err.message);
         if (err.message === 'FORBIDDEN') {
           localStorage.removeItem(LS_KEY);
           warn('⚠️ Sesión desfasada. Reinicio.');
+          dbgMsg('⚠️ Sesión desfasada. Reinicio.');
           renderBar(1);
           loadStep(1);
         }
@@ -186,10 +196,12 @@
         if (next > MAX_STEPS) next = MAX_STEPS;
         setProg(next);
         loadStep(next);
+        dbgMsg(`✔ Paso ${cur} enviado. Siguiente: ${next}`);
         log('return', next);
       })
       .catch(err => {
         error('Error sendForm', err);
+        dbgMsg(err.message);
         if (err.message === 'FORBIDDEN') {
           localStorage.removeItem(LS_KEY);
           alert('Sesión expirada. Reinicio.');
@@ -197,6 +209,7 @@
           loadStep(1);
         } else {
           alert('Fallo de conexión');
+          dbgMsg(err.message);
           warn(err.message);
         }
       });
@@ -223,6 +236,7 @@
         const back = Math.max(1, getProg() - 1);
         setProg(back);
         loadStep(back);
+        dbgMsg(`⬅️ Volver al paso ${back}`);
       };
     }
 
@@ -231,7 +245,10 @@
       if (!li.classList.contains('clickable')) return;
       li.onclick = () => {
         const n = Number(li.dataset.step);
-        if (n <= getProg()) loadStep(n);
+        if (n <= getProg()) {
+          dbgMsg(`🔎 Salto al paso ${n}`);
+          loadStep(n);
+        }
       };
     });
     log('return void');
