@@ -170,83 +170,84 @@ if (!$embedded) {
 // ────────────────────────────────────────────────────────────────
 // Variables de salida (HTML / JS)
 // ────────────────────────────────────────────────────────────────
-$serialNumber  = htmlspecialchars($toolData['serie']       ?? '', ENT_QUOTES);
-$toolCode      = htmlspecialchars($toolData['tool_code']   ?? '', ENT_QUOTES);
-$toolName      = htmlspecialchars($toolData['name']        ?? 'N/A', ENT_QUOTES);
-$toolType      = htmlspecialchars($toolData['tool_type']   ?? 'N/A', ENT_QUOTES);
-$imageURL      = !empty($toolData['image'])             ? asset($toolData['image'])            : '';
-$vectorURL     = !empty($toolData['image_dimensions'])   ? asset($toolData['image_dimensions']) : '';
+// 
+//$serialNumber  = htmlspecialchars($toolData['serie']       ?? '', ENT_QUOTES);
+//$toolCode      = htmlspecialchars($toolData['tool_code']   ?? '', ENT_QUOTES);
+//$toolName      = htmlspecialchars($toolData['name']        ?? 'N/A', ENT_QUOTES);
+//$toolType      = htmlspecialchars($toolData['tool_type']   ?? 'N/A', ENT_QUOTES);
+//$imageURL      = !empty($toolData['image'])             ? asset($toolData['image'])            : '';
+//$vectorURL     = !empty($toolData['image_dimensions'])   ? asset($toolData['image_dimensions']) : '';
 
-$diameterMb    = (float)($toolData['diameter_mm']       ?? 0);
-$shankMb       = (float)($toolData['shank_diameter_mm'] ?? 0);
-$fluteLenMb    = (float)($toolData['flute_length_mm']   ?? 0);
-$cutLenMb      = (float)($toolData['cut_length_mm']     ?? 0);
-$fullLenMb     = (float)($toolData['full_length_mm']    ?? 0);
-$fluteCountMb  = (int)  ($toolData['flute_count']        ?? 0);
-$coatingMb     = htmlspecialchars($toolData['coated']    ?? 'N/A', ENT_QUOTES);
-$materialMb    = htmlspecialchars($toolData['material']  ?? 'N/A', ENT_QUOTES);
-$brandMb       = htmlspecialchars($toolData['brand']     ?? 'N/A', ENT_QUOTES);
-$madeInMb      = htmlspecialchars($toolData['made_in']   ?? 'N/A', ENT_QUOTES);
+//$diameterMb    = (float)($toolData['diameter_mm']       ?? 0);
+//$shankMb       = (float)($toolData['shank_diameter_mm'] ?? 0);
+//$fluteLenMb    = (float)($toolData['flute_length_mm']   ?? 0);
+//$cutLenMb      = (float)($toolData['cut_length_mm']     ?? 0);
+//$fullLenMb     = (float)($toolData['full_length_mm']    ?? 0);
+//$fluteCountMb  = (int)  ($toolData['flute_count']        ?? 0);
+//$coatingMb     = htmlspecialchars($toolData['coated']    ?? 'N/A', ENT_QUOTES);
+//$materialMb    = htmlspecialchars($toolData['material']  ?? 'N/A', ENT_QUOTES);
+//$brandMb       = htmlspecialchars($toolData['brand']     ?? 'N/A', ENT_QUOTES);
+//$madeInMb      = htmlspecialchars($toolData['made_in']   ?? 'N/A', ENT_QUOTES);
 
-$baseVc  = (float)$params['vc0'];
-$vcMinDb = (float)$params['vc_min0'];
-$vcMaxDb = (float)($params['vc_max0'] ?? $baseVc * 1.25);
-$baseFz  = (float)$params['fz0'];
-$fzMinDb = (float)$params['fz_min0'];
-$fzMaxDb = (float)$params['fz_max0'];
-$apSlot  = (float)$params['ap_slot'];
-$aeSlot  = (float)$params['ae_slot'];
-$rpmMin  = (float)$params['rpm_min'];
-$rpmMax  = (float)$params['rpm_max'];
-$frMax   = (float)$params['fr_max'];
-$baseRpm = (int)  $params['rpm0'];
-$baseFeed= (float)$params['feed0'];
-$baseMmr = (float)$params['mmr_base'];
+//$baseVc  = (float)$params['vc0'];
+//$vcMinDb = (float)$params['vc_min0'];
+//$vcMaxDb = (float)($params['vc_max0'] ?? $baseVc * 1.25);
+//$baseFz  = (float)$params['fz0'];
+//$fzMinDb = (float)$params['fz_min0'];
+//$fzMaxDb = (float)$params['fz_max0'];
+//$apSlot  = (float)$params['ap_slot'];
+//$aeSlot  = (float)$params['ae_slot'];
+//$rpmMin  = (float)$params['rpm_min'];
+//$rpmMax  = (float)$params['rpm_max'];
+//$frMax   = (float)$params['fr_max'];
+//$baseRpm = (int)  $params['rpm0'];
+//$baseFeed= (float)$params['feed0'];
+//$baseMmr = (float)$params['mmr_base'];
 
 // Valores mostrados en el dash compacto
-$outVf = number_format($baseFeed, 0, '.', '');
-$outN  = number_format($baseRpm, 0, '.', '');
-$outVc = number_format($baseVc,   1, '.', '');
+//$outVf = number_format($baseFeed, 0, '.', '');
+//$outN  = number_format($baseRpm, 0, '.', '');
+//$outVc = number_format($baseVc,   1, '.', '');
 
-$materialName   = (string)($_SESSION['material_name']   ?? 'Genérico Fibrofácil (MDF)');
-$materialParent = (string)($_SESSION['material_parent'] ?? 'Maderas Naturales');
-$strategyName   = (string)($_SESSION['strategy_name']   ?? 'Grabado en V / 2.5D');
-$strategyParent = (string)($_SESSION['strategy_parent'] ?? 'Fresado');
-$thickness      = (float)$_SESSION['thickness'];
-$powerAvail     = (float)$_SESSION['hp'];
+//$materialName   = (string)($_SESSION['material_name']   ?? 'Genérico Fibrofácil (MDF)');
+//$materialParent = (string)($_SESSION['material_parent'] ?? 'Maderas Naturales');
+//$strategyName   = (string)($_SESSION['strategy_name']   ?? 'Grabado en V / 2.5D');
+//$strategyParent = (string)($_SESSION['strategy_parent'] ?? 'Fresado');
+//$thickness      = (float)$_SESSION['thickness'];
+//$powerAvail     = (float)$_SESSION['hp'];
 
 // Nombre de transmisión
-try {
-    $transName = $pdo->prepare('SELECT name FROM transmissions WHERE id = ?');
-    $transName->execute([(int)$_SESSION['trans_id']]);
-    $transName = $transName->fetchColumn() ?: 'N/D';
-} catch (Throwable $e) {
-    $transName = 'N/D';
-}
+//try {
+ //   $transName = $pdo->prepare('SELECT name FROM transmissions WHERE id = ?');
+ //   $transName->execute([(int)$_SESSION['trans_id']]);
+  //  $transName = $transName->fetchColumn() ?: 'N/D';
+//} catch (Throwable $e) {
+ //   $transName = 'N/D';
+//}
 
-$notesArray = $params['notes'] ?? [];
+//$notesArray = $params['notes'] ?? [];
 
 // ────────────────────────────────────────────────────────────────
 // Assets locales
 // ────────────────────────────────────────────────────────────────
-$cssBootstrapRel = asset('assets/css/generic/bootstrap.min.css');
-$bootstrapJsRel  = asset('assets/js/bootstrap.bundle.min.js');
-$featherLocal    = $root.'node_modules/feather-icons/dist/feather.min.js';
-$chartJsLocal    = $root.'node_modules/chart.js/dist/chart.umd.min.js';
-$countUpLocal    = $root.'node_modules/countup.js/dist/countUp.umd.js';
-$step6JsRel      = asset('assets/js/step6.js');
+//$cssBootstrapRel = asset('assets/css/generic/bootstrap.min.css');
+//$bootstrapJsRel  = asset('assets/js/bootstrap.bundle.min.js');
+//$featherLocal    = $root.'node_modules/feather-icons/dist/feather.min.js';
+//$chartJsLocal    = $root.'node_modules/chart.js/dist/chart.umd.min.js';
+//$countUpLocal    = $root.'node_modules/countup.js/dist/countUp.umd.js';
+//$step6JsRel      = asset('assets/js/step6.js');
 
-$assetErrors = [];
-if (!is_readable($root.'assets/css/generic/bootstrap.min.css'))
-    $assetErrors[] = 'Bootstrap CSS no encontrado localmente.';
-if (!is_readable($root.'assets/js/bootstrap.bundle.min.js'))
-    $assetErrors[] = 'Bootstrap JS no encontrado localmente.';
-if (!file_exists($featherLocal))
-    $assetErrors[] = 'Feather Icons JS faltante.';
-if (!file_exists($chartJsLocal))
-    $assetErrors[] = 'Chart.js faltante.';
-if (!file_exists($countUpLocal))
-    $assetErrors[] = 'CountUp.js faltante.';
+//$assetErrors = [];
+//if (!is_readable($root.'assets/css/generic/bootstrap.min.css'))
+//    $assetErrors[] = 'Bootstrap CSS no encontrado localmente.';
+//if (!is_readable($root.'assets/js/bootstrap.bundle.min.js'))
+//    $assetErrors[] = 'Bootstrap JS no encontrado localmente.';
+//if (!file_exists($featherLocal))
+//    $assetErrors[] = 'Feather Icons JS faltante.';
+//if (!file_exists($chartJsLocal))
+ //   $assetErrors[] = 'Chart.js faltante.';
+//if (!file_exists($countUpLocal))
+ //   $assetErrors[] = 'CountUp.js faltante.';
 
 // =====================================================================
 // =========================  COMIENZA SALIDA  ==========================
