@@ -22,9 +22,10 @@ $defaults = [
 ];
 
 // Get inputs or defaults
-$fz = isset($_POST['fz']) ? (float)$_POST['fz'] : 0.05;
-$vc = isset($_POST['vc']) ? (float)$_POST['vc'] : 200.0;
-$ae = isset($_POST['ae']) ? (float)$_POST['ae'] : $defaults['diameter'] / 2;
+$fz      = isset($_POST['fz']) ? (float)$_POST['fz'] : 0.05;
+$vc      = isset($_POST['vc']) ? (float)$_POST['vc'] : 200.0;
+$ae      = isset($_POST['ae']) ? (float)$_POST['ae'] : $defaults['diameter'] / 2;
+$passes  = isset($_POST['passes']) ? (int)$_POST['passes'] : 1;
 
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -37,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $result = null;
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$errors) {
+if (!$errors) {
     $D = $defaults['diameter'];
     $Z = $defaults['flutes'];
     $rpmMin = $defaults['rpm_min'];
@@ -56,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$errors) {
     $phi = 2 * asin(min(1.0, $ae / $D));
     $hm  = $phi !== 0.0 ? ($fz * (1 - cos($phi)) / $phi) : $fz;
 
-    $ap  = $defaults['thickness'];
+    $ap  = $defaults['thickness'] / max(1, $passes);
     $mmr = round(($ap * $feed * $ae) / 1000.0, 2);
 
     $Fct = $Kc11 * pow($hm, -$mc) * $ap * $fz * $Z * (1 + $coefSeg * tan($alpha));
@@ -65,11 +66,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$errors) {
     $HP  = round($kW * 1.341, 2);
 
     $result = [
-        'rpm'  => $rpm,
-        'feed' => $feed,
-        'hp'   => $HP,
-        'watts'=> $W,
-        'mmr'  => $mmr,
+        'rpm'   => $rpm,
+        'feed'  => $feed,
+        'hp'    => $HP,
+        'watts' => $W,
+        'mmr'   => $mmr,
+        'hm'    => $hm,
+        'ap'    => $ap,
     ];
 }
 ?>
@@ -97,33 +100,104 @@ th{text-align:left;background:#f0f0f0;}
   <?php foreach ($errors as $e) echo htmlspecialchars($e)."<br>"; ?>
 </div>
 <?php endif; ?>
-<form method="post">
+<form method="post" id="calcForm">
   <input type="hidden" name="csrf_token" value="<?=htmlspecialchars($csrf)?>">
-  <label>fz (mm/diente)
-    <input type="number" step="0.0001" name="fz" value="<?=htmlspecialchars($fz)?>" required>
+  <label>Vc (m/min)
+    <input type="range" id="sliderVc" min="50" max="400" step="1" value="<?=htmlspecialchars($vc)?>">
+    <span id="valVc"></span>
   </label>
-  <label>vc (m/min)
-    <input type="number" step="0.1" name="vc" value="<?=htmlspecialchars($vc)?>" required>
+  <label>fz (mm/diente)
+    <input type="range" id="sliderFz" min="0.01" max="0.20" step="0.001" value="<?=htmlspecialchars($fz)?>">
+    <span id="valFz"></span>
   </label>
   <label>ae (mm)
-    <input type="number" step="0.1" name="ae" value="<?=htmlspecialchars($ae)?>" required>
+    <input type="range" id="sliderAe" min="0.1" max="<?=$defaults['diameter']?>" step="0.1" value="<?=htmlspecialchars($ae)?>">
+    <span id="valAe"></span>
+  </label>
+  <label>Pasadas
+    <input type="range" id="sliderPasadas" min="1" max="10" step="1" value="<?=$passes?>">
+    <span id="valPasadas"></span>
   </label>
   <div>
     <a href="step5.php" class="btn">Anterior</a>
-    <?php if ($result): ?>
-      <a href="step7.php" class="btn btn-primary">Siguiente</a>
-    <?php else: ?>
-      <button type="submit" class="btn btn-primary">Calcular</button>
-    <?php endif; ?>
+    <button type="submit" class="btn btn-primary">Calcular</button>
   </div>
 </form>
 <?php if ($result): ?>
 <table>
-<tr><th>RPM</th><td><?=number_format($result['rpm'])?></td></tr>
-<tr><th>Feedrate</th><td><?=number_format($result['feed'],1)?> mm/min</td></tr>
-<tr><th>Potencia</th><td><?=number_format($result['hp'],2)?> HP (<?=number_format($result['watts'])?> W)</td></tr>
-<tr><th>MMR</th><td><?=number_format($result['mmr'],2)?> mm³/min</td></tr>
+<tr><th>RPM</th><td><span id="outRpm"><?=number_format($result['rpm'])?></span></td></tr>
+<tr><th>Feedrate</th><td><span id="outFeed"><?=number_format($result['feed'],1)?></span> mm/min</td></tr>
+<tr><th>Chip thickness</th><td><span id="outHm"><?=number_format($result['hm'],4)?></span> mm</td></tr>
+<tr><th>ap</th><td><span id="outAp"><?=number_format($result['ap'],3)?></span> mm</td></tr>
+<tr><th>Potencia</th><td><span id="outHp"><?=number_format($result['hp'],2)?></span> HP (<span id="outWatts"><?=number_format($result['watts'])?></span> W)</td></tr>
+<tr><th>MMR</th><td><span id="outMmr"><?=number_format($result['mmr'],2)?></span> mm³/min</td></tr>
 </table>
 <?php endif; ?>
+<script>
+const D = <?= $defaults['diameter'] ?>;
+const Z = <?= $defaults['flutes'] ?>;
+const rpmMin = <?= $defaults['rpm_min'] ?>;
+const rpmMax = <?= $defaults['rpm_max'] ?>;
+const feedMax = <?= $defaults['feed_max'] ?>;
+const thickness = <?= $defaults['thickness'] ?>;
+const Kc11 = <?= $defaults['Kc11'] ?>;
+const mc = <?= $defaults['mc'] ?>;
+const coefSeg = <?= $defaults['coef_seg'] ?>;
+const alpha = <?= $defaults['rack_rad'] ?>;
+const eta = 0.85;
+
+const vcInput = document.getElementById('sliderVc');
+const fzInput = document.getElementById('sliderFz');
+const aeInput = document.getElementById('sliderAe');
+const pInput  = document.getElementById('sliderPasadas');
+const valVc = document.getElementById('valVc');
+const valFz = document.getElementById('valFz');
+const valAe = document.getElementById('valAe');
+const valP  = document.getElementById('valPasadas');
+
+function showVals(){
+  valVc.textContent = vcInput.value;
+  valFz.textContent = fzInput.value;
+  valAe.textContent = aeInput.value;
+  valP.textContent  = pInput.value;
+}
+
+function recalc(){
+  const vc = parseFloat(vcInput.value);
+  const fz = parseFloat(fzInput.value);
+  const ae = parseFloat(aeInput.value);
+  const passes = parseInt(pInput.value,10);
+
+  const rpmCalc = (vc * 1000) / (Math.PI * D);
+  const rpm = Math.max(rpmMin, Math.min(rpmCalc, rpmMax));
+  const feed = Math.min(rpm * fz * Z, feedMax);
+  const phi = 2 * Math.asin(Math.min(1, ae / D));
+  const hm = phi !== 0 ? (fz * (1 - Math.cos(phi)) / phi) : fz;
+  const ap = thickness / Math.max(1, passes);
+  const mmr = (ap * feed * ae) / 1000;
+  const Fct = Kc11 * Math.pow(hm, -mc) * ap * fz * Z * (1 + coefSeg * Math.tan(alpha));
+  const kW = (Fct * vc) / (60000 * eta);
+  const watts = Math.round(kW * 1000);
+  const hp = (kW * 1.341).toFixed(2);
+
+  document.getElementById('outRpm').textContent = Math.round(rpm);
+  document.getElementById('outFeed').textContent = feed.toFixed(1);
+  document.getElementById('outHm').textContent = hm.toFixed(4);
+  document.getElementById('outAp').textContent = ap.toFixed(3);
+  document.getElementById('outMmr').textContent = mmr.toFixed(2);
+  document.getElementById('outHp').textContent = hp;
+  document.getElementById('outWatts').textContent = watts;
+}
+
+[vcInput, fzInput, aeInput, pInput].forEach(el => {
+  el.addEventListener('input', () => {
+    showVals();
+    recalc();
+  });
+});
+
+showVals();
+recalc();
+</script>
 </body>
 </html>
