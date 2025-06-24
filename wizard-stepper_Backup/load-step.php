@@ -1,0 +1,133 @@
+<?php
+declare(strict_types=1);
+/**
+ * File: C:\xampp\htdocs\wizard-stepper\load-step.php
+ * ---------------------------------------------------------------
+ * Cargador asincrónico de cada paso del wizard
+ */
+
+// ─────────────────────────────────────────────────────────────
+// [1] CABECERAS DE SEGURIDAD Y NO-CACHING
+// ─────────────────────────────────────────────────────────────
+header('Content-Type: text/html; charset=UTF-8');
+header('Strict-Transport-Security: max-age=63072000; includeSubDomains; preload');
+header('X-Frame-Options: DENY');
+header('X-Content-Type-Options: nosniff');
+header('X-XSS-Protection: 1; mode=block');
+header('Referrer-Policy: no-referrer');
+header('Permissions-Policy: geolocation=(), microphone=()');
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
+
+// ─────────────────────────────────────────────────────────────
+// [2] SESIÓN SEGURA
+// ─────────────────────────────────────────────────────────────
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path'     => '/',
+        'domain'   => '',
+        'secure'   => true,
+        'httponly' => true,
+        'samesite' => 'Strict'
+    ]);
+    session_start();
+}
+
+// ─────────────────────────────────────────────────────────────
+// [3] DEBUG OPCIONAL
+// ─────────────────────────────────────────────────────────────
+$DEBUG = filter_input(INPUT_GET, 'debug', FILTER_VALIDATE_BOOLEAN);
+if ($DEBUG && is_readable(__DIR__ . '/includes/debug.php')) {
+    require_once __DIR__ . '/includes/debug.php';
+    dbg('🔧 load-step.php iniciado (modo DEBUG)');
+} else {
+    if (!function_exists('dbg')) {
+        function dbg(...$args) { /* stub vacío */ }
+    }
+}
+
+// ─────────────────────────────────────────────────────────────
+// [4] INCLUIR CONEXIÓN A LA BASE DE DATOS
+// ─────────────────────────────────────────────────────────────
+$dbFile = __DIR__ . '/includes/db.php';
+if (!is_readable($dbFile)) {
+    dbg('❌ No se encontró includes/db.php en: ' . $dbFile);
+    http_response_code(500);
+    exit('Error interno: falta el archivo de conexión a la BD.');
+}
+require_once $dbFile;
+dbg('✔ Conexión a la BD establecida');
+
+// ─────────────────────────────────────────────────────────────
+// [5] VERIFICAR ESTADO DE SESIÓN
+// ─────────────────────────────────────────────────────────────
+if (($_SESSION['wizard_state'] ?? '') !== 'wizard') {
+    dbg('❌ Acceso a load-step.php sin estado "wizard" en sesión');
+    http_response_code(403);
+    exit('Acceso prohibido: no estás en el wizard.');
+}
+dbg('✔ Estado wizard: OK');
+
+// ─────────────────────────────────────────────────────────────
+// [6] VALIDAR PARÁMETRO “step”
+// ─────────────────────────────────────────────────────────────
+$step = filter_input(INPUT_GET, 'step', FILTER_VALIDATE_INT, [
+    'options' => ['min_range' => 1, 'max_range' => 6]
+]);
+if ($step === false || $step === null) {
+    dbg('❌ Parámetro step inválido');
+    http_response_code(400);
+    exit('Parámetro inválido.');
+}
+dbg("📥 Paso solicitado: {$step}");
+
+// ─────────────────────────────────────────────────────────────
+// [7] VERIFICAR PROGRESO DEL USUARIO
+// ─────────────────────────────────────────────────────────────
+$currentProgress = (int)($_SESSION['wizard_progress'] ?? 0);
+dbg("🔢 Progreso actual (sesión): {$currentProgress}");
+
+$maxAllowedStep = $currentProgress + 1;
+if ($step > $maxAllowedStep) {
+    dbg("🚫 Paso solicitado ({$step}) excede el permitido ({$maxAllowedStep}), redirigiendo...");
+    header("Location: load-step.php?step={$maxAllowedStep}");
+    exit;
+}
+
+// ─────────────────────────────────────────────────────────────
+// [8] DETECTAR MODO (auto vs manual)
+// ─────────────────────────────────────────────────────────────
+$modeRaw = $_SESSION['tool_mode'] ?? 'manual';
+$mode    = ($modeRaw === 'auto') ? 'auto' : 'manual';
+dbg("🧭 Modo actual: {$mode}");
+
+// ─────────────────────────────────────────────────────────────
+// [9] BUSCAR ARCHIVO DE VISTA DEL PASO
+// ─────────────────────────────────────────────────────────────
+$baseDir        = __DIR__ . '/views/steps';
+$viewCandidates = [
+    "{$baseDir}/{$mode}/step{$step}.php",
+    "{$baseDir}/step{$step}.php"
+];
+$view = null;
+foreach ($viewCandidates as $file) {
+    if (is_readable($file)) {
+        $view = $file;
+        break;
+    }
+}
+if (!$view) {
+    dbg("❌ View no encontrada para step{$step} en modo {$mode}");
+    http_response_code(404);
+    exit('Página no encontrada.');
+}
+dbg("✔ Usando view: {$view}");
+
+// ─────────────────────────────────────────────────────────────
+// [10] DEFINIR CONSTANTE Y CARGAR LA VISTA
+// ─────────────────────────────────────────────────────────────
+define('WIZARD_EMBEDDED', true);
+include $view;
+
+// Fin de load-step.php
