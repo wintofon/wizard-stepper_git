@@ -265,6 +265,61 @@ declare(strict_types=1);
 
 /* _________________________________________________________________
 
+
+// ────────────────────────────────────────────────────────────────
+// Utilidades / helpers
+// ────────────────────────────────────────────────────────────────
+//require_once __DIR__ . '/../../includes/wizard_helpers.php';
+
+// ────────────────────────────────────────────────────────────────
+// ¿Vista embebida por load-step.php?
+// ────────────────────────────────────────────────────────────────
+//$embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
+
+// ────────────────────────────────────────────────────────────────
+// Sesión segura (siempre antes de imprimir cabeceras)
+// ────────────────────────────────────────────────────────────────
+//if (session_status() !== PHP_SESSION_ACTIVE) {
+//    session_set_cookie_params([
+//        'lifetime' => 0,
+ //       'path'     => '/',
+  //      'secure'   => true,
+  //      'httponly' => true,
+  //      'samesite' => 'Strict'
+  //  ]);
+  //  session_start();
+//}
+
+//if (!$embedded) {
+    /* Cabeceras de seguridad */
+ //   header('Content-Type: text/html; charset=UTF-8');
+ //   header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
+ //   header('X-Frame-Options: DENY');
+ //   header('X-Content-Type-Options: nosniff');
+ //   header('Referrer-Policy: no-referrer');
+ //   header("Permissions-Policy: geolocation=(), microphone=()");
+ //   header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+ //   header('Pragma: no-cache');
+ //   header(
+  //      "Content-Security-Policy: default-src 'self';"
+  //      . " script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;"
+   //     . " style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;"
+ //   );
+//}
+
+
+/* _________________________________________________________________
+
+
+
+
+
+
+
+
+
+
+
 /* 2) Dependencias */
 require_once __DIR__ . '/../../includes/db.php';
 require_once __DIR__ . '/../../includes/debug.php';
