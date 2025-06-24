@@ -2,12 +2,9 @@
 declare(strict_types=1);
 
 use App\Controller\ExpertResultController;
-use App\Model\ToolModel;
-use App\Model\ConfigModel;
-use App\Utils\CNCCalculator;
 
 try {
-    // 1) Sesión segura y flujo
+    // 1) Seguridad y flujo
     if (session_status() !== PHP_SESSION_ACTIVE) {
         session_start([
             'cookie_secure'   => true,
@@ -36,30 +33,30 @@ try {
     }
 
     // 4) Lectura de sesión
-    $toolId     = (int)   $_SESSION['tool_id'];
-    $toolTable  = (string)$_SESSION['tool_table'];
-    $materialId = (int)   $_SESSION['material_id'];
-    $transId    = (int)   $_SESSION['trans_id'];
-    $thickness  = (float) $_SESSION['thickness'];
-    $frMax      = (float) $_SESSION['feed_max'];
+    $toolId    = (int) $_SESSION['tool_id'];
+    $toolTable = $_SESSION['tool_table'];
+    $materialId= (int) $_SESSION['material_id'];
+    $transId   = (int) $_SESSION['trans_id'];
+    $thickness = (float) $_SESSION['thickness'];
+    $frMax     = (float) $_SESSION['feed_max'];
 
     // 5) Datos herramienta
     $tool = ToolModel::getTool($pdo, $toolTable, $toolId) ?: [];
-    $D = (float) ($tool['diameter_mm']       ?? 0);
-    $Z = (int)   ($tool['flute_count']       ?? 1);
+    $D = (float) ($tool['diameter_mm'] ?? 0);
+    $Z = (int)   ($tool['flute_count']  ?? 1);
 
-    // 6) Parámetros base desde ExpertResultController (con fallback)
+    // 6) Parámetros base desde ExpertResultController
     $params = [];
     try {
         $params = ExpertResultController::getResultData($pdo, $_SESSION);
     } catch (\Throwable $e) {
-        // silenciar, usaremos defaults
+        // Silenciar, usaremos defaults si faltan
     }
-    $vc0   = (float) ($params['vc0']     ?? 150.0);
-    $fz0   = (float) ($params['fz0']     ?? 0.1);
-    $ae0   = (float) ($params['ae_slot'] ?? ($D * 0.5));
-    $fzMin = (float) ($params['fz_min0'] ?? ($fz0 * 0.5));
-    $fzMax = (float) ($params['fz_max0'] ?? ($fz0 * 1.5));
+    $vc0   = (float) ($params['vc0']      ?? 0);
+    $fz0   = (float) ($params['fz0']      ?? 0);
+    $ae0   = (float) ($params['ae_slot']  ?? ($D * 0.5));
+    $fzMin = (float) ($params['fz_min0']  ?? 0);
+    $fzMax = (float) ($params['fz_max0']  ?? $fz0 * 1.5);
 
     // 7) Lectura de overrides del POST
     $vc_adj     = isset($_POST['vc_adj'])     ? (float)$_POST['vc_adj']     : $vc0;
@@ -86,9 +83,9 @@ try {
 
 } catch (\Throwable $e) {
     http_response_code(500);
-    echo "<div class='alert alert-danger m-4'><h4>Error interno</h4><p>"
-       . htmlspecialchars($e->getMessage(), ENT_QUOTES)
-       . "</p></div>";
+    echo "<div class='alert alert-danger m-4'>";
+    echo "<h4>Error interno</h4><p>" . htmlspecialchars($e->getMessage(), ENT_QUOTES) . "</p>";
+    echo "</div>";
     exit;
 }
 ?>
@@ -112,18 +109,18 @@ try {
         min="<?= number_format($vc0 * 0.5,1) ?>"
         max="<?= number_format($vc0 * 1.5,1) ?>"
         step="0.1" value="<?= $vc_adj ?>"
-        oninput="this.nextElementSibling.value=this.value">
+        oninput="this.nextElementSibling.value = this.value">
       <output class="ms-2"><?= $vc_adj ?></output> m/min
     </div>
 
     <!-- Slider fz -->
     <div class="mb-4">
-      <label class="form-label">fz (<?= number_format($fzMin,4) ?> … <?= number_format($fzMax,4) ?>)</label>
+      <label class="form-label">fz (<?= number_format($fzMin,4) ?>…<?= number_format($fzMax,4) ?>)</label>
       <input type="range" name="fz_adj" class="form-range"
         min="<?= number_format($fzMin,4) ?>"
         max="<?= number_format($fzMax,4) ?>"
         step="0.0001" value="<?= $fz_adj ?>"
-        oninput="this.nextElementSibling.value=this.value">
+        oninput="this.nextElementSibling.value = this.value">
       <output class="ms-2"><?= $fz_adj ?></output> mm/diente
     </div>
 
@@ -133,18 +130,18 @@ try {
       <input type="range" name="ae_adj" class="form-range"
         min="0.1" max="<?= number_format($D,1) ?>"
         step="0.1" value="<?= $ae_adj ?>"
-        oninput="this.nextElementSibling.value=this.value">
+        oninput="this.nextElementSibling.value = this.value">
       <output class="ms-2"><?= $ae_adj ?></output> mm
     </div>
 
     <!-- Slider pasadas -->
     <?php $maxPass = max(1, (int)ceil($thickness / max(0.001, $ae_adj))); ?>
     <div class="mb-4">
-      <label class="form-label">Pasadas (1 … <?= $maxPass ?>)</label>
+      <label class="form-label">Pasadas (1…<?= $maxPass ?>)</label>
       <input type="range" name="passes" class="form-range"
         min="1" max="<?= $maxPass ?>" step="1"
         value="<?= $passes_adj ?>"
-        oninput="this.nextElementSibling.value=this.value">
+        oninput="this.nextElementSibling.value = this.value">
       <output class="ms-2"><?= $passes_adj ?></output> pasadas
     </div>
 
@@ -174,7 +171,7 @@ try {
             <div class="card-body">
               <h6 class="card-title"><?= htmlspecialchars($title, ENT_QUOTES) ?></h6>
               <p class="display-6 mb-0">
-                <?= number_format($value, strpos($unit,'mm/diente')!==false ? 4 : 0) ?>
+                <?= number_format($value,  (strpos($unit,'mm/diente')!==false ? 4 : 0)) ?>
                 <small class="fs-6 text-muted"><?= htmlspecialchars($unit, ENT_QUOTES) ?></small>
               </p>
             </div>
@@ -183,7 +180,6 @@ try {
     <?php endforeach; ?>
   </div>
 </main>
-
 <script src="https://cdn.jsdelivr.net/npm/feather-icons"></script>
 <script>feather.replace()</script>
 </body>
