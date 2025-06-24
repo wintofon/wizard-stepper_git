@@ -40,6 +40,7 @@
   <script>
     window.BASE_URL = <?= json_encode(BASE_URL) ?>;
     window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
+    window.DEBUG = <?= $DEBUG ? 'true' : 'false' ?>;
   </script>
 </head>
 <body>
@@ -71,6 +72,9 @@
 
   <!-- Contenido dinámico -->
   <main id="step-content" class="wizard-body"></main>
+  <?php if ($DEBUG): ?>
+  <div class="debug-box"><pre id="debug"></pre></div>
+  <?php endif; ?>
 
   <!-- Dashboard oculto; la información se muestra por consola -->
 
