@@ -67,7 +67,7 @@ list($watts, $hpOut) = CNCCalculator::potencia($Fct, $vc, $eta);
   <title>Paso 6 – Resultados CNC</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 </head>
-<body>
+<body> 
 <main class="container py-4">
   <h2 class="mb-4">Resultados CNC</h2>
   <form method="POST" class="row g-3 mb-4">
