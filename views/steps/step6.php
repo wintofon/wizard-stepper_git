@@ -16,32 +16,7 @@
  *   – hp       > 0
  * Después guarda en sesión y avanza a step6.php
  */
-// declare(strict_types=1);
 
-/* 1) Sesión segura y flujo */
-// if (session_status() !== PHP_SESSION_ACTIVE) {
- //    session_start([
-     //    'cookie_secure'   => true,
-    //     'cookie_httponly' => true,
-     //    'cookie_samesite' => 'Strict',
-//     ]);
-// }
-// if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 5) {
-//     header('Location: step1.php');
- //    exit;
-// }
-//if (!getenv('BASE_URL')) {
- //   // Sube 3 niveles: /views/steps/step6.php → /wizard-stepper_git
-  //  putenv(
-  //      'BASE_URL=' . rtrim(
-    //        dirname(dirname(dirname($_SERVER['SCRIPT_NAME']))),
-   //         '/'
-   //     )
-  //  );
-//}
-//require_once __DIR__ . '/../../src/Config/AppConfig.php';
-
-//use App\Controller\ExpertResultController;
 
 // ────────────────────────────────────────────────────────────────
 // Utilidades / helpers
@@ -265,37 +240,34 @@
 // =========================  COMIENZA SALIDA  ==========================
 // =====================================================================
 
-/**
- * File: step5.php
- *
- * Main responsibility: Part of the CNC Wizard Stepper.
- * Related files: See others in this project.
- * @TODO Extend documentation.
- */
-/**
- * Paso 5 (Auto) – Configurar router
- * Protegido con CSRF, controla flujo y valida:
- *   – rpm_min > 0
- *   – rpm_max > 0
- *   – rpm_min < rpm_max
- *   – feed_max > 0
- *   – hp       > 0
- * Después guarda en sesión y avanza a step6.php
- */
-declare(strict_types=1);
+// declare(strict_types=1);
 
 /* 1) Sesión segura y flujo */
-if (session_status() !== PHP_SESSION_ACTIVE) {
+ if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start([
-        'cookie_secure'   => true,
-        'cookie_httponly' => true,
-        'cookie_samesite' => 'Strict',
-    ]);
-}
-if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 4) {
+     'cookie_secure'   => true,
+      'cookie_httponly' => true,
+     'cookie_samesite' => 'Strict',
+     ]);
+ }
+ if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 5) {
     header('Location: step1.php');
     exit;
+ }
+if (!getenv('BASE_URL')) {
+  // Sube 3 niveles: /views/steps/step6.php → /wizard-stepper_git
+  putenv(
+     'BASE_URL=' . rtrim(
+         dirname(dirname(dirname($_SERVER['SCRIPT_NAME']))),
+         '/'
+     )
+  );
 }
+require_once __DIR__ . '/../../src/Config/AppConfig.php';
+
+//use App\Controller\ExpertResultController;
+
+_________________________________________________________________
 
 /* 2) Dependencias */
 require_once __DIR__ . '/../../includes/db.php';
