@@ -75,54 +75,54 @@ if (!$embedded) {
 // ────────────────────────────────────────────────────────────────
 // Debug opcional
 // ────────────────────────────────────────────────────────────────
-$DEBUG = filter_input(INPUT_GET, 'debug', FILTER_VALIDATE_BOOLEAN);
-if ($DEBUG && is_readable(__DIR__ . '/../../includes/debug.php')) {
-    require_once __DIR__ . '/../../includes/debug.php';
-}
+//$DEBUG = filter_input(INPUT_GET, 'debug', FILTER_VALIDATE_BOOLEAN);
+//if ($DEBUG && is_readable(__DIR__ . '/../../includes/debug.php')) {
+//    require_once __DIR__ . '/../../includes/debug.php';
+//}
 
 // ────────────────────────────────────────────────────────────────
 // Normalizar nombres en sesión
 // ────────────────────────────────────────────────────────────────
-$_SESSION['material'] = $_SESSION['material_id']     ?? ($_SESSION['material']   ?? null);
-$_SESSION['trans_id'] = $_SESSION['transmission_id'] ?? ($_SESSION['trans_id']   ?? null);
-$_SESSION['fr_max']   = $_SESSION['feed_max']        ?? ($_SESSION['fr_max']     ?? null);
-$_SESSION['strategy'] = $_SESSION['strategy_id']     ?? ($_SESSION['strategy']   ?? null);
+//$_SESSION['material'] = $_SESSION['material_id']     ?? ($_SESSION['material']   ?? null);
+//$_SESSION['trans_id'] = $_SESSION['transmission_id'] ?? ($_SESSION['trans_id']   ?? null);
+//$_SESSION['fr_max']   = $_SESSION['feed_max']        ?? ($_SESSION['fr_max']     ?? null);
+//$_SESSION['strategy'] = $_SESSION['strategy_id']     ?? ($_SESSION['strategy']   ?? null);
 
 // ────────────────────────────────────────────────────────────────
 // CSRF token
 // ────────────────────────────────────────────────────────────────
-if (empty($_SESSION['csrf_token'])) {
+//if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
-$csrfToken = $_SESSION['csrf_token'];
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!hash_equals($csrfToken, (string)($_POST['csrf_token'] ?? ''))) {
+//}
+//$csrfToken = $_SESSION['csrf_token'];
+//if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+ //   if (!hash_equals($csrfToken, (string)($_POST['csrf_token'] ?? ''))) {
         respondError(200, 'Error CSRF: petición no autorizada.');
-    }
-}
+  //  }
+//}
 
 // ────────────────────────────────────────────────────────────────
 // Validar claves requeridas
 // ────────────────────────────────────────────────────────────────
-$requiredKeys = [
+//$requiredKeys = [
     'tool_table','tool_id','material','trans_id',
     'rpm_min','rpm_max','fr_max','thickness',
     'strategy','hp'
-];
-$missing = array_filter($requiredKeys, fn($k) => empty($_SESSION[$k]));
-if ($missing) {
-    if ($embedded) {
-        echo '<div class="alert alert-danger m-4">Faltan datos esenciales en sesión: <strong>'
-            . implode(', ', $missing)
-            . '</strong></div>';
-        return;
-    } else {
-        echo "<!DOCTYPE html><html lang='es'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'><link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css'><title>Error de sesión</title></head><body><main class='container py-5'><div class='alert alert-danger'><h4 class='alert-heading'>Faltan datos esenciales</h4><p>Revisá los pasos anteriores. Faltan: <strong>"
-            . implode(', ', $missing)
-            . "</strong></p><hr><a href='" . BASE_URL . "/wizard/index.php' class='btn btn-primary'>Volver al inicio</a></div></main></body></html>";
-        exit;
-    }
-}
+//];
+//$missing = array_filter($requiredKeys, fn($k) => empty($_SESSION[$k]));
+//if ($missing) {
+ //   if ($embedded) {
+ //       echo '<div class="alert alert-danger m-4">Faltan datos esenciales en sesión: <strong>'
+          //  . implode(', ', $missing)
+   //         . '</strong></div>';
+    //    return;
+   // } else {
+     //   echo "<!DOCTYPE html><html lang='es'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'><link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css'><title>Error de sesión</title></head><body><main class='container py-5'><div class='alert alert-danger'><h4 class='alert-heading'>Faltan datos esenciales</h4><p>Revisá los pasos anteriores. Faltan: <strong>"
+     //       . implode(', ', $missing)
+      //      . "</strong></p><hr><a href='" . BASE_URL . "/wizard/index.php' class='btn btn-primary'>Volver al inicio</a></div></main></body></html>";
+     //   exit;
+  //  }
+//}
 
 // ────────────────────────────────────────────────────────────────
 // Conexión BD
