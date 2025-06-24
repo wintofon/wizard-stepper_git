@@ -4,7 +4,7 @@
  * Paso 6 embebido 100% sin AJAX ni JS externo.
  * Calcula todo en PHP usando valores de sesión y base de datos.
  */
-declare(strict_types=1);
+// declare(strict_types=1);
 
 // CABECERAS Y SESIÓN SEGURA
 // if (!defined('WIZARD_EMBEDDED')) {
@@ -13,11 +13,11 @@ declare(strict_types=1);
 //     session_start([
  //        'cookie_secure'   => true,
   //       'cookie_httponly' => true,
-        'cookie_samesite' => 'Strict',
+        // 'cookie_samesite' => 'Strict',
   //   ]);
 // }
 
-require_once __DIR__ . '/../../includes/db.php';
+// require_once __DIR__ . '/../../includes/db.php';
 // require_once __DIR__ . '/../../src/Model/ToolModel.php';
 // require_once __DIR__ . '/../../src/Utils/CNCCalculator.php';
 // require_once __DIR__ . '/../../src/Model/ConfigModel.php';
