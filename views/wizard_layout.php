@@ -1,18 +1,12 @@
 <?php
 /**
- * File: wizard/views/wizard_layout.php
- * --------------------------------------------------------------------------
- * Layout principal del CNC Wizard Stepper
- * --------------------------------------------------------------------------
- * • Emite un contenedor <main id="step-content"> para vistas embebidas.
- * • Carga CSS/JS global solo una vez, sin duplicar <html>/<head>/<body> en fetch.
- * • Exposición segura de DEBUG y CSRF, evitando romper el DOM.
+ * File: wizard_layout.php
+ *
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * @TODO Extend documentation.
  */
-
-declare(strict_types=1);
-
-// Modo debug desde constante definida en bootstrap
-$debugMode = defined('DEBUG') && DEBUG;
+/* File: wizard/views/wizard_layout.php */
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -22,70 +16,119 @@ $debugMode = defined('DEBUG') && DEBUG;
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Wizard CNC</title>
 
-  <!-- CSS globales -->
-  <link rel="stylesheet" href="<?= asset('assets/css/settings/settings.css') ?>">
-  <link rel="stylesheet" href="<?= asset('assets/css/generic/generic.css') ?>">
-  <link rel="stylesheet" href="<?= asset('assets/css/objects/wizard.css') ?>">
-  <link rel="stylesheet" href="<?= asset('assets/css/objects/stepper.css') ?>">
-  <link rel="stylesheet" href="<?= asset('assets/css/objects/step-common.css') ?>">
+  
 
-  <!-- Estilos específicos de pasos dinámicos -->
+  <link rel="stylesheet" href="<?= asset('assets/css/settings/settings.css') ?>">
+ <link rel="stylesheet" href="<?= asset('assets/css/generic/generic.css') ?>">
+<link rel="stylesheet" href="<?= asset('assets/css/elements/elements.css') ?>">
+<link rel="stylesheet" href="<?= asset('assets/css/objects/objects.css') ?>">
+<link rel="stylesheet" href="<?= asset('assets/css/objects/wizard.css') ?>">
+<link rel="stylesheet" href="<?= asset('assets/css/objects/stepper.css') ?>">
+<link rel="stylesheet" href="<?= asset('assets/css/objects/step-common.css') ?>">
+  <!-- Estilos específicos del paso 6 -->
   <link rel="stylesheet" href="<?= asset('assets/css/objects/step6.css') ?>">
 
-  <!-- Componentes y utilidades -->
-  <link rel="stylesheet" href="<?= asset('assets/css/components/main.css') ?>">
-  <link rel="stylesheet" href="<?= asset('assets/css/utilities/utilities.css') ?>">
+  <!-- Bootstrap for step 6 -->
+  <link rel="stylesheet" href="<?= asset('assets/css/generic/bootstrap.min.css') ?>">
+
+<link rel="stylesheet" href="<?= asset('assets/css/components/components.css') ?>">
+<link rel="stylesheet" href="<?= asset('assets/css/components/main.css') ?>">
+<link rel="stylesheet" href="<?= asset('assets/css/components/footer-schneider.css') ?>">
+<link rel="stylesheet" href="<?= asset('assets/css/utilities/utilities.css') ?>">
+
 
   <script>
-    window.BASE_URL  = <?= json_encode(BASE_URL) ?>;
+    window.BASE_URL = <?= json_encode(BASE_URL) ?>;
     window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
-    window.DEBUG     = <?= $debugMode ? 'true' : 'false' ?>;
+    window.DEBUG = <?= $DEBUG ? 'true' : 'false' ?>;
   </script>
 </head>
 <body>
 
-  <!-- Header con logo y barra de pasos -->
-  <header class="d-flex align-items-center p-2 bg-dark text-white">
-    <img src="<?= asset('assets/img/logos/logo_stepper.png') ?>" 
-         alt="Logo Wizard" class="me-3" height="40">
-    <nav class="flex-grow-1">
-      <ul class="stepper list-unstyled d-flex mb-0">
-        <?php foreach ($flow as $step): ?>
-          <li data-step="<?= (int)$step ?>"
-              data-label="<?= htmlspecialchars($labels[$step] ?? '', ENT_QUOTES) ?>"></li>
+  <!-- Barra de pasos -->
+  <header class="stepper-header d-flex align-items-center">
+    <img
+      src="<?= asset('assets/img/logos/logo_stepper.png') ?>"
+      alt="Logo Stepper"
+      class="logo-stepper">
+    <nav class="stepper-bar flex-grow-1">
+      <ul class="stepper">
+        <?php foreach ($flow as $n): ?>
+          <li
+            data-step="<?= $n ?>"
+            data-label="<?= htmlspecialchars($labels[$n], ENT_QUOTES) ?>"></li>
         <?php endforeach; ?>
       </ul>
     </nav>
-    <button class="btn btn-outline-light ms-3" onclick="localStorage.clear(); loadStep(1)">
-      <i data-feather="refresh-ccw"></i>
-    </button>
   </header>
 
-  <!-- Contenedor para contenido cargado vía AJAX -->
-  <main id="step-content" class="w-100"></main>
+  <!-- Botón reset -->
+  <div class="reset-wrap">
+    <a href="public/reset.php" class="btn btn-outline-light" onclick="localStorage.clear()">
+      <i data-feather="refresh-ccw" class="me-1"></i>
+      Volver al inicio
+    </a>
+  </div>
 
-  <!-- Debug console -->
-  <?php if ($debugMode): ?>
-    <div class="debug-box bg-dark text-light p-2">
-      <pre id="debug"></pre>
-    </div>
+  <!-- Contenido dinámico -->
+  <main id="step-content" class="wizard-body"></main>
+  <?php if ($DEBUG): ?>
+  <div class="debug-box"><pre id="debug"></pre></div>
   <?php endif; ?>
 
-  <!-- CSRF token expuesto para JS -->
+  <!-- Dashboard oculto; la información se muestra por consola -->
+
+  <!-- Scripts -->
   <?php if (!empty($_SESSION['csrf_token'])): ?>
-    <script>window.csrfToken = '<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES) ?>';</script>
+  <script>
+    window.csrfToken = '<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>';
+  </script>
   <?php endif; ?>
-
-  <!-- JS global (solo se incluyen una vez) -->
-  <script src="<?= asset('node_modules/feather-icons/dist/feather.min.js') ?>" defer></script>
-  <script>document.addEventListener('DOMContentLoaded', () => feather.replace());</script>
-  <script src="<?= asset('assets/js/bootstrap.bundle.min.js') ?>" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <script>feather.replace();</script>
+  <script src="<?= asset('assets/js/bootstrap.bundle.min.js') ?>"></script>
+  <!-- Step 6 dependencies -->
+  <script src="<?= asset('node_modules/chart.js/dist/chart.umd.min.js') ?>" defer></script>
+  <script src="<?= asset('node_modules/countup.js/dist/countUp.umd.js') ?>" defer></script>
   <script src="<?= asset('assets/js/wizard_stepper.js') ?>" defer></script>
   <script src="<?= asset('assets/js/dashboard.js') ?>" defer></script>
 
-  <!-- Footer minimalista -->
-  <footer class="text-center py-3 mt-auto bg-light">
-    <small class="text-muted">© SchneiderCNC <?= date('Y') ?> · Todos los derechos reservados</small>
+  <footer class="footer-schneider text-white mt-5">
+    <div class="container py-4">
+      <div class="row align-items-center">
+
+        <div class="col-md-6 mb-4 mb-md-0">
+          <img src="<?= asset('assets/img/logos/logo_stepper.png') ?>" alt="SchneiderCNC logo" class="footer-logo">
+          <h4 class="fw-bold mb-2">SchneiderCNC</h4>
+          <p class="mb-1">Alejandro Martín Schneider</p>
+          <p class="mb-1">Córdoba, Argentina</p>
+          <p class="mb-1">📞 +54 9 351 000 0000</p>
+          <p class="mb-1">📧 contacto@schneidercnc.com</p>
+          <p class="small text-secondary mt-2">© SchneiderCNC <?= date('Y') ?> · Todos los derechos reservados</p>
+        </div>
+
+        <div class="col-md-3 mb-4 mb-md-0">
+          <h6 class="text-uppercase fw-semibold">Productos</h6>
+          <ul class="list-unstyled small">
+            <li><a href="/libros" class="footer-link">📘 Mis libros</a></li>
+            <li><a href="/cursos-presenciales" class="footer-link">🏫 Cursos presenciales</a></li>
+            <li><a href="/cursos-online" class="footer-link">💻 Cursos online</a></li>
+            <li><a href="/herramental" class="footer-link">🛠️ Venta de herramental</a></li>
+          </ul>
+        </div>
+
+        <div class="col-md-3">
+          <h6 class="text-uppercase fw-semibold">Sitio</h6>
+          <ul class="list-unstyled small">
+            <li><a href="/contacto" class="footer-link">Contacto</a></li>
+            <li><a href="/terminos" class="footer-link">Términos y condiciones</a></li>
+            <li><a href="/cookies" class="footer-link">Cookies</a></li>
+            <li><a href="/privacidad" class="footer-link">Política de privacidad</a></li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
   </footer>
 
 </body>
