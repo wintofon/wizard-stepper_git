@@ -20,7 +20,7 @@ if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 5
 }
 
 /* 2) Dependencias */
-require_once __DIR__ . '/../../includes/db.php';
+/*require_once __DIR__ . '/../../includes/db.php';
 require_once __DIR__ . '/../../includes/debug.php';
 require_once __DIR__ . '/../../src/Model/ToolModel.php';
 require_once __DIR__ . '/../../src/Model/ConfigModel.php';
