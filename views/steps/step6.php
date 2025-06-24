@@ -1,11 +1,7 @@
 <?php
-/**
- * File: views/steps/auto/step6.php
- * Paso 6 embebido (completo) sin JS ni AJAX.
- * Calcula y muestra resultados CNC server-side usando 4 sliders,
- * con manejo de errores exhaustivo para que nunca rompa el DOM.
- */
 declare(strict_types=1);
+
+use App\Controller\ExpertResultController;
 
 try {
     // 1) Seguridad y flujo
@@ -28,7 +24,6 @@ try {
     require_once __DIR__ . '/../../src/Model/ToolModel.php';
     require_once __DIR__ . '/../../src/Model/ConfigModel.php';
     require_once __DIR__ . '/../../src/Utils/CNCCalculator.php';
-    use App\Controller\ExpertResultController;
 
     // 3) Validar sesión
     $required = ['tool_id','tool_table','material_id','trans_id','thickness','rpm_min','rpm_max','feed_max','hp'];
@@ -37,7 +32,7 @@ try {
         throw new RuntimeException('Faltan datos en sesión: ' . implode(', ', $missing));
     }
 
-    // 4) Carga de valores base
+    // 4) Lectura de sesión
     $toolId    = (int) $_SESSION['tool_id'];
     $toolTable = $_SESSION['tool_table'];
     $materialId= (int) $_SESSION['material_id'];
@@ -46,27 +41,24 @@ try {
     $frMax     = (float) $_SESSION['feed_max'];
 
     // 5) Datos herramienta
-    try {
-        $tool = ToolModel::getTool($pdo, $toolTable, $toolId) ?: [];
-    } catch (\Throwable $e) {
-        throw new RuntimeException('Error al cargar datos de herramienta.');
-    }
+    $tool = ToolModel::getTool($pdo, $toolTable, $toolId) ?: [];
     $D = (float) ($tool['diameter_mm'] ?? 0);
     $Z = (int)   ($tool['flute_count']  ?? 1);
 
-    // 6) Parámetros calculados por ExpertResultController
+    // 6) Parámetros base desde ExpertResultController
+    $params = [];
     try {
         $params = ExpertResultController::getResultData($pdo, $_SESSION);
     } catch (\Throwable $e) {
-        $params = [];
+        // Silenciar, usaremos defaults si faltan
     }
-    $vc0    = (float) ($params['vc0']      ?? 0);
-    $fz0    = (float) ($params['fz0']      ?? 0);
-    $ae0    = (float) ($params['ae_slot']  ?? 0);
-    $fzMin  = (float) ($params['fz_min0']  ?? 0);
-    $fzMax  = (float) ($params['fz_max0']  ?? 0);
+    $vc0   = (float) ($params['vc0']      ?? 0);
+    $fz0   = (float) ($params['fz0']      ?? 0);
+    $ae0   = (float) ($params['ae_slot']  ?? ($D * 0.5));
+    $fzMin = (float) ($params['fz_min0']  ?? 0);
+    $fzMax = (float) ($params['fz_max0']  ?? $fz0 * 1.5);
 
-    // 7) Leer overrides del POST
+    // 7) Lectura de overrides del POST
     $vc_adj     = isset($_POST['vc_adj'])     ? (float)$_POST['vc_adj']     : $vc0;
     $fz_adj     = isset($_POST['fz_adj'])     ? (float)$_POST['fz_adj']     : $fz0;
     $ae_adj     = isset($_POST['ae_adj'])     ? (float)$_POST['ae_adj']     : $ae0;
@@ -79,22 +71,17 @@ try {
     $alpha   = 0.0;
     $eta     = 0.85;
 
-    // 9) Recalcular CNC dentro de try/catch
-    try {
-        $phi   = CNCCalculator::helixAngle($ae_adj, $D);
-        $hm    = CNCCalculator::chipThickness($fz_adj, $ae_adj, $D);
-        $rpm   = CNCCalculator::rpm($vc_adj, $D);
-        $vf    = min(CNCCalculator::feed($rpm, $fz_adj, $Z), $frMax);
-        $ap    = $thickness / $passes_adj;
-        $mmr   = CNCCalculator::mmr($ap, $vf, $ae_adj);
-        $Fct   = CNCCalculator::Fct($Kc11, $hm, $mc, $ap, $Z, $coefSeg, $alpha, $phi);
-        [$watts, $hp] = CNCCalculator::potencia($Fct, $vc_adj, $eta);
-    } catch (\Throwable $e) {
-        throw new RuntimeException('Error en cálculos CNC.');
-    }
+    // 9) Cálculos CNC
+    $phi   = CNCCalculator::helixAngle($ae_adj, $D);
+    $hm    = CNCCalculator::chipThickness($fz_adj, $ae_adj, $D);
+    $rpm   = CNCCalculator::rpm($vc_adj, $D);
+    $vf    = min(CNCCalculator::feed($rpm, $fz_adj, $Z), $frMax);
+    $ap    = $thickness / $passes_adj;
+    $mmr   = CNCCalculator::mmr($ap, $vf, $ae_adj);
+    $Fct   = CNCCalculator::Fct($Kc11, $hm, $mc, $ap, $Z, $coefSeg, $alpha, $phi);
+    [$watts, $hp] = CNCCalculator::potencia($Fct, $vc_adj, $eta);
 
 } catch (\Throwable $e) {
-    // Si ocurre cualquier error, lo mostramos en pantalla sin romper el DOM
     http_response_code(500);
     echo "<div class='alert alert-danger m-4'>";
     echo "<h4>Error interno</h4><p>" . htmlspecialchars($e->getMessage(), ENT_QUOTES) . "</p>";
@@ -115,13 +102,12 @@ try {
   <h2 class="mb-4">Paso 6 – Ajusta y revisa tus resultados</h2>
 
   <form method="POST" class="mb-5">
-
     <!-- Slider Vc -->
     <div class="mb-4">
       <label class="form-label">Vc (–50% … +50%)</label>
       <input type="range" name="vc_adj" class="form-range"
-        min="<?= number_format($vc0 * 0.5,1,'.','') ?>"
-        max="<?= number_format($vc0 * 1.5,1,'.','') ?>"
+        min="<?= number_format($vc0 * 0.5,1) ?>"
+        max="<?= number_format($vc0 * 1.5,1) ?>"
         step="0.1" value="<?= $vc_adj ?>"
         oninput="this.nextElementSibling.value = this.value">
       <output class="ms-2"><?= $vc_adj ?></output> m/min
@@ -131,8 +117,8 @@ try {
     <div class="mb-4">
       <label class="form-label">fz (<?= number_format($fzMin,4) ?>…<?= number_format($fzMax,4) ?>)</label>
       <input type="range" name="fz_adj" class="form-range"
-        min="<?= number_format($fzMin,4,'.','') ?>"
-        max="<?= number_format($fzMax,4,'.','') ?>"
+        min="<?= number_format($fzMin,4) ?>"
+        max="<?= number_format($fzMax,4) ?>"
         step="0.0001" value="<?= $fz_adj ?>"
         oninput="this.nextElementSibling.value = this.value">
       <output class="ms-2"><?= $fz_adj ?></output> mm/diente
@@ -142,14 +128,14 @@ try {
     <div class="mb-4">
       <label class="form-label">ae (0.1 … <?= number_format($D,1) ?>)</label>
       <input type="range" name="ae_adj" class="form-range"
-        min="0.1" max="<?= number_format($D,1,'.','') ?>"
+        min="0.1" max="<?= number_format($D,1) ?>"
         step="0.1" value="<?= $ae_adj ?>"
         oninput="this.nextElementSibling.value = this.value">
       <output class="ms-2"><?= $ae_adj ?></output> mm
     </div>
 
     <!-- Slider pasadas -->
-    <?php $maxPass = max(1, (int)ceil($thickness / max(0.001,$ae_adj))); ?>
+    <?php $maxPass = max(1, (int)ceil($thickness / max(0.001, $ae_adj))); ?>
     <div class="mb-4">
       <label class="form-label">Pasadas (1…<?= $maxPass ?>)</label>
       <input type="range" name="passes" class="form-range"
