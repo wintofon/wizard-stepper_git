@@ -109,21 +109,7 @@
           document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
         }
 
-        if (step === 6) {
-          if (!window.step6Loaded) {
-            const script = document.createElement('script');
-            script.src = `${BASE_URL}/assets/js/step6.js`;
-            script.defer = true;
-            script.onload = () => {
-              window.step6Loaded = true;
-              log('[stepper.js] ✅ step6.js cargado OK');
-              requestAnimationFrame(() => window.initStep6?.());
-            };
-            script.onerror = () => error('❌ Error cargando step6.js');
-            document.body.appendChild(script);
-          } else {
-            requestAnimationFrame(() => window.initStep6?.());
-          }
+
         }
 
         stepHolder.style.opacity = '1';
