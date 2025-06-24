@@ -1,0 +1,167 @@
+/* wizard/assets/css/wizard.css */
+
+/* ────────────────────────────────────────────────────────────────
+   GENERAL
+   ────────────────────────────────────────────────────────────────*/
+body {
+  background: #0a0f1a; /* Azul oscuro profundo */
+  color: #e0f7fa; /* Cian claro para texto */
+  font-family: 'Segoe UI', Roboto, sans-serif;
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Contenedor del stepper */
+.stepper-container {
+  position: relative;
+  width: 100%;
+  background: #0a0f1a;
+  overflow-x: auto;
+  padding: 0;
+  scrollbar-width: none;
+}
+.stepper-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   STEPPER
+   ────────────────────────────────────────────────────────────────*/
+.stepper {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.stepper li {
+  position: relative;
+  padding: 1rem 2rem;
+  font-weight: 600;
+  font-size: 1rem;
+  text-transform: uppercase;
+  color: #90a4ae; /* Gris azulado */
+  background: #0a0f1a;
+  min-width: 180px;
+  clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0% 100%);
+  margin-left: -10px;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 1;
+  transition: background 0.3s, color 0.3s;
+  cursor: pointer;
+}
+
+.stepper li:first-child {
+  margin-left: 0;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 10px 100%);
+}
+
+.stepper li.done,
+.stepper li.active {
+  background: #1c2a38;
+  color: #e0f7fa;
+  z-index: 2;
+}
+
+.stepper li.active::before,
+.stepper li.done::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 4px;
+  width: 100%;
+  background: #00bcd4; /* Cian brillante */
+  animation: fillLineLeft 0.6s ease-in forwards;
+}
+
+@keyframes fillLineLeft {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+.stepper li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 10%;
+  bottom: 10%;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.15);
+  z-index: 3;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   CONTENEDOR CENTRAL
+   ────────────────────────────────────────────────────────────────*/
+.wizard-body {
+  max-width: 1200px;
+  margin: 3rem auto;
+  background: #0f1c2e;
+  padding: 2.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 0 24px rgba(0, 0, 0, 0.5);
+  border: 1px solid #264b63;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   BOTONES
+   ────────────────────────────────────────────────────────────────*/
+.btn-primary {
+  background-color: #00bcd4;
+  border: none;
+  color: #ffffff;
+  padding: 0.7rem 1.4rem;
+  font-size: 1rem;
+  border-radius: 0.4rem;
+  transition: background 0.3s, transform 0.2s;
+  cursor: pointer;
+}
+.btn-primary:hover {
+  background-color: #26c6da;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 188, 212, 0.3);
+}
+
+/* ────────────────────────────────────────────────────────────────
+   DEBUG BOX
+   ────────────────────────────────────────────────────────────────*/
+.debug-box {
+  background: #102735;
+  color: #a7d3e9;
+  font-family: monospace;
+  font-size: 0.85rem;
+  padding: 1rem;
+  max-width: 1000px;
+  margin: 2rem auto;
+  white-space: pre-wrap;
+  height: 160px;
+  overflow-y: auto;
+  border-top: 1px solid #2e5b78;
+  border-radius: 6px;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   RESPONSIVE: pantallas < 768 px
+   ────────────────────────────────────────────────────────────────*/
+@media (max-width: 768px) {
+  .stepper li {
+    min-width: 100vw;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    margin-left: 0;
+    border-right: none;
+    text-align: center;
+    font-size: 1.1rem;
+  }
+
+  .stepper li:not(:last-child)::after {
+    display: none;
+  }
+}
