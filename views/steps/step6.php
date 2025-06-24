@@ -152,6 +152,81 @@ $Fct   = CNCCalculator::Fct($Kc11, $hm, $mc, $ap, $Z, $coefSeg, $alpha, $phi);
     </ol>
     <p>Al mover cualquiera de estos sliders el sistema recalcula φ, hm, rpm, Vf, ap, MMR, Fct y la potencia, mostrando todos esos valores en las fichas de resultados para visualizar el impacto de cada parámetro.</p>
   </section>
+
+<form method="POST" class="mb-5">
+  <!-- Slider Vc -->
+  <div class="mb-4">
+    <label for="vc_adj" class="form-label">Vc (–50% … +50%)</label>
+    <input 
+      type="range" 
+      class="form-range" 
+      id="vc_adj" 
+      name="vc_adj"
+      min="<?= number_format($vc * 0.5,1,'.','') ?>" 
+      max="<?= number_format($vc * 1.5,1,'.','') ?>" 
+      step="0.1" 
+      value="<?= isset($_POST['vc_adj']) ? htmlspecialchars($_POST['vc_adj']) : $vc ?>"
+      onchange="this.form.submit()"
+    >
+    <div>Valor actual: <strong><?= isset($_POST['vc_adj']) ? htmlspecialchars($_POST['vc_adj']) : $vc ?></strong> m/min</div>
+  </div>
+
+  <!-- Slider fz -->
+  <div class="mb-4">
+    <label for="fz_adj" class="form-label">fz (<?php /* usa tus mínimos y máximos */ ?>)</label>
+    <input 
+      type="range" 
+      class="form-range" 
+      id="fz_adj" 
+      name="fz_adj"
+      min="<?= number_format($fzMinDb,4,'.','') ?>" 
+      max="<?= number_format($fzMaxDb,4,'.','') ?>" 
+      step="0.0001" 
+      value="<?= isset($_POST['fz_adj']) ? htmlspecialchars($_POST['fz_adj']) : $fz ?>"
+      onchange="this.form.submit()"
+    >
+    <div>Valor actual: <strong><?= isset($_POST['fz_adj']) ? htmlspecialchars($_POST['fz_adj']) : $fz ?></strong> mm/diente</div>
+  </div>
+
+  <!-- Slider ae -->
+  <div class="mb-4">
+    <label for="ae_adj" class="form-label">ae (mm)</label>
+    <input 
+      type="range" 
+      class="form-range" 
+      id="ae_adj" 
+      name="ae_adj"
+      min="0.1" 
+      max="<?= number_format($D,1,'.','') ?>" 
+      step="0.1"
+      value="<?= isset($_POST['ae_adj']) ? htmlspecialchars($_POST['ae_adj']) : $ae ?>"
+      onchange="this.form.submit()"
+    >
+    <div>Valor actual: <strong><?= isset($_POST['ae_adj']) ? htmlspecialchars($_POST['ae_adj']) : $ae ?></strong> mm</div>
+  </div>
+
+  <!-- Slider pasadas -->
+  <?php 
+    $maxPasadas = (int)ceil($thickness / $ae);
+    $currentPas = $_POST['pasadas'] ?? 1;
+  ?>
+  <div class="mb-4">
+    <label for="pasadas" class="form-label">Pasadas</label>
+    <input 
+      type="range" 
+      class="form-range" 
+      id="pasadas" 
+      name="pasadas"
+      min="1" 
+      max="<?= $maxPasadas ?>" 
+      step="1"
+      value="<?= htmlspecialchars($currentPas) ?>"
+      onchange="this.form.submit()"
+    >
+    <div>Valor actual: <strong><?= htmlspecialchars($currentPas) ?></strong> pasadas</div>
+  </div>
+</form>
+
   <div class="row row-cols-1 row-cols-md-2 g-4">
     <?php
       $rows = [
