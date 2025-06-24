@@ -69,20 +69,6 @@ if (!$tool) die("Fresa no encontrada");
 /* 4b) Parámetros base */
 // 4b) Parámetros base (con fallback para evitar excepciones)
 
-$vc_base     = isset($params['vc0'])     ? (float)$params['vc0']     : 150.0;
-$fz_base     = isset($params['fz0'])     ? (float)$params['fz0']     : 0.1;
-$ae_base     = isset($params['ae0'])     ? (float)$params['ae0']     : ($D * 0.5);
-$passes_base = isset($params['passes0']) ? (int)$params['passes0']   : 1;
-$fzMinDb     = isset($params['fz_min0']) ? (float)$params['fz_min0'] : 0.01;
-$fzMaxDb     = isset($params['fz_max0']) ? (float)$params['fz_max0'] : 0.3;
-$Kc11        = isset($params['Kc11'])    ? (float)$params['Kc11']    : ConfigModel::getKc11($pdo, $materialId);
-$mc          = isset($params['mc'])      ? (float)$params['mc']      : ConfigModel::getMc($pdo, $materialId);
-$coefSeg     = isset($params['coef_seg'])? (float)$params['coef_seg']: ConfigModel::getCoefSeg($pdo, $transId);
-$alpha       = isset($params['rack_rad'])? (float)$params['rack_rad']: 0.0;
-$rpmMin      = isset($params['rpm_min']) ? (float)$params['rpm_min'] : $rpmMin;
-$rpmMax      = isset($params['rpm_max']) ? (float)$params['rpm_max'] : $rpmMax;
-$frMax       = isset($params['fr_max'])  ? (float)$params['fr_max']  : $frMax;
-$hpAvail     = isset($params['hp_avail'])? (float)$params['hp_avail']: $hpAvail;
 
 /* 6) Datos materiales */
 $Kc11    = ConfigModel::getKc11($pdo, $materialId);
