@@ -68,13 +68,7 @@ if (!$tool) die("Fresa no encontrada");
 
 /* 4b) Parámetros base */
 // 4b) Parámetros base (con fallback para evitar excepciones)
-try {
-    $params      = ExpertResultController::getResultData($pdo, $_SESSION);
-} catch (\Throwable $e) {
-    // Si falla, usar valores por defecto o vacíos
-    $params = [];
-    dbg("[step6] getResultData falló: " . $e->getMessage());
-}
+
 $vc_base     = isset($params['vc0'])     ? (float)$params['vc0']     : 150.0;
 $fz_base     = isset($params['fz0'])     ? (float)$params['fz0']     : 0.1;
 $ae_base     = isset($params['ae0'])     ? (float)$params['ae0']     : ($D * 0.5);
