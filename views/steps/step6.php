@@ -18,59 +18,59 @@
 
 declare(strict_types=1);
 
-if (!getenv('BASE_URL')) {
-    // Sube 3 niveles: /views/steps/step6.php → /wizard-stepper_git
-    putenv(
-        'BASE_URL=' . rtrim(
-            dirname(dirname(dirname($_SERVER['SCRIPT_NAME']))),
-            '/'
-        )
-    );
-}
-require_once __DIR__ . '/../../src/Config/AppConfig.php';
+//if (!getenv('BASE_URL')) {
+ //   // Sube 3 niveles: /views/steps/step6.php → /wizard-stepper_git
+  //  putenv(
+  //      'BASE_URL=' . rtrim(
+    //        dirname(dirname(dirname($_SERVER['SCRIPT_NAME']))),
+   //         '/'
+   //     )
+  //  );
+//}
+//require_once __DIR__ . '/../../src/Config/AppConfig.php';
 
-use App\Controller\ExpertResultController;
+//use App\Controller\ExpertResultController;
 
 // ────────────────────────────────────────────────────────────────
 // Utilidades / helpers
 // ────────────────────────────────────────────────────────────────
-require_once __DIR__ . '/../../includes/wizard_helpers.php';
+//require_once __DIR__ . '/../../includes/wizard_helpers.php';
 
 // ────────────────────────────────────────────────────────────────
 // ¿Vista embebida por load-step.php?
 // ────────────────────────────────────────────────────────────────
-$embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
+//$embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
 
 // ────────────────────────────────────────────────────────────────
 // Sesión segura (siempre antes de imprimir cabeceras)
 // ────────────────────────────────────────────────────────────────
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_set_cookie_params([
-        'lifetime' => 0,
-        'path'     => '/',
-        'secure'   => true,
-        'httponly' => true,
-        'samesite' => 'Strict'
-    ]);
-    session_start();
-}
+//if (session_status() !== PHP_SESSION_ACTIVE) {
+//    session_set_cookie_params([
+//        'lifetime' => 0,
+ //       'path'     => '/',
+  //      'secure'   => true,
+  //      'httponly' => true,
+  //      'samesite' => 'Strict'
+  //  ]);
+  //  session_start();
+//}
 
-if (!$embedded) {
+//if (!$embedded) {
     /* Cabeceras de seguridad */
-    header('Content-Type: text/html; charset=UTF-8');
-    header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
-    header('X-Frame-Options: DENY');
-    header('X-Content-Type-Options: nosniff');
-    header('Referrer-Policy: no-referrer');
-    header("Permissions-Policy: geolocation=(), microphone=()");
-    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
-    header('Pragma: no-cache');
-    header(
-        "Content-Security-Policy: default-src 'self';"
-        . " script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;"
-        . " style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;"
-    );
-}
+ //   header('Content-Type: text/html; charset=UTF-8');
+ //   header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
+ //   header('X-Frame-Options: DENY');
+ //   header('X-Content-Type-Options: nosniff');
+ //   header('Referrer-Policy: no-referrer');
+ //   header("Permissions-Policy: geolocation=(), microphone=()");
+ //   header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+ //   header('Pragma: no-cache');
+ //   header(
+  //      "Content-Security-Policy: default-src 'self';"
+  //      . " script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;"
+   //     . " style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;"
+ //   );
+//}
 
 // ────────────────────────────────────────────────────────────────
 // Debug opcional
