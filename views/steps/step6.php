@@ -44,16 +44,18 @@ if (!$errors) {
 $diameter   = (float)($params['diameter'] ?? 0.0);
 $fzDefault  = (float)($params['fz0'] ?? 0.0);
 $vcDefault  = (float)($params['vc0'] ?? 0.0);
-$aeDefault  = $diameter > 0 ? $diameter * 0.5 : 0.0;
+$aeDefault   = $diameter > 0 ? $diameter * 0.5 : 0.0;
+$passesDefault = (int)($params['passes0'] ?? 1);
 
-$fz = (float)(filter_input(INPUT_POST, 'fz', FILTER_VALIDATE_FLOAT) ?? $fzDefault);
-$vc = (float)(filter_input(INPUT_POST, 'vc', FILTER_VALIDATE_FLOAT) ?? $vcDefault);
-$ae = (float)(filter_input(INPUT_POST, 'ae', FILTER_VALIDATE_FLOAT) ?? $aeDefault);
+$fz     = (float)(filter_input(INPUT_POST, 'fz', FILTER_VALIDATE_FLOAT) ?? $fzDefault);
+$vc     = (float)(filter_input(INPUT_POST, 'vc', FILTER_VALIDATE_FLOAT) ?? $vcDefault);
+$ae     = (float)(filter_input(INPUT_POST, 'ae', FILTER_VALIDATE_FLOAT) ?? $aeDefault);
+$passes = (int)(filter_input(INPUT_POST, 'passes', FILTER_VALIDATE_INT) ?? $passesDefault);
 
 /**
  * Calcula los valores finales con fórmulas CNC.
  */
-function calcResults(float $fz, float $vc, float $ae, array $p, float $thickness): array
+function calcResults(float $fz, float $vc, float $ae, int $passes, array $p, float $thickness): array
 {
     $D       = (float)$p['diameter'];
     $Z       = (int)$p['flute_count'];
@@ -67,19 +69,21 @@ function calcResults(float $fz, float $vc, float $ae, array $p, float $thickness
     $eta     = 0.85;
 
     $rpmCalc = CNCCalculator::rpm($vc, $D);
-    $rpm     = (int)round(min(max($rpmCalc, $rpmMin), $rpmMax));
-    $feed    = (int)round(min(CNCCalculator::feed($rpm, $fz, $Z), $frMax));
+    $rpm     = (int) round(min(max($rpmCalc, $rpmMin), $rpmMax));
+    $feed    = (int) round(min(CNCCalculator::feed($rpm, $fz, $Z), $frMax));
 
-    $phi = 2 * asin(min(1.0, $ae / $D));
-    $hm  = $phi !== 0.0 ? ($fz * (1 - cos($phi)) / $phi) : $fz;
+    $phi = CNCCalculator::helixAngle($ae, $D);
+    $hm  = CNCCalculator::chipThickness($fz, $ae, $D);
 
-    $ap  = $thickness; // una sola pasada
-    $mmr = round(($ap * $feed * $ae) / 1000.0, 2);
+    $ap  = $thickness / max(1, $passes);
+    $mmr = round(CNCCalculator::mmr($ap, $feed, $ae) / 1000.0, 2);
 
-    $Fct = $Kc11 * pow($hm, -$mc) * $ap * $fz * $Z * (1 + $coefSeg * tan($alpha));
-    $kW  = ($Fct * $vc) / (60000.0 * $eta);
-    $W   = (int)round($kW * 1000.0);
-    $HP  = round($kW * 1.341, 2);
+    $Fct = CNCCalculator::Fct($Kc11, $hm, $mc, $ap, $Z, $coefSeg, $alpha, $phi);
+    [$W, $HP] = CNCCalculator::potencia($Fct, $vc, $eta);
+
+    $vida  = min(100, max(0, (int)($p['vidaUtil']    ?? 60)));
+    $term  = min(100, max(0, (int)($p['terminacion'] ?? 40)));
+    $pot   = min(100, max(0, (int)($p['potencia']    ?? 80)));
 
     return [
         'rpm'        => $rpm,
@@ -94,14 +98,17 @@ function calcResults(float $fz, float $vc, float $ae, array $p, float $thickness
         'watts'      => $W,
         'mmr'        => $mmr,
         'etaPercent' => round($eta * 100),
+        'life'       => $vida,
+        'finish'     => $term,
+        'power'      => $pot,
     ];
 }
 
 $result = [];
 if (!$errors && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $result = calcResults($fz, $vc, $ae, $params, (float)$_SESSION['thickness']);
+    $result = calcResults($fz, $vc, $ae, $passes, $params, (float)$_SESSION['thickness']);
 } elseif (!$errors) {
-    $result = calcResults($fz, $vc, $ae, $params, (float)$_SESSION['thickness']);
+    $result = calcResults($fz, $vc, $ae, $passes, $params, (float)$_SESSION['thickness']);
 }
 
 $csrfToken = generateCsrfToken();
@@ -121,20 +128,25 @@ $csrfToken = generateCsrfToken();
   <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
 
   <div class="row g-3 mb-4">
-    <div class="col-md-4">
+    <div class="col-md-3">
       <label for="fz" class="form-label">fz (mm/tooth)</label>
       <input type="number" step="0.0001" required class="form-control" name="fz" id="fz"
              value="<?= htmlspecialchars(number_format($fz,4,'.','')) ?>">
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
       <label for="vc" class="form-label">vc (m/min)</label>
       <input type="number" step="0.1" required class="form-control" name="vc" id="vc"
              value="<?= htmlspecialchars(number_format($vc,1,'.','')) ?>">
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
       <label for="ae" class="form-label">ae (mm)</label>
       <input type="number" step="0.1" required class="form-control" name="ae" id="ae"
              value="<?= htmlspecialchars(number_format($ae,1,'.','')) ?>">
+    </div>
+    <div class="col-md-3">
+      <label for="passes" class="form-label">Pasadas</label>
+      <input type="number" step="1" min="1" required class="form-control" name="passes" id="passes"
+             value="<?= htmlspecialchars((string)$passes) ?>">
     </div>
   </div>
 
@@ -170,6 +182,15 @@ $csrfToken = generateCsrfToken();
           <tr><th>W</th><td><?= $result['watts'] ?> W</td></tr>
           <tr><th>MMR</th><td><?= $result['mmr'] ?> mm³/min</td></tr>
           <tr><th>η</th><td><?= $result['etaPercent'] ?> %</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="row mt-3">
+      <div class="col-md-4">
+        <table class="table table-sm">
+          <tr><th>Vida útil</th><td><?= $result['life'] ?> %</td></tr>
+          <tr><th>Terminación</th><td><?= $result['finish'] ?> %</td></tr>
+          <tr><th>Potencia</th><td><?= $result['power'] ?> %</td></tr>
         </table>
       </div>
     </div>
