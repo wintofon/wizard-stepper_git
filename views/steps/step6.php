@@ -30,6 +30,7 @@ if (!getenv('BASE_URL')) {
 require_once __DIR__ . '/../../src/Config/AppConfig.php';
 
 use App\Controller\ExpertResultController;
+use JsonException;
 
 // ────────────────────────────────────────────────────────────────
 // Utilidades / helpers
@@ -98,7 +99,7 @@ if (empty($_SESSION['csrf_token'])) {
 $csrfToken = $_SESSION['csrf_token'];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!hash_equals($csrfToken, (string)($_POST['csrf_token'] ?? ''))) {
-        respondError(200, 'Error CSRF: petición no autorizada.');
+        step6Error('Error CSRF: petición no autorizada.');
     }
 }
 
@@ -112,7 +113,7 @@ $requiredKeys = [
 ];
 $missing = array_filter($requiredKeys, fn($k) => empty($_SESSION[$k]));
 if ($missing) {
-    respondError(200, 'ERROR – faltan claves en sesión: ' . implode(', ', $missing));
+    step6Error('ERROR – faltan claves en sesión: ' . implode(', ', $missing));
 }
 
 // ────────────────────────────────────────────────────────────────
@@ -120,11 +121,11 @@ if ($missing) {
 // ────────────────────────────────────────────────────────────────
 $dbFile = __DIR__ . '/../../includes/db.php';
 if (!is_readable($dbFile)) {
-    respondError(200, 'Error interno: falta el archivo de conexión a la BD.');
+    step6Error('Error interno: falta el archivo de conexión a la BD.');
 }
 require_once $dbFile;           //-> $pdo
 if (!isset($pdo) || !($pdo instanceof PDO)) {
-    respondError(200, 'Error interno: no hay conexión a la base de datos.');
+    step6Error('Error interno: no hay conexión a la base de datos.');
 }
 
 // ────────────────────────────────────────────────────────────────
@@ -138,7 +139,7 @@ foreach ([
     'src/Utils/CNCCalculator.php'
 ] as $rel) {
     if (!is_readable($root.$rel)) {
-        respondError(200, "Error interno: falta {$rel}");
+        step6Error("Error interno: falta {$rel}");
     }
     require_once $root.$rel;
 }
@@ -150,13 +151,17 @@ $toolTable = (string)$_SESSION['tool_table'];
 $toolId    = (int)$_SESSION['tool_id'];
 $toolData  = ToolModel::getTool($pdo, $toolTable, $toolId) ?: null;
 if (!$toolData) {
-    respondError(200, 'Herramienta no encontrada.');
+    step6Error('Herramienta no encontrada.');
 }
 
-$params     = ExpertResultController::getResultData($pdo, $_SESSION);
-$jsonParams = json_encode($params, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-if ($jsonParams === false) {
-    respondError(200, 'Error interno: no se pudo serializar parámetros técnicos.');
+$params = ExpertResultController::getResultData($pdo, $_SESSION);
+try {
+    $jsonParams = json_encode(
+        $params,
+        JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR
+    );
+} catch (JsonException $e) {
+    step6Error('Error interno: no se pudo serializar parámetros técnicos.');
 }
 
 // ────────────────────────────────────────────────────────────────
