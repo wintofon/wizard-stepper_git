@@ -1,29 +1,33 @@
 <?php
 /**
  * File: views/steps/auto/step6.php
- * Paso 6 embebido 100% sin AJAX ni JS externo.
- * Calcula todo en PHP usando valores de sesión y base de datos.
+ * Paso 6 embebido (completo) sin JS ni AJAX.
+ * Calcula y muestra resultados CNC server-side.
  */
 declare(strict_types=1);
 
-// CABECERAS Y SESIÓN SEGURA
-if (!defined('WIZARD_EMBEDDED')) {
-    header('Content-Type: text/html; charset=UTF-8');
-    header('Cache-Control: no-store, no-cache, must-revalidate');
+/* 1) Seguridad y flujo */
+if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start([
         'cookie_secure'   => true,
         'cookie_httponly' => true,
         'cookie_samesite' => 'Strict',
     ]);
 }
+if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 5) {
+    header('Location: step1.php');
+    exit;
+}
 
+/* 2) Dependencias */
 require_once __DIR__ . '/../../includes/db.php';
+require_once __DIR__ . '/../../includes/debug.php';
 require_once __DIR__ . '/../../src/Model/ToolModel.php';
-require_once __DIR__ . '/../../src/Utils/CNCCalculator.php';
 require_once __DIR__ . '/../../src/Model/ConfigModel.php';
+require_once __DIR__ . '/../../src/Utils/CNCCalculator.php';
 
-// VALIDAR SESIÓN
-$keys = ['tool_id', 'tool_table', 'material_id', 'trans_id', 'thickness', 'rpm_min', 'rpm_max', 'fr_max'];
+/* 3) Validar datos esenciales */
+$keys = ['tool_id','tool_table','material_id','trans_id','thickness','rpm_min','rpm_max','feed_max','hp'];
 foreach ($keys as $k) if (!isset($_SESSION[$k])) die("Falta ".$k);
 
 $toolId     = (int)$_SESSION['tool_id'];
@@ -33,28 +37,29 @@ $transId    = (int)$_SESSION['trans_id'];
 $thickness  = (float)$_SESSION['thickness'];
 $rpmMin     = (float)$_SESSION['rpm_min'];
 $rpmMax     = (float)$_SESSION['rpm_max'];
-$frMax      = (float)$_SESSION['fr_max'];
+$frMax      = (float)$_SESSION['feed_max'];
+$hpAvail    = (float)$_SESSION['hp'];
 
-// DATOS HERRAMIENTA
+/* 4) Datos herramienta */
 $tool = ToolModel::getTool($pdo, $toolTable, $toolId);
 if (!$tool) die("Fresa no encontrada");
 $D = (float)$tool['diameter_mm'];
 $Z = (int)$tool['flute_count'];
 
-// VALORES BASE
-$fz = 0.1;           // mm/diente
-$vc = 150.0;         // m/min
-$ae = $D * 0.5;      // ancho de pasada
-$passes = 1;         // cantidad de pasadas
+/* 5) Valores base fijos */
+$fz     = 0.1;
+$vc     = 150.0;
+$ae     = $D * 0.5;
+$passes = 1;
 
-// DATOS MATERIALES
+/* 6) Datos materiales */
 $Kc11    = ConfigModel::getKc11($pdo, $materialId);
 $mc      = ConfigModel::getMc($pdo, $materialId);
 $coefSeg = ConfigModel::getCoefSeg($pdo, $transId);
-$alpha   = 0.0;       // rad
-$eta     = 0.85;      // eficiencia
+$alpha   = 0.0;
+$eta     = 0.85;
 
-// CÁLCULOS
+/* 7) Cálculos */
 $phi = CNCCalculator::helixAngle($ae, $D);
 $hm  = CNCCalculator::chipThickness($fz, $ae, $D);
 $rpm = CNCCalculator::rpm($vc, $D);
@@ -64,29 +69,47 @@ $mmr = CNCCalculator::mmr($ap, $vf, $ae);
 $Fct = CNCCalculator::Fct($Kc11, $hm, $mc, $ap, $Z, $coefSeg, $alpha, $phi);
 [$watts, $hp] = CNCCalculator::potencia($Fct, $vc, $eta);
 
-?>
-<!DOCTYPE html>
+?><!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Paso 6 Embebido</title>
-  <link rel="stylesheet" href="/wizard-stepper/assets/css/step6.css">
+  <meta charset="utf-8">
+  <title>Paso 6 – Resultados CNC</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/wizard-stepper/assets/css/objects/step-common.css">
 </head>
-<body class="step6">
-  <div class="container mt-4">
-    <h1>Resultados Paso 6 (Server-Side)</h1>
-    <ul>
-      <li>fz: <?= number_format($fz,4) ?> mm/diente</li>
-      <li>vc: <?= number_format($vc,1) ?> m/min</li>
-      <li>ae: <?= number_format($ae,2) ?> mm</li>
-      <li>ap: <?= number_format($ap,2) ?> mm</li>
-      <li>hm: <?= number_format($hm,4) ?> mm</li>
-      <li>rpm: <?= round($rpm) ?> rev/min</li>
-      <li>feedrate: <?= round($vf) ?> mm/min</li>
-      <li>MMR: <?= round($mmr) ?> mm³/min</li>
-      <li>Fuerza de corte: <?= round($Fct,1) ?> N</li>
-      <li>Potencia: <?= $watts ?> W / <?= $hp ?> HP</li>
-    </ul>
+<body>
+<main class="container py-4">
+  <h2 class="step-title"><i data-feather="activity"></i> Resultados preliminares CNC</h2>
+  <p class="step-desc">Parámetros calculados según tu configuración.</p>
+  <div class="row row-cols-1 row-cols-md-2 g-4">
+    <?php
+      $rows = [
+        ['fz','Avance por diente','mm/diente',$fz,4],
+        ['vc','Velocidad de corte','m/min',$vc,1],
+        ['rpm','Velocidad del husillo','RPM',$rpm,0],
+        ['vf','Feedrate','mm/min',$vf,0],
+        ['ae','Ancho de pasada','mm',$ae,2],
+        ['ap','Profundidad de pasada','mm',$ap,2],
+        ['hm','Espesor viruta medio','mm',$hm,4],
+        ['mmr','Remoción material','mm³/min',$mmr,0],
+        ['Fct','Fuerza de corte','N',$Fct,1],
+        ['watts','Potencia requerida','W',$watts,0],
+        ['hp','Potencia (HP)','HP',$hp,2],
+      ];
+      foreach ($rows as [$id, $label, $unit, $val, $dec]): ?>
+        <div class="col">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <h6 class="card-title text-muted mb-1"><?=$label?></h6>
+              <div class="display-6 fw-bold text-primary"><?=number_format($val,$dec)?> <small class="fs-6 text-muted"><?=$unit?></small></div>
+            </div>
+          </div>
+        </div>
+    <?php endforeach; ?>
   </div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/feather-icons"></script>
+<script>feather.replace()</script>
 </body>
 </html>
