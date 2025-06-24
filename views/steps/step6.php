@@ -25,6 +25,7 @@ require_once __DIR__ . '/../../includes/debug.php';
 require_once __DIR__ . '/../../src/Model/ToolModel.php';
 require_once __DIR__ . '/../../src/Model/ConfigModel.php';
 require_once __DIR__ . '/../../src/Utils/CNCCalculator.php';
+require_once __DIR__ . '/../../src/Controller/ExpertResultController.php';
 
 // Compatibilidad con pasos previos que usan 'transmission_id'
 if (isset($_SESSION['transmission_id']) && !isset($_SESSION['trans_id'])) {
@@ -65,11 +66,20 @@ if (!$tool) die("Fresa no encontrada");
   $cutLen   = (float)$tool['cut_length_mm'];
   $fullLen  = (float)$tool['full_length_mm'];
 
-/* 5) Valores base fijos */
-$fz     = 0.1;
-$vc     = 150.0;
-$ae     = $D * 0.5;
-$passes = 1;
+// Cálculos base a partir de la sesión y BD
+$params       = ExpertResultController::getResultData($pdo, $_SESSION);
+$vc_base      = (float)$params['vc0'];
+$fz_base      = (float)$params['fz0'];
+$ae_base      = (float)$params['ae0'];
+$passes_base  = (int)$params['passes0'];
+$fzMinDb      = (float)$params['fz_min0'];
+$fzMaxDb      = (float)$params['fz_max0'];
+
+/* 5) Valores base y POST */
+$vc     = isset($_POST['vc'])     ? (float) $_POST['vc']     : $vc_base;
+$fz     = isset($_POST['fz'])     ? (float) $_POST['fz']     : $fz_base;
+$ae     = isset($_POST['ae'])     ? (float) $_POST['ae']     : $ae_base;
+$passes = isset($_POST['passes']) ? (int)   $_POST['passes'] : $passes_base;
 
 /* 6) Datos materiales */
 $Kc11    = ConfigModel::getKc11($pdo, $materialId);
@@ -154,77 +164,68 @@ $Fct   = CNCCalculator::Fct($Kc11, $hm, $mc, $ap, $Z, $coefSeg, $alpha, $phi);
   </section>
 
 <form method="POST" class="mb-5">
-  <!-- Slider Vc -->
-  <div class="mb-4">
-    <label for="vc_adj" class="form-label">Vc (–50% … +50%)</label>
-    <input 
-      type="range" 
-      class="form-range" 
-      id="vc_adj" 
-      name="vc_adj"
-      min="<?= number_format($vc * 0.5,1,'.','') ?>" 
-      max="<?= number_format($vc * 1.5,1,'.','') ?>" 
-      step="0.1" 
-      value="<?= isset($_POST['vc_adj']) ? htmlspecialchars($_POST['vc_adj']) : $vc ?>"
-      onchange="this.form.submit()"
-    >
-    <div>Valor actual: <strong><?= isset($_POST['vc_adj']) ? htmlspecialchars($_POST['vc_adj']) : $vc ?></strong> m/min</div>
-  </div>
-
-  <!-- Slider fz -->
-  <div class="mb-4">
-    <label for="fz_adj" class="form-label">fz (<?php /* usa tus mínimos y máximos */ ?>)</label>
-    <input 
-      type="range" 
-      class="form-range" 
-      id="fz_adj" 
-      name="fz_adj"
-      min="<?= number_format($fzMinDb,4,'.','') ?>" 
-      max="<?= number_format($fzMaxDb,4,'.','') ?>" 
-      step="0.0001" 
-      value="<?= isset($_POST['fz_adj']) ? htmlspecialchars($_POST['fz_adj']) : $fz ?>"
-      onchange="this.form.submit()"
-    >
-    <div>Valor actual: <strong><?= isset($_POST['fz_adj']) ? htmlspecialchars($_POST['fz_adj']) : $fz ?></strong> mm/diente</div>
-  </div>
-
-  <!-- Slider ae -->
-  <div class="mb-4">
-    <label for="ae_adj" class="form-label">ae (mm)</label>
-    <input 
-      type="range" 
-      class="form-range" 
-      id="ae_adj" 
-      name="ae_adj"
-      min="0.1" 
-      max="<?= number_format($D,1,'.','') ?>" 
+  <div class="mb-3">
+    <label for="vc" class="form-label">Vc: <?= number_format($vc, 1) ?> m/min</label>
+    <input
+      type="range"
+      class="form-range"
+      id="vc"
+      name="vc"
+      min="<?= number_format($vc_base * 0.5, 1, '.', '') ?>"
+      max="<?= number_format($vc_base * 1.5, 1, '.', '') ?>"
       step="0.1"
-      value="<?= isset($_POST['ae_adj']) ? htmlspecialchars($_POST['ae_adj']) : $ae ?>"
+      value="<?= htmlspecialchars((string)$vc) ?>"
       onchange="this.form.submit()"
     >
-    <div>Valor actual: <strong><?= isset($_POST['ae_adj']) ? htmlspecialchars($_POST['ae_adj']) : $ae ?></strong> mm</div>
   </div>
 
-  <!-- Slider pasadas -->
-  <?php 
-    $maxPasadas = (int)ceil($thickness / $ae);
-    $currentPas = $_POST['pasadas'] ?? 1;
-  ?>
-  <div class="mb-4">
-    <label for="pasadas" class="form-label">Pasadas</label>
-    <input 
-      type="range" 
-      class="form-range" 
-      id="pasadas" 
-      name="pasadas"
-      min="1" 
-      max="<?= $maxPasadas ?>" 
-      step="1"
-      value="<?= htmlspecialchars($currentPas) ?>"
+  <div class="mb-3">
+    <label for="fz" class="form-label">fz: <?= number_format($fz, 4) ?> mm/diente</label>
+    <input
+      type="range"
+      class="form-range"
+      id="fz"
+      name="fz"
+      min="<?= number_format($params['fz_min0'], 4, '.', '') ?>"
+      max="<?= number_format($params['fz_max0'], 4, '.', '') ?>"
+      step="0.0001"
+      value="<?= htmlspecialchars((string)$fz) ?>"
       onchange="this.form.submit()"
     >
-    <div>Valor actual: <strong><?= htmlspecialchars($currentPas) ?></strong> pasadas</div>
   </div>
+
+  <div class="mb-3">
+    <label for="ae" class="form-label">ae: <?= number_format($ae, 2) ?> mm</label>
+    <input
+      type="range"
+      class="form-range"
+      id="ae"
+      name="ae"
+      min="0.1"
+      max="<?= number_format($D, 2, '.', '') ?>"
+      step="0.1"
+      value="<?= htmlspecialchars((string)$ae) ?>"
+      onchange="this.form.submit()"
+    >
+  </div>
+
+  <?php $maxPasadas = (int)ceil($thickness / max(0.1, $ae)); ?>
+  <div class="mb-3">
+    <label for="passes" class="form-label">pasadas: <?= (int)$passes ?></label>
+    <input
+      type="range"
+      class="form-range"
+      id="passes"
+      name="passes"
+      min="1"
+      max="<?= $maxPasadas ?>"
+      step="1"
+      value="<?= (int)$passes ?>"
+      onchange="this.form.submit()"
+    >
+    <small class="text-muted">1–<?= $maxPasadas ?> pasadas, ap = <?= number_format($thickness, 2) ?>/<?= (int)$passes ?></small>
+  </div>
+  <noscript><button type="submit">Recalcular</button></noscript>
 </form>
 
   <div class="row row-cols-1 row-cols-md-2 g-4">
