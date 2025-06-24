@@ -1,13 +1,12 @@
 <?php
 declare(strict_types=1);
 
-use App\Controller\ExpertResultController;
-use App\Model\ToolModel;
-use App\Model\ConfigModel;
-use App\Utils\CNCCalculator;
+// ─────────────────────────────────────────────────────────────────────
+// Paso 6 embebido (completo) sin JS ni AJAX – Calcula todo server-side
+// ─────────────────────────────────────────────────────────────────────
 
 try {
-    // 1) Inicio de sesión y control de acceso
+    // 1) Sesión segura y flujo
     if (session_status() !== PHP_SESSION_ACTIVE) {
         session_start([
             'cookie_secure'   => true,
@@ -27,11 +26,16 @@ try {
     require_once __DIR__ . '/../../src/Model/ConfigModel.php';
     require_once __DIR__ . '/../../src/Utils/CNCCalculator.php';
 
-    // 3) Validar sesión
+    use App\Controller\ExpertResultController;
+    use App\Model\ToolModel;
+    use App\Model\ConfigModel;
+    use App\Utils\CNCCalculator;
+
+    // 3) Validar claves en sesión
     $required = ['tool_id','tool_table','material_id','trans_id','thickness','rpm_min','rpm_max','feed_max','hp'];
     $missing  = array_filter($required, fn($k) => !isset($_SESSION[$k]));
     if ($missing) {
-        throw new RuntimeException('Faltan datos en sesión: ' . implode(', ', $missing));
+        throw new RuntimeException('Sesión incompleta: ' . implode(', ', $missing));
     }
 
     // 4) Parámetros de sesión
@@ -56,22 +60,22 @@ try {
     try {
         $params = ExpertResultController::getResultData($pdo, $_SESSION);
     } catch (\Throwable $e) {
-        // Si falla, seguimos con valores por defecto
+        // fallback silencioso
     }
-    $vc0      = (float) ($params['vc0']      ?? ($_SESSION['rpm0']??100) * M_PI * $D / 1000);
-    $fz0      = (float) ($params['fz0']      ?? 0.1);
-    $ae0      = (float) ($params['ae_slot']  ?? ($D * 0.5));
-    $passes0  = (int)   ($params['passes0']  ?? 1);
-    $fzMin    = (float) ($params['fz_min0']  ?? ($fz0 * 0.5));
-    $fzMax    = (float) ($params['fz_max0']  ?? ($fz0 * 1.5));
+    $vc0     = (float) ($params['vc0']     ?? 150.0);
+    $fz0     = (float) ($params['fz0']     ?? 0.1);
+    $ae0     = (float) ($params['ae_slot'] ?? $D * 0.5);
+    $passes0 = (int)   ($params['passes0'] ?? 1);
+    $fzMin   = (float) ($params['fz_min0'] ?? $fz0 * 0.5);
+    $fzMax   = (float) ($params['fz_max0'] ?? $fz0 * 1.5);
 
-    // 7) Overrides vía POST
+    // 7) Overwrites vía POST
     $vc_adj     = isset($_POST['vc_adj'])     ? (float)$_POST['vc_adj']     : $vc0;
     $fz_adj     = isset($_POST['fz_adj'])     ? (float)$_POST['fz_adj']     : $fz0;
     $ae_adj     = isset($_POST['ae_adj'])     ? (float)$_POST['ae_adj']     : $ae0;
     $passes_adj = isset($_POST['passes'])     ? max(1,(int)$_POST['passes']) : $passes0;
 
-    // 8) Datos materiales y coeficientes
+    // 8) Coeficientes y materiales
     $Kc11    = ConfigModel::getKc11($pdo, $materialId);
     $mc      = ConfigModel::getMc($pdo, $materialId);
     $coefSeg = ConfigModel::getCoefSeg($pdo, $transId);
@@ -90,15 +94,15 @@ try {
 
 } catch (\Throwable $e) {
     http_response_code(500);
-    echo "<div class='alert alert-danger m-4'><h4>Error interno</h4><p>"
+    echo "<div class='alert alert-danger m-4'><strong>Error interno:</strong> "
        . htmlspecialchars($e->getMessage(), ENT_QUOTES)
-       . "</p></div>";
+       . "</div>";
     exit;
 }
 ?><!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <title>Paso 6 – Resultados CNC</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -112,19 +116,19 @@ try {
     <div class="mb-4">
       <label class="form-label">Vc (–50% … +50%)</label>
       <input type="range" name="vc_adj" class="form-range"
-        min="<?= number_format($vc0*0.5,1) ?>" max="<?= number_format($vc0*1.5,1) ?>"
-        step="0.1" value="<?= $vc_adj ?>"
-        oninput="this.nextSibling.value=this.value">
+             min="<?= number_format($vc0*0.5,1) ?>" max="<?= number_format($vc0*1.5,1) ?>"
+             step="0.1" value="<?= $vc_adj ?>"
+             oninput="this.nextElementSibling.value=this.value">
       <output class="ms-2"><?= $vc_adj ?></output> m/min
     </div>
 
     <!-- fz slider -->
     <div class="mb-4">
-      <label class="form-label">fz (<?= number_format($fzMin,4) ?>…<?= number_format($fzMax,4) ?>)</label>
+      <label class="form-label">fz (<?= number_format($fzMin,4) ?> … <?= number_format($fzMax,4) ?>)</label>
       <input type="range" name="fz_adj" class="form-range"
-        min="<?= number_format($fzMin,4) ?>" max="<?= number_format($fzMax,4) ?>"
-        step="0.0001" value="<?= $fz_adj ?>"
-        oninput="this.nextSibling.value=this.value">
+             min="<?= number_format($fzMin,4) ?>" max="<?= number_format($fzMax,4) ?>"
+             step="0.0001" value="<?= $fz_adj ?>"
+             oninput="this.nextElementSibling.value=this.value">
       <output class="ms-2"><?= $fz_adj ?></output> mm/diente
     </div>
 
@@ -132,20 +136,20 @@ try {
     <div class="mb-4">
       <label class="form-label">ae (0.1 … <?= number_format($D,1) ?>)</label>
       <input type="range" name="ae_adj" class="form-range"
-        min="0.1" max="<?= number_format($D,1) ?>"
-        step="0.1" value="<?= $ae_adj ?>"
-        oninput="this.nextSibling.value=this.value">
+             min="0.1" max="<?= number_format($D,1) ?>"
+             step="0.1" value="<?= $ae_adj ?>"
+             oninput="this.nextElementSibling.value=this.value">
       <output class="ms-2"><?= $ae_adj ?></output> mm
     </div>
 
     <!-- pasadas slider -->
     <?php $maxPass = max(1, (int)ceil($thickness / max(0.001, $ae_adj))); ?>
     <div class="mb-4">
-      <label class="form-label">Pasadas (1…<?= $maxPass ?>)</label>
+      <label class="form-label">Pasadas (1 … <?= $maxPass ?>)</label>
       <input type="range" name="passes" class="form-range"
-        min="1" max="<?= $maxPass ?>" step="1"
-        value="<?= $passes_adj ?>"
-        oninput="this.nextSibling.value=this.value">
+             min="1" max="<?= $maxPass ?>" step="1"
+             value="<?= $passes_adj ?>"
+             oninput="this.nextElementSibling.value=this.value">
       <output class="ms-2"><?= $passes_adj ?></output> pasadas
     </div>
 
@@ -184,6 +188,7 @@ try {
     <?php endforeach; ?>
   </div>
 </main>
+
 <script src="https://cdn.jsdelivr.net/npm/feather-icons"></script>
 <script>feather.replace()</script>
 </body>
