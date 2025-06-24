@@ -104,6 +104,54 @@ $Fct   = CNCCalculator::Fct($Kc11, $hm, $mc, $ap, $Z, $coefSeg, $alpha, $phi);
 <main class="container py-4">
   <h2 class="step-title"><i data-feather="activity"></i> Resultados completos CNC</h2>
   <p class="step-desc">Parámetros calculados según tu configuración y datos adicionales.</p>
+  <section class="mb-4">
+    <p>En este Paso 6 embebido tienes cuatro controles deslizantes (sliders) cuyos valores actúan directamente sobre los cálculos CNC. A continuación se explica para qué sirve cada uno y qué parámetros modifica internamente:</p>
+    <ol>
+      <li><strong>Vc – Velocidad de corte (m/min)</strong>
+        <p>Rango: ± 50&nbsp;% sobre la Vc base calculada (por ejemplo, de –50&nbsp;% a +50&nbsp;% de 150&nbsp;m/min → 75&nbsp;…&nbsp;225&nbsp;m/min).</p>
+        <p>Qué hace: ajusta la velocidad de corte real usada para dimensionar:</p>
+        <ul>
+          <li>RPM del husillo: <code>rpm = (Vc×1000)/(π×D)</code></li>
+          <li>Feedrate Vf: <code>Vf = rpm × fz × Z</code> (mm/min)</li>
+          <li>Potencia: <code>W = (Fct·Vc)/(60·η)</code></li>
+        </ul>
+        <p>Efecto: subir Vc aumenta rpm, Vf y potencia; bajarlo hace lo contrario.</p>
+      </li>
+      <li><strong>fz – Avance por diente (mm/diente)</strong>
+        <p>Rango: desde el mínimo (<code>fz_min</code>) hasta el máximo (<code>fz_max</code>) recomendado por la herramienta/material.</p>
+        <p>Qué hace: determina cuánto avanza la herramienta por cada filo y revolución, afectando:</p>
+        <ul>
+          <li>Espesor medio de viruta <code>hm = chipThickness(fz, ae, D)</code></li>
+          <li>Feedrate Vf: <code>Vf = rpm × fz × Z</code></li>
+          <li>Fuerza de corte tangencial Fct (depende de hm)</li>
+          <li>Potencia requerida usando Fct y Vc</li>
+        </ul>
+        <p>Efecto: fz mayor → mayor Vf y hm, pero también puede disparar Fct y potencia.</p>
+      </li>
+      <li><strong>ae – Ancho de pasada (mm)</strong>
+        <p>Rango: típicamente de 0.1&nbsp;mm hasta el diámetro de la herramienta (D), por defecto el 50&nbsp;% de D.</p>
+        <p>Qué hace: controla la sección radial de corte, incidiendo en:</p>
+        <ul>
+          <li>Ángulo de compromiso φ: <code>φ = helixAngle(ae, D)</code></li>
+          <li>Espesor hm: <code>hm = chipThickness(fz, ae, D)</code></li>
+          <li>MMR: <code>MMR = ae × Vf × ap</code></li>
+          <li>Fct: al modificar hm y φ</li>
+        </ul>
+        <p>Efecto: ae mayor → viruta más gruesa y más MMR, pero también más carga de corte.</p>
+      </li>
+      <li><strong>pasadas – Número de pasadas</strong>
+        <p>Rango: de 1 hasta un máximo aproximado <code>ceil(thickness/ae)</code>.</p>
+        <p>Qué hace: reparte el espesor del material (<code>thickness</code>) en varias capas:</p>
+        <ul>
+          <li>Profundidad de pasada <code>ap = thickness / pasadas</code></li>
+          <li>MMR: <code>MMR = ap × Vf × ae</code></li>
+          <li>Fct y potencia: varían porque dependen de ap</li>
+        </ul>
+        <p>Efecto: más pasadas → ap menor, menor Fct y potencia por pasada, pero más ciclos.</p>
+      </li>
+    </ol>
+    <p>Al mover cualquiera de estos sliders el sistema recalcula φ, hm, rpm, Vf, ap, MMR, Fct y la potencia, mostrando todos esos valores en las fichas de resultados para visualizar el impacto de cada parámetro.</p>
+  </section>
   <div class="row row-cols-1 row-cols-md-2 g-4">
     <?php
       $rows = [
