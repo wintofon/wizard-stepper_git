@@ -66,11 +66,22 @@ if (!$tool) die("Fresa no encontrada");
   $cutLen   = (float)$tool['cut_length_mm'];
   $fullLen  = (float)$tool['full_length_mm'];
 
-/* 5) Valores base fijos */
-$fz     = 0.1;
-$vc     = 150.0;
-$ae     = $D * 0.5;
-$passes = 1;
+/* 4b) Parámetros base */
+$params       = ExpertResultController::getResultData($pdo, $_SESSION);
+$vc_base      = (float)$params['vc0'];
+$fz_base      = (float)$params['fz0'];
+$ae_base      = (float)$params['ae0'];
+$passes_base  = (int)$params['passes0'];
+$fzMinDb      = (float)$params['fz_min0'];
+$fzMaxDb      = (float)$params['fz_max0'];
+$Kc11         = (float)$params['Kc11'];
+$mc           = (float)$params['mc'];
+$coefSeg      = (float)$params['coef_seg'];
+$alpha        = (float)$params['rack_rad'];
+$rpmMin       = (float)$params['rpm_min'];
+$rpmMax       = (float)$params['rpm_max'];
+$frMax        = (float)$params['fr_max'];
+$hpAvail      = (float)$params['hp_avail'];
 
 /* 6) Datos materiales */
 $Kc11    = ConfigModel::getKc11($pdo, $materialId);
