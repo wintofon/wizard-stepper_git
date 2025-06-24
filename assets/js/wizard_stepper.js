@@ -1,9 +1,9 @@
 /*
  * File: wizard_stepper.js
- * Main responsibility: Part of the CNC Wizard Stepper.
- * Related files: See others in this project.
- * TODO: Extend documentation.
+ * Descripción: Controlador principal del Wizard CNC (modo Stepper).
+ * Versión blindada: evita errores de DOM, controla carga de scripts y eventos JS.
  */
+
 /* global feather, bootstrap */
 (() => {
   'use strict';
@@ -17,72 +17,57 @@
   const TAG = '[WizardStepper]';
   const $qs  = sel => document.querySelector(sel);
   const $qsa = sel => [...document.querySelectorAll(sel)];
-  const logger = (lvl, ...a) => {
-    if (!DEBUG) return;
-    const ts = new Date().toISOString();
-    console[lvl](`${TAG} ${ts}`, ...a);
-  };
+  const logger = (lvl, ...a) => { if (DEBUG) console[lvl](`${TAG} ${new Date().toISOString()}`, ...a); };
   const log    = (...a) => logger('log', ...a);
   const warn   = (...a) => logger('warn', ...a);
   const error  = (...a) => logger('error', ...a);
-  const table  = (data) => { if (DEBUG) console.table(data); };
-  const group = (title, fn) => {
-    if (!DEBUG) return fn();
-    console.group(`${TAG} ${new Date().toISOString()} ${title}`);
-    try { return fn(); }
-    finally { console.groupEnd(); }
-  };
+  const table  = data => { if (DEBUG) console.table(data); };
+  const group  = (title, fn) => { if (!DEBUG) return fn(); console.group(`${TAG} ${new Date().toISOString()} ${title}`); try { return fn(); } finally { console.groupEnd(); } };
 
   const stepsBar   = $qsa('.stepper li');
   const stepHolder = $qs('#step-content');
-  const dbgBox = $qs('#debug');
-  const dbgMsg = txt => {
-    if (!dbgBox) return;
-    const ts = new Date().toLocaleTimeString();
-    dbgBox.textContent = `[${ts}] ${txt}\n` + dbgBox.textContent;
-  };
+  const dbgBox     = $qs('#debug');
+  const dbgMsg     = txt => { if (!dbgBox) return; const ts = new Date().toLocaleTimeString(); dbgBox.textContent = `[${ts}] ${txt}\n` + dbgBox.textContent; };
+
   if (!stepsBar.length || !stepHolder) {
     log('No es página de wizard – abortando script.');
     return;
   }
-  const MAX_STEPS = stepsBar.length;
 
+  const MAX_STEPS = stepsBar.length;
   const getProg = () => Number(localStorage.getItem(LS_KEY)) || 1;
   const setProg = s => localStorage.setItem(LS_KEY, s);
 
   const renderBar = current => {
     const prog = getProg();
-    // Iterate all steps to mark progress and enable completed ones
     stepsBar.forEach(li => {
       const n = Number(li.dataset.step);
       li.classList.toggle('done',      n < prog);
       li.classList.toggle('active',    n === current);
       li.classList.toggle('clickable', n <= prog - 1);
-      li.innerHTML =
-        `<span>${n}. ${li.dataset.label}</span>` +
-        (n < prog ? ' ✅' : n === current ? ' 🟢' : '');
+      li.innerHTML = `<span>${n}. ${li.dataset.label}</span>` + (n < prog ? ' ✅' : n === current ? ' 🟢' : '');
     });
   };
 
-  /** Ejecuta scripts <script> embebidos en el HTML del paso (necesario para los AJAX). */
   const runStepScripts = container => group('runStepScripts', () => {
-    log('param container', container);
-    // Ensure any <script> tags returned via AJAX are executed
+    if (container.querySelector('html, head, body')) {
+      error('❌ DOM inválido: se encontraron etiquetas <html>, <head> o <body> embebidas.');
+      dbgMsg('❌ Error crítico: el paso contiene etiquetas duplicadas.');
+      return;
+    }
     [...container.querySelectorAll('script')].forEach(tag => {
       if (tag.src) {
-        // Scripts externos (sólo si no están cargados aún)
         if (!document.querySelector(`head script[src="${tag.src}"]`)) {
           const s = document.createElement('script');
           s.src = tag.src;
-          if (tag.type) s.type = tag.type;     // preservar type="module" si existe
-          if (tag.nonce) s.nonce = tag.nonce;  // mantener CSP
+          if (tag.type) s.type = tag.type;
+          if (tag.nonce) s.nonce = tag.nonce;
           s.defer = true;
           s.onload = () => log(`[stepper.js] Cargado: ${tag.src}`);
           s.onerror = () => error(`⚠️ Falló carga: ${tag.src}`);
           document.head.appendChild(s);
         }
       } else {
-        // Scripts inline (vital para cada paso)
         try {
           const inlineScript = document.createElement('script');
           if (tag.type) inlineScript.type = tag.type;
@@ -95,16 +80,11 @@
         }
       }
     });
-    log('return void');
   });
 
-
-  /** Carga por AJAX el paso y lo inyecta, ejecutando inicializadores de JS y dependencias */
   const loadStep = step => group(`loadStep(${step})`, () => {
-    log('param step', step);
     const prog = getProg();
     if (step < 1 || step > MAX_STEPS || step > prog + 1) {
-      log('🔒 Salto bloqueado');
       dbgMsg('🔒 Salto bloqueado');
       renderBar(prog);
       return;
@@ -113,7 +93,6 @@
     stepHolder.style.opacity = '.3';
     fetch(`${LOAD_ENDPOINT}?step=${step}${DEBUG ? '&debug=1' : ''}`, { cache: 'no-store' })
       .then(r => {
-        log('fetch status', r.status);
         if (r.status === 403) throw new Error('FORBIDDEN');
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.text();
@@ -122,51 +101,43 @@
         stepHolder.innerHTML = html;
         runStepScripts(stepHolder);
 
-        // Inicializadores JS globales (Feather, Bootstrap tooltips)
-        if (window.feather) {
-          requestAnimationFrame(() => feather.replace());
-        }
+        requestAnimationFrame(() => {
+          if (window.feather) feather.replace();
+        });
+
         if (window.bootstrap && bootstrap.Tooltip) {
-          document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
-            new bootstrap.Tooltip(el);
-          });
+          document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
         }
 
-        // Step 6 has heavy calculations so its JS is loaded on demand
         if (step === 6) {
           if (!window.step6Loaded) {
             const script = document.createElement('script');
             script.src = `${BASE_URL}/assets/js/step6.js`;
             script.defer = true;
-            script.onload = () => { 
+            script.onload = () => {
               window.step6Loaded = true;
-              log('[stepper.js] 🔢 step6.js cargado OK');
-              if (typeof window.initStep6 === 'function') window.initStep6();
+              log('[stepper.js] ✅ step6.js cargado OK');
+              requestAnimationFrame(() => window.initStep6?.());
             };
-            script.onerror = () => error('⚠️ Error cargando step6.js');
+            script.onerror = () => error('❌ Error cargando step6.js');
             document.body.appendChild(script);
           } else {
-            if (typeof window.initStep6 === 'function') window.initStep6();
+            requestAnimationFrame(() => window.initStep6?.());
           }
         }
 
         stepHolder.style.opacity = '1';
         renderBar(step);
         hookEvents();
-        if (typeof window.initLazy === 'function') window.initLazy();
-        log(`🧭 Paso ${step} cargado correctamente`);
+        window.initLazy?.();
         dbgMsg(`🧭 Paso ${step} cargado correctamente`);
-        log('return', step);
       })
       .catch(err => {
         error('Error loadStep', err);
         dbgMsg(err.message);
-        stepHolder.innerHTML =
-          `<div class="alert alert-danger">⚠️ Error cargando el paso ${step}: ${err.message}</div>`;
-        warn(err.message);
+        stepHolder.innerHTML = `<div class="alert alert-danger">⚠️ Error cargando el paso ${step}: ${err.message}</div>`;
         if (err.message === 'FORBIDDEN') {
           localStorage.removeItem(LS_KEY);
-          warn('⚠️ Sesión desfasada. Reinicio.');
           dbgMsg('⚠️ Sesión desfasada. Reinicio.');
           renderBar(1);
           loadStep(1);
@@ -175,29 +146,22 @@
   });
 
   const sendForm = form => group('sendForm', () => {
-    log('param form', form);
     const data = new FormData(form);
     const cur = Number(data.get('step'));
-
     fetch(`${HANDLE_ENDPOINT}${DEBUG ? '?debug=1' : ''}`, { method: 'POST', body: data })
       .then(r => {
-        log('handle-step status', r.status);
         if (r.status === 403) throw new Error('FORBIDDEN');
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json();
       })
       .then(js => {
         table(js);
-        if (!js.success) {
-          alert(js.error || 'Error al procesar');
-          return;
-        }
-        let next = (typeof js.next === 'number') ? js.next : cur + 1;
+        if (!js.success) return alert(js.error || 'Error al procesar');
+        let next = typeof js.next === 'number' ? js.next : cur + 1;
         if (next > MAX_STEPS) next = MAX_STEPS;
         setProg(next);
         loadStep(next);
         dbgMsg(`✔ Paso ${cur} enviado. Siguiente: ${next}`);
-        log('return', next);
       })
       .catch(err => {
         error('Error sendForm', err);
@@ -209,21 +173,14 @@
           loadStep(1);
         } else {
           alert('Fallo de conexión');
-          dbgMsg(err.message);
-          warn(err.message);
         }
       });
   });
 
   const hookEvents = () => group('hookEvents', () => {
-    log('param none');
-    // Attach validation and navigation handlers for the current step
     const form = stepHolder.querySelector('form');
     if (form) {
-      form.addEventListener('submit', e => {
-        e.preventDefault(); sendForm(form);
-      });
-      // Live validation on every form field
+      form.addEventListener('submit', e => { e.preventDefault(); sendForm(form); });
       form.querySelectorAll('input,select,textarea').forEach(el =>
         el.addEventListener('input', () => {
           el.classList.toggle('is-valid', el.checkValidity());
@@ -239,8 +196,6 @@
         dbgMsg(`⬅️ Volver al paso ${back}`);
       };
     }
-
-    // Allow navigation to already-completed steps
     stepsBar.forEach(li => {
       if (!li.classList.contains('clickable')) return;
       li.onclick = () => {
@@ -251,12 +206,9 @@
         }
       };
     });
-    log('return void');
   });
 
-  // INICIALIZACIÓN
   if (!localStorage.getItem(LS_KEY)) localStorage.setItem(LS_KEY, 1);
   renderBar(getProg());
   loadStep(getProg());
-
 })();
