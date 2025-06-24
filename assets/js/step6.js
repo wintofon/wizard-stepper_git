@@ -11,7 +11,7 @@
 window.radarChartInstance = window.radarChartInstance || null;
 
 window.initStep6 = function () {
-  const BASE_URL = window.BASE_URL;
+  const BASE_URL = window.BASE_URL || '';
   const DEBUG = window.DEBUG ?? false;
   const TAG = '[WizardStepper]';
   const logger = (lvl, ...a) => { if (!DEBUG) return; const ts = new Date().toISOString(); console[lvl](`${TAG} ${ts}`, ...a); };
@@ -220,7 +220,8 @@ window.initStep6 = function () {
           'X-CSRF-Token': csrfToken
         },
         body: JSON.stringify(payload),
-        cache: 'no-store'
+        cache: 'no-store',
+        credentials: 'same-origin'
       });
       if (res.status === 403) {
         return showError('Sesión expirada. Recargá la página.');
