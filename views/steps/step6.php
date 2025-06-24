@@ -7,15 +7,15 @@
 declare(strict_types=1);
 
 // CABECERAS Y SESIÓN SEGURA
-if (!defined('WIZARD_EMBEDDED')) {
-    header('Content-Type: text/html; charset=UTF-8');
-    header('Cache-Control: no-store, no-cache, must-revalidate');
-    session_start([
-        'cookie_secure'   => true,
-        'cookie_httponly' => true,
+// if (!defined('WIZARD_EMBEDDED')) {
+//     header('Content-Type: text/html; charset=UTF-8');
+//     header('Cache-Control: no-store, no-cache, must-revalidate');
+//     session_start([
+ //        'cookie_secure'   => true,
+  //       'cookie_httponly' => true,
         'cookie_samesite' => 'Strict',
-    ]);
-}
+  //   ]);
+// }
 
 require_once __DIR__ . '/../../includes/db.php';
 // require_once __DIR__ . '/../../src/Model/ToolModel.php';
