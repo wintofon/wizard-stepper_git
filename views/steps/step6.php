@@ -256,8 +256,8 @@ if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 5
 }
 require_once __DIR__ . '/../../src/Config/AppConfig.php';
 
-//use App\Controller\ExpertResultController;
-/* ___________________
+use App\Controller\ExpertResultController;
+
 declare(strict_types=1);
 
 /* 1) Sesión segura y flujo */
