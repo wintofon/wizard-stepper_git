@@ -26,6 +26,20 @@ require_once __DIR__ . '/../../src/Model/ToolModel.php';
 require_once __DIR__ . '/../../src/Model/ConfigModel.php';
 require_once __DIR__ . '/../../src/Utils/CNCCalculator.php';
 
+/* 3) Validar datos esenciales */
+$keys = ['tool_id','tool_table','material_id','trans_id','thickness','rpm_min','rpm_max','feed_max','hp'];
+$missing = array_filter($keys, fn($k) => !isset($_SESSION[$k]));
+if (!empty($missing)) {
+  ?><!DOCTYPE html>
+  <html lang="es">
+  <head><meta charset="utf-8"><title>Error en sesión</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  </head><body class="container py-5">
+  <div class="alert alert-danger"><h4>Error</h4><p>Faltan datos para el cálculo:</p><ul><?php
+  foreach ($missing as $m) echo "<li>".htmlspecialchars($m)."</li>";
+  ?></ul><a href="step1.php" class="btn btn-primary mt-3">Volver al inicio</a></div></body></html><?php
+  exit;
+}
 
 $toolId     = (int)$_SESSION['tool_id'];
 $toolTable  = $_SESSION['tool_table'];
