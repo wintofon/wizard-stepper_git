@@ -3,7 +3,7 @@
  * File: views/steps/step6.php
  * Descripción: Paso 6 – Resultados expertos del Wizard CNC
  *
- * 🔧 Ajustes clave (2025‑07‑13):
+ * 🔧 Ajustes clave (2025-07-13):
  *   1. En modo embebido sólo se imprime el <div class="step6"> y el script
  *      window.step6Params.
  *   2. Doctype, <html>, <head>, <body>, footer y parciales se encierran en
@@ -18,6 +18,7 @@
 
 declare(strict_types=1);
 
+// ----- Determinar BASE_URL automáticamente -----
 if (!getenv('BASE_URL')) {
     // Sube 3 niveles: /views/steps/step6.php → /wizard-stepper_git
     putenv(
@@ -31,39 +32,33 @@ require_once __DIR__ . '/../../src/Config/AppConfig.php';
 
 use App\Controller\ExpertResultController;
 
-// ────────────────────────────────────────────────────────────────
-// Utilidades / helpers
-// ────────────────────────────────────────────────────────────────
-
+// ----- Helpers -----
 require_once __DIR__ . '/../../includes/wizard_helpers.php';
 
-// ────────────────────────────────────────────────────────────────
-// ¿Vista embebida por load-step.php?
-// ────────────────────────────────────────────────────────────────
+// ----- Vista embebida? -----
 $embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
 
-// ────────────────────────────────────────────────────────────────
-// Sesión segura (siempre antes de imprimir cabeceras)
-// ────────────────────────────────────────────────────────────────
+// ----- Sesión segura (antes de cualquier cabecera) -----
 if (session_status() !== PHP_SESSION_ACTIVE) {
+    $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
     session_set_cookie_params([
         'lifetime' => 0,
-        'path'     => '/',
-        'secure'   => true,
+        'path'     => '/',                     // o '/wizard-stepper_git' si preferís
+        'secure'   => $isHttps,                // solo Secure en HTTPS
         'httponly' => true,
-        'samesite' => 'Strict'
+        'samesite' => $isHttps ? 'None' : 'Lax' // None requiere Secure
     ]);
     session_start();
 }
 
-if (!$embedded) {
-    /* Cabeceras de seguridad */
+// ----- Cabeceras de seguridad (solo si no está embebido) -----
+if (! $embedded) {
     header('Content-Type: text/html; charset=UTF-8');
     header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
     header('X-Frame-Options: DENY');
     header('X-Content-Type-Options: nosniff');
     header('Referrer-Policy: no-referrer');
-    header("Permissions-Policy: geolocation=(), microphone=()");
+    header('Permissions-Policy: geolocation=(), microphone=()');
     header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
     header('Pragma: no-cache');
     header(
@@ -72,7 +67,6 @@ if (!$embedded) {
         . " style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;"
     );
 }
-
 // ────────────────────────────────────────────────────────────────
 // Debug opcional
 // ────────────────────────────────────────────────────────────────
@@ -244,7 +238,7 @@ if (!file_exists($countUpLocal))
 // =========================  COMIENZA SALIDA  ==========================
 // =====================================================================
 ?>
-<?php if (!$embedded): ?>
+<?php if (! $embedded): ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
