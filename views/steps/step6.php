@@ -265,7 +265,6 @@ if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 5
 // =========================  COMIENZA SALIDA  ==========================
 // =====================================================================
 ?>
-<?php if (!$embedded): ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -666,4 +665,4 @@ if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 5
 <script>requestAnimationFrame(() => feather.replace());</script>
 </body>
 </html>
-<?php endif; ?>
+
