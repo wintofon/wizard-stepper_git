@@ -26,6 +26,11 @@ require_once __DIR__ . '/../../src/Model/ToolModel.php';
 require_once __DIR__ . '/../../src/Model/ConfigModel.php';
 require_once __DIR__ . '/../../src/Utils/CNCCalculator.php';
 
+// Compatibilidad con pasos previos que usan 'transmission_id'
+if (isset($_SESSION['transmission_id']) && !isset($_SESSION['trans_id'])) {
+    $_SESSION['trans_id'] = $_SESSION['transmission_id'];
+}
+
 /* 3) Validar datos esenciales */
 $keys    = ['tool_id','tool_table','material_id','trans_id','thickness','rpm_min','rpm_max','feed_max','hp'];
 $missing = array_filter($keys, fn($k) => !isset($_SESSION[$k]));
