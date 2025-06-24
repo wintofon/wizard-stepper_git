@@ -91,9 +91,10 @@ if (empty($_SESSION['csrf_token'])) {
 }
 $csrfToken = $_SESSION['csrf_token'];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!hash_equals($csrfToken, (string)($_POST['csrf_token'] ?? ''))) {
-        respondError(200, 'Error CSRF: petición no autorizada.');
-    }
+if (!hash_equals($csrfToken, (string)($_POST['csrf_token'] ?? ''))) {
+    http_response_code(403);
+    exit('Error CSRF: petición no autorizada.');
+}
 }
 
 // ────────────────────────────────────────────────────────────────
@@ -106,7 +107,14 @@ $requiredKeys = [
 ];
 $missing = array_filter($requiredKeys, fn($k) => empty($_SESSION[$k]));
 if ($missing) {
-    respondError(200, 'ERROR – faltan claves en sesión: ' . implode(', ', $missing));
+    echo "<div style='color:white;background:#900;padding:1rem;'>"
+       . "<b>ERROR: Faltan datos en la sesión</b><br>"
+       . "Claves faltantes: <span style='color:#FFD700;'>" . implode(', ', $missing) . "</span><br>"
+       . "<pre style='background:#222;color:#fff;padding:1rem;max-height:300px;overflow:auto;'>"
+       . htmlspecialchars(print_r($_SESSION, true)) . "</pre>"
+       . "</div>";
+    http_response_code(400);
+    exit;
 }
 
 // ────────────────────────────────────────────────────────────────
@@ -114,11 +122,13 @@ if ($missing) {
 // ────────────────────────────────────────────────────────────────
 $dbFile = __DIR__ . '/../../includes/db.php';
 if (!is_readable($dbFile)) {
-    respondError(200, 'Error interno: falta el archivo de conexión a la BD.');
+    http_response_code(500);
+    exit('Error interno: falta el archivo de conexión a la BD.');
 }
 require_once $dbFile;           //-> $pdo
 if (!isset($pdo) || !($pdo instanceof PDO)) {
-    respondError(200, 'Error interno: no hay conexión a la base de datos.');
+    http_response_code(500);
+    exit('Error interno: no hay conexión a la base de datos.');
 }
 
 // ────────────────────────────────────────────────────────────────
@@ -132,7 +142,8 @@ foreach ([
     'src/Utils/CNCCalculator.php'
 ] as $rel) {
     if (!is_readable($root.$rel)) {
-        respondError(200, "Error interno: falta {$rel}");
+        http_response_code(500);
+        exit("Error interno: falta {$rel}");
     }
     require_once $root.$rel;
 }
@@ -144,13 +155,15 @@ $toolTable = (string)$_SESSION['tool_table'];
 $toolId    = (int)$_SESSION['tool_id'];
 $toolData  = ToolModel::getTool($pdo, $toolTable, $toolId) ?: null;
 if (!$toolData) {
-    respondError(200, 'Herramienta no encontrada.');
+    http_response_code(404);
+    exit('Herramienta no encontrada.');
 }
 
 $params     = ExpertResultController::getResultData($pdo, $_SESSION);
 $jsonParams = json_encode($params, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 if ($jsonParams === false) {
-    respondError(200, 'Error interno: no se pudo serializar parámetros técnicos.');
+    http_response_code(500);
+    exit('Error interno: no se pudo serializar parámetros técnicos.');
 }
 
 // ────────────────────────────────────────────────────────────────
