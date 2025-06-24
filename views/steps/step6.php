@@ -19,6 +19,52 @@ if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 5
     exit;
 }
 
+/* 2) Dependencias */
+require_once __DIR__ . '/../../includes/db.php';
+require_once __DIR__ . '/../../includes/debug.php';
+require_once __DIR__ . '/../../src/Model/ToolModel.php';
+require_once __DIR__ . '/../../src/Model/ConfigModel.php';
+require_once __DIR__ . '/../../src/Utils/CNCCalculator.php';
+
+
+$toolId     = (int)$_SESSION['tool_id'];
+$toolTable  = $_SESSION['tool_table'];
+$materialId = (int)$_SESSION['material_id'];
+$transId    = (int)$_SESSION['trans_id'];
+$thickness  = (float)$_SESSION['thickness'];
+$rpmMin     = (float)$_SESSION['rpm_min'];
+$rpmMax     = (float)$_SESSION['rpm_max'];
+$frMax      = (float)$_SESSION['feed_max'];
+$hpAvail    = (float)$_SESSION['hp'];
+
+/* 4) Datos herramienta */
+$tool = ToolModel::getTool($pdo, $toolTable, $toolId);
+if (!$tool) die("Fresa no encontrada");
+$D = (float)$tool['diameter_mm'];
+$Z = (int)$tool['flute_count'];
+
+/* 5) Valores base fijos */
+$fz     = 0.1;
+$vc     = 150.0;
+$ae     = $D * 0.5;
+$passes = 1;
+
+/* 6) Datos materiales */
+$Kc11    = ConfigModel::getKc11($pdo, $materialId);
+$mc      = ConfigModel::getMc($pdo, $materialId);
+$coefSeg = ConfigModel::getCoefSeg($pdo, $transId);
+$alpha   = 0.0;
+$eta     = 0.85;
+
+/* 7) Cálculos */
+$phi = CNCCalculator::helixAngle($ae, $D);
+$hm  = CNCCalculator::chipThickness($fz, $ae, $D);
+$rpm = CNCCalculator::rpm($vc, $D);
+$vf  = CNCCalculator::feed($rpm, $fz, $Z);
+$ap  = $thickness / max(1, $passes);
+$mmr = CNCCalculator::mmr($ap, $vf, $ae);
+$Fct = CNCCalculator::Fct($Kc11, $hm, $mc, $ap, $Z, $coefSeg, $alpha, $phi);
+[$watts, $hp] = CNCCalculator::potencia($Fct, $vc, $eta);
 
 ?><!DOCTYPE html>
 <html lang="es">
