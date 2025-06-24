@@ -243,31 +243,27 @@
 // declare(strict_types=1);
 
 /* 1) Sesión segura y flujo */
- if (session_status() !== PHP_SESSION_ACTIVE) {
+if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start([
-     'cookie_secure'   => true,
-      'cookie_httponly' => true,
-     'cookie_samesite' => 'Strict',
-     ]);
- }
- if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 5) {
+        'cookie_secure'   => true,
+        'cookie_httponly' => true,
+        'cookie_samesite' => 'Strict',
+    ]);
+}
+if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 5) {
     header('Location: step1.php');
     exit;
- }
-if (!getenv('BASE_URL')) {
-  // Sube 3 niveles: /views/steps/step6.php → /wizard-stepper_git
-  putenv(
-     'BASE_URL=' . rtrim(
-         dirname(dirname(dirname($_SERVER['SCRIPT_NAME']))),
-         '/'
-     )
-  );
 }
 require_once __DIR__ . '/../../src/Config/AppConfig.php';
 
 //use App\Controller\ExpertResultController;
+/* ___________________
+declare(strict_types=1);
 
-_________________________________________________________________
+/* 1) Sesión segura y flujo */
+
+
+/* _________________________________________________________________
 
 /* 2) Dependencias */
 require_once __DIR__ . '/../../includes/db.php';
