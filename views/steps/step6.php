@@ -25,6 +25,7 @@ require_once __DIR__ . '/../../includes/debug.php';
 require_once __DIR__ . '/../../src/Model/ToolModel.php';
 require_once __DIR__ . '/../../src/Model/ConfigModel.php';
 require_once __DIR__ . '/../../src/Utils/CNCCalculator.php';
+require_once __DIR__ . '/../../src/Controller/ExpertResultController.php';
 
 // Compatibilidad con pasos previos que usan 'transmission_id'
 if (isset($_SESSION['transmission_id']) && !isset($_SESSION['trans_id'])) {
