@@ -429,14 +429,7 @@ if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 5
 <section id="wizard-dashboard"></section>
 
 <!-- SCRIPTS -->
-<script>window.step6Params = <?= $jsonParams ?>; window.step6Csrf = '<?= $csrfToken ?>';</script>
-<?php if (!$embedded): ?>
-<script src="<?= $bootstrapJsRel ?>" defer></script>
-<script src="<?= asset('node_modules/feather-icons/dist/feather.min.js') ?>" defer></script>
-<script src="<?= asset('node_modules/chart.js/dist/chart.umd.min.js') ?>" defer></script>
-<script src="<?= asset('node_modules/countup.js/dist/countUp.umd.js') ?>" defer></script>
-<script src="<?= $step6JsRel ?>" defer></script>
-<script>requestAnimationFrame(() => feather.replace());</script>
+
 </body>
 </html>
 <?php endif; ?>
