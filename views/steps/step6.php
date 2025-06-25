@@ -1,26 +1,10 @@
 <?php
 /**
- * File: step5.php
- *
- * Main responsibility: Part of the CNC Wizard Stepper.
- * Related files: See others in this project.
- * @TODO Extend documentation.
+ * Paso 6 – Resultados expertos del Wizard CNC
+ * Reescrito con manejo robusto de errores mediante try/catch.
  */
-/**
- * Paso 5 (Auto) – Configurar router
- * Protegido con CSRF, controla flujo y valida:
- *   – rpm_min > 0
- *   – rpm_max > 0
- *   – rpm_min < rpm_max
- *   – feed_max > 0
- *   – hp       > 0
- * Después guarda en sesión y avanza a step6.php
- */
+
 declare(strict_types=1);
-
-
-
-
 
 set_exception_handler(function(Throwable $e){
     error_log('[step6][EXCEPTION] '.$e->getMessage()."\n".$e->getTraceAsString());
@@ -55,111 +39,253 @@ require_once $appConfig;
 
 use App\Controller\ExpertResultController;
 
+// ------------------------------------------------------------------
+// 3. Helpers opcionales
+// ------------------------------------------------------------------
+$helperFile = __DIR__ . '/../../includes/wizard_helpers.php';
+if (is_readable($helperFile)) {
+    require_once $helperFile;
+}
+if (!function_exists('dbg')) {
+    function dbg(...$a): void { /* no-op */ }
+}
 
+// ------------------------------------------------------------------
+// 4. Modo embebido
+// ------------------------------------------------------------------
+$embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* 1) Sesión segura y flujo */
+// ------------------------------------------------------------------
+// 5. Inicio de sesión
+// ------------------------------------------------------------------
 if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start([
-        'cookie_secure'   => true,
-        'cookie_httponly' => true,
-        'cookie_samesite' => 'Strict',
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path'     => '/',
+        'secure'   => true,
+        'httponly' => true,
+        'samesite' => 'Strict'
     ]);
-}
-if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 4) {
-    header('Location: step1.php');
-    exit;
+    session_start();
 }
 
-/* 2) Dependencias */
-require_once __DIR__ . '/../../includes/db.php';
-require_once __DIR__ . '/../../includes/debug.php';
+// ------------------------------------------------------------------
+// 6. Cabeceras de seguridad
+// ------------------------------------------------------------------
+if (!$embedded) {
+    header('Content-Type: text/html; charset=UTF-8');
+    header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
+    header('X-Frame-Options: DENY');
+    header('X-Content-Type-Options: nosniff');
+    header('Referrer-Policy: no-referrer');
+    header('X-Permitted-Cross-Domain-Policies: none');
+    header('X-DNS-Prefetch-Control: off');
+    header('Expect-CT: max-age=86400, enforce');
+    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+    header('Pragma: no-cache');
+    header("Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://cdn.jsdelivr.net");
+}
 
-/* 3) CSRF token */
-if (empty($_SESSION['csrf_token'])) {
+// ------------------------------------------------------------------
+// 7. Debug opcional
+// ------------------------------------------------------------------
+$DEBUG = filter_input(INPUT_GET, 'debug', FILTER_VALIDATE_BOOLEAN);
+if ($DEBUG && is_readable(__DIR__ . '/../../includes/debug.php')) {
+    require_once __DIR__ . '/../../includes/debug.php';
+}
+
+// ------------------------------------------------------------------
+// 8. Normalizar claves de sesión
+// ------------------------------------------------------------------
+$_SESSION['material'] = $_SESSION['material_id']     ?? ($_SESSION['material']   ?? null);
+$_SESSION['trans_id'] = $_SESSION['transmission_id'] ?? ($_SESSION['trans_id']   ?? null);
+$_SESSION['fr_max']   = $_SESSION['feed_max']        ?? ($_SESSION['fr_max']     ?? null);
+$_SESSION['strategy'] = $_SESSION['strategy_id']     ?? ($_SESSION['strategy']   ?? null);
+
+// Validaciones adicionales de sesión
+$toolId = filter_var($_SESSION['tool_id'] ?? null, FILTER_VALIDATE_INT);
+$frMax  = filter_var($_SESSION['fr_max'] ?? null, FILTER_VALIDATE_FLOAT);
+$rpmMin = filter_var($_SESSION['rpm_min'] ?? null, FILTER_VALIDATE_FLOAT);
+$rpmMax = filter_var($_SESSION['rpm_max'] ?? null, FILTER_VALIDATE_FLOAT);
+if ($toolId === false || $toolId <= 0 ||
+    $frMax === false || $frMax < 0 ||
+    $rpmMin === false || $rpmMax === false || $rpmMin >= $rpmMax) {
+    respondError(400, 'Parámetro inválido');
+}
+
+// ------------------------------------------------------------------
+// 9. CSRF token
+// ------------------------------------------------------------------
+// Regenera token cada 15 minutos para mayor seguridad
+$tokenTTL = 900; // segundos
+$needsToken = empty($_SESSION['csrf_token']) ||
+              empty($_SESSION['csrf_token_time']) ||
+              ($_SESSION['csrf_token_time'] + $tokenTTL) < time();
+if ($needsToken) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    $_SESSION['csrf_token_time'] = time();
 }
 $csrfToken = $_SESSION['csrf_token'];
-
-/* 4) Transmisiones desde BD */
-$txList = $pdo->query("
-    SELECT id, name, rpm_min, rpm_max, feed_max, hp_default
-      FROM transmissions
-    ORDER BY name
-")->fetchAll(PDO::FETCH_ASSOC);
-
-$validTx = [];
-foreach ($txList as $t) {
-    $validTx[(int)$t['id']] = [
-        'rpm_min'  => (int)$t['rpm_min'],
-        'rpm_max'  => (int)$t['rpm_max'],
-        'feed_max' => (float)$t['feed_max'],
-        'hp_def'   => (float)$t['hp_default'],
-    ];
-}
-
-/* 5) Procesar POST */
-$errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!hash_equals($csrfToken, (string)($_POST['csrf_token'] ?? ''))) {
-        $errors[] = 'Token de seguridad inválido. Recargá la página e intentá de nuevo.';
+    $posted = (string)($_POST['csrf_token'] ?? '');
+    if (!hash_equals($csrfToken, $posted)) {
+        respondError(200, 'Error CSRF: petición no autorizada.');
     }
-    if ((int)($_POST['step'] ?? 0) !== 5) {
-        $errors[] = 'Paso inválido. Reiniciá el asistente.';
-    }
-
-    $id   = filter_input(INPUT_POST, 'transmission_id', FILTER_VALIDATE_INT);
-    $rpmn = filter_input(INPUT_POST, 'rpm_min',         FILTER_VALIDATE_INT);
-    $rpmm = filter_input(INPUT_POST, 'rpm_max',         FILTER_VALIDATE_INT);
-    $feed = filter_input(INPUT_POST, 'feed_max',        FILTER_VALIDATE_FLOAT);
-    $hp   = filter_input(INPUT_POST, 'hp',              FILTER_VALIDATE_FLOAT);
-
-    if (!isset($validTx[$id]))           $errors[] = 'Elegí una transmisión válida.';
-    if (!$rpmn || $rpmn <= 0)            $errors[] = 'La RPM mínima debe ser > 0.';
-    if (!$rpmm || $rpmm <= 0)            $errors[] = 'La RPM máxima debe ser > 0.';
-    if ($rpmn && $rpmm && $rpmn >= $rpmm)$errors[] = 'La RPM mínima debe ser menor que la máxima.';
-    if (!$feed || $feed <= 0)            $errors[] = 'El avance máximo debe ser > 0.';
-    if (!$hp   || $hp   <= 0)            $errors[] = 'La potencia debe ser > 0.';
-
-    if (!$errors) {
-        $_SESSION += [
-            'transmission_id' => $id,
-            'rpm_min'         => $rpmn,
-            'rpm_max'         => $rpmm,
-            'feed_max'        => $feed,
-            'hp'              => $hp,
-            'wizard_progress' => 5,
-        ];
-        session_write_close();
-        header('Location: step6.php');
-        exit;
+    if (($_SESSION['csrf_token_time'] + $tokenTTL) < time()) {
+        unset($_SESSION['csrf_token'], $_SESSION['csrf_token_time']);
+        respondError(200, 'Error CSRF: token expirado.');
     }
 }
 
-/* 6) Valores previos */
-$prev = [
-    'transmission_id' => $_SESSION['transmission_id'] ?? '',
-    'rpm_min'         => $_SESSION['rpm_min']        ?? '',
-    'rpm_max'         => $_SESSION['rpm_max']        ?? '',
-    'feed_max'        => $_SESSION['feed_max']       ?? '',
-    'hp'              => $_SESSION['hp']             ?? '',
+// ------------------------------------------------------------------
+// 10. Validación de sesión
+// ------------------------------------------------------------------
+$requiredKeys = [
+    'tool_table','tool_id','material','trans_id',
+    'rpm_min','rpm_max','fr_max','thickness','strategy','hp'
 ];
+$missing = array_filter($requiredKeys, fn($k) => empty($_SESSION[$k]));
+if ($missing) {
+    error_log('[step6] Faltan claves: ' . implode(',', $missing));
+    respondError(200, 'ERROR – faltan datos en sesión');
+}
+
+// ------------------------------------------------------------------
+// 11. Conexión BD
+// ------------------------------------------------------------------
+$dbFile = __DIR__ . '/../../includes/db.php';
+if (!is_readable($dbFile)) {
+    respondError(200, 'Error interno: falta el archivo de conexión a la BD.');
+}
+try {
+    require_once $dbFile; // -> $pdo
+} catch (\Throwable $e) {
+    respondError(200, 'Error interno: fallo al incluir la BD.');
+}
+if (!isset($pdo) || !($pdo instanceof PDO)) {
+    respondError(200, 'Error interno: no hay conexión a la base de datos.');
+}
+
+// ------------------------------------------------------------------
+// 12. Cargar modelos y utilidades
+// ------------------------------------------------------------------
+$root = dirname(__DIR__, 2) . '/';
+foreach ([
+    'src/Controller/ExpertResultController.php',
+    'src/Model/ToolModel.php',
+    'src/Model/ConfigModel.php',
+    'src/Utils/CNCCalculator.php'
+] as $rel) {
+    if (!is_readable($root.$rel)) {
+        respondError(200, "Error interno: falta {$rel}");
+    }
+    require_once $root.$rel;
+}
+
+// ------------------------------------------------------------------
+// 13. Obtener datos de herramienta y parámetros
+// ------------------------------------------------------------------
+$toolTable = (string)$_SESSION['tool_table'];
+$toolId    = (int)$_SESSION['tool_id'];
+try {
+    $toolData  = ToolModel::getTool($pdo, $toolTable, $toolId) ?: null;
+} catch (\Throwable $e) {
+    respondError(200, 'Error al consultar herramienta.');
+}
+if (!$toolData) {
+    respondError(200, 'Herramienta no encontrada.');
+}
+
+try {
+    $params = ExpertResultController::getResultData($pdo, $_SESSION);
+} catch (\Throwable $e) {
+    respondError(200, 'Error al generar datos de corte.');
+}
+$jsonParams = json_encode($params, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+if ($jsonParams === false) {
+    respondError(200, 'Error interno: no se pudo serializar parámetros técnicos.');
+}
+
+// ------------------------------------------------------------------
+// 14. Variables sanitizadas para HTML
+// ------------------------------------------------------------------
+$serialNumber  = htmlspecialchars($toolData['serie']       ?? '', ENT_QUOTES);
+$toolCode      = htmlspecialchars($toolData['tool_code']   ?? '', ENT_QUOTES);
+$toolName      = htmlspecialchars($toolData['name']        ?? 'N/A', ENT_QUOTES);
+$toolType      = htmlspecialchars($toolData['tool_type']   ?? 'N/A', ENT_QUOTES);
+$imageURL      = !empty($toolData['image'])             ? asset($toolData['image'])            : '';
+$vectorURL     = !empty($toolData['image_dimensions'])   ? asset($toolData['image_dimensions']) : '';
+
+$diameterMb    = (float)($toolData['diameter_mm']       ?? 0);
+$shankMb       = (float)($toolData['shank_diameter_mm'] ?? 0);
+$fluteLenMb    = (float)($toolData['flute_length_mm']   ?? 0);
+$cutLenMb      = (float)($toolData['cut_length_mm']     ?? 0);
+$fullLenMb     = (float)($toolData['full_length_mm']    ?? 0);
+$fluteCountMb  = (int)  ($toolData['flute_count']        ?? 0);
+$coatingMb     = htmlspecialchars($toolData['coated']    ?? 'N/A', ENT_QUOTES);
+$materialMb    = htmlspecialchars($toolData['material']  ?? 'N/A', ENT_QUOTES);
+$brandMb       = htmlspecialchars($toolData['brand']     ?? 'N/A', ENT_QUOTES);
+$madeInMb      = htmlspecialchars($toolData['made_in']   ?? 'N/A', ENT_QUOTES);
+
+$baseVc  = (float)$params['vc0'];
+$vcMinDb = (float)$params['vc_min0'];
+$vcMaxDb = (float)($params['vc_max0'] ?? $baseVc * 1.25);
+$baseFz  = (float)$params['fz0'];
+$fzMinDb = (float)$params['fz_min0'];
+$fzMaxDb = (float)$params['fz_max0'];
+$apSlot  = (float)$params['ap_slot'];
+$aeSlot  = (float)$params['ae_slot'];
+$rpmMin  = (float)$params['rpm_min'];
+$rpmMax  = (float)$params['rpm_max'];
+$frMax   = (float)$params['fr_max'];
+$baseRpm = (int)  $params['rpm0'];
+$baseFeed= (float)$params['feed0'];
+$baseMmr = (float)$params['mmr_base'];
+
+$outVf = number_format($baseFeed, 0, '.', '');
+$outN  = number_format($baseRpm, 0, '.', '');
+$outVc = number_format($baseVc,   1, '.', '');
+
+$materialName   = (string)($_SESSION['material_name']   ?? 'Genérico Fibrofácil (MDF)');
+$materialParent = (string)($_SESSION['material_parent'] ?? 'Maderas Naturales');
+$strategyName   = (string)($_SESSION['strategy_name']   ?? 'Grabado en V / 2.5D');
+$strategyParent = (string)($_SESSION['strategy_parent'] ?? 'Fresado');
+$thickness      = (float)$_SESSION['thickness'];
+$powerAvail     = (float)$_SESSION['hp'];
+
+try {
+    $transName = $pdo->prepare('SELECT name FROM transmissions WHERE id = ?');
+    $transName->execute([(int)$_SESSION['trans_id']]);
+    $transName = $transName->fetchColumn() ?: 'N/D';
+} catch (\Throwable $e) {
+    $transName = 'N/D';
+}
+
+$notesArray = $params['notes'] ?? [];
+
+// ------------------------------------------------------------------
+// 15. Assets locales
+// ------------------------------------------------------------------
+$cssBootstrapRel = asset('assets/css/generic/bootstrap.min.css');
+$bootstrapJsRel  = asset('assets/js/bootstrap.bundle.min.js');
+$featherLocal    = $root.'node_modules/feather-icons/dist/feather.min.js';
+$chartJsLocal    = $root.'node_modules/chart.js/dist/chart.umd.min.js';
+$countUpLocal    = $root.'node_modules/countup.js/dist/countUp.umd.js';
+$step6JsRel      = asset('assets/js/step6.js');
+
+$assetErrors = [];
+if (!is_readable($root.'assets/css/generic/bootstrap.min.css'))
+    $assetErrors[] = 'Bootstrap CSS no encontrado localmente.';
+if (!is_readable($root.'assets/js/bootstrap.bundle.min.js'))
+    $assetErrors[] = 'Bootstrap JS no encontrado localmente.';
+if (!file_exists($featherLocal))
+    $assetErrors[] = 'Feather Icons JS faltante.';
+if (!file_exists($chartJsLocal))
+    $assetErrors[] = 'Chart.js faltante.';
+if (!file_exists($countUpLocal))
+    $assetErrors[] = 'CountUp.js faltante.';
+
+
 $hasPrev = (int)$prev['transmission_id'] > 0;
 ?>
 <!DOCTYPE html>
