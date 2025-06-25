@@ -1,3 +1,63 @@
+<?php
+declare(strict_types=1);
+require_once __DIR__ . '/../../src/Utils/Session.php';
+require_once __DIR__ . '/../../includes/db.php';
+require_once __DIR__ . '/../../src/Controller/ExpertResultController.php';
+require_once __DIR__ . '/../../src/Utils/CNCCalculator.php';
+
+sendSecurityHeaders('text/html; charset=UTF-8');
+
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path'     => BASE_URL . '/',
+        'secure'   => true,
+        'httponly' => true,
+        'samesite' => 'Strict'
+    ]);
+    session_start();
+}
+
+if (($_SESSION['wizard_progress'] ?? 0) < 5) {
+    header('Location: ' . asset('views/steps/manual/step4.php'));
+    exit;
+}
+
+$params    = ExpertResultController::getResultData($pdo, $_SESSION);
+$D         = (float) $params['diameter'];
+$Z         = (int)   $params['flute_count'];
+$thickness = (float) $_SESSION['thickness'];
+$rpmMin    = (float) $params['rpm_min'];
+$rpmMax    = (float) $params['rpm_max'];
+$frMax     = (float) $params['fr_max'];
+$Kc11      = (float) $params['Kc11'];
+$mc        = (float) $params['mc'];
+$coefSeg   = (float) $params['coef_seg'];
+$alpha     = (float) $params['rack_rad'];
+$eta       = 0.85;
+
+$vc0       = (float) $params['vc0'];
+$fzMin     = (float) $params['fz_min0'];
+$fzMax     = (float) $params['fz_max0'];
+$fz0       = (float) $params['fz0'];
+$ae_base   = (float) $params['ae0'];
+$passes0   = (int)   $params['passes0'];
+
+$vc_adj     = isset($_POST['vc_adj'])     ? (float) $_POST['vc_adj'] : $vc0;
+$fz_adj     = isset($_POST['fz_adj'])     ? (float) $_POST['fz_adj'] : $fz0;
+$ae_adj     = isset($_POST['ae_adj'])     ? (float) $_POST['ae_adj'] : $ae_base;
+$passes_adj = isset($_POST['passes'])     ? (int)   $_POST['passes'] : $passes0;
+
+$phi   = CNCCalculator::helixAngle($ae_adj, $D);
+$hm    = CNCCalculator::chipThickness($fz_adj, $ae_adj, $D);
+$rpm_c = CNCCalculator::rpm($vc_adj, $D);
+$rpm   = (int) round(max($rpmMin, min($rpm_c, $rpmMax)));
+$vf    = min(CNCCalculator::feed($rpm, $fz_adj, $Z), $frMax);
+$ap    = $thickness / max(1, $passes_adj);
+$mmr   = round(CNCCalculator::mmr($ap, $vf, $ae_adj), 2);
+$Fct   = CNCCalculator::Fct($Kc11, $hm, $mc, $ap, $Z, $coefSeg, $alpha, $phi);
+[$watts, $hp] = CNCCalculator::potencia($Fct, $vc_adj, $eta);
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
