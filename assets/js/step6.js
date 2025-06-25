@@ -23,12 +23,17 @@
     return; // aborta initStep6 para que no intente operar sobre elementos nulos
   }
 
-  const errBox = document.getElementById('errorMsg');
-  const showFatal = msg => {
-    if (errBox) {
-      errBox.style.display = 'block';
-      errBox.textContent = msg;
-    } else if (window.alert) {
+  const UI = {
+    errBox: document.getElementById('errorMsg'),
+    show(msg) {
+      this.errBox.textContent = msg;
+      this.errBox.style.display = 'block';
+    },
+    clear() {
+      this.errBox.style.display = 'none';
+      this.errBox.textContent = '';
+    },
+    fatal(msg) {
       alert(msg);
     }
   };
@@ -65,7 +70,6 @@
         sAe   = document.getElementById('sliderAe'),
         sP    = document.getElementById('sliderPasadas'),
         infoP = document.getElementById('textPasadasInfo'),
-        err   = document.getElementById('errorMsg'),
         out   = {
           vc:  document.getElementById('outVc'),
           fz:  document.getElementById('outFz'),
@@ -131,15 +135,7 @@
   });
   const radar = window.radarChartInstance;
 
-  // 5. Mostrar/ocultar errores
-  function showError(msg) {
-    err.style.display = 'block';
-    err.textContent = msg;
-  }
-  function clearError() {
-    err.style.display = 'none';
-    err.textContent = '';
-  }
+  // 5. Mostrar/ocultar errores (centralizado en UI)
 
   // 6. Calcular feedrate Vf
   function computeFeed(vc, fz) {
@@ -157,7 +153,7 @@
     if (!slider.dataset.prevValue) slider.dataset.prevValue = slider.value;
     slider.value = slider.dataset.prevValue;
     slider.disabled = true;
-    showError(msg);
+    UI.show(msg);
   }
   function unlockSlider(slider) {
     slider.disabled = false;
@@ -213,7 +209,7 @@
   function onParamChange() {
     group('onParamChange', () => {
       log('vc', sVc.value, 'fz', sFz.value);
-    clearError();
+    UI.clear();
     const vc = parseFloat(sVc.value),
           fz = parseFloat(sFz.value),
           feed = computeFeed(vc, fz);
@@ -249,16 +245,16 @@
           ae = parseFloat(sAe.value),
           passes = parseInt(sP.value, 10);
     if (!Number.isFinite(fz) || fz < parseFloat(sFz.min) || fz > parseFloat(sFz.max)) {
-      return showError('fz fuera de rango (' + sFz.min + '–' + sFz.max + ')');
+      return UI.show('fz fuera de rango (' + sFz.min + '–' + sFz.max + ')');
     }
     if (!Number.isFinite(vc) || vc < parseFloat(sVc.min) || vc > parseFloat(sVc.max)) {
-      return showError('Vc fuera de rango (' + sVc.min + '–' + sVc.max + ')');
+      return UI.show('Vc fuera de rango (' + sVc.min + '–' + sVc.max + ')');
     }
     if (!Number.isFinite(ae) || ae < parseFloat(sAe.min) || ae > parseFloat(sAe.max)) {
-      return showError('Ae fuera de rango (' + sAe.min + '–' + sAe.max + ')');
+      return UI.show('Ae fuera de rango (' + sAe.min + '–' + sAe.max + ')');
     }
     if (!Number.isInteger(passes) || passes < parseInt(sP.min) || passes > parseInt(sP.max)) {
-      return showError('Número de pasadas inválido');
+      return UI.show('Número de pasadas inválido');
     }
 
     const payload = {
@@ -287,14 +283,14 @@
         credentials: 'same-origin'
       });
       if (res.status === 403) {
-        return showError('Sesión expirada. Recargá la página.');
+        return UI.show('Sesión expirada. Recargá la página.');
       }
       if (!res.ok) {
-        return showError(`AJAX error ${res.status}`);
+        return UI.show(`AJAX error ${res.status}`);
       }
       const msg = await res.json();
       if (!msg.success) {
-        return showError(`Servidor: ${msg.error}`);
+        return UI.show(`Servidor: ${msg.error}`);
       }
       const d = msg.data;
 
@@ -324,7 +320,7 @@
         return;
       }
       error('recalc error', e);
-      showError(`Conexión fallida: ${e.message}`);
+      UI.show(`Conexión fallida: ${e.message}`);
     } finally {
       setLoading(false);
     }
@@ -338,12 +334,12 @@
   updatePasadasInfo();
   recalc();
   if (!window.step6ErrorHandlerAdded) {
-    window.addEventListener('error', ev => showError(`JS: ${ev.message}`));
+    window.addEventListener('error', ev => UI.show(`JS: ${ev.message}`));
     window.step6ErrorHandlerAdded = true;
   }
   } catch (e) {
     console.error('[step6] init error', e);
-    showFatal(`JS: ${e.message}`);
+    UI.fatal(`JS: ${e.message}`);
   }
   };
 

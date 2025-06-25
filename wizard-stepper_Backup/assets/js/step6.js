@@ -18,7 +18,20 @@
         sAe   = document.getElementById('sliderAe'),
         sP    = document.getElementById('sliderPasadas'),
         infoP = document.getElementById('textPasadasInfo'),
-        err   = document.getElementById('errorMsg'),
+        UI    = {
+          errBox: document.getElementById('errorMsg'),
+          show(msg) {
+            this.errBox.textContent = msg;
+            this.errBox.style.display = 'block';
+          },
+          clear() {
+            this.errBox.style.display = 'none';
+            this.errBox.textContent = '';
+          },
+          fatal(msg) {
+            alert(msg);
+          }
+        },
         out   = {
           vc:  document.getElementById('outVc'),
           fz:  document.getElementById('outFz'),
@@ -58,15 +71,7 @@
     options:{scales:{r:{max:100,ticks:{stepSize:20}}},plugins:{legend:{display:false}}}
   });
 
-  // 5. Mostrar/ocultar errores
-  function showError(msg) {
-    err.style.display = 'block';
-    err.textContent = msg;
-  }
-  function clearError() {
-    err.style.display = 'none';
-    err.textContent = '';
-  }
+  // 5. Mostrar/ocultar errores (centralizado en UI)
 
   // 6. Calcular feedrate Vf
   function computeFeed(vc, fz) {
@@ -78,7 +83,7 @@
   function lockSlider(slider, msg) {
     slider.value = slider.dataset.limitValue;
     slider.disabled = true;
-    showError(msg);
+    UI.show(msg);
   }
   function unlockSlider(slider) {
     slider.disabled = false;
@@ -99,14 +104,14 @@
   // 9. Debounce
   let timer;
   function scheduleRecalc() {
-    clearError();
+    UI.clear();
     clearTimeout(timer);
     timer = setTimeout(recalc, 200);
   }
 
   // 10. Handler común para fz/vc
   function onParamChange() {
-    clearError();
+    UI.clear();
     const vc = parseFloat(sVc.value),
           fz = parseFloat(sFz.value),
           feed = computeFeed(vc, fz);
@@ -162,11 +167,11 @@
         cache: 'no-store'
       });
       if (!res.ok) {
-        return showError(`AJAX error ${res.status}`);
+        return UI.show(`AJAX error ${res.status}`);
       }
       const msg = await res.json();
       if (!msg.success) {
-        return showError(`Servidor: ${msg.error}`);
+        return UI.show(`Servidor: ${msg.error}`);
       }
       const d = msg.data;
 
@@ -191,7 +196,7 @@
         radar.update();
       }
     } catch (e) {
-      showError(`Conexión fallida: ${e.message}`);
+      UI.show(`Conexión fallida: ${e.message}`);
     }
   }
 
@@ -199,5 +204,5 @@
   updatePasadasSlider();
   updatePasadasInfo();
   recalc();
-  window.addEventListener('error', ev => showError(`JS: ${ev.message}`));
+  window.addEventListener('error', ev => UI.show(`JS: ${ev.message}`));
 })();
