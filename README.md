@@ -41,7 +41,14 @@ When running with `?debug=1` in the URL you can access additional debug helpers:
 - `public/export.php` – downloads session data as text.
 - `public/export_json.php` – downloads session data as JSON.
 
-All these endpoints require debug mode.
+All these endpoints require debug mode. They also validate a CSRF token
+sent in the `X-CSRF-Token` header. When accessing them manually you
+must include the value stored in `\$_SESSION['csrf_token']` (exposed as
+`window.csrfToken` in the wizard pages). For example:
+
+```bash
+curl -H "X-CSRF-Token: <token>" http://localhost:8000/public/session-api.php?debug=1
+```
 
 ## Running Tests
 
