@@ -14,7 +14,7 @@
 /* Contenedor principal */
 .step6 {
   position: relative;
-  color: var(--text-color-sec);
+  color: #fff;
 }
 
 /* =======================  Paleta y texto base  ====================== */
@@ -55,12 +55,12 @@
 }
 
 .step6 .tool-name {margin-top: 0.5rem;font-size: 1.1rem;font-weight: 600;}
-.step6 .tool-type {font-size: 0.95rem;color: var(--text-color-sec);}
+.step6 .tool-type {font-size: 0.95rem;color: #fff;}
 
 /* Lista de especificaciones */
 .step6 .spec-list {margin: 0;padding-left: 0;list-style: disc inside;}
 .step6 .spec-list li {display: flex;justify-content: space-between;margin-bottom: 0.4rem;}
-.step6 .spec-list li span:first-child {color: var(--text-color-sec);} 
+.step6 .spec-list li span:first-child {color: #fff;}
 .step6 .spec-list li span:last-child  {font-weight: 600;color: var(--accent-color);}
 
 /* Imagen vectorial */
@@ -98,16 +98,16 @@
 
   text-align: center;
 }
-.step6 .param-label {font-size: 0.75rem;color: var(--text-color-sec);}
+.step6 .param-label {font-size: 0.75rem;color: #fff;}
 .step6 .fw-bold     {font-size: 1.1rem;font-weight: 700;color: var(--accent-color);}
 
 .step6 #radarChart {max-width: 100% !important;}
 
 /* =======================  Configuración estática  =================== */
 .step6 .config-card-static {padding: 0.8rem;}
-.step6 .config-section-title {margin-bottom: 0.25rem;font-weight: 600;color: var(--text-color-sec);}
+.step6 .config-section-title {margin-bottom: 0.25rem;font-weight: 600;color: #fff;}
 .step6 .config-item {display: flex;justify-content: space-between;margin: 0.25rem 0;}
-.step6 .label-static {color: var(--text-color-sec);} 
+.step6 .label-static {color: #fff;}
 .step6 .value-static {font-weight: 600;color: var(--accent-color);}
 .step6 .section-divider {margin: 0.5rem 0;border-bottom: 1px solid rgb(255 255 255 / 10%);}
 
@@ -116,9 +116,9 @@
 .step6 .notes-list {margin: 0;padding: 0;list-style: none;}
 .step6 .notes-list li {display: flex;gap: 0.5rem;align-items: flex-start;padding: 0.25rem 0;}
 .step6 .notes-list li i {margin-top: 0.2rem;font-size: 1rem;color: var(--accent-color);}
-.step6 .notes-list li div {font-size: 0.9rem;color: var(--text-color);}
+.step6 .notes-list li div {font-size: 0.9rem;color: #fff;}
 
-.step6 .text-secondary {color: var(--text-color-sec) !important;}
+.step6 .text-secondary {color: #fff !important;}
 
 /* ============================  Spinner  ============================ */
 .step6 .spinner-overlay {
