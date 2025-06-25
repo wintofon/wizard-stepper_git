@@ -470,15 +470,91 @@ div class="content-main">
 </div>
 </div><!-- .content-main -->
 
-<!-- SCRIPTS -->
-<script>window.step6Params = <?= $jsonParams ?>; window.step6Csrf = '<?= $csrfToken ?>';</script>
+<!-- ========== SCRIPTS (blindados) ========== -->
+<script>
+  /*-- Parámetros técnicos + CSRF (100 % seguro) --*/
+  window.step6Params = <?= json_encode(
+        $params,
+        JSON_UNESCAPED_UNICODE |
+        JSON_HEX_TAG  | JSON_HEX_AMP |
+        JSON_HEX_APOS | JSON_HEX_QUOT
+  ) ?>;
+  window.step6Csrf   = <?= json_encode($csrfToken, JSON_HEX_TAG) ?>;
+</script>
+
 <?php if (!$embedded): ?>
-<script src="<?= $bootstrapJsRel ?>" defer></script>
-<script src="<?= asset('node_modules/feather-icons/dist/feather.min.js') ?>" defer></script>
-<script src="<?= asset('node_modules/chart.js/dist/chart.umd.min.js') ?>" defer></script>
-<script src="<?= asset('node_modules/countup.js/dist/countUp.umd.js') ?>" defer></script>
-<script src="<?= $step6JsRel ?>" defer></script>
-<script>requestAnimationFrame(() => feather.replace());</script>
+
+<?php
+/*-----------------------------------------------------------------
+ *  Función helper: inyecta <script defer> local ⇢ o CDN fallback
+ *----------------------------------------------------------------*/
+function safeScript(string $local, string $cdn = ''): void
+{
+    $root = dirname(__DIR__, 2) . '/';
+    $path = $root . ltrim($local, '/');
+
+    if (is_readable($path)) {
+        echo '<script src="' . asset($local) . '" defer></script>' . PHP_EOL;
+    } elseif ($cdn) {
+        echo '<script src="' . $cdn . '" defer crossorigin="anonymous"></script>' . PHP_EOL;
+    } else {
+        echo '<!-- ⚠️  ' . htmlspecialchars($local) . ' no encontrado -->' . PHP_EOL;
+    }
+}
+
+/*-----------------------------------------------------------------
+ *  1) Bootstrap 5 bundle (local o CDN)
+ *----------------------------------------------------------------*/
+safeScript(
+    'assets/js/bootstrap.bundle.min.js',
+    'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js'
+);
+
+/*-----------------------------------------------------------------
+ *  2) Feather-icons
+ *----------------------------------------------------------------*/
+safeScript(
+    'node_modules/feather-icons/dist/feather.min.js',
+    'https://cdn.jsdelivr.net/npm/feather-icons@4/dist/feather.min.js'
+);
+
+/*-----------------------------------------------------------------
+ *  3) Chart.js
+ *----------------------------------------------------------------*/
+safeScript(
+    'node_modules/chart.js/dist/chart.umd.min.js',
+    'https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js'
+);
+
+/*-----------------------------------------------------------------
+ *  4) CountUp.js
+ *----------------------------------------------------------------*/
+safeScript(
+    'node_modules/countup.js/dist/countUp.umd.js',
+    'https://cdn.jsdelivr.net/npm/countup.js@2.6.2/dist/countUp.umd.js'
+);
+
+/*-----------------------------------------------------------------
+ *  5) Tu propio step6.js (solo local; sin CDN)
+ *----------------------------------------------------------------*/
+safeScript('assets/js/step6.js');
+?>
+
+<script>
+/*-- Feather.replace() seguro: reintenta 10× cada 120 ms --*/
+(function waitFeather(r = 10) {
+  if (window.feather && typeof feather.replace === 'function') {
+    requestAnimationFrame(() => feather.replace({ class: 'feather' }));
+  } else if (r) {
+    setTimeout(() => waitFeather(r - 1), 120);
+  } else {
+    console.warn('⚠️  Feather Icons no cargó: se omite replace()');
+  }
+})();
+</script>
+
+<?php endif; ?>
+
 
 
 </body></html>
