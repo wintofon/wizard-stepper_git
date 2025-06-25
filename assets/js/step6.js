@@ -51,6 +51,20 @@
 
   const csrfToken = window.step6Csrf;
 
+  const CONFIG = {
+    ajaxUrl: `${BASE_URL}/ajax/step6_ajax_legacy_minimal.php`,
+    timeoutMs: 10000
+  };
+
+  function fetchWithTimeout(resource, options = {}, timeoutMs = CONFIG.timeoutMs) {
+    return Promise.race([
+      fetch(resource, options),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('timeout')), timeoutMs)
+      )
+    ]);
+  }
+
   // 2. Referencias al DOM
   const sFz   = document.getElementById('sliderFz'),
         sVc   = document.getElementById('sliderVc'),
@@ -233,7 +247,7 @@
 
     table(payload);
     try {
-      const res = await fetch(`${BASE_URL}/ajax/step6_ajax_legacy_minimal.php`, {
+      const res = await fetchWithTimeout(CONFIG.ajaxUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -244,7 +258,7 @@
         signal,
         cache: 'no-store',
         credentials: 'same-origin'
-      });
+      }, CONFIG.timeoutMs);
       if (res.status === 403) {
         return showError('Sesión expirada. Recargá la página.');
       }
@@ -280,6 +294,10 @@
       table(d);
     } catch (e) {
       if (e.name === 'AbortError') {
+        return;
+      }
+      if (e.message === 'timeout') {
+        showError('La petición tardó más de ' + CONFIG.timeoutMs / 1000 + ' s');
         return;
       }
       error('recalc error', e);
