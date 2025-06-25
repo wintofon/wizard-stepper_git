@@ -78,6 +78,9 @@ if (!$embedded) {
     header('X-Frame-Options: DENY');
     header('X-Content-Type-Options: nosniff');
     header('Referrer-Policy: no-referrer');
+    header('X-Permitted-Cross-Domain-Policies: none');
+    header('X-DNS-Prefetch-Control: off');
+    header('Expect-CT: max-age=86400, enforce');
     header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
     header('Pragma: no-cache');
     header("Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://cdn.jsdelivr.net");

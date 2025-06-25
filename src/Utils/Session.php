@@ -104,6 +104,8 @@ if (!function_exists('sendSecurityHeaders')) {
             return; // Evita warnings y roturas de DOM
         }
 
+        $embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
+
         header('Content-Type: ' . $contentType);
         header('Strict-Transport-Security: max-age=' . $hstsMaxAge . '; includeSubDomains; preload');
         header('X-Frame-Options: DENY');
@@ -113,6 +115,12 @@ if (!function_exists('sendSecurityHeaders')) {
         }
         header('Referrer-Policy: no-referrer');
         header('Permissions-Policy: geolocation=(), microphone=()');
+
+        if (!$embedded) {
+            header('X-Permitted-Cross-Domain-Policies: none');
+            header('X-DNS-Prefetch-Control: off');
+            header('Expect-CT: max-age=86400, enforce');
+        }
 
         if ($csp) {
             header('Content-Security-Policy: ' . $csp);
