@@ -176,15 +176,31 @@
     infoP.textContent = `${p} pasadas de ${(thickness/p).toFixed(2)} mm`;
   }
 
-  // 9. Debounce
-  let timer;
+  // 9. Utilidades de tiempo
+  const CONFIG = { debounceMs: 200, throttleMs: 50 };
+  function debounce(fn, ms = CONFIG.debounceMs) {
+    let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
+  }
+  function throttle(fn, ms = CONFIG.throttleMs) {
+    let last = 0, timer; return (...a) => {
+      const now = Date.now();
+      if (now - last >= ms) { last = now; fn(...a); }
+      else { clearTimeout(timer); timer = setTimeout(() => { last = Date.now(); fn(...a); }, ms - (now - last)); }
+    };
+  }
   // Controla y cancela la petición AJAX previa si es necesario
   let abortCtr;
-  function scheduleRecalc() {
-    clearError();
-    clearTimeout(timer);
-    timer = setTimeout(recalc, 200);
-  }
+  const debouncedRecalc = debounce(recalc, CONFIG.debounceMs);
+  const throttledOnChange = throttle(e => {
+    if (e.target === sAe) {
+      updatePasadasSlider();
+      updatePasadasInfo();
+    } else if (e.target === sP) {
+      updatePasadasInfo();
+    }
+    onParamChange.call(e.target, e);
+    debouncedRecalc();
+  }, CONFIG.throttleMs);
 
   // 10. Handler común para fz/vc
   function onParamChange() {
@@ -205,23 +221,14 @@
     }
     unlockSlider(sVc);
     unlockSlider(sFz);
-    scheduleRecalc();
     log('return void');
     });
   }
 
   // 11. Conectar listeners
-  sFz.addEventListener('input', onParamChange);
-  sVc.addEventListener('input', onParamChange);
-  sAe.addEventListener('input', () => {
-    updatePasadasSlider();
-    updatePasadasInfo();
-    scheduleRecalc();
-  });
-  sP.addEventListener('input', () => {
-    updatePasadasInfo();
-    scheduleRecalc();
-  });
+  [sFz, sVc, sAe, sP].forEach(slider =>
+    slider.addEventListener('input', throttledOnChange)
+  );
 
   // 12. AJAX + recalc
   async function recalc() {
