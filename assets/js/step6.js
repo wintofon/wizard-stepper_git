@@ -239,6 +239,10 @@
 
   // 12. AJAX + recalc
   async function recalc() {
+    if (UI.errBox.textContent) {
+      console.warn('[step6] Hay un error activo, cancelando recálculo');
+      return;
+    }
     return group('recalc', async () => {
     if (abortCtr) abortCtr.abort();
     abortCtr = new AbortController();
