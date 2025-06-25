@@ -511,4 +511,4 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
 <script>requestAnimationFrame(() => feather.replace());</script>
 </body>
 </html>
-<?php endif; ?>
+
