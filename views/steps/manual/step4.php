@@ -73,10 +73,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && count($_SESSION['rate_limit'][$client
 //
 // [F] CSRF-token
 //
-if (!isset($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-    session_regenerate_id(true);
-}
+$_SESSION['csrf_token'] ??= bin2hex(random_bytes(32));
 $csrf = $_SESSION['csrf_token'];
 
 //
@@ -134,10 +131,10 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
 
     if(!$err){
         $_SESSION['rate_limit'][$clientIp][] = time();
+        session_regenerate_id(true);
         $_SESSION['material_id']=$mat;
         $_SESSION['thickness'] =(float)$thk;
         $_SESSION['wizard_progress']=4;
-        session_regenerate_id(true);
         header('Location:' . asset('views/steps/manual/step5.php')); exit;
     }
 }

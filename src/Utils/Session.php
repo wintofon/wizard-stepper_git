@@ -71,7 +71,6 @@ if (!function_exists('generateCsrfToken')) {
         startSecureSession();
         if (empty($_SESSION['csrf_token']) || strlen($_SESSION['csrf_token']) !== 64) {
             $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-            session_regenerate_id(true);
         }
         return $_SESSION['csrf_token'];
     }

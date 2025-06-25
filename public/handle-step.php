@@ -56,6 +56,5 @@ foreach ($_POST as $k => $v) {
 $next = StepperFlow::next($mode, $step);
 // Wizard progress counter is stored so the user cannot skip steps
 $_SESSION['wizard_progress'] = $next ?? $step;
-session_regenerate_id(true);
 
 echo json_encode(['success'=>true,'next'=>$next]);
