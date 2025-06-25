@@ -39,6 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $result = null;
+try {
 if (!$errors) {
     $D = $defaults['diameter'];
     $Z = $defaults['flutes'];
@@ -75,6 +76,9 @@ if (!$errors) {
         'hm'    => $hm,
         'ap'    => $ap,
     ];
+}
+} catch (Throwable $e) {
+    $errors[] = 'Error interno: ' . $e->getMessage();
 }
 ?>
 <!DOCTYPE html>

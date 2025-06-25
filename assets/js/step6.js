@@ -11,6 +11,17 @@
 window.radarChartInstance = window.radarChartInstance || null;
 
 window.initStep6 = function () {
+  const errBox = document.getElementById('errorMsg');
+  const showFatal = msg => {
+    if (errBox) {
+      errBox.style.display = 'block';
+      errBox.textContent = msg;
+    } else if (window.alert) {
+      alert(msg);
+    }
+  };
+
+  try {
   const BASE_URL = window.BASE_URL || '';
   const DEBUG = window.DEBUG ?? false;
   const TAG = '[WizardStepper]';
@@ -272,5 +283,9 @@ window.initStep6 = function () {
   if (!window.step6ErrorHandlerAdded) {
     window.addEventListener('error', ev => showError(`JS: ${ev.message}`));
     window.step6ErrorHandlerAdded = true;
+  }
+  } catch (e) {
+    console.error('[step6] init error', e);
+    showFatal(`JS: ${e.message}`);
   }
 };
