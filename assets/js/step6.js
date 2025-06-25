@@ -170,6 +170,8 @@
 
   // 9. Debounce
   let timer;
+  // Controla y cancela la petición AJAX previa si es necesario
+  let abortCtr;
   function scheduleRecalc() {
     clearError();
     clearTimeout(timer);
@@ -216,6 +218,9 @@
   // 12. AJAX + recalc
   async function recalc() {
     return group('recalc', async () => {
+    if (abortCtr) abortCtr.abort();
+    abortCtr = new AbortController();
+    const signal = abortCtr.signal;
     const payload = {
       fz:        parseFloat(sFz.value),
       vc:        parseFloat(sVc.value),
@@ -236,6 +241,7 @@
           'X-Requested-With': 'XMLHttpRequest'
         },
         body: JSON.stringify(payload),
+        signal,
         cache: 'no-store',
         credentials: 'same-origin'
       });
@@ -273,6 +279,9 @@
       }
       table(d);
     } catch (e) {
+      if (e.name === 'AbortError') {
+        return;
+      }
       error('recalc error', e);
       showError(`Conexión fallida: ${e.message}`);
     }
