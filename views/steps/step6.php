@@ -18,12 +18,40 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
 
+$error = null;
 if (($_SESSION['wizard_progress'] ?? 0) < 5) {
     header('Location: ' . asset('views/steps/manual/step4.php'));
     exit;
 }
 
-$params    = ExpertResultController::getResultData($pdo, $_SESSION);
+try {
+    $params = ExpertResultController::getResultData($pdo, $_SESSION);
+} catch (\Throwable $e) {
+    error_log('[step6] ' . $e->getMessage());
+    $error = $e->getMessage();
+}
+
+if ($error) {
+    ?>
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+      <meta charset="UTF-8">
+      <title>Paso 6 – Error</title>
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    </head>
+    <body>
+    <main class="container py-4">
+      <h2 class="mb-4">Paso 6 – Error</h2>
+      <div class="alert alert-danger"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+    </main>
+    </body>
+    </html>
+    <?php
+    exit;
+}
+
 $D         = (float) $params['diameter'];
 $Z         = (int)   $params['flute_count'];
 $thickness = (float) $_SESSION['thickness'];
