@@ -6,32 +6,15 @@
 
 declare(strict_types=1);
 
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
+
 $logPath = dirname(__DIR__, 2) . '/logs/step6.log';
 if (!is_dir(dirname($logPath))) {
     mkdir(dirname($logPath), 0777, true);
 }
-
-$autoload = dirname(__DIR__, 2) . '/vendor/autoload.php';
-if (is_readable($autoload)) {
-    require_once $autoload;
-}
-
-// Fallback simple logger when Monolog is unavailable
-if (class_exists('Monolog\\Logger') && class_exists('Monolog\\Handler\\StreamHandler')) {
-    $logger = new Monolog\Logger('step6');
-    $logger->pushHandler(new Monolog\Handler\StreamHandler($logPath, Monolog\Logger::WARNING));
-} else {
-    class Step6SimpleLogger
-    {
-        public function pushHandler($handler): void {}
-        public function warning(string $message, array $context = []): void
-        {
-            $ctx = $context ? json_encode($context) : '';
-            error_log('[step6] ' . $message . ($ctx ? ' ' . $ctx : ''));
-        }
-    }
-    $logger = new Step6SimpleLogger();
-}
+$logger = new Logger('step6');
+$logger->pushHandler(new StreamHandler($logPath, Logger::WARNING));
 
 set_exception_handler(function(Throwable $e) use ($logger) {
     $logger->warning('[EXCEPTION] '.$e->getMessage(), [
