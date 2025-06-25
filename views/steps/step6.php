@@ -28,7 +28,7 @@ if (!getenv('BASE_URL')) {
 
 
 
-?>
+
 <?php if (!$embedded): ?>
 <!DOCTYPE html>
 <html lang="es">
