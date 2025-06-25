@@ -38,6 +38,15 @@ header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 // Iniciar sesión para CSRF
 session_start(); // ensures $_SESSION['csrf_token'] is available
 
+// Confirm AJAX header to avoid serving full HTML
+$isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+          $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest';
+if (!$isAjax) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'error' => 'Invalid request']);
+    exit;
+}
+
 function respond_json_error(string $msg, int $code = 400): never {
     http_response_code($code);
     echo json_encode(['success' => false, 'error' => $msg], JSON_UNESCAPED_UNICODE);
