@@ -1,3 +1,5 @@
+step 6
+
 <?php
 declare(strict_types=1);
 
