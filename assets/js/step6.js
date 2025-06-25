@@ -8,9 +8,13 @@
 /* global Chart */
 
 // Mantiene la instancia del gráfico entre ejecuciones
-window.radarChartInstance = window.radarChartInstance || null;
+//
+(function (window, document) {
+  'use strict';
 
-window.initStep6 = function () {
+  window.radarChartInstance = window.radarChartInstance || null;
+
+  window.initStep6 = function () {
   const errBox = document.getElementById('errorMsg');
   const showFatal = msg => {
     if (errBox) {
@@ -289,4 +293,6 @@ window.initStep6 = function () {
     console.error('[step6] init error', e);
     showFatal(`JS: ${e.message}`);
   }
-};
+  };
+
+})(window, document);
