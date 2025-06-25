@@ -470,67 +470,15 @@ div class="content-main">
 </div>
 </div><!-- .content-main -->
 
-<script>
-(() => {
-  const radios   = document.querySelectorAll('.btn-check');
-  const paramSec = document.getElementById('paramSection');
-  const nextWrap = document.getElementById('nextWrap');
-  const form     = document.getElementById('routerForm');
-  const inputs   = {
-    rpm_min : document.getElementById('rpm_min'),
-    rpm_max : document.getElementById('rpm_max'),
-    feed_max: document.getElementById('feed_max'),
-    hp      : document.getElementById('hp')
-  };
+<!-- SCRIPTS -->
+<script>window.step6Params = <?= $jsonParams ?>; window.step6Csrf = '<?= $csrfToken ?>';</script>
+<?php if (!$embedded): ?>
+<script src="<?= $bootstrapJsRel ?>" defer></script>
+<script src="<?= asset('node_modules/feather-icons/dist/feather.min.js') ?>" defer></script>
+<script src="<?= asset('node_modules/chart.js/dist/chart.umd.min.js') ?>" defer></script>
+<script src="<?= asset('node_modules/countup.js/dist/countUp.umd.js') ?>" defer></script>
+<script src="<?= $step6JsRel ?>" defer></script>
+<script>requestAnimationFrame(() => feather.replace());</script>
 
-  /* Ocultar todo hasta elegir transmisión */
-  const hideParams = () => {
-    paramSec.style.display = 'none';
-    nextWrap.style.display = 'none';
-    Object.values(inputs).forEach(i => { i.value=''; i.disabled=true; });
-  };
-  <?php if(!$hasPrev): ?> hideParams(); <?php endif; ?>
 
-  /* Mostrar parámetros y validar */
-  radios.forEach(r => r.addEventListener('change', () => {
-    const d = document.querySelector(`label[for="${r.id}"]`).dataset;
-    inputs.rpm_min.value  = d.rpmmin;
-    inputs.rpm_max.value  = d.rpmmax;
-    inputs.feed_max.value = d.feedmax;
-    if(!inputs.hp.value)  inputs.hp.value = d.hpdef;
-
-    Object.values(inputs).forEach(i => i.disabled=false);
-    paramSec.style.display = 'block';
-    validate();
-  }));
-
-  /* Validación en vivo */
-  function validate() {
-    let ok = true;
-    const v  = k => parseFloat(inputs[k].value) || 0;
-    const fb = (inp,msg) => {
-      const feedback = inp.parentElement.querySelector('.invalid-feedback');
-      feedback.textContent = msg;
-      inp.classList.toggle('is-invalid', !!msg);
-      if (msg) ok = false;
-    };
-
-    fb(inputs.rpm_min , v('rpm_min')  > 0 ? '' : 'Debe ser > 0');
-    fb(inputs.rpm_max , v('rpm_max')  > 0 ? '' : 'Debe ser > 0');
-    fb(inputs.feed_max, v('feed_max') > 0 ? '' : 'Debe ser > 0');
-    fb(inputs.hp      , v('hp')       > 0 ? '' : 'Debe ser > 0');
-
-    if (v('rpm_min') && v('rpm_max') && v('rpm_min') >= v('rpm_max')) {
-      fb(inputs.rpm_min,'RPM min < max');
-      fb(inputs.rpm_max,'RPM min < max');
-    }
-
-    nextWrap.style.display = ok ? 'block' : 'none';
-    return ok;
-  }
-
-  Object.values(inputs).forEach(i => i.addEventListener('input', validate));
-  form.addEventListener('submit', e => { if(!validate()){ e.preventDefault(); e.stopPropagation(); } });
-})();
-</script>
 </body></html>
