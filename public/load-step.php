@@ -32,6 +32,8 @@ if (is_readable(ROOT_DIR . '/vendor/autoload.php')) {
     require_once ROOT_DIR . '/vendor/autoload.php';
 }
 
+define('WIZARD_EMBEDDED', true);
+
 /* ───────────────────────────────────────────────────────────── */
 /* 2. CABECERAS SEGURAS                                          */
 /* ───────────────────────────────────────────────────────────── */
@@ -134,7 +136,6 @@ dbg("✔ Vista embebida: {$viewPath}");
 /* ───────────────────────────────────────────────────────────── */
 /* 10. INCLUIR LA VISTA EMBEBIDA                                 */
 /* ───────────────────────────────────────────────────────────── */
-define('WIZARD_EMBEDDED', true);
 include $viewPath;
 
 /* ───────────────────────────────────────────────────────────── */
