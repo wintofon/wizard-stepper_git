@@ -14,7 +14,6 @@
 
 declare(strict_types=1);
 require_once __DIR__ . '/../../../src/Utils/Session.php';
-require_once __DIR__ . '/../../../includes/security.php';
 
 // ──────────────── 1) Sesión y configuración segura ──────────────────
 if (session_status() !== PHP_SESSION_ACTIVE) {
@@ -29,8 +28,8 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 sendSecurityHeaders('text/html; charset=UTF-8');
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Pragma: no-cache");
-$csp = csp_nonce_header();
-header('Content-Security-Policy: ' . $csp);
+$nonce = base64_encode(random_bytes(16));
+header("Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-$nonce'; style-src  'self' 'unsafe-inline';");
 
 // ──────────────── 2) Estado del wizard ──────────────────────────────
 // Si aún no se inició el wizard, lo inicializamos en Paso 1
@@ -147,7 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     include __DIR__ . '/../../partials/styles.php';
   ?>
   <?php if (!$embedded): ?>
-  <script nonce="<?= get_csp_nonce() ?>">
+  <script>
     window.BASE_URL = <?= json_encode(BASE_URL) ?>;
     window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
   </script>
@@ -256,7 +255,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </script>
   <script type="module" src="<?= asset('assets/js/step1_manual_lazy_loader.js') ?>"></script>
 
-  <script type="module" nonce="<?= get_csp_nonce() ?>">
+  <script type="module" nonce="<?= $nonce ?>">
       import { initToolTable } from '<?= asset('assets/js/step1_manual_table_hook.js') ?>';
     initToolTable();
   </script>

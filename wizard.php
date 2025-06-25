@@ -27,9 +27,7 @@ dbg('🔧 wizard.php iniciado');
 
 /* ──────────────── SESIÓN SEGURA ──────────────── */
 require_once __DIR__ . '/src/Utils/Session.php';
-require_once __DIR__ . '/includes/security.php';
-$csp = csp_nonce_header();
-sendSecurityHeaders('text/html; charset=UTF-8', 63072000, true, $csp);
+sendSecurityHeaders('text/html; charset=UTF-8', 63072000, true);
 startSecureSession();
 
 /* ──────────────── FORZAR ESTADO “mode” SI SE PIDE ──────────────── */
@@ -38,7 +36,7 @@ if (trim((string)$stateOverride) === 'mode') {
     $_SESSION['wizard_state'] = 'mode';
     session_regenerate_id(true);
     dbg('⤴ Forzado a estado = mode vía GET');
-    echo '<script nonce="'.get_csp_nonce().'">try{localStorage.removeItem("wizard_progress");}catch(e){}</script>';
+    echo '<script>try{localStorage.removeItem("wizard_progress");}catch(e){}</script>';
 }
 
 /* ──────────────── ESTADO POR DEFECTO ──────────────── */
