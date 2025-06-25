@@ -43,12 +43,6 @@ When running with `?debug=1` in the URL you can access additional debug helpers:
 
 All these endpoints require debug mode.
 
-## DOM Safety
-
-The wizard stepper validates each loaded fragment to keep the DOM consistent:
- - Blocks `<link>`, `<style>` and similar tags that could break the layout.
- - Detects duplicate element IDs before executing any script.
-
 ## Running Tests
 
 Unit tests can be run with PHPUnit. From the project root execute:
