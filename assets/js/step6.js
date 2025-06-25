@@ -15,6 +15,14 @@
   window.radarChartInstance = window.radarChartInstance || null;
 
   window.initStep6 = function () {
+  const requiredIds = ['sliderFz','sliderVc','sliderAe','sliderPasadas','radarChart','errorMsg'];
+  const missing = requiredIds.filter(id => document.getElementById(id) === null);
+  if (missing.length > 0) {
+    console.error('[step6] Elementos DOM faltantes:', missing);
+    alert('Error crítico: faltan elementos de interfaz: ' + missing.join(', '));
+    return; // aborta initStep6 para que no intente operar sobre elementos nulos
+  }
+
   const errBox = document.getElementById('errorMsg');
   const showFatal = msg => {
     if (errBox) {
