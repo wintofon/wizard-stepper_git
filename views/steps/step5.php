@@ -121,7 +121,7 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
   include __DIR__ . '/../partials/styles.php';
 ?>
 <?php if (!$embedded): ?>
-<script>
+<script nonce="<?= get_csp_nonce() ?>">
   window.BASE_URL = <?= json_encode(BASE_URL) ?>;
   window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
 </script>
@@ -191,7 +191,7 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
   </form>
 </main>
 
-<script>
+<script nonce="<?= get_csp_nonce() ?>">
 (() => {
   const radios   = document.querySelectorAll('.btn-check');
   const paramSec = document.getElementById('paramSection');
