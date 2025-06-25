@@ -48,7 +48,7 @@ declare(strict_types=1);
   <link rel="stylesheet" href="<?= asset('assets/css/generic/bootstrap.min.css') ?>">
 
   <!-- VARIABLES GLOBALES JS (inyectadas desde PHP con encoding seguro) -->
-  <script>
+  <script nonce="<?= get_csp_nonce() ?>">
     window.BASE_URL  = <?= json_encode(BASE_URL, JSON_UNESCAPED_SLASHES) ?>;
     window.BASE_HOST = <?= json_encode(BASE_HOST, JSON_UNESCAPED_SLASHES) ?>;
     window.DEBUG     = <?= $DEBUG ? 'true' : 'false' ?>;
@@ -89,14 +89,14 @@ declare(strict_types=1);
 
   <!-- TOKEN CSRF GLOBAL -->
   <?php if (!empty($_SESSION['csrf_token'])): ?>
-    <script>
+    <script nonce="<?= get_csp_nonce() ?>">
       window.csrfToken = '<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>';
     </script>
   <?php endif; ?>
 
   <!-- ICONOS VECTORIALES -->
   <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
-  <script>requestAnimationFrame(() => feather.replace());</script>
+  <script nonce="<?= get_csp_nonce() ?>">requestAnimationFrame(() => feather.replace());</script>
 
   <!-- BOOTSTRAP Y JS CORE -->
   <script src="<?= asset('assets/js/bootstrap.bundle.min.js') ?>" defer></script>

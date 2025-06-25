@@ -60,3 +60,24 @@ function validate_csrf_token(?string $token): bool
     }
     return hash_equals($_SESSION['csrf_token'], $token);
 }
+
+/**
+ * Generate (once per request) and return a CSP nonce.
+ */
+function get_csp_nonce(): string
+{
+    static $nonce = null;
+    if ($nonce === null) {
+        $nonce = base64_encode(random_bytes(16));
+    }
+    return $nonce;
+}
+
+/**
+ * Build CSP header using the per-request nonce.
+ */
+function csp_nonce_header(): string
+{
+    $n = get_csp_nonce();
+    return "script-src 'nonce-$n' 'self'; style-src 'nonce-$n' 'self'";
+}

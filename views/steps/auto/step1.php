@@ -8,6 +8,7 @@
  */
 declare(strict_types=1);
 require_once __DIR__ . '/../../../src/Utils/Session.php';
+require_once __DIR__ . '/../../../includes/security.php';
 /**
  * File: C:\xampp\htdocs\wizard-stepper_git\views\steps\auto\step1.php
  *
@@ -27,7 +28,8 @@ require_once __DIR__ . '/../../../src/Utils/Session.php';
 sendSecurityHeaders('text/html; charset=UTF-8');
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Pragma: no-cache");
-header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';");
+$csp = csp_nonce_header();
+header('Content-Security-Policy: ' . $csp);
 
 //
 // [B] Errores y Debug
@@ -209,7 +211,7 @@ dbg('children', $children);
     include __DIR__ . '/../../partials/styles.php';
   ?>
   <?php if (!$embedded): ?>
-  <script>
+  <script nonce="<?= get_csp_nonce() ?>">
     window.BASE_URL = <?= json_encode(BASE_URL) ?>;
     window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
   </script>
@@ -293,7 +295,7 @@ dbg('children', $children);
     </div>
   </form>
 
-  <script>
+  <script nonce="<?= get_csp_nonce() ?>">
   //────────────────────────────────────────────────────────────────────
   // normalizeText: Quita tildes, pasa a minúsculas
   function normalizeText(str) {

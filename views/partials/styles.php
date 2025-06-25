@@ -23,6 +23,6 @@ foreach ($styles as $href) {
     echo '<link rel="stylesheet" href="'.$url.'">'.PHP_EOL;
 }
 if ($embedded) {
-    echo '<style>body{background-color:transparent!important;}</style>'.PHP_EOL;
+    echo '<style nonce="'.get_csp_nonce().'">body{background-color:transparent!important;}</style>'.PHP_EOL;
 }
 ?>
