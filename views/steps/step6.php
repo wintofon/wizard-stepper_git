@@ -6,6 +6,18 @@
 
 declare(strict_types=1);
 
+set_exception_handler(function(Throwable $e){
+    error_log('[step6][EXCEPTION] '.$e->getMessage()."\n".$e->getTraceAsString());
+    http_response_code(500);
+    if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH']==='XMLHttpRequest') {
+        header('Content-Type: application/json');
+        echo json_encode(['error'=>'Error interno al procesar parámetros']);
+    } else {
+        include __DIR__.'/../partials/error_500.php';
+    }
+    exit;
+});
+
 // ------------------------------------------------------------------
 // 1. BASE_URL
 // ------------------------------------------------------------------
