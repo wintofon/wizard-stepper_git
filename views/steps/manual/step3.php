@@ -74,7 +74,6 @@ $_SESSION['wizard_state'] = 'wizard';
  * ──────────────────────────────────────────────────── */
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-    session_regenerate_id(true);
 }
 $csrfToken = $_SESSION['csrf_token'];
 
@@ -172,7 +171,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['machining_type_id'] = $mtId;
         $_SESSION['strategy_id']       = $stId;
         $_SESSION['wizard_progress']   = 3;
-        session_regenerate_id(true);
         header('Location: step4_select_material.php');
         exit;
     }

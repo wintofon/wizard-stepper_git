@@ -74,7 +74,6 @@ $_SESSION['wizard_state'] = 'wizard'; // Asegurar estado
 // -------------------------------------------
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-    session_regenerate_id(true);
 }
 $csrfToken = $_SESSION['csrf_token'];
 
@@ -161,10 +160,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // [H.5] Si no hay errores, guardar en sesión y avanzar
     if (empty($errors)) {
+        session_regenerate_id(true);
         $_SESSION['machining_type_id'] = $typeRaw;
         $_SESSION['strategy_id']       = $stratRaw;
         $_SESSION['wizard_progress']   = 2;
-        session_regenerate_id(true);
         dbg("✅ Paso 2 completado: type={$typeRaw}, strat={$stratRaw}");
         session_write_close();
         header('Location: step3.php');
