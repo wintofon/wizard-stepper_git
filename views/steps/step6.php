@@ -293,15 +293,24 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
 <meta charset="utf-8">
 <title>Paso 5 – Configurá tu router</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<?php
-  $styles = [
-    'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
-    'assets/css/objects/step-common.css',
-    'assets/css/components/_step5.css',
-  ];
-  $embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
-  include __DIR__ . '/../partials/styles.php';
-?>
+ <?php
+    $styles = [
+      $cssBootstrapRel,
+      'assets/css/settings/settings.css',
+      'assets/css/generic/generic.css',
+      'assets/css/elements/elements.css',
+      'assets/css/objects/objects.css',
+      'assets/css/objects/wizard.css',
+      'assets/css/objects/stepper.css',
+      'assets/css/objects/step-common.css',
+      'assets/css/objects/step6.css',
+      'assets/css/components/components.css',
+      'assets/css/components/main.css',
+      'assets/css/components/footer-schneider.css',
+      'assets/css/utilities/utilities.css',
+    ];
+    include __DIR__ . '/../partials/styles.php';
+  ?>
 <?php if (!$embedded): ?>
 <script>
   window.BASE_URL = <?= json_encode(BASE_URL) ?>;
