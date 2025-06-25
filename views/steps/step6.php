@@ -90,13 +90,24 @@ $_SESSION['strategy'] = $_SESSION['strategy_id']     ?? ($_SESSION['strategy']  
 // ------------------------------------------------------------------
 // 9. CSRF token
 // ------------------------------------------------------------------
-if (empty($_SESSION['csrf_token'])) {
+// Regenera token cada 15 minutos para mayor seguridad
+$tokenTTL = 900; // segundos
+$needsToken = empty($_SESSION['csrf_token']) ||
+              empty($_SESSION['csrf_token_time']) ||
+              ($_SESSION['csrf_token_time'] + $tokenTTL) < time();
+if ($needsToken) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    $_SESSION['csrf_token_time'] = time();
 }
 $csrfToken = $_SESSION['csrf_token'];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!hash_equals($csrfToken, (string)($_POST['csrf_token'] ?? ''))) {
+    $posted = (string)($_POST['csrf_token'] ?? '');
+    if (!hash_equals($csrfToken, $posted)) {
         respondError(200, 'Error CSRF: petición no autorizada.');
+    }
+    if (($_SESSION['csrf_token_time'] + $tokenTTL) < time()) {
+        unset($_SESSION['csrf_token'], $_SESSION['csrf_token_time']);
+        respondError(200, 'Error CSRF: token expirado.');
     }
 }
 
