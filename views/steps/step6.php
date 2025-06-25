@@ -19,6 +19,8 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 }
 
 $error = null;
+$sessionDump = '';
+$missing = [];
 if (($_SESSION['wizard_progress'] ?? 0) < 5) {
     header('Location: ' . asset('views/steps/manual/step4.php'));
     exit;
@@ -29,6 +31,12 @@ try {
 } catch (\Throwable $e) {
     error_log('[step6] ' . $e->getMessage());
     $error = $e->getMessage();
+    $sessionDump = print_r($_SESSION, true);
+    $requiredKeys = [
+        'tool_table','tool_id','material','trans_id',
+        'rpm_min','rpm_max','fr_max','thickness','hp'
+    ];
+    $missing = array_filter($requiredKeys, fn($k) => empty($_SESSION[$k]));
 }
 
 if ($error) {
@@ -45,6 +53,14 @@ if ($error) {
     <main class="container py-4">
       <h2 class="mb-4">Paso 6 – Error</h2>
       <div class="alert alert-danger"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+      <?php if ($missing): ?>
+        <div class="alert alert-warning">
+          Claves faltantes: <?= htmlspecialchars(implode(', ', $missing), ENT_QUOTES, 'UTF-8') ?>
+        </div>
+      <?php endif; ?>
+      <?php if ($sessionDump): ?>
+        <pre class="bg-light border p-2 small overflow-auto"><?= htmlspecialchars($sessionDump, ENT_QUOTES, 'UTF-8') ?></pre>
+      <?php endif; ?>
     </main>
     </body>
     </html>
