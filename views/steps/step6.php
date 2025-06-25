@@ -331,6 +331,11 @@ if (!file_exists($countUpLocal))
 <?php endif; ?>
 
 <div class="step6">
+  <div id="step6Spinner" class="spinner-overlay">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+  </div>
 <div class="content-main">
   <div class="container py-4">
     <h2 class="step-title"><i data-feather="bar-chart-2"></i> Resultados</h2>
