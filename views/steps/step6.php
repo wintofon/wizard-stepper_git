@@ -1,292 +1,201 @@
 <?php
 /**
- * Paso 6 – Resultados expertos del Wizard CNC
- * Reescrito con manejo robusto de errores mediante try/catch.
+ * Paso 6 — Resultados EXPERT del Wizard CNC
+ * =============================================================================
+ * Versión EXTREME‑DEBUG 2025‑06‑25
+ * -----------------------------------------------------------------------------
+ *  ▸ Blindada a prueba de bombas.
+ *  ▸ Todas las posibles roturas de DOM se detectan y loguean en consola.
+ *  ▸ Comentarios exhaustivos (ES‑AR) para cada bloque.
+ *  ▸ Output­Buffering ⇒ jamás «headers already sent».
+ *  ▸ Identificador único $uid   ⇒ evita IDs duplicados al embeber varias veces.
+ *  ▸ Fallback a CDN + alerta visual cuando falta algún asset local.
+ *  ▸ Flag ?debug=1 activa la consola “EXTREME” (sin flag → producción limpia).
+ * -----------------------------------------------------------------------------
+ *  Flujo resumido
+ *  0) utilidades respondError() y $uid
+ *  1) handler de excepciones PHP
+ *  2) BASE_URL + BASE_HOST
+ *  3) config App + autoload
+ *  4) helpers opcionales (dbg())
+ *  5) modo embebido
+ *  6) sesión segura
+ *  7) cabeceras HTTP seguridad (solo no‑embedded)
+ *  8) flag DEBUG (?debug)
+ *  9) validar sesión (claves + rangos básicos)
+ * 10) CSRF token renovable
+ * 11) revisar datos faltantes
+ * 12) conexión BD (db.php) + sanity PDO
+ * 13) cargar modelos críticos
+ * 14) traer datos herramienta + parámetros (ExpertResultController)
+ * 15) saneo (htmlspecialchars / number_format) → variables listas p/ DOM
+ * 16) verificar assets locales, armar lista $assetsMissing
+ * 17) render HTML completo  (ob_start() si no embebido)
+ * 18) inyectar scripts + bloque EXTREME‑DEBUG (solo si $DEBUG)
+ * =============================================================================
  */
 
 declare(strict_types=1);
 
-set_exception_handler(function(Throwable $e){
-    error_log('[step6][EXCEPTION] '.$e->getMessage()."\n".$e->getTraceAsString());
-    http_response_code(500);
-    if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH']==='XMLHttpRequest') {
-        header('Content-Type: application/json');
-        echo json_encode(['error'=>'Error interno al procesar parámetros']);
-    } else {
-        include __DIR__.'/../partials/error_500.php';
+/* -------------------------------------------------------------------------- */
+/* 0) UTILIDADES BÁSICAS + UID                                               */
+/* -------------------------------------------------------------------------- */
+if (!function_exists('respondError')) {
+    /**
+     * Devuelve error y aborta.
+     * @param int    $code Código HTTP.
+     * @param string $msg  Mensaje para log / user.
+     */
+    function respondError(int $code, string $msg): void
+    {
+        http_response_code($code);
+        header('Content-Type: text/plain; charset=UTF-8');
+        error_log("[step6][{$code}] {$msg}");
+        echo "ERROR {$code}: {$msg}";
+        exit;
     }
-    exit;
-});
+}
 
-// ------------------------------------------------------------------
-// 1. BASE_URL
-// ------------------------------------------------------------------
+$uid = 's6'.bin2hex(random_bytes(3)); // ID único de instancia (6 hex)
+
+/* -------------------------------------------------------------------------- */
+/* 1) HANDLER GLOBAL PHP                                                     */
+/* -------------------------------------------------------------------------- */
+set_exception_handler(fn(Throwable $e)=>respondError(500,$e->getMessage()));
+
+/* -------------------------------------------------------------------------- */
+/* 2) BASE_URL + BASE_HOST                                                   */
+/* -------------------------------------------------------------------------- */
 if (!getenv('BASE_URL')) {
-    $base = dirname(dirname(dirname($_SERVER['SCRIPT_NAME'])));
-    putenv('BASE_URL=' . rtrim($base, '/'));
+    putenv('BASE_URL='.dirname(dirname(dirname($_SERVER['SCRIPT_NAME']))));
 }
+if (!defined('BASE_HOST')) define('BASE_HOST', $_SERVER['HTTP_HOST'] ?? 'localhost');
 
-// ------------------------------------------------------------------
-// 2. Carga de configuración principal
-// ------------------------------------------------------------------
-$appConfig = __DIR__ . '/../../src/Config/AppConfig.php';
-if (!is_readable($appConfig)) {
-    http_response_code(500);
-    echo 'Error interno: configuración faltante';
-    exit;
-}
+/* -------------------------------------------------------------------------- */
+/* 3) CONFIG PRINCIPAL                                                       */
+/* -------------------------------------------------------------------------- */
+$appConfig = __DIR__.'/../../src/Config/AppConfig.php';
+is_readable($appConfig) || respondError(500,'Falta AppConfig.php');
 require_once $appConfig;
 
 use App\Controller\ExpertResultController;
 
-// ------------------------------------------------------------------
-// 3. Helpers opcionales
-// ------------------------------------------------------------------
-$helperFile = __DIR__ . '/../../includes/wizard_helpers.php';
-if (is_readable($helperFile)) {
-    require_once $helperFile;
-}
-if (!function_exists('dbg')) {
-    function dbg(...$a): void { /* no-op */ }
-}
+/* -------------------------------------------------------------------------- */
+/* 4) HELPERS OPCIONALES                                                     */
+/* -------------------------------------------------------------------------- */
+$helpers = __DIR__.'/../../includes/wizard_helpers.php';
+if (is_readable($helpers)) require_once $helpers;
+if (!function_exists('dbg')) {function dbg(...$a):void{}} // stub
 
-// ------------------------------------------------------------------
-// 4. Modo embebido
-// ------------------------------------------------------------------
+/* -------------------------------------------------------------------------- */
+/* 5) MODO EMBEBIDO                                                         */
+/* -------------------------------------------------------------------------- */
 $embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
 
-// ------------------------------------------------------------------
-// 5. Inicio de sesión
-// ------------------------------------------------------------------
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_set_cookie_params([
-        'lifetime' => 0,
-        'path'     => '/',
-        'secure'   => true,
-        'httponly' => true,
-        'samesite' => 'Strict'
-    ]);
+/* -------------------------------------------------------------------------- */
+/* 6) SESIÓN SEGURA                                                          */
+/* -------------------------------------------------------------------------- */
+if (session_status()!==PHP_SESSION_ACTIVE) {
+    session_set_cookie_params(['lifetime'=>0,'path'=>'/','secure'=>true,'httponly'=>true,'samesite'=>'Strict']);
     session_start();
 }
 
-// ------------------------------------------------------------------
-// 6. Cabeceras de seguridad
-// ------------------------------------------------------------------
+/* -------------------------------------------------------------------------- */
+/* 7) CABECERAS SEGURIDAD (solo no‑embedded)                                 */
+/* -------------------------------------------------------------------------- */
 if (!$embedded) {
     header('Content-Type: text/html; charset=UTF-8');
-    header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
+    header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
     header('X-Frame-Options: DENY');
     header('X-Content-Type-Options: nosniff');
     header('Referrer-Policy: no-referrer');
-    header('X-Permitted-Cross-Domain-Policies: none');
-    header('X-DNS-Prefetch-Control: off');
-    header('Expect-CT: max-age=86400, enforce');
-    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
-    header('Pragma: no-cache');
-    header("Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://cdn.jsdelivr.net");
+    header("Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' data:");
 }
 
-// ------------------------------------------------------------------
-// 7. Debug opcional
-// ------------------------------------------------------------------
-$DEBUG = filter_input(INPUT_GET, 'debug', FILTER_VALIDATE_BOOLEAN);
-if ($DEBUG && is_readable(__DIR__ . '/../../includes/debug.php')) {
-    require_once __DIR__ . '/../../includes/debug.php';
+/* -------------------------------------------------------------------------- */
+/* 8) FLAG DEBUG (?debug=1)                                                  */
+/* -------------------------------------------------------------------------- */
+$DEBUG = filter_input(INPUT_GET,'debug',FILTER_VALIDATE_BOOLEAN) ?? false;
+
+/* -------------------------------------------------------------------------- */
+/* 9) VALIDACIÓN SESIÓN                                                     */
+/* -------------------------------------------------------------------------- */
+$need = ['tool_table','tool_id','material_id','trans_id','rpm_min','rpm_max','fr_max','thickness','strategy_id','hp'];
+$miss = array_filter($need,fn($k)=>empty($_SESSION[$k]));
+$miss && respondError(400,'Faltan datos: '.implode(', ',$miss));
+
+$toolId = filter_var($_SESSION['tool_id'],FILTER_VALIDATE_INT) ?: respondError(400,'tool_id inválido');
+$rpmMin = filter_var($_SESSION['rpm_min'],FILTER_VALIDATE_FLOAT);
+$rpmMax = filter_var($_SESSION['rpm_max'],FILTER_VALIDATE_FLOAT);
+($rpmMin<$rpmMax) || respondError(400,'rpm_min >= rpm_max');
+
+/* -------------------------------------------------------------------------- */
+/* 10) CSRF TOKEN                                                            */
+/* -------------------------------------------------------------------------- */
+$tokenTTL=900; $now=time();
+if(empty($_SESSION['csrf_token'])||empty($_SESSION['csrf_token_time'])||$_SESSION['csrf_token_time']+$tokenTTL<$now){
+    $_SESSION['csrf_token']=bin2hex(random_bytes(32));
+    $_SESSION['csrf_token_time']=$now;
+}
+$csrfToken=$_SESSION['csrf_token'];
+if($_SERVER['REQUEST_METHOD']==='POST'){
+    hash_equals($csrfToken,(string)($_POST['csrf_token']??'')) || respondError(200,'CSRF');
+    ($_SESSION['csrf_token_time']+$tokenTTL>$now) || respondError(200,'CSRF expirado');
 }
 
-// ------------------------------------------------------------------
-// 8. Normalizar claves de sesión
-// ------------------------------------------------------------------
-$_SESSION['material'] = $_SESSION['material_id']     ?? ($_SESSION['material']   ?? null);
-$_SESSION['trans_id'] = $_SESSION['transmission_id'] ?? ($_SESSION['trans_id']   ?? null);
-$_SESSION['fr_max']   = $_SESSION['feed_max']        ?? ($_SESSION['fr_max']     ?? null);
-$_SESSION['strategy'] = $_SESSION['strategy_id']     ?? ($_SESSION['strategy']   ?? null);
+/* -------------------------------------------------------------------------- */
+/* 11) CONEXIÓN BD                                                          */
+/* -------------------------------------------------------------------------- */
+require_once __DIR__.'/../../includes/db.php';
+($pdo??null) instanceof PDO || respondError(500,'PDO no creado');
 
-// Validaciones adicionales de sesión
-$toolId = filter_var($_SESSION['tool_id'] ?? null, FILTER_VALIDATE_INT);
-$frMax  = filter_var($_SESSION['fr_max'] ?? null, FILTER_VALIDATE_FLOAT);
-$rpmMin = filter_var($_SESSION['rpm_min'] ?? null, FILTER_VALIDATE_FLOAT);
-$rpmMax = filter_var($_SESSION['rpm_max'] ?? null, FILTER_VALIDATE_FLOAT);
-if ($toolId === false || $toolId <= 0 ||
-    $frMax === false || $frMax < 0 ||
-    $rpmMin === false || $rpmMax === false || $rpmMin >= $rpmMax) {
-    respondError(400, 'Parámetro inválido');
-}
-
-// ------------------------------------------------------------------
-// 9. CSRF token
-// ------------------------------------------------------------------
-// Regenera token cada 15 minutos para mayor seguridad
-$tokenTTL = 900; // segundos
-$needsToken = empty($_SESSION['csrf_token']) ||
-              empty($_SESSION['csrf_token_time']) ||
-              ($_SESSION['csrf_token_time'] + $tokenTTL) < time();
-if ($needsToken) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-    $_SESSION['csrf_token_time'] = time();
-}
-$csrfToken = $_SESSION['csrf_token'];
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $posted = (string)($_POST['csrf_token'] ?? '');
-    if (!hash_equals($csrfToken, $posted)) {
-        respondError(200, 'Error CSRF: petición no autorizada.');
-    }
-    if (($_SESSION['csrf_token_time'] + $tokenTTL) < time()) {
-        unset($_SESSION['csrf_token'], $_SESSION['csrf_token_time']);
-        respondError(200, 'Error CSRF: token expirado.');
-    }
-}
-
-// ------------------------------------------------------------------
-// 10. Validación de sesión
-// ------------------------------------------------------------------
-$requiredKeys = [
-    'tool_table','tool_id','material','trans_id',
-    'rpm_min','rpm_max','fr_max','thickness','strategy','hp'
-];
-$missing = array_filter($requiredKeys, fn($k) => empty($_SESSION[$k]));
-if ($missing) {
-    error_log('[step6] Faltan claves: ' . implode(',', $missing));
-    respondError(200, 'ERROR – faltan datos en sesión');
-}
-
-// ------------------------------------------------------------------
-// 11. Conexión BD
-// ------------------------------------------------------------------
-$dbFile = __DIR__ . '/../../includes/db.php';
-if (!is_readable($dbFile)) {
-    respondError(200, 'Error interno: falta el archivo de conexión a la BD.');
-}
-try {
-    require_once $dbFile; // -> $pdo
-} catch (\Throwable $e) {
-    respondError(200, 'Error interno: fallo al incluir la BD.');
-}
-if (!isset($pdo) || !($pdo instanceof PDO)) {
-    respondError(200, 'Error interno: no hay conexión a la base de datos.');
-}
-
-// ------------------------------------------------------------------
-// 12. Cargar modelos y utilidades
-// ------------------------------------------------------------------
-$root = dirname(__DIR__, 2) . '/';
-foreach ([
-    'src/Controller/ExpertResultController.php',
-    'src/Model/ToolModel.php',
-    'src/Model/ConfigModel.php',
-    'src/Utils/CNCCalculator.php'
-] as $rel) {
-    if (!is_readable($root.$rel)) {
-        respondError(200, "Error interno: falta {$rel}");
-    }
+/* -------------------------------------------------------------------------- */
+/* 12) MODELOS                                                               */
+/* -------------------------------------------------------------------------- */
+$root = dirname(__DIR__,2).'/';
+foreach(['src/Controller/ExpertResultController.php','src/Model/ToolModel.php','src/Utils/CNCCalculator.php'] as $rel){
+    is_readable($root.$rel) || respondError(500,"Falta {$rel}");
     require_once $root.$rel;
 }
+use App\Model\ToolModel;
 
-// ------------------------------------------------------------------
-// 13. Obtener datos de herramienta y parámetros
-// ------------------------------------------------------------------
-$toolTable = (string)$_SESSION['tool_table'];
-$toolId    = (int)$_SESSION['tool_id'];
-try {
-    $toolData  = ToolModel::getTool($pdo, $toolTable, $toolId) ?: null;
-} catch (\Throwable $e) {
-    respondError(200, 'Error al consultar herramienta.');
-}
-if (!$toolData) {
-    respondError(200, 'Herramienta no encontrada.');
-}
+/* -------------------------------------------------------------------------- */
+/* 13) DATOS TOOL + PARÁMS                                                   */
+/* -------------------------------------------------------------------------- */
+$table = (string)$_SESSION['tool_table'];
+$tool  = ToolModel::getTool($pdo,$table,$toolId) ?: respondError(404,'Tool no encontrada');
+$params = ExpertResultController::getResultData($pdo,$_SESSION);
+$jsonParams = json_encode($params,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) ?: 'null';
 
-try {
-    $params = ExpertResultController::getResultData($pdo, $_SESSION);
-} catch (\Throwable $e) {
-    respondError(200, 'Error al generar datos de corte.');
-}
-$jsonParams = json_encode($params, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-if ($jsonParams === false) {
-    respondError(200, 'Error interno: no se pudo serializar parámetros técnicos.');
-}
+/* -------------------------------------------------------------------------- */
+/* 14) PRE‑SANITIZE PARA DOM                                                 */
+/* -------------------------------------------------------------------------- */
+$h=fn($v)=>htmlspecialchars((string)$v,ENT_QUOTES);
+$serial=$h($tool['serie']??'');
+$code  =$h($tool['tool_code']??'');
+$name  =$h($tool['name']??'');
+$type  =$h($tool['tool_type']??'');
+$img   =!empty($tool['image'])?asset($tool['image']):'';
 
-// ------------------------------------------------------------------
-// 14. Variables sanitizadas para HTML
-// ------------------------------------------------------------------
-$serialNumber  = htmlspecialchars($toolData['serie']       ?? '', ENT_QUOTES);
-$toolCode      = htmlspecialchars($toolData['tool_code']   ?? '', ENT_QUOTES);
-$toolName      = htmlspecialchars($toolData['name']        ?? 'N/A', ENT_QUOTES);
-$toolType      = htmlspecialchars($toolData['tool_type']   ?? 'N/A', ENT_QUOTES);
-$imageURL      = !empty($toolData['image'])             ? asset($toolData['image'])            : '';
-$vectorURL     = !empty($toolData['image_dimensions'])   ? asset($toolData['image_dimensions']) : '';
+/* -------------------------------------------------------------------------- */
+/* 15) VERIFICAR ASSETS                                                     */
+/* -------------------------------------------------------------------------- */
+$assets=[
+  'bootstrapCss'=>asset('assets/css/generic/bootstrap.min.css'),
+  'bootstrapJs' =>asset('assets/js/bootstrap.bundle.min.js'),
+  'feather'     =>asset('node_modules/feather-icons/dist/feather.min.js'),
+  'chart'       =>asset('node_modules/chart.js/dist/chart.umd.min.js'),
+  'countup'     =>asset('node_modules/countup.js/dist/countUp.umd.js'),
+  'step6'       =>asset('assets/js/step6.js'),
+];
+$missing=[];foreach($assets as $p){if(!is_readable($root.$p))$missing[]=$p;}
 
-$diameterMb    = (float)($toolData['diameter_mm']       ?? 0);
-$shankMb       = (float)($toolData['shank_diameter_mm'] ?? 0);
-$fluteLenMb    = (float)($toolData['flute_length_mm']   ?? 0);
-$cutLenMb      = (float)($toolData['cut_length_mm']     ?? 0);
-$fullLenMb     = (float)($toolData['full_length_mm']    ?? 0);
-$fluteCountMb  = (int)  ($toolData['flute_count']        ?? 0);
-$coatingMb     = htmlspecialchars($toolData['coated']    ?? 'N/A', ENT_QUOTES);
-$materialMb    = htmlspecialchars($toolData['material']  ?? 'N/A', ENT_QUOTES);
-$brandMb       = htmlspecialchars($toolData['brand']     ?? 'N/A', ENT_QUOTES);
-$madeInMb      = htmlspecialchars($toolData['made_in']   ?? 'N/A', ENT_QUOTES);
-
-$baseVc  = (float)$params['vc0'];
-$vcMinDb = (float)$params['vc_min0'];
-$vcMaxDb = (float)($params['vc_max0'] ?? $baseVc * 1.25);
-$baseFz  = (float)$params['fz0'];
-$fzMinDb = (float)$params['fz_min0'];
-$fzMaxDb = (float)$params['fz_max0'];
-$apSlot  = (float)$params['ap_slot'];
-$aeSlot  = (float)$params['ae_slot'];
-$rpmMin  = (float)$params['rpm_min'];
-$rpmMax  = (float)$params['rpm_max'];
-$frMax   = (float)$params['fr_max'];
-$baseRpm = (int)  $params['rpm0'];
-$baseFeed= (float)$params['feed0'];
-$baseMmr = (float)$params['mmr_base'];
-
-$outVf = number_format($baseFeed, 0, '.', '');
-$outN  = number_format($baseRpm, 0, '.', '');
-$outVc = number_format($baseVc,   1, '.', '');
-
-$materialName   = (string)($_SESSION['material_name']   ?? 'Genérico Fibrofácil (MDF)');
-$materialParent = (string)($_SESSION['material_parent'] ?? 'Maderas Naturales');
-$strategyName   = (string)($_SESSION['strategy_name']   ?? 'Grabado en V / 2.5D');
-$strategyParent = (string)($_SESSION['strategy_parent'] ?? 'Fresado');
-$thickness      = (float)$_SESSION['thickness'];
-$powerAvail     = (float)$_SESSION['hp'];
-
-try {
-    $transName = $pdo->prepare('SELECT name FROM transmissions WHERE id = ?');
-    $transName->execute([(int)$_SESSION['trans_id']]);
-    $transName = $transName->fetchColumn() ?: 'N/D';
-} catch (\Throwable $e) {
-    $transName = 'N/D';
-}
-
-$notesArray = $params['notes'] ?? [];
-
-// ------------------------------------------------------------------
-// 15. Assets locales
-// ------------------------------------------------------------------
-$cssBootstrapRel = asset('assets/css/generic/bootstrap.min.css');
-$bootstrapJsRel  = asset('assets/js/bootstrap.bundle.min.js');
-$featherLocal    = $root.'node_modules/feather-icons/dist/feather.min.js';
-$chartJsLocal    = $root.'node_modules/chart.js/dist/chart.umd.min.js';
-$countUpLocal    = $root.'node_modules/countup.js/dist/countUp.umd.js';
-$step6JsRel      = asset('assets/js/step6.js');
-
-$assetErrors = [];
-if (!is_readable($root.'assets/css/generic/bootstrap.min.css'))
-    $assetErrors[] = 'Bootstrap CSS no encontrado localmente.';
-if (!is_readable($root.'assets/js/bootstrap.bundle.min.js'))
-    $assetErrors[] = 'Bootstrap JS no encontrado localmente.';
-if (!file_exists($featherLocal))
-    $assetErrors[] = 'Feather Icons JS faltante.';
-if (!file_exists($chartJsLocal))
-    $assetErrors[] = 'Chart.js faltante.';
-if (!file_exists($countUpLocal))
-    $assetErrors[] = 'CountUp.js faltante.';
-
+/* -------------------------------------------------------------------------- */
+/* 16) OUTPUT HTML (ob_start() para no romper headers)                      */
+/* -------------------------------------------------------------------------- */
+if(!$embedded) ob_start();
 ?>
-<?php if (!$embedded): ?>
+<?php if(!$embedded):?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
