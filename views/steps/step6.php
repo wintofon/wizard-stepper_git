@@ -349,7 +349,7 @@ div class="content-main">
     <p class="step-desc">Ajustá los parámetros y revisá los datos de corte.</p>
   <!-- BLOQUE CENTRAL -->
   <div class="row gx-3 mb-4 cards-grid">
-    <div class="col-12 col-lg-4 mb-3 area-tool">
+    <div class="col-12 mb-3 area-tool">
       <div class="card h-100 shadow-sm">
         <div class="card-header text-center p-3">
           <span>#<?= $serialNumber ?> – <?= $toolCode ?></span>

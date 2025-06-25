@@ -12,7 +12,10 @@
 @import url('../settings/_variables.css');
 
 /* Contenedor principal */
-.step6 {position: relative;}
+.step6 {
+  position: relative;
+  color: var(--text-color-sec);
+}
 
 /* =======================  Paleta y texto base  ====================== */
 
@@ -61,7 +64,14 @@
 .step6 .spec-list li span:last-child  {font-weight: 600;color: var(--accent-color);}
 
 /* Imagen vectorial */
-.step6 .vector-image {display: block;max-height: 280px;margin: 0 auto;object-fit: contain;}
+.step6 .vector-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  margin: 0 auto;
+  object-fit: contain;
+}
 
 /* =========================  Grilla de tarjetas  ===================== */
 .step6 .cards-grid {
