@@ -8,7 +8,6 @@
  */
 declare(strict_types=1);
 require_once __DIR__ . '/../../../src/Utils/Session.php';
-require_once __DIR__ . '/../../../includes/security.php';
 /**
  * File: step3.php
  * ------------------------------------------------------------------
@@ -26,8 +25,7 @@ require_once __DIR__ . '/../../../includes/security.php';
 sendSecurityHeaders('text/html; charset=UTF-8');
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Pragma: no-cache");
-$csp = csp_nonce_header();
-header('Content-Security-Policy: ' . $csp);
+header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';");
 
 /* ──────────────────────────────────────────────────────
  * [B]  Errores & debug
@@ -198,7 +196,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     include __DIR__ . '/../../partials/styles.php';
   ?>
   <?php if (!$embedded): ?>
-  <script nonce="<?= get_csp_nonce() ?>">
+  <script>
     window.BASE_URL = <?= json_encode(BASE_URL) ?>;
     window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
   </script>
@@ -262,7 +260,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!-- Bootstrap Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<script nonce="<?= get_csp_nonce() ?>">
+<script>
 /* PHP → JS */
 const grouped = <?= json_encode($grouped, JSON_UNESCAPED_UNICODE) ?>;
 

@@ -8,7 +8,6 @@
  */
 declare(strict_types=1);
 require_once __DIR__ . '/../../../src/Utils/Session.php';
-require_once __DIR__ . '/../../../includes/security.php';
 /**
  * File: views/steps/manual/step4.php
  * Paso 4 (Manual) – Selección de madera compatible
@@ -21,8 +20,7 @@ require_once __DIR__ . '/../../../includes/security.php';
 sendSecurityHeaders('text/html; charset=UTF-8');
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Pragma: no-cache");
-$nonce = get_csp_nonce();
-header("Content-Security-Policy: script-src 'nonce-$nonce' 'self' https://cdn.jsdelivr.net; style-src 'nonce-$nonce' 'self' https://cdn.jsdelivr.net");
+header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;");
 
 //
 // [B] Errores y Debug
@@ -155,7 +153,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
   include __DIR__ . '/../../partials/styles.php';
 ?>
 <?php if (!$embedded): ?>
-<script nonce="<?= get_csp_nonce() ?>">
+<script>
   window.BASE_URL = <?= json_encode(BASE_URL) ?>;
   window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
 </script>
@@ -216,7 +214,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
 
 </main>
 
-<script nonce="<?= get_csp_nonce() ?>">
+<script>
 function normalizeText(s){return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();}
 
 const parents  = <?=json_encode($parents,JSON_UNESCAPED_UNICODE)?>;

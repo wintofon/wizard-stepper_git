@@ -8,7 +8,6 @@
  */
 declare(strict_types=1);
 require_once __DIR__ . '/../../../src/Utils/Session.php';
-require_once __DIR__ . '/../../../includes/security.php';
 /**
  * File: step2.php
  * ---------------------------------------------------------------
@@ -26,8 +25,7 @@ require_once __DIR__ . '/../../../includes/security.php';
 sendSecurityHeaders('text/html; charset=UTF-8');
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Pragma: no-cache");
-$csp = csp_nonce_header();
-header('Content-Security-Policy: ' . $csp);
+header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';");
 
 // -------------------------------------------
 // [B] Errores y Debug
@@ -197,7 +195,7 @@ $hasPrev   = is_int($prevType) && array_key_exists((int)$prevType, $types)
     include __DIR__ . '/../../partials/styles.php';
   ?>
   <?php if (!$embedded): ?>
-  <script nonce="<?= get_csp_nonce() ?>">
+  <script>
     window.BASE_URL = <?= json_encode(BASE_URL) ?>;
     window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
   </script>
@@ -266,7 +264,7 @@ $hasPrev   = is_int($prevType) && array_key_exists((int)$prevType, $types)
     </div>
   </form>
 
-  <script nonce="<?= get_csp_nonce() ?>">
+  <script>
   (function() {
     // Datos PHP → JS
     const types = <?= json_encode($types, JSON_UNESCAPED_UNICODE) ?>;

@@ -7,9 +7,6 @@
  * Related files: includes/init.php, assets/css/objects/wizard.css, assets/css/components/main.css
  */
 require_once __DIR__ . '/../includes/init.php';
-require_once __DIR__ . '/../includes/security.php';
-$csp = csp_nonce_header();
-header('Content-Security-Policy: ' . $csp);
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -21,7 +18,7 @@ header('Content-Security-Policy: ' . $csp);
   <link rel="stylesheet" href="<?= asset('assets/css/components/main.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/objects/wizard.css') ?>">
   <link rel="stylesheet" href="<?= asset('assets/css/components/onboarding.css') ?>">
-  <script nonce="<?= get_csp_nonce() ?>">
+  <script>
     window.BASE_URL = <?= json_encode(BASE_URL) ?>;
     window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
   </script>
@@ -40,6 +37,6 @@ header('Content-Security-Policy: ' . $csp);
   </main>
   <script src="<?= asset('assets/js/welcome_init.js') ?>"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script nonce="<?= get_csp_nonce() ?>">lucide.createIcons();</script>
+  <script>lucide.createIcons();</script>
 </body>
 </html>

@@ -5,7 +5,6 @@
  */
 
 declare(strict_types=1);
-require_once __DIR__ . '/../../includes/security.php';
 
 set_exception_handler(function(Throwable $e){
     error_log('[step6][EXCEPTION] '.$e->getMessage()."\n".$e->getTraceAsString());
@@ -81,8 +80,7 @@ if (!$embedded) {
     header('Referrer-Policy: no-referrer');
     header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
     header('Pragma: no-cache');
-    $nonce = get_csp_nonce();
-    header("Content-Security-Policy: script-src 'nonce-$nonce' 'self' https://cdn.jsdelivr.net; style-src 'nonce-$nonce' 'self' https://cdn.jsdelivr.net");
+    header("Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://cdn.jsdelivr.net");
 }
 
 // ------------------------------------------------------------------
@@ -310,7 +308,7 @@ if (!file_exists($countUpLocal))
     ];
     include __DIR__ . '/../partials/styles.php';
   ?>
-  <script nonce="<?= get_csp_nonce() ?>">
+  <script>
     window.BASE_URL  = <?= json_encode(BASE_URL) ?>;
     window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
   </script>
@@ -676,14 +674,14 @@ if (!file_exists($countUpLocal))
 <section id="wizard-dashboard"></section>
 
 <!-- SCRIPTS -->
-<script nonce="<?= get_csp_nonce() ?>">window.step6Params = <?= $jsonParams ?>; window.step6Csrf = '<?= $csrfToken ?>';</script>
+<script>window.step6Params = <?= $jsonParams ?>; window.step6Csrf = '<?= $csrfToken ?>';</script>
 <?php if (!$embedded): ?>
 <script src="<?= $bootstrapJsRel ?>" defer></script>
 <script src="<?= asset('node_modules/feather-icons/dist/feather.min.js') ?>" defer></script>
 <script src="<?= asset('node_modules/chart.js/dist/chart.umd.min.js') ?>" defer></script>
 <script src="<?= asset('node_modules/countup.js/dist/countUp.umd.js') ?>" defer></script>
 <script src="<?= $step6JsRel ?>" defer></script>
-<script nonce="<?= get_csp_nonce() ?>">requestAnimationFrame(() => feather.replace());</script>
+<script>requestAnimationFrame(() => feather.replace());</script>
 </body>
 </html>
 <?php endif; ?>
