@@ -3,6 +3,7 @@
 debug.log
 ajax/debug.log
 **/debug.log
+logs/
 includes/test_db.php
 
 # Dependency directories
