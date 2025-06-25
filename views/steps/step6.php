@@ -99,6 +99,17 @@ $_SESSION['trans_id'] = $_SESSION['transmission_id'] ?? ($_SESSION['trans_id']  
 $_SESSION['fr_max']   = $_SESSION['feed_max']        ?? ($_SESSION['fr_max']     ?? null);
 $_SESSION['strategy'] = $_SESSION['strategy_id']     ?? ($_SESSION['strategy']   ?? null);
 
+// Validaciones adicionales de sesión
+$toolId = filter_var($_SESSION['tool_id'] ?? null, FILTER_VALIDATE_INT);
+$frMax  = filter_var($_SESSION['fr_max'] ?? null, FILTER_VALIDATE_FLOAT);
+$rpmMin = filter_var($_SESSION['rpm_min'] ?? null, FILTER_VALIDATE_FLOAT);
+$rpmMax = filter_var($_SESSION['rpm_max'] ?? null, FILTER_VALIDATE_FLOAT);
+if ($toolId === false || $toolId <= 0 ||
+    $frMax === false || $frMax < 0 ||
+    $rpmMin === false || $rpmMax === false || $rpmMin >= $rpmMax) {
+    respondError(400, 'Parámetro inválido');
+}
+
 // ------------------------------------------------------------------
 // 9. CSRF token
 // ------------------------------------------------------------------
