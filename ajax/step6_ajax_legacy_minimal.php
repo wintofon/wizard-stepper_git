@@ -38,28 +38,29 @@ header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 // Iniciar sesión para CSRF
 session_start(); // ensures $_SESSION['csrf_token'] is available
 
+function respond_json_error(string $msg, int $code = 400): never {
+    http_response_code($code);
+    echo json_encode(['success' => false, 'error' => $msg], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 // 0. CSRF: validar token enviado en header X-CSRF-Token
 $token = (string)($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
 $sessionToken = $_SESSION['csrf_token'] ?? null;
 if ($sessionToken === null || !hash_equals((string)$sessionToken, $token)) {
-    http_response_code(403);
-    exit('CSRF fail');
+    respond_json_error('CSRF fail', 403);
 }
 
 // 1. Leer entrada JSON
 $input = json_decode(file_get_contents('php://input'), true);
 if (!is_array($input)) {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'JSON inválido']);
-    exit;
+    respond_json_error('JSON inválido');
 }
 
 // 2. Campos obligatorios
 foreach (['fz','vc','ae','passes','thickness','D','Z','params'] as $f) {
     if (!array_key_exists($f, $input)) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'error' => "Falta parámetro: $f"]);
-        exit;
+        respond_json_error("Falta parámetro: $f");
     }
 }
 
@@ -80,6 +81,8 @@ $Kc11    = (float)($params['Kc11']     ?? 1.0);
 $mc      = (float)($params['mc']       ?? 1.0);
 $alpha   = (float)($params['alpha']    ?? 0.0);
 $eta     = (float)($params['eta']      ?? 1.0);
+
+try {
 
 // 4. Cálculos CNC
 // 4.1 Ángulo φ y espesor hm
@@ -136,3 +139,6 @@ echo json_encode([
         'radar'       => [$vida, $term, $pot],
     ],
 ], JSON_UNESCAPED_UNICODE);
+} catch (Throwable $e) {
+    respond_json_error('Error interno', 500);
+}
