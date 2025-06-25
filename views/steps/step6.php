@@ -18,6 +18,62 @@
  */
 declare(strict_types=1);
 
+
+
+
+
+set_exception_handler(function(Throwable $e){
+    error_log('[step6][EXCEPTION] '.$e->getMessage()."\n".$e->getTraceAsString());
+    http_response_code(500);
+    if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH']==='XMLHttpRequest') {
+        header('Content-Type: application/json');
+        echo json_encode(['error'=>'Error interno al procesar parámetros']);
+    } else {
+        include __DIR__.'/../partials/error_500.php';
+    }
+    exit;
+});
+
+// ------------------------------------------------------------------
+// 1. BASE_URL
+// ------------------------------------------------------------------
+if (!getenv('BASE_URL')) {
+    $base = dirname(dirname(dirname($_SERVER['SCRIPT_NAME'])));
+    putenv('BASE_URL=' . rtrim($base, '/'));
+}
+
+// ------------------------------------------------------------------
+// 2. Carga de configuración principal
+// ------------------------------------------------------------------
+$appConfig = __DIR__ . '/../../src/Config/AppConfig.php';
+if (!is_readable($appConfig)) {
+    http_response_code(500);
+    echo 'Error interno: configuración faltante';
+    exit;
+}
+require_once $appConfig;
+
+use App\Controller\ExpertResultController;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* 1) Sesión segura y flujo */
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start([
