@@ -293,24 +293,49 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
 <meta charset="utf-8">
 <title>Paso 5 – Configurá tu router</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
- <?php
-    $styles = [
-      $cssBootstrapRel,
-      'assets/css/settings/settings.css',
-      'assets/css/generic/generic.css',
-      'assets/css/elements/elements.css',
-      'assets/css/objects/objects.css',
-      'assets/css/objects/wizard.css',
-      'assets/css/objects/stepper.css',
-      'assets/css/objects/step-common.css',
-      'assets/css/objects/step6.css',
-      'assets/css/components/components.css',
-      'assets/css/components/main.css',
-      'assets/css/components/footer-schneider.css',
-      'assets/css/utilities/utilities.css',
-    ];
-    include __DIR__ . '/../partials/styles.php';
-  ?>
+<?php
+/* ─── Helper: <link> seguro ───────────────────────────────────────────── */
+function safeStyle(string $local, string $cdn = ''): void
+{
+    $root = dirname(__DIR__, 2) . '/';              // raíz del proyecto
+    $abs  = $root . ltrim($local, '/');             // ruta absoluta
+
+    if (is_readable($abs)) {
+        // OK local
+        echo '<link rel="stylesheet" href="' . asset($local) . '">' . PHP_EOL;
+    } elseif ($cdn) {
+        // Fallback CDN
+        echo '<link rel="stylesheet" href="' . $cdn . '" crossorigin="anonymous">' . PHP_EOL;
+    } else {
+        // Sin recurso: no se rompe, solo avisa en HTML
+        echo '<!-- ⚠️  ' . htmlspecialchars($local) . ' no encontrado -->' . PHP_EOL;
+    }
+}
+
+/* ─── Lista de hojas de estilo (local + opcional CDN) ──────────────────── */
+$styles = [
+    // [local, cdn]
+    [$cssBootstrapRel, 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css'],
+    ['assets/css/settings/settings.css',          ''],
+    ['assets/css/generic/generic.css',            ''],
+    ['assets/css/elements/elements.css',          ''],
+    ['assets/css/objects/objects.css',            ''],
+    ['assets/css/objects/wizard.css',             ''],
+    ['assets/css/objects/stepper.css',            ''],
+    ['assets/css/objects/step-common.css',        ''],
+    ['assets/css/objects/step6.css',              ''],
+    ['assets/css/components/components.css',      ''],
+    ['assets/css/components/main.css',            ''],
+    ['assets/css/components/footer-schneider.css',''],
+    ['assets/css/utilities/utilities.css',        ''],
+];
+
+/* ─── Render de <link> blindados ──────────────────────────────────────── */
+foreach ($styles as [$local, $cdn]) {
+    safeStyle($local, $cdn);
+}
+?>
+
 <?php if (!$embedded): ?>
 <script>
   window.BASE_URL = <?= json_encode(BASE_URL) ?>;
