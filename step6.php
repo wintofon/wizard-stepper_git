@@ -36,6 +36,7 @@ try {
 // Basic CSRF token
 if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(16));
+    session_regenerate_id(true);
 }
 $csrf = $_SESSION['csrf_token'];
 

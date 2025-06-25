@@ -100,8 +100,8 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['tool_id'],$_POST['tool_
         else                  $tool=fetchTool($pdo,$tbl,'id',$id);
         if(!$tool)            $error="No se encontró la herramienta #{$id}.";
         else{
-            session_regenerate_id(true);
             $_SESSION['tool_id']=$id; $_SESSION['tool_table']=$tbl; $_SESSION['wizard_progress']=4;
+            session_regenerate_id(true);
         }
     }
 }
@@ -114,8 +114,8 @@ elseif($_SERVER['REQUEST_METHOD']==='GET' && isset($_GET['brand'],$_GET['code'])
         $tbl=$map[$brand]; $tool=fetchTool($pdo,$tbl,'code',$code);
         if(!$tool)         $error="No se encontró la fresa {$code}.";
         else{
-            session_regenerate_id(true);
             $_SESSION['tool_id']=(int)$tool['tool_id']; $_SESSION['tool_table']=$tbl; $_SESSION['wizard_progress']=4;
+            session_regenerate_id(true);
         }
     }
 }

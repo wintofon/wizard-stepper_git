@@ -36,6 +36,7 @@ header("Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-$n
 if (empty($_SESSION['wizard_state']) || $_SESSION['wizard_state'] !== 'wizard') {
     $_SESSION['wizard_state']    = 'wizard';
     $_SESSION['wizard_progress'] = 1;
+    session_regenerate_id(true);
 }
 
 // Si el usuario ya completó el Paso 1 (wizard_progress > 1),
@@ -62,6 +63,7 @@ require_once __DIR__ . '/../../../includes/db.php';
 // ──────────────── 5) Generar/verificar CSRF token ──────────────────
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    session_regenerate_id(true);
 }
 $csrfToken = $_SESSION['csrf_token'];
 
@@ -112,6 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['tool_image_url'] = $imgUrl;
 
         $_SESSION['wizard_progress'] = 2; // Marcamos que ya completó Paso 1
+        session_regenerate_id(true);
         dbg('Paso 1 validado con éxito. tool_id=' . $toolId . ' tool_table=' . $toolTable);
 
         header('Location: step2.php');

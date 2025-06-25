@@ -78,6 +78,7 @@ if ($progressRaw < 0 || $progressRaw > 6) {
 // (D) Fijar en sesión y devolver éxito
 // store the chosen step so wizard.php can resume correctly
 $_SESSION['wizard_progress'] = $progressRaw;
+session_regenerate_id(true);
 dbgLocal("wizard_progress restaurado a $progressRaw");
 echo json_encode([
     'success' => true,
