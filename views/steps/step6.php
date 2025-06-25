@@ -284,9 +284,6 @@ if (!file_exists($chartJsLocal))
     $assetErrors[] = 'Chart.js faltante.';
 if (!file_exists($countUpLocal))
     $assetErrors[] = 'CountUp.js faltante.';
-
-
-$hasPrev = (int)$prev['transmission_id'] > 0;
 ?>
 <!DOCTYPE html>
 <html lang="es"><head>
@@ -343,7 +340,7 @@ foreach ($styles as [$local, $cdn]) {
 </script>
 <?php endif; ?>
 </head><body>
-div class="content-main">
+<div class="content-main">
   <div class="container py-4">
     <h2 class="step-title"><i data-feather="bar-chart-2"></i> Resultados</h2>
     <p class="step-desc">Ajustá los parámetros y revisá los datos de corte.</p>
