@@ -18,12 +18,12 @@ This project contains a PHP wizard for configuring CNC operations.
    ```bash
    composer install
    ```
-2. Create a database called `cnc_calculador` (or adjust the name in `includes/db.php`).
+2. Create a database called `cnc_calculador` (or adjust the name in your `.env` file).
 3. Import `cnc_calculador.sql`:
    ```bash
    mysql -u <user> -p cnc_calculador < cnc_calculador.sql
    ```
-4. Adjust database credentials in `includes/db.php` if needed.
+4. Copy `.env.example` to `.env` and adjust the database credentials there.
 5. Start the application using PHP's built‑in server:
  ```bash
   php -S localhost:8000

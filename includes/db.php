@@ -10,11 +10,17 @@
 declare(strict_types=1);
 
 /* ───────── CONFIG DB ───────── */
+// Load Composer autoloader if available (for Dotenv)
+if (is_readable(__DIR__ . '/../vendor/autoload.php')) {
+    require_once __DIR__ . '/../vendor/autoload.php';
+}
+
 // Load environment variables from .env if present
-if (file_exists(__DIR__ . '/../.env')) {
+if (class_exists(Dotenv\Dotenv::class) && file_exists(__DIR__ . '/../.env')) {
+    Dotenv\Dotenv::createImmutable(dirname(__DIR__))->safeLoad();
+} elseif (file_exists(__DIR__ . '/../.env')) {
     $env = parse_ini_file(__DIR__ . '/../.env', false, INI_SCANNER_TYPED);
     if ($env !== false) {
-        // Merge .env values into $_ENV without overwriting existing entries
         foreach ($env as $key => $val) {
             if (!isset($_ENV[$key])) {
                 $_ENV[$key] = $val;
