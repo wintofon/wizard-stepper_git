@@ -16,6 +16,23 @@ function respondError(int $code, string $msg): never {
 try {
     session_start();
 
+    // Simple rate limiting: allow max 5 POSTs per minute per session
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (!isset($_SESSION['step6_requests'])) {
+            $_SESSION['step6_requests'] = [];
+        }
+        $now = time();
+        // Remove timestamps older than 60 seconds
+        $_SESSION['step6_requests'] = array_filter(
+            $_SESSION['step6_requests'],
+            static fn(int $ts): bool => ($now - $ts) < 60
+        );
+        if (count($_SESSION['step6_requests']) >= 5) {
+            respondError(429, 'Demasiadas peticiones');
+        }
+        $_SESSION['step6_requests'][] = $now;
+    }
+
 // Basic CSRF token
 if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(16));
