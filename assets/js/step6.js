@@ -164,6 +164,13 @@
     slider.dataset.prevValue = '';
   }
 
+  // Deshabilita controles y muestra spinner
+  function setLoading(on) {
+    const container = document.querySelector('.step6');
+    container.classList.toggle('loading', !!on);
+    [sFz, sVc, sAe, sP].forEach(slider => slider.disabled = !!on);
+  }
+
   // 8. Pasadas slider / info
   const thickness = parseFloat(sP.dataset.thickness);
   function updatePasadasSlider() {
@@ -265,6 +272,7 @@
     };
 
     table(payload);
+    setLoading(true);
     try {
       const res = await fetch(`${BASE_URL}/ajax/step6_ajax_legacy_minimal.php`, {
         method: 'POST',
@@ -317,6 +325,8 @@
       }
       error('recalc error', e);
       showError(`Conexión fallida: ${e.message}`);
+    } finally {
+      setLoading(false);
     }
     log('return void');
     });

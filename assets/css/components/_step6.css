@@ -11,6 +11,9 @@
 
 @import url('../settings/_variables.css');
 
+/* Contenedor principal */
+.step6 {position: relative;}
+
 /* =======================  Paleta y texto base  ====================== */
 
 /* =======================  Tarjetas genéricas  ======================= */
@@ -122,6 +125,8 @@
   visibility: hidden;
   background: rgb(0 0 0 / 50%);
 }
+.step6.loading .spinner-overlay {visibility: visible;}
+.step6.loading .slider-wrap {opacity: 0.5; pointer-events: none;}
 .step6 .spinner-overlay.show {visibility: visible;}
 
 .step6 .spinner-border {
