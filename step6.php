@@ -1,5 +1,20 @@
 <?php
-session_start();
+
+function respondError(int $code, string $msg): never {
+    http_response_code($code);
+    if (str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json')) {
+        header('Content-Type: application/json; charset=UTF-8');
+        echo json_encode(['error' => $msg], JSON_UNESCAPED_UNICODE);
+    } else {
+        echo '<div class="step-error alert alert-danger m-3">' .
+             htmlspecialchars($msg, ENT_QUOTES, 'UTF-8') .
+             '</div>';
+    }
+    exit;
+}
+
+try {
+    session_start();
 
 // Basic CSRF token
 if (!isset($_SESSION['csrf_token'])) {
@@ -233,3 +248,10 @@ window.addEventListener('error', e => {
 </script>
 </body>
 </html>
+<?php
+} catch (Throwable $e) {
+    respondError(500, 'Error inesperado');
+} finally {
+    // cleanup opcional
+}
+?>
