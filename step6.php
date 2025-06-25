@@ -6,9 +6,8 @@ function respondError(int $code, string $msg): never {
         header('Content-Type: application/json; charset=UTF-8');
         echo json_encode(['error' => $msg], JSON_UNESCAPED_UNICODE);
     } else {
-        echo '<div class="step-error alert alert-danger m-3">' .
-             htmlspecialchars($msg, ENT_QUOTES, 'UTF-8') .
-             '</div>';
+        header('Content-Type: text/plain; charset=UTF-8');
+        echo $msg;
     }
     exit;
 }

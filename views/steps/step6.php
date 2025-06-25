@@ -6,8 +6,21 @@
 
 declare(strict_types=1);
 
-set_exception_handler(function(Throwable $e){
-    error_log('[step6][EXCEPTION] '.$e->getMessage()."\n".$e->getTraceAsString());
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
+
+$logPath = dirname(__DIR__, 2) . '/logs/step6.log';
+if (!is_dir(dirname($logPath))) {
+    mkdir(dirname($logPath), 0777, true);
+}
+$logger = new Logger('step6');
+$logger->pushHandler(new StreamHandler($logPath, Logger::WARNING));
+
+set_exception_handler(function(Throwable $e) use ($logger) {
+    $logger->warning('[EXCEPTION] '.$e->getMessage(), [
+        'ip'    => $_SERVER['REMOTE_ADDR'] ?? 'cli',
+        'input' => $_REQUEST
+    ]);
     http_response_code(500);
     if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH']==='XMLHttpRequest') {
         header('Content-Type: application/json');
@@ -126,10 +139,18 @@ $csrfToken = $_SESSION['csrf_token'];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $posted = (string)($_POST['csrf_token'] ?? '');
     if (!hash_equals($csrfToken, $posted)) {
+        $logger->warning('CSRF token inválido', [
+            'ip'    => $_SERVER['REMOTE_ADDR'] ?? 'cli',
+            'input' => $_REQUEST
+        ]);
         respondError(200, 'Error CSRF: petición no autorizada.');
     }
     if (($_SESSION['csrf_token_time'] + $tokenTTL) < time()) {
         unset($_SESSION['csrf_token'], $_SESSION['csrf_token_time']);
+        $logger->warning('CSRF token expirado', [
+            'ip'    => $_SERVER['REMOTE_ADDR'] ?? 'cli',
+            'input' => $_REQUEST
+        ]);
         respondError(200, 'Error CSRF: token expirado.');
     }
 }
@@ -143,7 +164,10 @@ $requiredKeys = [
 ];
 $missing = array_filter($requiredKeys, fn($k) => empty($_SESSION[$k]));
 if ($missing) {
-    error_log('[step6] Faltan claves: ' . implode(',', $missing));
+    $logger->warning('Faltan claves de sesión: ' . implode(',', $missing), [
+        'ip'    => $_SERVER['REMOTE_ADDR'] ?? 'cli',
+        'input' => $_SESSION
+    ]);
     respondError(200, 'ERROR – faltan datos en sesión');
 }
 
@@ -152,14 +176,26 @@ if ($missing) {
 // ------------------------------------------------------------------
 $dbFile = __DIR__ . '/../../includes/db.php';
 if (!is_readable($dbFile)) {
+    $logger->warning('DB file missing', [
+        'ip'    => $_SERVER['REMOTE_ADDR'] ?? 'cli',
+        'input' => $dbFile
+    ]);
     respondError(200, 'Error interno: falta el archivo de conexión a la BD.');
 }
 try {
     require_once $dbFile; // -> $pdo
 } catch (\Throwable $e) {
+    $logger->warning('DB include failed', [
+        'ip'    => $_SERVER['REMOTE_ADDR'] ?? 'cli',
+        'input' => $e->getMessage()
+    ]);
     respondError(200, 'Error interno: fallo al incluir la BD.');
 }
 if (!isset($pdo) || !($pdo instanceof PDO)) {
+    $logger->warning('No hay conexión a la base de datos', [
+        'ip'    => $_SERVER['REMOTE_ADDR'] ?? 'cli',
+        'input' => []
+    ]);
     respondError(200, 'Error interno: no hay conexión a la base de datos.');
 }
 
@@ -174,6 +210,10 @@ foreach ([
     'src/Utils/CNCCalculator.php'
 ] as $rel) {
     if (!is_readable($root.$rel)) {
+        $logger->warning("Falta archivo {$rel}", [
+            'ip'    => $_SERVER['REMOTE_ADDR'] ?? 'cli',
+            'input' => []
+        ]);
         respondError(200, "Error interno: falta {$rel}");
     }
     require_once $root.$rel;
@@ -187,19 +227,35 @@ $toolId    = (int)$_SESSION['tool_id'];
 try {
     $toolData  = ToolModel::getTool($pdo, $toolTable, $toolId) ?: null;
 } catch (\Throwable $e) {
+    $logger->warning('Error al consultar herramienta', [
+        'ip'    => $_SERVER['REMOTE_ADDR'] ?? 'cli',
+        'input' => ['tool'=>$toolId]
+    ]);
     respondError(200, 'Error al consultar herramienta.');
 }
 if (!$toolData) {
+    $logger->warning('Herramienta no encontrada', [
+        'ip'    => $_SERVER['REMOTE_ADDR'] ?? 'cli',
+        'input' => ['tool'=>$toolId]
+    ]);
     respondError(200, 'Herramienta no encontrada.');
 }
 
 try {
     $params = ExpertResultController::getResultData($pdo, $_SESSION);
 } catch (\Throwable $e) {
+    $logger->warning('Error al generar datos de corte', [
+        'ip'    => $_SERVER['REMOTE_ADDR'] ?? 'cli',
+        'input' => []
+    ]);
     respondError(200, 'Error al generar datos de corte.');
 }
 $jsonParams = json_encode($params, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 if ($jsonParams === false) {
+    $logger->warning('Error al serializar parámetros técnicos', [
+        'ip'    => $_SERVER['REMOTE_ADDR'] ?? 'cli',
+        'input' => []
+    ]);
     respondError(200, 'Error interno: no se pudo serializar parámetros técnicos.');
 }
 
