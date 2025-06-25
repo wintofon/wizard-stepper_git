@@ -1,31 +1,35 @@
 <?php
 /**
- * Paso 6 – Resultados expertos del Wizard CNC
- * Reescrito con manejo robusto de errores mediante try/catch.
+ * File: step5.php
+ *
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * @TODO Extend documentation.
  */
-
+/**
+ * Paso 5 (Auto) – Configurar router
+ * Protegido con CSRF, controla flujo y valida:
+ *   – rpm_min > 0
+ *   – rpm_max > 0
+ *   – rpm_min < rpm_max
+ *   – feed_max > 0
+ *   – hp       > 0
+ * Después guarda en sesión y avanza a step6.php
+ */
 declare(strict_types=1);
 
-set_exception_handler(function(Throwable $e){
-    error_log('[step6][EXCEPTION] '.$e->getMessage()."\n".$e->getTraceAsString());
-    http_response_code(500);
-    if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH']==='XMLHttpRequest') {
-        header('Content-Type: application/json');
-        echo json_encode(['error'=>'Error interno al procesar parámetros']);
-    } else {
-        include __DIR__.'/../partials/error_500.php';
-    }
-    exit;
-});
-
-// ------------------------------------------------------------------
-// 1. BASE_URL
-// ------------------------------------------------------------------
-if (!getenv('BASE_URL')) {
-    $base = dirname(dirname(dirname($_SERVER['SCRIPT_NAME'])));
-    putenv('BASE_URL=' . rtrim($base, '/'));
+/* 1) Sesión segura y flujo */
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start([
+        'cookie_secure'   => true,
+        'cookie_httponly' => true,
+        'cookie_samesite' => 'Strict',
+    ]);
 }
-
+if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 5) {
+    header('Location: step1.php');
+    exit;
+}
 
 
 
