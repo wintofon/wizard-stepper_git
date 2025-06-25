@@ -6,8 +6,14 @@
 
 declare(strict_types=1);
 
+\Sentry\init([
+  'dsn'=>'https://<tu_dsn>@sentry.io/<proj>',
+  'environment'=>'production',
+]);
+
 set_exception_handler(function(Throwable $e){
     error_log('[step6][EXCEPTION] '.$e->getMessage()."\n".$e->getTraceAsString());
+    Sentry\captureException($e);
     http_response_code(500);
     if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH']==='XMLHttpRequest') {
         header('Content-Type: application/json');
@@ -160,6 +166,7 @@ if (!is_readable($dbFile)) {
 try {
     require_once $dbFile; // -> $pdo
 } catch (\Throwable $e) {
+    Sentry\captureException($e);
     respondError(200, 'Error interno: fallo al incluir la BD.');
 }
 if (!isset($pdo) || !($pdo instanceof PDO)) {
@@ -190,6 +197,7 @@ $toolId    = (int)$_SESSION['tool_id'];
 try {
     $toolData  = ToolModel::getTool($pdo, $toolTable, $toolId) ?: null;
 } catch (\Throwable $e) {
+    Sentry\captureException($e);
     respondError(200, 'Error al consultar herramienta.');
 }
 if (!$toolData) {
@@ -199,6 +207,7 @@ if (!$toolData) {
 try {
     $params = ExpertResultController::getResultData($pdo, $_SESSION);
 } catch (\Throwable $e) {
+    Sentry\captureException($e);
     respondError(200, 'Error al generar datos de corte.');
 }
 $jsonParams = json_encode($params, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
@@ -258,6 +267,7 @@ try {
     $transName->execute([(int)$_SESSION['trans_id']]);
     $transName = $transName->fetchColumn() ?: 'N/D';
 } catch (\Throwable $e) {
+    Sentry\captureException($e);
     $transName = 'N/D';
 }
 
