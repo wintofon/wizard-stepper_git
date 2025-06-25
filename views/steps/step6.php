@@ -32,7 +32,7 @@ if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 5
 }
 
 
-
+?>
 <?php if (!$embedded): ?>
 <!DOCTYPE html>
 <html lang="es">
