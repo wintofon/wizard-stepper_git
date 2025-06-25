@@ -166,50 +166,70 @@ const valP  = document.getElementById('valPasadas');
 const valMc = document.getElementById('valMc');
 
 function showVals(){
-  valVc.textContent = vcInput.value;
-  valFz.textContent = fzInput.value;
-  valAe.textContent = aeInput.value;
-  valP.textContent  = pInput.value;
-  valMc.textContent = mcInput.value;
+  try {
+    valVc.textContent = vcInput.value;
+    valFz.textContent = fzInput.value;
+    valAe.textContent = aeInput.value;
+    valP.textContent  = pInput.value;
+    valMc.textContent = mcInput.value;
+  } catch (e) {
+    console.error('showVals error', e);
+  }
 }
 
 function recalc(){
-  const vc = parseFloat(vcInput.value);
-  const fz = parseFloat(fzInput.value);
-  const ae = parseFloat(aeInput.value);
-  const passes = parseInt(pInput.value,10);
-  const mcVal = parseFloat(mcInput.value);
+  try {
+    const vc = parseFloat(vcInput.value);
+    const fz = parseFloat(fzInput.value);
+    const ae = parseFloat(aeInput.value);
+    const passes = parseInt(pInput.value,10);
+    const mcVal = parseFloat(mcInput.value);
 
-  const rpmCalc = (vc * 1000) / (Math.PI * D);
-  const rpm = Math.max(rpmMin, Math.min(rpmCalc, rpmMax));
-  const feed = Math.min(rpm * fz * Z, feedMax);
-  const phi = 2 * Math.asin(Math.min(1, ae / D));
-  const hm = phi !== 0 ? (fz * (1 - Math.cos(phi)) / phi) : fz;
-  const ap = thickness / Math.max(1, passes);
-  const mmr = (ap * feed * ae) / 1000;
-  const Fct = Kc11 * Math.pow(hm, -mcVal) * ap * fz * Z * (1 + coefSeg * Math.tan(alpha));
-  const kW = (Fct * vc) / (60000 * eta);
-  const watts = Math.round(kW * 1000);
-  const hp = (kW * 1.341).toFixed(2);
+    const rpmCalc = (vc * 1000) / (Math.PI * D);
+    const rpm = Math.max(rpmMin, Math.min(rpmCalc, rpmMax));
+    const feed = Math.min(rpm * fz * Z, feedMax);
+    const phi = 2 * Math.asin(Math.min(1, ae / D));
+    const hm = phi !== 0 ? (fz * (1 - Math.cos(phi)) / phi) : fz;
+    const ap = thickness / Math.max(1, passes);
+    const mmr = (ap * feed * ae) / 1000;
+    const Fct = Kc11 * Math.pow(hm, -mcVal) * ap * fz * Z * (1 + coefSeg * Math.tan(alpha));
+    const kW = (Fct * vc) / (60000 * eta);
+    const watts = Math.round(kW * 1000);
+    const hp = (kW * 1.341).toFixed(2);
 
-  document.getElementById('outRpm').textContent = Math.round(rpm);
-  document.getElementById('outFeed').textContent = feed.toFixed(1);
-  document.getElementById('outHm').textContent = hm.toFixed(4);
-  document.getElementById('outAp').textContent = ap.toFixed(3);
-  document.getElementById('outMmr').textContent = mmr.toFixed(2);
-  document.getElementById('outHp').textContent = hp;
-  document.getElementById('outWatts').textContent = watts;
+    document.getElementById('outRpm').textContent = Math.round(rpm);
+    document.getElementById('outFeed').textContent = feed.toFixed(1);
+    document.getElementById('outHm').textContent = hm.toFixed(4);
+    document.getElementById('outAp').textContent = ap.toFixed(3);
+    document.getElementById('outMmr').textContent = mmr.toFixed(2);
+    document.getElementById('outHp').textContent = hp;
+    document.getElementById('outWatts').textContent = watts;
+  } catch (e) {
+    console.error('recalc error', e);
+  }
 }
 
 [vcInput, fzInput, aeInput, pInput, mcInput].forEach(el => {
   el.addEventListener('input', () => {
-    showVals();
-    recalc();
+    try {
+      showVals();
+      recalc();
+    } catch (e) {
+      console.error('input handler error', e);
+    }
   });
 });
 
-showVals();
-recalc();
+try {
+  showVals();
+  recalc();
+} catch (e) {
+  console.error('init error', e);
+}
+
+window.addEventListener('error', e => {
+  console.error('unhandled error', e.error || e.message);
+});
 </script>
 </body>
 </html>
