@@ -229,11 +229,29 @@
     if (abortCtr) abortCtr.abort();
     abortCtr = new AbortController();
     const signal = abortCtr.signal;
+
+    const fz = parseFloat(sFz.value),
+          vc = parseFloat(sVc.value),
+          ae = parseFloat(sAe.value),
+          passes = parseInt(sP.value, 10);
+    if (!Number.isFinite(fz) || fz < parseFloat(sFz.min) || fz > parseFloat(sFz.max)) {
+      return showError('fz fuera de rango (' + sFz.min + '–' + sFz.max + ')');
+    }
+    if (!Number.isFinite(vc) || vc < parseFloat(sVc.min) || vc > parseFloat(sVc.max)) {
+      return showError('Vc fuera de rango (' + sVc.min + '–' + sVc.max + ')');
+    }
+    if (!Number.isFinite(ae) || ae < parseFloat(sAe.min) || ae > parseFloat(sAe.max)) {
+      return showError('Ae fuera de rango (' + sAe.min + '–' + sAe.max + ')');
+    }
+    if (!Number.isInteger(passes) || passes < parseInt(sP.min) || passes > parseInt(sP.max)) {
+      return showError('Número de pasadas inválido');
+    }
+
     const payload = {
-      fz:        parseFloat(sFz.value),
-      vc:        parseFloat(sVc.value),
-      ae:        parseFloat(sAe.value),
-      passes:    parseInt(sP.value,10),
+      fz,
+      vc,
+      ae,
+      passes,
       thickness: thickness,
       D, Z,
       params:    { fr_max, coef_seg, Kc11, mc, alpha, eta }
