@@ -124,6 +124,7 @@ $needsToken = empty($_SESSION['csrf_token']) ||
 if ($needsToken) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     $_SESSION['csrf_token_time'] = time();
+    session_regenerate_id(true);
 }
 $csrfToken = $_SESSION['csrf_token'];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

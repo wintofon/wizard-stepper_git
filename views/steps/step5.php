@@ -38,6 +38,7 @@ require_once __DIR__ . '/../../includes/debug.php';
 /* 3) CSRF token */
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    session_regenerate_id(true);
 }
 $csrfToken = $_SESSION['csrf_token'];
 
@@ -90,6 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'hp'              => $hp,
             'wizard_progress' => 5,
         ];
+        session_regenerate_id(true);
         session_write_close();
         header('Location: step6.php');
         exit;

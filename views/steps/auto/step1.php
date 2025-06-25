@@ -104,6 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
 // -------------------------------------------
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    session_regenerate_id(true);
 }
 $csrf = $_SESSION['csrf_token'];
 
@@ -137,10 +138,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['rate_limit'][$clientIp][] = time();
 
         // Avanzar paso
-        session_regenerate_id(true);
         $_SESSION['material_id']     = $mat;
         $_SESSION['thickness']       = (float)$thk;
         $_SESSION['wizard_progress'] = 1;  // Marcamos Paso 1 completado
+        session_regenerate_id(true);
         dbg("✅ Paso 1 completado: material={$mat}, thickness={$thk}");
         session_write_close();
 
