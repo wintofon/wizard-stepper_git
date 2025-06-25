@@ -2,7 +2,6 @@
  * File: wizard_stepper.js
  * Descripción: Controlador principal del Wizard CNC (modo Stepper).
  * Versión blindada: evita errores de DOM, controla carga de scripts y eventos JS.
- * Ahora bloquea etiquetas no permitidas y detecta IDs duplicados al cargar cada paso.
  */
 
 /* global feather, bootstrap */
@@ -34,8 +33,6 @@
     dbgBox.textContent = `[${ts}] ${txt}\n` + dbgBox.textContent;
   };
 
-  const INVALID_TAGS = 'html, head, body, link, style, meta, iframe, object, embed';
-
   if (!stepsBar.length || !stepHolder) {
     log('No es página de wizard – abortando script.');
     return;
@@ -57,20 +54,11 @@
   };
 
   const runStepScripts = container => group('runStepScripts', () => {
-    if (container.querySelector(INVALID_TAGS)) {
-      error('❌ DOM inválido: se encontraron etiquetas no permitidas.');
-      dbgMsg('❌ Error crítico: el paso contiene etiquetas bloqueadas.');
+    if (container.querySelector('html, head, body')) {
+      error('❌ DOM inválido: se encontraron etiquetas <html>, <head> o <body> embebidas.');
+      dbgMsg('❌ Error crítico: el paso contiene etiquetas duplicadas.');
       return;
     }
-
-    const dup = [...container.querySelectorAll('[id]')]
-      .find(el => document.querySelectorAll(`#${CSS.escape(el.id)}`).length > 1);
-    if (dup) {
-      error(`❌ DOM inválido: id duplicado '${dup.id}'.`);
-      dbgMsg('❌ Error crítico: id duplicado.');
-      return;
-    }
-
     [...container.querySelectorAll('script')].forEach(tag => {
       if (tag.src) {
         if (!document.querySelector(`head script[src="${tag.src}"]`)) {
