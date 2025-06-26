@@ -13,6 +13,17 @@ if (!defined('BASE_URL')) {
 }
 require_once __DIR__ . '/src/Config/AppConfig.php';
 
+// ---------------------------------------------------------------
+// Serve static assets when using PHP's built-in web server
+// ---------------------------------------------------------------
+if (PHP_SAPI === 'cli-server') {
+    $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+    $file = __DIR__ . $path;
+    if (is_file($file)) {
+        return false;
+    }
+}
+
 /* ──────────────── DEBUG CONFIG ──────────────── */
 $DEBUG = filter_input(INPUT_GET, 'debug', FILTER_VALIDATE_BOOLEAN);
 error_reporting($DEBUG ? E_ALL : 0);
