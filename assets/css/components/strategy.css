@@ -1,46 +1,62 @@
-/* =========================================================================
- * File: strategy.css   ·   Paso 3 – Estrategia
- * Versión “v5-responsive”  ·  28-Jun-2025
- * -------------------------------------------------------------------------
- *  ✦ Mantiene toda tu semántica original.
- *  ✦ Añade micro-animaciones, sombras suaves, focus accesibles.
- *  ✦ Botones ~15 % más grandes; adaptan tamaño en móviles
- *    para no desbordar.
- *  ✦ Usa variables → cambia paleta en un solo lugar.
+/* ===========================================================================
+ * File: strategy.css        ··  Paso 3 – Estrategia
+ * Versión: v6 “Highlight verde”        ··  28-Jun-2025
+ * ---------------------------------------------------------------------------
+ *  ✔  Mantiene TODA tu estructura original → no rompe ningún selector existente.
+ *  ✔  Botones de Estrategia (.btn-strategy / .btn-strat) se iluminan en VERDE
+ *     (mismo tono usado en botones de “Material” de pasos anteriores).
+ *  ✔  Micro-animaciones, sombras suaves, focus accesibles y sizes responsivos.
+ *  ✔  TODO está documentado inline para que sea fácil de cambiar.
  * =========================================================================*/
 
-/* ─────────────── 0. Imports globales ─────────────── */
-@import url('../settings/_variables.css');
+/* 0 ───────────── IMPORTS GLOBALES ───────────────────────────────────────── */
+@import url('../settings/_variables.css');   /* ← tus variables principales   */
 @import url('../generic/reset.css');
 @import url('../elements/_typography.css');
 
-/* ─────────────── 1. Variables locales ────────────── */
+/* 1 ───────────── VARIABLES LOCALES (solo paleta) ───────────────────────── */
 :root{
-  --strat-accent:   var(--step6-accent, #7fdcff);
-  --strat-bg-dark:  #1a2638;
-  --strat-bg-dark2: #25334b;
-  --strat-text:     #ffffff;
-  --strat-border:   #2c2f33;
-  --strat-radius:   0.45rem;
-  --strat-shadow:   0 4px 10px rgb(0 0 0 /.25);
+  /* Celeste corporativo (Paso 6) – solo para títulos y categorías */
+  --strat-accent:    var(--step6-accent, #7fdcff);
+
+  /* VERDE “Material” (BS 5 Success) usado para Estrategias */
+  --strat-green:     #198754;
+
+  /* Fondo / borde oscuros reutilizados en todo el wizard          */
+  --strat-bg-dark:   #1a2638;
+  --strat-bg-dark2:  #25334b;
+  --strat-text:      #ffffff;
+  --strat-border:    #2c2f33;
+
+  /* Cosas de UX                                                   */
+  --strat-radius:    .45rem;
+  --strat-shadow:    0 4px 10px rgb(0 0 0 / .25);
 }
 
-/* ─────────────── 2. Cabeceras ────────────────────── */
+/* 2 ───────────── CABECERAS ─────────────────────────────────────────────── */
 h2,
-h5{color:var(--strat-accent);font-weight:600;}
+h5{
+  color:var(--strat-accent);    /* mismo celeste que en Paso 6 */
+  font-weight:600;
+}
 
-/* ─────────────── 3. Botones de CATEGORÍA ─────────── */
+/* 3 ───────────── BOTONES de CATEGORÍA  (.btn-cat) ─────────────────────── */
 .btn-cat{
+  /* tamaño + márgenes */
   margin:.35rem .45rem;
-  padding:.65rem 1.2rem;             /* ++ tamaño */
+  padding:.65rem 1.2rem;              /* ↑ ligeramente más grande   */
   font-size:.95rem;
+
+  /* colores base */
   color:var(--strat-text);
   background:var(--strat-bg-dark);
   border:1px solid var(--strat-border);
   border-radius:var(--strat-radius);
+
+  /* animaciones */
   transition:
-    background .25s,color .25s,
-    box-shadow .2s,transform .2s cubic-bezier(.4,.3,.2,1);
+    background .25s, color .25s,
+    box-shadow .2s, transform .2s cubic-bezier(.4,.3,.2,1);
 }
 .btn-cat:hover{
   background:var(--strat-bg-dark2);
@@ -52,18 +68,18 @@ h5{color:var(--strat-accent);font-weight:600;}
   outline-offset:2px;
 }
 .btn-cat.active{
-  background:var(--strat-accent);
+  background:var(--strat-accent);        /* mismo celeste */
   border-color:var(--strat-accent);
   color:#0d1117;
   box-shadow:0 0 0 3px rgb(127 220 255 /.4);
 }
 
-/* ─────────────── 4. Botones de ESTRATEGIA ────────── */
+/* 4 ───────────── BOTONES de ESTRATEGIA (.btn-strategy / .btn-strat) ────── */
 .btn-strategy,
 .btn-strat{
   width:100%;
   margin:.35rem 0;
-  padding:.75rem 1.25rem;            /* ++ tamaño */
+  padding:.75rem 1.25rem;             /* ↑ más espacio para “tap”   */
   font-size:1rem;
   text-align:left;
 
@@ -71,9 +87,10 @@ h5{color:var(--strat-accent);font-weight:600;}
   background:var(--strat-bg-dark);
   border:1px solid var(--strat-border);
   border-radius:var(--strat-radius);
+
   transition:
-    background .25s,color .25s,border-color .25s,
-    box-shadow .2s,transform .2s cubic-bezier(.4,.3,.2,1);
+    background .25s, color .25s, border-color .25s,
+    box-shadow .2s, transform .2s cubic-bezier(.4,.3,.2,1);
 }
 .btn-strategy:hover,
 .btn-strat:hover{
@@ -83,59 +100,78 @@ h5{color:var(--strat-accent);font-weight:600;}
 }
 .btn-strategy:focus-visible,
 .btn-strat:focus-visible{
-  outline:2px solid var(--strat-accent);
+  outline:2px solid var(--strat-green);
   outline-offset:2px;
 }
 .btn-strategy.active,
 .btn-strat.active{
-  background:var(--strat-accent);
-  border-color:var(--strat-accent);
+  /* ⬇ aquí el NUEVO verde  */
+  background:var(--strat-green);
+  border-color:var(--strat-green);
   color:#0d1117;
-  box-shadow:0 0 0 3px rgb(127 220 255 /.4),var(--strat-shadow);
+  /* halo verde + sombra suave */
+  box-shadow:
+    0 0 0 3px rgb(25 135 84 /.4),
+    var(--strat-shadow);
 }
 
-/* ─────────────── 5. Alertas ───────────────────────── */
+/* 5 ───────────── ALERTAS PERSONALIZADAS ───────────────────────────────── */
 .alert-custom{
-  margin-bottom:1rem;padding:.75rem 1rem;
-  border:1px solid #f5c2c7;border-radius:var(--strat-radius);
-  color:#f8d7da;background:#4c1d1d;
+  margin-bottom:1rem;
+  padding:.75rem 1rem;
+  border:1px solid #f5c2c7;
+  border-radius:var(--strat-radius);
+  color:#f8d7da;
+  background:#4c1d1d;
 }
 
-/* ─────────────── 6. Debug box ─────────────────────── */
+/* 6 ───────────── DEBUG BOX (sin cambios) ─────────────────────────────── */
 .debug-box{
-  overflow-y:auto;max-width:1000px;height:160px;margin:2rem auto 0;
-  padding:1rem;border-top:1px solid #2e5b78;border-radius:6px;
-  font-family:monospace;font-size:.85rem;color:#a7d3e9;
-  white-space:pre-wrap;background:#102735;
+  overflow-y:auto;
+  max-width:1000px;height:160px;
+  margin:2rem auto 0;
+  padding:1rem;
+  border-top:1px solid #2e5b78;
+  border-radius:6px;
+  font-family:monospace;
+  font-size:.85rem;
+  color:#a7d3e9;
+  white-space:pre-wrap;
+  background:#102735;
 }
 
-/* ─────────────── 7. Dropdown búsqueda ─────────────── */
+/* 7 ───────────── DROPDOWN BÚSQUEDA ───────────────────────────────────── */
 .dropdown-search{
-  position:absolute;z-index:1000;display:none;
-  width:100%;max-height:200px;overflow-y:auto;
-  border:1px solid #444;border-radius:var(--strat-radius);
+  position:absolute;
+  z-index:1000;
+  display:none;                 /* se activa con JS */
+  width:100%;
+  max-height:200px;
+  overflow-y:auto;
+  border:1px solid #444;
+  border-radius:var(--strat-radius);
   background:#000;
 }
 .dropdown-search .item{
-  cursor:pointer;padding:.5rem .75rem;color:#f1f1f1;
+  cursor:pointer;
+  padding:.5rem .75rem;
+  color:#f1f1f1;
   transition:background .2s;
 }
 .dropdown-search .item:hover{background:#333;}
 .dropdown-search .hl{color:#000;background:#ffd54f;}
 #no-match-msg{display:none;margin-top:.25rem;font-size:.875rem;color:#dc3545;}
 
-/* ─────────────── 8. Responsiveness ────────────────── */
-@media (width <= 992px){            /* tablets y abajo */
-  .btn-cat{padding:.55rem 1rem;font-size:.9rem;}
-  .btn-strategy,.btn-strat{
-    padding:.65rem 1rem;font-size:.95rem;
-  }
+/* 8 ───────────── RESPONSIVE FINE-TUNE ───────────────────────────────── */
+@media (width <= 992px){            /* tablet ↓ */
+  .btn-cat      {padding:.55rem 1rem;font-size:.9rem;}
+  .btn-strategy,
+  .btn-strat    {padding:.65rem 1rem;font-size:.95rem;}
 }
-
-@media (width <= 576px){            /* móviles */
+@media (width <= 576px){            /* móvil */
   .btn-cat,
   .btn-strategy,
-  .btn-strat{
+  .btn-strat    {
     width:100%;
     padding:.55rem .9rem;
     font-size:.9rem;
