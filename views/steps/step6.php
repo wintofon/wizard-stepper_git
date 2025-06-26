@@ -528,215 +528,225 @@ foreach ($styles as [$local, $cdn]) {
     </div>
   </div>
 
-<!-- Especificaciones (formato “Configuración de Usuario”) -->
-<div class="col-12 col-lg-4 mb-3 area-specs">
-  <div class="card h-100 shadow-sm">
-    <!-- Cabecera colapsable -->
-    <div class="card-header text-center p-3"
-         data-bs-toggle="collapse"
-         data-bs-target="#specCollapse"
-         aria-expanded="true">
-      <h5 class="mb-0">Especificaciones Técnicas</h5>
-    </div>
 
-    <div id="specCollapse" class="collapse show">
-      <div class="card-body p-4">
-        <div class="row gx-0 align-items-center">
-          <!--────────────────── Atributos ordenados ──────────────────-->
-          <div class="col-12 col-lg-7 px-2 mb-4 mb-lg-0">
+<!-- ===============================================================
+     ESPECIFICACIONES  ·  CONFIGURACIÓN ·  NOTAS
+     (tres tarjetas alineadas, idéntico formato de “Configuración
+     de Usuario” para la sección Especificaciones Técnicas)
+=============================================================== -->
+<div class="row gx-3 mb-4 cards-grid"><!-- grilla flex→grid -->
 
-            <!-- Nº de filos -------------------------------------------------->
-            <div class="config-section mb-3">
-              <div class="config-section-title">Filos</div>
-
-              <div class="config-item">
-                <div class="label-static">Número de filos (Z):</div>
-                <div class="value-static"><?= $fluteCountMb ?></div>
-              </div>
-            </div>
-
-            <!-- Diámetros --------------------------------------------------->
-            <div class="config-section mb-3">
-              <div class="config-section-title">Diámetros</div>
-
-              <div class="config-item">
-                <div class="label-static">Diámetro de corte (d1):</div>
-                <div class="value-static">
-                  <?= number_format($diameterMb,3,'.','') ?> <span class="param-unit">mm</span>
-                </div>
-              </div>
-
-              <div class="config-item">
-                <div class="label-static">Diámetro del vástago:</div>
-                <div class="value-static">
-                  <?= number_format($shankMb,3,'.','') ?> <span class="param-unit">mm</span>
-                </div>
-              </div>
-
-              <div class="config-item">
-                <div class="label-static">Tipo de punta:</div>
-                <div class="value-static"><?= $toolType ?></div>
-              </div>
-            </div>
-
-            <!-- Longitudes -------------------------------------------------->
-            <div class="config-section mb-3">
-              <div class="config-section-title">Longitudes</div>
-
-              <div class="config-item">
-                <div class="label-static">Longitud de corte:</div>
-                <div class="value-static">
-                  <?= number_format($cutLenMb,3,'.','') ?> <span class="param-unit">mm</span>
-                </div>
-              </div>
-
-              <div class="config-item">
-                <div class="label-static">Longitud de filo:</div>
-                <div class="value-static">
-                  <?= number_format($fluteLenMb,3,'.','') ?> <span class="param-unit">mm</span>
-                </div>
-              </div>
-
-              <div class="config-item">
-                <div class="label-static">Longitud total:</div>
-                <div class="value-static">
-                  <?= number_format($fullLenMb,3,'.','') ?> <span class="param-unit">mm</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Material, recubrimiento, marca, origen --------------------->
-            <div class="config-section">
-              <div class="config-section-title">Composición</div>
-
-              <div class="config-item">
-                <div class="label-static">Material fabricación:</div>
-                <div class="value-static"><?= $materialMb ?></div>
-              </div>
-
-              <div class="config-item">
-                <div class="label-static">Recubrimiento:</div>
-                <div class="value-static"><?= $coatingMb ?></div>
-              </div>
-
-              <div class="config-item">
-                <div class="label-static">Marca:</div>
-                <div class="value-static"><?= $brandMb ?></div>
-              </div>
-
-              <div class="config-item">
-                <div class="label-static">País de origen:</div>
-                <div class="value-static"><?= $madeInMb ?></div>
-              </div>
-            </div>
-          </div>
-
-          <!--────────── Imagen vectorial ──────────-->
-          <div class="col-12 col-lg-5 px-2 d-flex justify-content-center align-items-center">
-            <?php if ($vectorURL): ?>
-              <img src="<?= htmlspecialchars($vectorURL, ENT_QUOTES) ?>"
-                   alt="Imagen vectorial herramienta"
-                   class="vector-image mx-auto d-block">
-            <?php else: ?>
-              <div class="text-secondary">Sin imagen vectorial</div>
-            <?php endif; ?>
-          </div>
-        </div><!-- /.row -->
-      </div><!-- /.card-body -->
-    </div><!-- /.collapse -->
-  </div><!-- /.card -->
-</div><!-- /.area-specs -->
-
-
-    <!-- Configuración -->
-    <div class="col-12 col-lg-4 mb-3">
-      <div class="card h-100 shadow-sm">
-        <div class="card-header text-center p-3"
-             data-bs-toggle="collapse"
-             data-bs-target="#configCollapse"
-             aria-expanded="true">
-          <h5 class="mb-0">Configuración de Usuario</h5>
-        </div>
-        <div id="configCollapse" class="collapse show">
-          <div class="card-body p-4">
-            <div class="config-section mb-3">
-              <div class="config-section-title">Material</div>
-              <div class="config-item">
-                <div class="label-static">Categoría padre:</div>
-                <div class="value-static"><?= $materialParent ?></div>
-              </div>
-              <div class="config-item">
-                <div class="label-static">Material a mecanizar:</div>
-                <div class="value-static"><?= $materialName ?></div>
-              </div>
-            </div>
-            <div class="section-divider"></div>
-            <div class="config-section mb-3">
-              <div class="config-section-title">Estrategia</div>
-              <div class="config-item">
-                <div class="label-static">Categoría padre estr.:</div>
-                <div class="value-static"><?= $strategyParent ?></div>
-              </div>
-              <div class="config-item">
-                <div class="label-static">Estrategia de corte:</div>
-                <div class="value-static"><?= $strategyName ?></div>
-              </div>
-            </div>
-            <div class="section-divider"></div>
-            <div class="config-section">
-              <div class="config-section-title">Máquina</div>
-              <div class="config-item">
-                <div class="label-static">Espesor del material:</div>
-                <div class="value-static"><?= number_format($thickness,2) ?> <span class="param-unit">mm</span></div>
-              </div>
-              <div class="config-item">
-                <div class="label-static">Tipo de transmisión:</div>
-                <div class="value-static"><?= $transName ?></div>
-              </div>
-              <div class="config-item">
-                <div class="label-static">Feedrate máximo:</div>
-                <div class="value-static"><?= number_format($frMax,0) ?> <span class="param-unit">mm/min</span></div>
-              </div>
-              <div class="config-item">
-                <div class="label-static">RPM mínima:</div>
-                <div class="value-static"><?= number_format($rpmMin,0) ?> <span class="param-unit">rev/min</span></div>
-              </div>
-              <div class="config-item">
-                <div class="label-static">RPM máxima:</div>
-                <div class="value-static"><?= number_format($rpmMax,0) ?> <span class="param-unit">rev/min</span></div>
-              </div>
-              <div class="config-item">
-                <div class="label-static">Potencia disponible:</div>
-                <div class="value-static"><?= number_format($powerAvail,1) ?> <span class="param-unit">HP</span></div>
-              </div>
-            </div>
-          </div>
-        </div>
+  <!--─────────────────── 1) ESPECIFICACIONES TÉCNICAS ──────────────────-->
+  <div class="col-12 col-lg-4 mb-3 area-specs">
+    <div class="card h-100 shadow-sm">
+      <div class="card-header text-center p-3"
+           data-bs-toggle="collapse"
+           data-bs-target="#specCollapse"
+           aria-expanded="true">
+        <h5 class="mb-0">Especificaciones Técnicas</h5>
       </div>
-    </div>
 
-    <!-- Notas -->
-    <div class="col-12 col-lg-4 mb-3">
-      <div class="card h-100 shadow-sm">
-        <div class="card-header text-center p-3"><h5 class="mb-0">Notas Adicionales</h5></div>
+      <div id="specCollapse" class="collapse show">
         <div class="card-body p-4">
-          <?php if ($notesArray): ?>
-            <ul class="notes-list mb-0">
-              <?php foreach ($notesArray as $note): ?>
-                <li class="mb-2 d-flex align-items-start">
-                  <i data-feather="file-text" class="me-2"></i>
-                  <div><?= htmlspecialchars($note, ENT_QUOTES) ?></div>
-                </li>
-              <?php endforeach; ?>
-            </ul>
-          <?php else: ?>
-            <div class="text-secondary">No hay notas adicionales para esta herramienta.</div>
-          <?php endif; ?>
-        </div>
+
+          <!-- ===== Filos ===== -->
+          <div class="config-section mb-3">
+            <div class="config-section-title">Filos</div>
+            <div class="config-item">
+              <div class="label-static">Número de filos (Z):</div>
+              <div class="value-static"><?= $fluteCountMb ?></div>
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <!-- ===== Diámetros ===== -->
+          <div class="config-section mb-3">
+            <div class="config-section-title">Diámetros</div>
+
+            <div class="config-item">
+              <div class="label-static">Diám. de corte (d1):</div>
+              <div class="value-static">
+                <?= number_format($diameterMb,3,'.','') ?> <span class="param-unit">mm</span>
+              </div>
+            </div>
+
+            <div class="config-item">
+              <div class="label-static">Diám. del vástago:</div>
+              <div class="value-static">
+                <?= number_format($shankMb,3,'.','') ?> <span class="param-unit">mm</span>
+              </div>
+            </div>
+
+            <div class="config-item">
+              <div class="label-static">Tipo de punta:</div>
+              <div class="value-static"><?= $toolType ?></div>
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <!-- ===== Longitudes ===== -->
+          <div class="config-section mb-3">
+            <div class="config-section-title">Longitudes</div>
+
+            <div class="config-item">
+              <div class="label-static">Longitud de corte:</div>
+              <div class="value-static">
+                <?= number_format($cutLenMb,3,'.','') ?> <span class="param-unit">mm</span>
+              </div>
+            </div>
+
+            <div class="config-item">
+              <div class="label-static">Longitud de filo:</div>
+              <div class="value-static">
+                <?= number_format($fluteLenMb,3,'.','') ?> <span class="param-unit">mm</span>
+              </div>
+            </div>
+
+            <div class="config-item">
+              <div class="label-static">Longitud total:</div>
+              <div class="value-static">
+                <?= number_format($fullLenMb,3,'.','') ?> <span class="param-unit">mm</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <!-- ===== Composición ===== -->
+          <div class="config-section">
+            <div class="config-section-title">Composición</div>
+
+            <div class="config-item">
+              <div class="label-static">Material fabricación:</div>
+              <div class="value-static"><?= $materialMb ?></div>
+            </div>
+
+            <div class="config-item">
+              <div class="label-static">Recubrimiento:</div>
+              <div class="value-static"><?= $coatingMb ?></div>
+            </div>
+
+            <div class="config-item">
+              <div class="label-static">Marca:</div>
+              <div class="value-static"><?= $brandMb ?></div>
+            </div>
+
+            <div class="config-item">
+              <div class="label-static">País de origen:</div>
+              <div class="value-static"><?= $madeInMb ?></div>
+            </div>
+          </div>
+
+        </div><!-- /.card-body -->
+      </div><!-- /.collapse -->
+    </div><!-- /.card -->
+  </div><!-- /.area-specs -->
+
+
+  <!--─────────────────── 2) CONFIGURACIÓN DE USUARIO ──────────────────-->
+  <div class="col-12 col-lg-4 mb-3 area-config">
+    <div class="card h-100 shadow-sm">
+      <div class="card-header text-center p-3"
+           data-bs-toggle="collapse"
+           data-bs-target="#configCollapse"
+           aria-expanded="true">
+        <h5 class="mb-0">Configuración de Usuario</h5>
       </div>
-    </div>
-  </div>
-</div>
+
+      <div id="configCollapse" class="collapse show">
+        <div class="card-body p-4">
+
+          <div class="config-section mb-3">
+            <div class="config-section-title">Material</div>
+            <div class="config-item">
+              <div class="label-static">Categoría padre:</div>
+              <div class="value-static"><?= $materialParent ?></div>
+            </div>
+            <div class="config-item">
+              <div class="label-static">Material a mecanizar:</div>
+              <div class="value-static"><?= $materialName ?></div>
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <div class="config-section mb-3">
+            <div class="config-section-title">Estrategia</div>
+            <div class="config-item">
+              <div class="label-static">Categoría padre estr.:</div>
+              <div class="value-static"><?= $strategyParent ?></div>
+            </div>
+            <div class="config-item">
+              <div class="label-static">Estrategia de corte:</div>
+              <div class="value-static"><?= $strategyName ?></div>
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <div class="config-section">
+            <div class="config-section-title">Máquina</div>
+            <div class="config-item">
+              <div class="label-static">Espesor del material:</div>
+              <div class="value-static"><?= number_format($thickness,2) ?> <span class="param-unit">mm</span></div>
+            </div>
+            <div class="config-item">
+              <div class="label-static">Tipo de transmisión:</div>
+              <div class="value-static"><?= $transName ?></div>
+            </div>
+            <div class="config-item">
+              <div class="label-static">Feedrate máximo:</div>
+              <div class="value-static"><?= number_format($frMax,0) ?> <span class="param-unit">mm/min</span></div>
+            </div>
+            <div class="config-item">
+              <div class="label-static">RPM mínima:</div>
+              <div class="value-static"><?= number_format($rpmMin,0) ?> <span class="param-unit">rev/min</span></div>
+            </div>
+            <div class="config-item">
+              <div class="label-static">RPM máxima:</div>
+              <div class="value-static"><?= number_format($rpmMax,0) ?> <span class="param-unit">rev/min</span></div>
+            </div>
+            <div class="config-item">
+              <div class="label-static">Potencia disponible:</div>
+              <div class="value-static"><?= number_format($powerAvail,1) ?> <span class="param-unit">HP</span></div>
+            </div>
+          </div>
+
+        </div><!-- /.card-body -->
+      </div><!-- /.collapse -->
+    </div><!-- /.card -->
+  </div><!-- /.area-config -->
+
+
+  <!--─────────────────── 3) NOTAS ADICIONALES ──────────────────-->
+  <div class="col-12 col-lg-4 mb-3 area-notes">
+    <div class="card h-100 shadow-sm">
+      <div class="card-header text-center p-3">
+        <h5 class="mb-0">Notas Adicionales</h5>
+      </div>
+
+      <div class="card-body p-4">
+        <?php if ($notesArray): ?>
+          <ul class="notes-list mb-0">
+            <?php foreach ($notesArray as $note): ?>
+              <li class="d-flex align-items-start mb-2">
+                <i data-feather="file-text" class="me-2"></i>
+                <div><?= htmlspecialchars($note, ENT_QUOTES) ?></div>
+              </li>
+            <?php endforeach; ?>
+          </ul>
+        <?php else: ?>
+          <div class="text-secondary">No hay notas adicionales para esta herramienta.</div>
+        <?php endif; ?>
+      </div>
+    </div><!-- /.card -->
+  </div><!-- /.area-notes -->
+
+</div><!-- /.cards-grid -->
+
+
 </div><!-- .content-main -->
 <!-- ========== SCRIPTS (blindados) ========== -->
 <script>
