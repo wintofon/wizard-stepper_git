@@ -10,6 +10,21 @@ export let page = 1;
 export let loading = false;
 export let hasMore = true;
 
+// Marca miniaturas verticales con la clase `.portrait`
+function markPortrait(img) {
+  if (!img) return;
+  const check = () => {
+    if (img.naturalHeight > img.naturalWidth) {
+      img.classList.add('portrait');
+    }
+  };
+  if (img.complete) {
+    check();
+  } else {
+    img.addEventListener('load', check, { once: true });
+  }
+}
+
 export const sentinel = document.getElementById('sentinel');
 export const tbody = document.querySelector('#toolTbl tbody');
 const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
@@ -72,6 +87,8 @@ export async function loadPage() {
           <td>${t.flute_count ?? ""}</td>
           <td>${t.tool_type ?? ""}</td>`;
         tbody.appendChild(tr);
+        const img = tr.querySelector('img.thumb');
+        markPortrait(img);
       });
     }
     hasMore = data.hasMore;
