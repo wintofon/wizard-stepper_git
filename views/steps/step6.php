@@ -819,6 +819,21 @@ safeScript('assets/js/step6.js');
 ?>
 
 <script>
+  // Inicializar paso 6 cuando el DOM y step6.js estén listos
+  document.addEventListener('DOMContentLoaded', function () {
+    try {
+      if (typeof window.initStep6 === 'function') {
+        window.initStep6();
+      } else {
+        console.error('initStep6 no definido');
+      }
+    } catch (e) {
+      console.error('Error en initStep6', e);
+    }
+  });
+</script>
+
+<script>
 /*-- Feather.replace() seguro: reintenta 10× cada 120 ms --*/
 (function waitFeather(r = 10) {
   if (window.feather && typeof feather.replace === 'function') {
