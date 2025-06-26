@@ -1,98 +1,105 @@
-/*
- * File: strategy.css
- * Main responsibility: Part of the CNC Wizard Stepper.
- * Related files: See others in this project.
- * TODO: Extend documentation.
- */
+/* =========================================================================
+ * File: strategy.css   ·   Paso 3 – Estrategia
+ * -------------------------------------------------------------------------
+ * • Refactor liviano: se mantiene toda la estructura actual pero:
+ *     – Se unifica la paleta con la de Paso 6 mediante variables.
+ *     – Se eliminan los !important innecesarios.
+ *     – Se añaden transiciones suaves y pequeños accesos a accesibilidad.
+ * -------------------------------------------------------------------------
+ * 2025-06-28
+ * =========================================================================*/
 
-/* Estilos comunes para la selección de estrategia */
-@import url('../settings/_variables.css');
+/* ────────────────── 0. Imports globales ────────────────── */
+@import url('../settings/_variables.css');   /* define --step6-accent */
 @import url('../generic/reset.css');
 @import url('../elements/_typography.css');
 
+/* ────────────────── 1. Variables locales ───────────────── */
+:root {
+  --strat-accent:   var(--step6-accent, #7fdcff);
+  --strat-bg-dark:  #1a2638;
+  --strat-bg-dark2: #25334b;
+  --strat-text:     #ffffff;
+  --strat-border:   #2c2f33;
+}
 
+/* ────────────────── 2. Cabeceras  ──────────────────────── */
+h2,
+h5 { color: var(--strat-accent); }
+
+/* ────────────────── 3. Botones de categoría ───────────── */
 .btn-cat {
   margin: .35rem .45rem;
   white-space: nowrap;
+  color: var(--strat-text);
+  background: var(--strat-bg-dark);
+  border: 1px solid var(--strat-border);
+  transition: background .25s, color .25s, border-color .25s;
 }
+.btn-cat:hover       { background: var(--strat-bg-dark2); }
+.btn-cat.active      { background: var(--strat-accent);   color:#0d1117; }
 
-.btn-cat.active {
-  color: #fff !important;
-  background: #0d6efd !important;
-}
-
+/* ────────────────── 4. Botones de estrategia ──────────── */
+.btn-strategy,
 .btn-strat {
   width: 100%;
   margin: .25rem 0;
+  color: var(--strat-text);
+  background: var(--strat-bg-dark);
+  border: 1px solid var(--strat-border);
+  transition: background .25s, color .25s, border-color .25s;
 }
+.btn-strategy:hover,
+.btn-strat:hover      { background: var(--strat-bg-dark2); }
+.btn-strategy.active,
+.btn-strat.active     { background: var(--strat-accent);    color:#0d1117; }
 
-.btn-strat.active {
-  color: #fff !important;
-  background: #198754 !important;
-}
-
+/* ────────────────── 5. Alertas personalizadas ─────────── */
 .alert-custom {
   margin-bottom: 1rem;
   padding: 0.75rem 1rem;
   border: 1px solid #f5c2c7;
-
   color: #f8d7da;
-
-  background-color: #4c1d1d;
+  background: #4c1d1d;
 }
 
+/* ────────────────── 6. Debug box ───────────────────────── */
 .debug-box {
   overflow-y: auto;
-
   max-width: 1000px;
   height: 160px;
   margin: 2rem auto 0;
   padding: 1rem;
   border-top: 1px solid #2e5b78;
   border-radius: 6px;
-
   font-family: monospace;
   font-size: 0.85rem;
   color: #a7d3e9;
   white-space: pre-wrap;
-
   background: #102735;
 }
 
-h2, h5 {
-  color: #4fc3f7;
-}
-
-/* Dropdown de búsqueda */
+/* ────────────────── 7. Dropdown búsqueda ───────────────── */
 .dropdown-search {
   position: absolute;
   z-index: 1000;
-
-  overflow-y: auto;
   display: none;
-
   width: 100%;
   max-height: 200px;
+  overflow-y: auto;
   border: 1px solid #444;
-
   background: #000;
 }
-
 .dropdown-search .item {
   cursor: pointer;
   padding: .5rem .75rem;
   color: #f1f1f1;
 }
-
-.dropdown-search .item:hover {
-  background: #333;
-}
-
+.dropdown-search .item:hover { background: #333; }
 .dropdown-search .hl {
   color: #000;
   background: #ffd54f;
 }
-
 #no-match-msg {
   display: none;
   margin-top: .25rem;
@@ -100,25 +107,9 @@ h2, h5 {
   color: #dc3545;
 }
 
+/* ────────────────── 8. Responsive ─────────────────────── */
 @media (width <= 768px) {
   .btn-cat,
-  .btn-strat {
-    width: 100%;
-  }
-}
-
-/* Ajustes visuales para los botones de estrategia del paso 3 */
-.btn-strategy {
-  color: #ffffff;
-  background-color: #1a2638;
-}
-
-.btn-strategy:hover {
-  background-color: #25334b;
-}
-
-.btn-strategy.active {
-  color: #0d1117;
-  background-color: var(--step6-accent);
-  border-color: var(--step6-accent);
+  .btn-strategy,
+  .btn-strat { width: 100%; }
 }
