@@ -1,0 +1,32 @@
+/* File: step1_auto.css
+ * Styles for Step 1 - Automatic (Material + Espesor)
+ */
+#step1Auto h2.step-title {
+  color: #fff;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+#step1Auto .form-label {
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+#step1Auto .btn-mat,
+#step1Auto .btn-material,
+#step1Auto .list-material li {
+  background: #1a2638;
+  color: #ffffff;
+  border: 1px solid #2c2f33;
+}
+#step1Auto .btn-mat:hover,
+#step1Auto .btn-material:hover,
+#step1Auto .list-material li:hover {
+  background: #25334b;
+}
+#step1Auto .btn-mat.active,
+#step1Auto .btn-material.active,
+#step1Auto .list-material li.active {
+  background: var(--step6-accent);
+  border-color: var(--step6-accent);
+  color: #0d1117;
+}
