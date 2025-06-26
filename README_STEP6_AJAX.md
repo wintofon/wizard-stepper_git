@@ -3,3 +3,4 @@
 - Los registros de depuración se activan definiendo `window.DEBUG = true` antes de cargar `step6.js`.
 - Al cerrar la pestaña se limpian todas las entradas `step6:*` de `sessionStorage`.
 - Los fallos de red o abortos de la petición se reintentan una vez antes de mostrar el mensaje de error.
+- La URL del endpoint puede ajustarse definiendo `window.step6AjaxUrl` antes de cargar `step6.js`.

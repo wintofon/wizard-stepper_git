@@ -758,6 +758,7 @@ foreach ($styles as [$local, $cdn]) {
         JSON_HEX_APOS | JSON_HEX_QUOT
   ) ?>;
   window.step6Csrf   = <?= json_encode($csrfToken, JSON_HEX_TAG) ?>;
+  window.step6AjaxUrl = <?= json_encode(asset('ajax/step6_ajax_legacy_minimal.php'), JSON_HEX_TAG) ?>;
 </script>
 
 <?php if (!$embedded): ?>
