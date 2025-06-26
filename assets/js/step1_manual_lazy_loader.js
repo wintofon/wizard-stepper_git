@@ -72,8 +72,6 @@ export async function loadPage() {
           <td>${t.flute_count ?? ""}</td>
           <td>${t.tool_type ?? ""}</td>`;
         tbody.appendChild(tr);
-        const img = tr.querySelector('img.thumb');
-        if (img && window.checkThumbOrientation) window.checkThumbOrientation(img);
       });
     }
     hasMore = data.hasMore;
