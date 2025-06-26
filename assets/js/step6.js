@@ -58,7 +58,8 @@
     var ctrl = new AbortController();
     var to = setTimeout(function () { ctrl.abort(); }, 8000);
     var t0 = performance.now();
-    return fetch('ajax/step6_ajax_legacy_minimal.php', {
+    var url = w.step6AjaxUrl || 'ajax/step6_ajax_legacy_minimal.php';
+    return fetch(url, {
       method: 'POST',
       body: body,
       headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': w.step6Csrf, 'Accept': '*/*' },
