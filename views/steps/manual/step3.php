@@ -247,7 +247,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <!-- Siguiente -->
-    <div id="nextContainer" class="text-end mt-4" style="display:none">
+    <div id="nextContainer" class="text-start mt-4" style="display:none">
       <button type="submit" class="btn btn-primary btn-lg">
         Siguiente <i data-feather="arrow-right" class="ms-1"></i>
       </button>
