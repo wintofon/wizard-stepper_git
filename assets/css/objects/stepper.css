@@ -1,31 +1,16 @@
-/* ============================================================================
- * File: assets/css/stepper.css
- * Responsabilidad: Estilos del stepper (barra de pasos) del Wizard CNC.
- * Última revisión: 27-Jun-2025
- *  • Centra visualmente la barra de pasos dentro del header.
- *  • Usa el “azul celeste” (var(--step6-accent)) para el paso .active.
- *  • Mantiene scroll horizontal en móviles cuando sea necesario.
- * ==========================================================================*/
-
-/* --------------------------------------------------------------------------
-   0) Variables de fallback
-   --------------------------------------------------------------------------*/
-:root {
-  /* si no existe en settings, definimos un celeste por defecto */
-  --step6-accent: #7fdcff;
-}
-
-/* --------------------------------------------------------------------------
-   1) Header sticky + logo
-   --------------------------------------------------------------------------*/
+/*
+ * File: stepper.css
+ * Main responsibility: Part of the CNC Wizard Stepper.
+ * Related files: See others in this project.
+ * TODO: Extend documentation.
+ */
 .stepper-header {
   position: sticky;
-  top: 0;
   z-index: 1050;
+  top: 0;
 
   display: flex;
   align-items: center;
-  justify-content: center;      /* centrado general */
 
   width: 100%;
   margin: 0;
@@ -41,88 +26,34 @@
   margin-right: 1rem;
 }
 
-/* Logo se oculta en < 768 px */
-@media (width <= 767.98px) {
-  .logo-stepper { display: none !important; }
-}
-
-/* --------------------------------------------------------------------------
-   2) Barra de pasos
-   --------------------------------------------------------------------------*/
 .stepper-bar {
+  scrollbar-width: thin;      /* Firefox  */
+  overflow-x: auto;           /* permite scrolleo horizontal */
   display: flex;
   flex-wrap: nowrap;
-  justify-content: center;      /* ← centra la fila de li */
-  gap: 0.25rem;                 /* pequeño espacio entre pasos */
 
-  overflow-x: auto;
-  scrollbar-width: thin;        /* Firefox */
-  margin: 0 auto;               /* asegura centrado en header */
+  /* ───── NUEVO ─────  
+     centra toda la barra dentro del header */
+  margin: 0 auto;
 }
 
-/* Oculta scrollbar en WebKit/Chromium */
-.stepper-bar::-webkit-scrollbar { display: none; }
-
-/* --------------------------------------------------------------------------
-   3) Estilo de cada paso
-   - El marcado esperado es:
-       <ul class="stepper-bar">
-         <li data-step="1"> … </li>
-         ...
-       </ul>
-   - Las clases .done, .active, .clickable se aplican desde JS.
-   --------------------------------------------------------------------------*/
-.stepper-bar li {
-  position: relative;
-  padding: 0.5rem 1.25rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #e5e7eb;                  /* gris claro */
-  background: #0d1624;             /* fondo oscuro neutro */
-  border: 1px solid transparent;
-  cursor: pointer;
-  user-select: none;
-  white-space: nowrap;
-
-  display: flex;
-  align-items: center;
-  transition: background 0.25s, color 0.25s;
+.stepper-bar::-webkit-scrollbar {
+  display: none;              /* oculta scrollbar en navegadores WebKit */
 }
 
-/* Paso ya completado */
-.stepper-bar li.done  { opacity: 0.6; }
-
-/* Paso activo */
+/* =========  PASO ACTIVO  (nuevo) =================================== */
 .stepper-bar li.active {
-  background: var(--step6-accent);
-  color: #0d1117;
+  background-color: var(--step6-accent); /* azul celeste del proyecto */
+  color: #0d1117;                        /* texto oscuro para contraste */
 }
 
-/* Iconos Feather dentro del li */
-.stepper-bar li i.feather,
-.stepper-bar li svg.feather {
-  width: 14px;
-  height: 14px;
-  margin-left: 0.25rem;
-  stroke: currentColor;
-  stroke-width: 2;
-  fill: none;
-  vertical-align: -2px;
-}
+/* Responsivo: ocultar logo en pantallas <768px */
+@media (width <= 767.98px) {
+  .logo-stepper {
+    display: none !important;
+  }
 
-/* Triángulo decorativo en el borde derecho */
-.stepper-bar li::after {
-  content: '';
-  position: absolute;
-  right: -0.75rem;
-  top: 0;
-  width: 0;
-  height: 0;
-  border-top: 1.3rem solid transparent;
-  border-bottom: 1.3rem solid transparent;
-  border-left: 0.75rem solid currentColor;   /* mismo color que fondo */
-  transition: border-left-color 0.25s;
+  .stepper-header {
+    justify-content: center;
+  }
 }
-
-/* No mostrar flecha en el último paso */
-.stepper-bar li:last-child::after { display: none; }
