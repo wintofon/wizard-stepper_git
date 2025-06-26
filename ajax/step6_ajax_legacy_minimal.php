@@ -24,6 +24,8 @@
  */
 
 declare(strict_types=1);
+error_reporting(E_ALL);
+ini_set('display_errors', '1'); // TODO disable in production
 header('Content-Type: application/json; charset=UTF-8');
 // Fijar BASE_URL adecuado aun estando en /ajax
 if (!getenv('BASE_URL')) {
@@ -129,28 +131,31 @@ $term = min(100, max(0, (int)($params['terminacion'] ?? 40)));
 $pot  = min(100, max(0, (int)($params['potencia']    ?? 80)));
 
 // 6. Respuesta
+$data = [
+    'fz'          => number_format($fz,4),
+    'vc'          => number_format($vc,1),
+    'hm'          => number_format($hm,4),
+    'n'           => $rpm,
+    'vf'          => $feed,
+    'hp'          => $HP,
+    'watts'       => $W,
+    'mmr'         => $mmr,
+    'fc'          => round($Fct,1),
+
+    // ← Aquí añadimos ae y ap
+    'ae'          => $ae,
+    'ap'          => round($ap,3),
+
+    'etaPercent'  => round($eta * 100),
+    'radar'       => [$vida, $term, $pot],
+];
+file_put_contents('/tmp/step6.log', json_encode($data, JSON_PRETTY_PRINT));
 echo json_encode([
     'success' => true,
-    'data'    => [
-        'fz'          => number_format($fz,4),
-        'vc'          => number_format($vc,1),
-        'hm'          => number_format($hm,4),
-        'n'           => $rpm,
-        'vf'          => $feed,
-        'hp'          => $HP,
-        'watts'       => $W,
-        'mmr'         => $mmr,
-        'fc'          => round($Fct,1),
-
-        // ← Aquí añadimos ae y ap
-        'ae'          => $ae,
-        'ap'          => round($ap,3),
-
-        'etaPercent'  => round($eta * 100),
-        'radar'       => [$vida, $term, $pot],
-    ],
+    'data'    => $data,
 ], JSON_UNESCAPED_UNICODE);
 } catch (Throwable $e) {
     error_log('[step6][AJAX] ' . $e->getMessage());
-    respond_json_error('Error interno', 500);
+    http_response_code(500);
+    echo json_encode(['err' => $e->getMessage()]);
 }

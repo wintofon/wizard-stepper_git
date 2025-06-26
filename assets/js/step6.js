@@ -104,7 +104,10 @@
       try { item = JSON.parse(sessionStorage.getItem(key) || 'null'); } catch (e) { item = null; }
       if (item && Date.now() - item.ts < ttl) paint(item.data);
       setLoading(true);
-      grp('request', function () { dbg(p); });
+      grp('request', function () {
+        if (typeof console.table === 'function') console.table(p);
+        dbg(p);
+      });
       fetchData(body, key, true);
     } catch (e) { showErr(e.message); setLoading(false); }
   }
