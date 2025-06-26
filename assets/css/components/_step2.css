@@ -14,7 +14,7 @@
 
   width: 100%;
   height: auto;
-  border-radius: 0.5rem;
+  border-radius: 0rem;
 
   /* Remove drop shadow to keep image flat */
   box-shadow: none;
