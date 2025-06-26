@@ -7,6 +7,7 @@
   function dbg() { if (DEBUG) console.log.apply(console, arguments); }
   function grp(t, fn) { if (!DEBUG) return fn(); console.group(t); try { return fn(); } finally { console.groupEnd(); } }
   function q(id) { return d.getElementById(id); }
+  var csrfToken = w.step6Csrf || (d.querySelector('meta[name="csrf-token"]') && d.querySelector('meta[name="csrf-token"]').content) || '';
 
   var step = d.querySelector('.step6');
   var errBox = q('errorMsg');
@@ -77,7 +78,7 @@
     return fetch(url, {
       method: 'POST',
       body: body,
-      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': w.step6Csrf, 'Accept': '*/*' },
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken, 'Accept': '*/*' },
       credentials: 'same-origin',
       cache: 'no-store',
       signal: ctrl.signal

@@ -10,6 +10,7 @@ const ttl = 600000; // 10 min
 const dbg = (...m) => { if (DEBUG) console.log(...m); };
 const grp = (t, fn) => { if (!DEBUG) return fn(); console.group(t); try { return fn(); } finally { console.groupEnd(); } };
 const q = (id) => d.getElementById(id);
+const csrfToken = w.step6Csrf || d.querySelector('meta[name="csrf-token"]')?.content || '';
 
 const step = d.querySelector('.step6');
 const errBox = q('errorMsg');
@@ -98,7 +99,7 @@ function fetchData(body, key, retry) {
   return fetch(url, {
     method: 'POST',
     body,
-    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': w.step6Csrf, 'Accept': '*/*' },
+    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken, 'Accept': '*/*' },
     credentials: 'same-origin',
     cache: 'no-store',
     signal: ctrl.signal

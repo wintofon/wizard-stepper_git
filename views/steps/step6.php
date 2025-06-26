@@ -290,6 +290,7 @@ if (!file_exists($countUpLocal))
 <meta charset="utf-8">
 <title>Paso 5 – Configurá tu router</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="csrf-token" content="<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>">
 <?php
 /* ─── Helper: <link> seguro ───────────────────────────────────────────── */
 function safeStyle(string $local, string $cdn = ''): void
