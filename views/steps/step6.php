@@ -340,110 +340,147 @@ foreach ($styles as [$local, $cdn]) {
 </script>
 <?php endif; ?>
 </head><body>
+<!-- =======================================================================
+  SEGMENTO CORREGIDO  ·  Paso 6 – Wizard CNC
+  ——————————————————————————————————————————————————————————————
+  • Se reemplaza la combinación “.container + .row + .col-*” de Bootstrap
+    por una grilla pura CSS (.cards-grid) para evitar el width:100 % que
+    forzaba a mostrar una sola columna.
+  • «container» → «container-fluid» + clase .step6  (hook de estilo).
+  • Cada bloque funcional es un hijo directo de la grilla:
+      · .area-tool
+      · .area-sliders    (más adelante agregarás .area-results, .area-radar…)
+  • Todo el HTML interno de las tarjetas se mantiene intacto.
+======================================================================= -->
 <div class="content-main">
-  <div class="container py-4">
-    <h2 class="step-title"><i data-feather="bar-chart-2"></i> Resultados</h2>
-    <p class="step-desc">Ajustá los parámetros y revisá los datos de corte.</p>
-  <!-- BLOQUE CENTRAL -->
-  <div class="row gx-3 mb-4 cards-grid">
-    <div class="col-12 mb-3 area-tool">
-      <div class="card h-100 shadow-sm">
-        <div class="card-header text-center p-3">
-          <span>#<?= $serialNumber ?> – <?= $toolCode ?></span>
-        </div>
-        <div class="card-body text-center p-4">
-          <?php if ($imageURL): ?>
-            <img src="<?= htmlspecialchars($imageURL, ENT_QUOTES) ?>"
-                 alt="Imagen principal herramienta"
-                 class="tool-image mx-auto d-block">
-          <?php else: ?>
-            <div class="text-secondary">Sin imagen disponible</div>
-          <?php endif; ?>
-          <div class="tool-name mt-3"><?= $toolName ?></div>
-          <div class="tool-type"><?= $toolType ?></div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- contenedor a ancho completo + hook CSS -->
+  <div class="container-fluid py-4 step6">
 
-  <!-- AJUSTES / RESULTADOS / RADAR -->
-  <div class="row gx-3 mb-4 cards-grid">
-    <!-- Ajustes -->
-    <div class="col-12 col-lg-4 mb-3 area-sliders">
-      <div class="card h-100 shadow-sm">
-        <div class="card-header text-center p-3"><h5 class="mb-0">Ajustes</h5></div>
-        <div class="card-body p-4">
-          <!-- fz -->
-          <div class="mb-4 px-2">
-            <label for="sliderFz" class="form-label">fz (mm/tooth)</label>
-            <div class="slider-wrap">
-              <input type="range" id="sliderFz" class="form-range"
-                     min="<?= number_format($fzMinDb,4,'.','') ?>"
-                     max="<?= number_format($fzMaxDb,4,'.','') ?>"
-                     step="0.0001"
-                     value="<?= number_format($baseFz,4,'.','') ?>">
-              <span class="slider-bubble"></span>
-            </div>
-            <div class="text-end small text-secondary mt-1">
-              <span><?= number_format($fzMinDb,4,'.','') ?></span> –
-              <strong id="valFz"><?= number_format($baseFz,4,'.','') ?></strong> –
-              <span><?= number_format($fzMaxDb,4,'.','') ?></span>
-            </div>
+    <!--──────────────────────────────────────────────────────────────
+        Encabezado
+    ────────────────────────────────────────────────────────────────-->
+    <h2 class="step-title">
+      <i data-feather="bar-chart-2"></i> Resultados
+    </h2>
+    <p class="step-desc">
+      Ajustá los parámetros y revisá los datos de corte.
+    </p>
+
+    <!--──────────────────────────────────────────────────────────────
+        BLOQUE 1 · Ficha principal de la herramienta
+        (una sola tarjeta)                                         
+    ────────────────────────────────────────────────────────────────-->
+    <div class="cards-grid mb-4"><!-- grilla -->
+      <div class="area-tool"><!-- ítem → SIN .col-* -->
+        <div class="card h-100 shadow-sm">
+          <div class="card-header text-center p-3">
+            <span>#<?= $serialNumber ?> – <?= $toolCode ?></span>
           </div>
-          <!-- Vc -->
-          <div class="mb-4 px-2">
-            <label for="sliderVc" class="form-label">Vc (m/min)</label>
-            <div class="slider-wrap">
-              <input type="range" id="sliderVc" class="form-range"
-                     min="<?= number_format($vcMinDb,1,'.','') ?>"
-                     max="<?= number_format($vcMaxDb,1,'.','') ?>"
-                     step="0.1"
-                     value="<?= number_format($baseVc,1,'.','') ?>">
-              <span class="slider-bubble"></span>
-            </div>
-            <div class="text-end small text-secondary mt-1">
-              <span><?= number_format($vcMinDb,1,'.','') ?></span> –
-              <strong id="valVc"><?= number_format($baseVc,1,'.','') ?></strong> –
-              <span><?= number_format($vcMaxDb,1,'.','') ?></span>
-            </div>
+
+          <div class="card-body text-center p-4">
+            <?php if ($imageURL): ?>
+              <img src="<?= htmlspecialchars($imageURL, ENT_QUOTES) ?>"
+                   alt="Imagen principal herramienta"
+                   class="tool-image mx-auto d-block">
+            <?php else: ?>
+              <div class="text-secondary">Sin imagen disponible</div>
+            <?php endif; ?>
+
+            <div class="tool-name  mt-3"><?= $toolName ?></div>
+            <div class="tool-type"><?= $toolType ?></div>
           </div>
-          <!-- ae -->
-          <div class="mb-4 px-2">
-            <label for="sliderAe" class="form-label">
-              ae (mm) <small>(ancho de pasada)</small>
-            </label>
-            <div class="slider-wrap">
-              <input type="range" id="sliderAe" class="form-range"
-                     min="0.1"
-                     max="<?= number_format($diameterMb,1,'.','') ?>"
-                     step="0.1"
-                     value="<?= number_format($diameterMb * 0.5,1,'.','') ?>">
-              <span class="slider-bubble"></span>
-            </div>
-            <div class="text-end small text-secondary mt-1">
-              <span>0.1</span> –
-              <strong id="valAe"><?= number_format($diameterMb * 0.5,1,'.','') ?></strong> –
-              <span><?= number_format($diameterMb,1,'.','') ?></span>
-            </div>
+        </div><!-- /.card -->
+      </div><!-- /.area-tool -->
+    </div><!-- /.cards-grid -->
+
+
+    <!--──────────────────────────────────────────────────────────────
+        BLOQUE 2 · Ajustes / (Resultados) / (Radar)
+        (aquí sólo se muestra .area-sliders; añadirás los otros dos)
+    ────────────────────────────────────────────────────────────────-->
+    <div class="cards-grid mb-4"><!-- grilla -->
+      <!--────── Ajustes (sliders) ──────-->
+      <div class="area-sliders"><!-- ítem → SIN .col-* -->
+        <div class="card h-100 shadow-sm">
+          <div class="card-header text-center p-3">
+            <h5 class="mb-0">Ajustes</h5>
           </div>
-          <!-- Pasadas -->
-          <div class="mb-4 px-2">
-            <label for="sliderPasadas" class="form-label">Pasadas</label>
-            <div class="slider-wrap">
-              <input type="range" id="sliderPasadas" class="form-range"
-                     min="1" max="1" step="1"
-                     value="1"
-                     data-thickness="<?= htmlspecialchars((string)$thickness, ENT_QUOTES) ?>">
-              <span class="slider-bubble"></span>
+
+          <div class="card-body p-4">
+            <!-- fz ------------------------------------------------- -->
+            <div class="mb-4 px-2">
+              <label for="sliderFz" class="form-label">fz (mm/tooth)</label>
+              <div class="slider-wrap">
+                <input type="range" id="sliderFz" class="form-range"
+                       min="<?= number_format($fzMinDb,4,'.','') ?>"
+                       max="<?= number_format($fzMaxDb,4,'.','') ?>"
+                       step="0.0001"
+                       value="<?= number_format($baseFz,4,'.','') ?>">
+                <span class="slider-bubble"></span>
+              </div>
+              <div class="text-end small text-secondary mt-1">
+                <span><?= number_format($fzMinDb,4,'.','') ?></span> –
+                <strong id="valFz"><?= number_format($baseFz,4,'.','') ?></strong> –
+                <span><?= number_format($fzMaxDb,4,'.','') ?></span>
+              </div>
             </div>
-            <div id="textPasadasInfo" class="small text-secondary mt-1">
-              1 pasada de <?= number_format($thickness, 2) ?> mm
+
+            <!-- Vc ------------------------------------------------- -->
+            <div class="mb-4 px-2">
+              <label for="sliderVc" class="form-label">Vc (m/min)</label>
+              <div class="slider-wrap">
+                <input type="range" id="sliderVc" class="form-range"
+                       min="<?= number_format($vcMinDb,1,'.','') ?>"
+                       max="<?= number_format($vcMaxDb,1,'.','') ?>"
+                       step="0.1"
+                       value="<?= number_format($baseVc,1,'.','') ?>">
+                <span class="slider-bubble"></span>
+              </div>
+              <div class="text-end small text-secondary mt-1">
+                <span><?= number_format($vcMinDb,1,'.','') ?></span> –
+                <strong id="valVc"><?= number_format($baseVc,1,'.','') ?></strong> –
+                <span><?= number_format($vcMaxDb,1,'.','') ?></span>
+              </div>
             </div>
-            <div id="errorMsg" class="text-danger mt-2 small"></div>
-          </div>
-        </div>
-      </div>
-    </div>
+
+            <!-- ae ------------------------------------------------- -->
+            <div class="mb-4 px-2">
+              <label for="sliderAe" class="form-label">
+                ae (mm) <small>(ancho de pasada)</small>
+              </label>
+              <div class="slider-wrap">
+                <input type="range" id="sliderAe" class="form-range"
+                       min="0.1"
+                       max="<?= number_format($diameterMb,1,'.','') ?>"
+                       step="0.1"
+                       value="<?= number_format($diameterMb*0.5,1,'.','') ?>">
+                <span class="slider-bubble"></span>
+              </div>
+              <div class="text-end small text-secondary mt-1">
+                <span>0.1</span> –
+                <strong id="valAe"><?= number_format($diameterMb*0.5,1,'.','') ?></strong> –
+                <span><?= number_format($diameterMb,1,'.','') ?></span>
+              </div>
+            </div>
+
+            <!-- Pasadas -------------------------------------------- -->
+            <div class="mb-4 px-2">
+              <label for="sliderPasadas" class="form-label">Pasadas</label>
+              <div class="slider-wrap">
+                <input type="range" id="sliderPasadas" class="form-range"
+                       min="1" max="1" step="1"
+                       value="1"
+                       data-thickness="<?= htmlspecialchars((string)$thickness, ENT_QUOTES) ?>">
+                <span class="slider-bubble"></span>
+              </div>
+              <div id="textPasadasInfo" class="small text-secondary mt-1">
+                1 pasada de <?= number_format($thickness, 2) ?> mm
+              </div>
+              <div id="errorMsg" class="text-danger mt-2 small"></div>
+            </div>
+          </div><!-- /.card-body -->
+        </div><!-- /.card -->
+      </div><!-- /.area-sliders -->
 
     <!-- Resultados -->
     <div class="col-12 col-lg-4 mb-3 area-results">
