@@ -1,20 +1,40 @@
-/* File: assets/css/objects/step6.css (refactor 2025-06-25) */
+/* ============================================================================
+ * File: assets/css/objects/step6.css  ·  Versión completa 2025-06-26
+ * ---------------------------------------------------------------------------
+ *  • Refactor del 25/06 + parche col-grid 26/06
+ *  • Todas las tipografías “grisáceas” se aclaran (≈ #E5E7EB) para mayor
+ *    contraste en dark-mode.
+ *  • Incluye corrección Bootstrap-grid (anula width:100% de .col-12, etc.)
+ *  • Mantiene comentarios originales y bloque quick-test.
+ * ==========================================================================*/
 
+/* --------------------------------------------------------------------------
+   1) Variables específicas del Paso 6
+   --------------------------------------------------------------------------*/
 :root {
-  --step6-accent: var(--accent-color);
-  --step6-bg-card: var(--bg-card);
-  --step6-border: var(--border-color);
-  --step6-radius: var(--border-radius-xxl);
+  /* colores base heredados del theme global */
+  --step6-accent:            var(--accent-color);
+  --step6-bg-card:           var(--bg-card);
+  --step6-border:            var(--border-color);
+  --step6-radius:            var(--border-radius-xxl);
+
+  /* ⚡ parche contraste: texto secundario casi blanco */
+  --step6-text-sec:          #e5e7eb;          /* antes: var(--text-color-sec) */
 }
 
 [data-theme='dark'] {
-  --step6-accent: #7fdcff;
-  --step6-bg-card: #161b22;
-  --step6-border: #2c2f33;
-  --step6-radius: var(--border-radius-xxl);
+  --step6-accent:            #7fdcff;          /* celeste GitHub-light */
+  --step6-bg-card:           #161b22;          /* gris muy oscuro      */
+  --step6-border:            #2c2f33;          /* gris oscuro          */
+  --step6-radius:            var(--border-radius-xxl);
+
+  /* contraste dark-mode */
+  --step6-text-sec:          #e5e7eb;
 }
 
-/* STEP6 layout */
+/* --------------------------------------------------------------------------
+   2) Grilla principal
+   --------------------------------------------------------------------------*/
 .cards-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -22,7 +42,18 @@
   align-items: flex-start;
 }
 
-/* STEP6 card */
+/* Parche anti-Bootstrap (.col-) dentro de la grilla
+   ──────────────────────────────────────────────────── */
+.step6 .cards-grid > [class^="col-"],
+.step6 .cards-grid > [class*=" col-"] {
+  width: auto !important;        /* revierte width:100% de .col-12 */
+  flex: 0 0 auto !important;     /* sin flex-basis forzado         */
+  padding: 0 !important;         /* usamos gap del grid            */
+}
+
+/* --------------------------------------------------------------------------
+   3) Tarjetas genéricas
+   --------------------------------------------------------------------------*/
 .cards-grid .card {
   border: 1px solid var(--step6-border);
   border-radius: var(--step6-radius);
@@ -41,7 +72,9 @@
   flex-direction: column;
 }
 
-/* STEP6 tool */
+/* --------------------------------------------------------------------------
+   4) Ficha de la herramienta
+   --------------------------------------------------------------------------*/
 .tool-image {
   display: block;
   margin: clamp(0.5rem, 2vw, 0.75rem) auto;
@@ -55,12 +88,15 @@
   font-weight: 600;
 }
 
+/* ⚡ texto secundario aclarado */
 .tool-type {
   font-size: clamp(0.9rem, 1vw, 1rem);
-  color: var(--text-color-sec);
+  color: var(--step6-text-sec);
 }
 
-/* STEP6 specs */
+/* --------------------------------------------------------------------------
+   5) Lista de especificaciones
+   --------------------------------------------------------------------------*/
 .spec-list {
   margin: 0;
   padding-left: 0;
@@ -73,15 +109,10 @@
   margin-bottom: 0.35rem;
 }
 
-.spec-list li span:first-child {
-  color: var(--text-color);
-}
+.spec-list li span:first-child { color: var(--step6-text-sec); }
+.spec-list li span:last-child  { font-weight: 600; color: var(--step6-accent); }
 
-.spec-list li span:last-child {
-  font-weight: 600;
-  color: var(--step6-accent);
-}
-
+/* Imagen vectorial */
 .vector-image {
   display: block;
   width: 100%;
@@ -89,10 +120,10 @@
   object-fit: contain;
 }
 
-/* STEP6 sliders */
-.slider-wrap {
-  position: relative;
-}
+/* --------------------------------------------------------------------------
+   6) Sliders + burbujas
+   --------------------------------------------------------------------------*/
+.slider-wrap { position: relative; }
 
 .slider-bubble {
   position: absolute;
@@ -107,28 +138,22 @@
 }
 
 @keyframes shake {
-  0%,100% {
-    transform: translateX(-50%) translateY(0);
-  }
-
-  50% {
-    transform: translateX(-50%) translateY(-2px);
-  }
+  0%,100% { transform: translateX(-50%) translateY(0); }
+  50%     { transform: translateX(-50%) translateY(-2px); }
 }
 
-.slider-wrap input:active + .slider-bubble {
-  animation: shake 0.3s;
-}
+.slider-wrap input:active + .slider-bubble { animation: shake 0.3s; }
 
 input.form-range:focus-visible::-webkit-slider-thumb {
   box-shadow: 0 0 0 0.1875rem rgb(79 195 247 / 40%);
 }
-
 input.form-range:focus-visible::-moz-range-thumb {
   box-shadow: 0 0 0 0.1875rem rgb(79 195 247 / 40%);
 }
 
-/* STEP6 results */
+/* --------------------------------------------------------------------------
+   7) Resultados rápidos
+   --------------------------------------------------------------------------*/
 .result-box {
   flex: 1;
   min-width: 5rem;
@@ -139,85 +164,45 @@ input.form-range:focus-visible::-moz-range-thumb {
   text-align: center;
 }
 
-.param-label {
-  font-size: 0.75rem;
-  color: var(--text-color-sec);
-}
-
-.fw-bold {
-  color: var(--step6-accent);
-}
+.param-label   { font-size: 0.75rem; color: var(--step6-text-sec); }
+.fw-bold       { color: var(--step6-accent); }
 
 /* stylelint-disable-next-line selector-id-pattern */
-#radarChart {
-  max-width: 100%;
-}
+#radarChart { max-width: 100%; }
 
-/* STEP6 config */
-.config-card-static {
-  padding: clamp(0.75rem, 2vw, 0.8rem);
-}
+/* --------------------------------------------------------------------------
+   8) Tarjeta de configuración estática
+   --------------------------------------------------------------------------*/
+.config-card-static { padding: clamp(0.75rem, 2vw, 0.8rem); }
 
 .config-section-title {
   margin-bottom: 0.25rem;
   font-weight: 600;
-  color: var(--text-color);
+  color: #fff;                       /* título siempre blanco       */
 }
+.config-item      { display: flex; justify-content: space-between; margin: 0.25rem 0; }
+.label-static     { color: var(--step6-text-sec); }
+.value-static     { font-weight: 600; color: var(--step6-accent); }
 
-.config-item {
-  display: flex;
-  justify-content: space-between;
-  margin: 0.25rem 0;
-}
+.section-divider  { margin: 0.5rem 0; border-bottom: 1px solid rgb(255 255 255 / 10%); }
 
-.label-static {
-  color: var(--text-color);
-}
+/* --------------------------------------------------------------------------
+   9) Notas
+   --------------------------------------------------------------------------*/
+.notes-card      { padding: clamp(0.75rem, 2vw, 0.8rem); }
 
-.value-static {
-  font-weight: 600;
-  color: var(--step6-accent);
-}
+.notes-list      { margin: 0; padding: 0; list-style: none; }
+.notes-list li   { display: flex; gap: 0.5rem; align-items: flex-start; padding: 0.25rem 0; }
 
-.section-divider {
-  margin: 0.5rem 0;
-  border-bottom: 1px solid rgb(255 255 255 / 10%);
-}
+.notes-list li i { margin-top: 0.2rem; font-size: 1rem; color: var(--step6-accent); }
+.notes-list li div { font-size: 0.9rem; color: var(--step6-text-sec); }
 
-/* STEP6 notes */
-.notes-card {
-  padding: clamp(0.75rem, 2vw, 0.8rem);
-}
+/* helper Bootstrap */
+.text-secondary  { color: var(--step6-text-sec) !important; }
 
-.notes-list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.notes-list li {
-  display: flex;
-  gap: 0.5rem;
-  align-items: flex-start;
-  padding: 0.25rem 0;
-}
-
-.notes-list li i {
-  margin-top: 0.2rem;
-  font-size: 1rem;
-  color: var(--step6-accent);
-}
-
-.notes-list li div {
-  font-size: 0.9rem;
-  color: var(--text-color);
-}
-
-.text-secondary {
-  color: var(--text-color-sec);
-}
-
-/* STEP6 spinner */
+/* --------------------------------------------------------------------------
+   10) Spinner de carga
+   --------------------------------------------------------------------------*/
 .spinner-overlay {
   position: absolute;
   inset: 0;
@@ -231,11 +216,10 @@ input.form-range:focus-visible::-moz-range-thumb {
 }
 
 .loading .spinner-overlay,
-.spinner-overlay.show {
-  visibility: visible;
-}
+.spinner-overlay.show { visibility: visible; }
 
 .spinner-border {
+  --spinner-size: 3rem;
   width: var(--spinner-size);
   height: var(--spinner-size);
   border: 0.25rem solid var(--step6-accent);
@@ -244,18 +228,14 @@ input.form-range:focus-visible::-moz-range-thumb {
   animation: spin 0.8s linear infinite;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
-/* STEP6 debug */
+/* --------------------------------------------------------------------------
+   11) Panel de debug
+   --------------------------------------------------------------------------*/
 .debug-panel {
   position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  left: 0; right: 0; bottom: 0;
   z-index: 9999;
   max-height: 9.375rem;
   padding: 0.5rem;
@@ -267,25 +247,17 @@ input.form-range:focus-visible::-moz-range-thumb {
   background: rgb(0 0 0 / 80%);
 }
 
-.debug-panel.show {
-  display: block;
-}
+.debug-panel.show { display: block; }
 
-/* STEP6 layout breakpoints */
-@media (width >= 48rem) {
-  .cards-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
+/* --------------------------------------------------------------------------
+   12) Breakpoints
+   --------------------------------------------------------------------------*/
+@media (width >= 48rem) { .cards-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (width >= 62rem) { .cards-grid { grid-template-columns: repeat(3, 1fr); } }
 
-@media (width >= 62rem) {
-  .cards-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-/* STEP6 quick-test */
-
+/* --------------------------------------------------------------------------
+   13) Quick-test DevTools
+   --------------------------------------------------------------------------*/
 /*
 // Resalta en rojo cualquier elemento con overflow horizontal
 // (útil en DevTools)
