@@ -13,21 +13,16 @@
 
 h2 {
   margin-bottom: 1.5rem;
-  color: #fff; /* headings in this step should appear in white */
+  color: var(--text-color-muted);
 }
 
 .form-label {
   font-weight: 600;
-  color: #fff; /* label text in white for better contrast */
+  color: var(--text-color-sec);
 }
 
 #diaFilter.form-select {
-  color: #fff; /* make dropdown text white */
+  color: var(--text-color);
   background-color: var(--bg-card);
-}
-
-/* step description text */
-.step-desc {
-  color: #fff;
 }
 
