@@ -130,9 +130,7 @@
     toolsData.forEach(t=>{
         tableBody.insertAdjacentHTML('beforeend',`
         <tr>
-          <td><button class="btn btn-sm btn-primary select-btn"
-                 data-tool_id="${t.tool_id}" data-tbl="${t.tbl}">
-                 Seleccionar <i class="bi bi-arrow-right"></i></button></td>
+          <td><button class="btn-select" data-tool_id="${t.tool_id}" data-tbl="${t.tbl}"><span>Seleccionar</span><i data-feather="arrow-right"></i></button></td>
           <td><span class="badge bg-info text-dark">${t.brand}</span></td>
           <td>${t.series_code}</td>
           <td>${t.details.image?`<img src="${BASE_URL}/${t.details.image}" class="thumb">`:''}</td>
@@ -143,7 +141,7 @@
     });
 
     /* hook de selección */
-    document.querySelectorAll('.select-btn').forEach(btn=>{
+    document.querySelectorAll('.btn-select').forEach(btn=>{
       btn.onclick=()=>{
         toolIdInput.value=btn.dataset.tool_id;
         toolTableInput.value=btn.dataset.tbl;
@@ -153,6 +151,7 @@
       };
     });
     ordenarIconos();
+    if (window.feather) feather.replace();
   }
 
   /* ========== ORDENAMIENTO CLIENT-SIDE ============================ */

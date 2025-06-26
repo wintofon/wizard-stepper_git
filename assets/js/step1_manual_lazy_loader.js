@@ -62,7 +62,7 @@ export async function loadPage() {
       data.tools.forEach((t) => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td><input type="radio" class="form-check-input select-btn" data-tool_id="${t.tool_id}" data-tbl="${t.tbl}"></td>
+          <td><button class="btn-select" data-tool_id="${t.tool_id}" data-tbl="${t.tbl}"><span>Seleccionar</span><i data-feather="arrow-right"></i></button></td>
           <td><span class="badge bg-info text-dark">${t.brand ?? ""}</span></td>
           <td>${t.series ?? t.series_code ?? ""}</td>
           <td>${t.img_url ? `<img src="${t.img_url}" class="thumb">` : ""}</td>
@@ -73,6 +73,7 @@ export async function loadPage() {
           <td>${t.tool_type ?? ""}</td>`;
         tbody.appendChild(tr);
       });
+      if (window.feather) feather.replace();
     }
     hasMore = data.hasMore;
     if (hasMore) {

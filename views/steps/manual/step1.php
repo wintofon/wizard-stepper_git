@@ -181,7 +181,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
       <div class="row">
         <!-- Filtros -->
-        <aside class="col-md-3 sidebar">
+        <aside class="col-md-3 sidebar filter-bar">
           <div class="card h-100 shadow-sm">
             <div class="card-header bg-primary text-white py-2">
               <i class="bi bi-funnel"></i> Filtros

@@ -18,7 +18,7 @@ export function initToolTable() {
   }
 
   tbl.addEventListener('click', e => {
-    const btn = e.target.closest('.select-btn');
+    const btn = e.target.closest('.btn-select');
     if (!btn) return;
     document.getElementById('tool_id').value = btn.dataset.tool_id;
     document.getElementById('tool_table').value = btn.dataset.tbl;

@@ -9,6 +9,37 @@
 
 /* Estilo v6.0 trapezoidal, adaptado al stepper azul oscuro */
 
+:root{
+  --step1-bg:#0d1117;
+  --step1-row:#0f1b2b;
+  --step1-text:#e5e7eb;
+  --step1-accent:var(--step6-accent);
+}
+
+body{
+  background:var(--step1-bg);
+  color:var(--step1-text);
+}
+
+aside.filter-bar{
+  background:var(--step1-row);
+  border-right:1px solid #2c2f33;
+  color:var(--step1-text);
+}
+
+#toolTbl thead{
+  background:var(--step1-row);
+  color:var(--step1-text);
+}
+
+#toolTbl tbody tr:hover{
+  background:#182236;
+}
+
+#toolTbl tbody::-webkit-scrollbar-thumb{
+  background:#2c2f33;
+}
+
 .sidebar {             /* Panel lateral de filtros */
   min-width: 100%;
   padding-bottom: 1rem;
