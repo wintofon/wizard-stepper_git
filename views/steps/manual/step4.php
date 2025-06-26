@@ -205,7 +205,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
   </div>
 
   <!-- 5) Botón “Siguiente” -->
-  <div id="next-button-container" class="text-end mt-4" style="display:none">
+  <div id="next-button-container" class="text-start mt-4" style="display:none">
     <button id="btn-next" class="btn btn-primary btn-lg">
       Siguiente <i data-feather="arrow-right" class="ms-1"></i>
     </button>

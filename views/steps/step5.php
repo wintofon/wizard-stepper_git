@@ -183,7 +183,7 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
     </div>
 
     <!-- Botón -->
-    <div id="nextWrap" class="text-end mt-4" style="display:<?=$hasPrev?'block':'none'?>">
+    <div id="nextWrap" class="text-start mt-4" style="display:<?=$hasPrev?'block':'none'?>">
       <button class="btn btn-primary btn-lg">
         Siguiente <i data-feather="arrow-right" class="ms-1"></i>
       </button>
