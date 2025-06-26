@@ -1,6 +1,7 @@
 /* STEP6-AJAX */
 (function (w, d) {
   'use strict';
+  console.info('[step6] JS cargado');
   var DEBUG = w.DEBUG === true;
   var ttl = 600000; // 10 min
   function dbg() { if (DEBUG) console.log.apply(console, arguments); }
@@ -89,9 +90,11 @@
       if (!j.success) throw new Error(j.error || 'Error');
       sessionStorage.setItem(key, JSON.stringify({ ts: Date.now(), data: j.data }));
       paint(j.data);
+      console.info('[step6] AJAX cargado correctamente');
     }).catch(function (e) {
       if (retry && (e.name === 'AbortError' || e.message === 'Failed to fetch')) return fetchData(body, key, false);
       showErr(e.message);
+      console.error('[step6] Error AJAX:', e);
     }).finally(function () { setLoading(false); dbg('ms', (performance.now() - t0).toFixed(1)); });
   }
   function recalc() {
@@ -117,4 +120,5 @@
       recalc();
     } catch (e) { showErr(e.message); }
   };
+  console.info('[step6] initStep6 registrado');
 })(window, document);

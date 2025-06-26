@@ -1,6 +1,8 @@
 /* STEP6-AJAX */
 import { debounce } from './utils.js';
 
+console.info('[step6] JS cargado (module)');
+
 const w = window;
 const d = document;
 const DEBUG = w.DEBUG === true;
@@ -109,10 +111,12 @@ function fetchData(body, key, retry) {
     if (!j.success) throw new Error(j.error || 'Error');
     sessionStorage.setItem(key, JSON.stringify({ ts: Date.now(), data: j.data }));
     paint(j.data);
+    console.info('[step6] AJAX cargado correctamente');
   }).catch(e => {
     if (retry && (e.name === 'AbortError' || e.message === 'Failed to fetch'))
       return fetchData(body, key, false);
     showErr(e.message);
+    console.error('[step6] Error AJAX:', e);
   }).finally(() => {
     setLoading(false);
     dbg('ms', (performance.now() - t0).toFixed(1));
@@ -140,3 +144,4 @@ export function init() {
   } catch (e) { showErr(e.message); }
 }
 window.step6 = { init };
+console.info('[step6] init() registrado');
