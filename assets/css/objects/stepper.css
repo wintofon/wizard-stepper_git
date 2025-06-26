@@ -1,3 +1,5 @@
+cooregime solo eso y damelo entero
+
 /*
  * File: stepper.css
  * Main responsibility: Part of the CNC Wizard Stepper.
@@ -27,30 +29,14 @@
 }
 
 .stepper-bar {
-  scrollbar-width: thin;      /* Firefox  */
-  overflow-x: auto;           /* permite scrolleo horizontal */
+  scrollbar-width: thin; /* Firefox */
+  overflow-x: auto; /* permite scrolleo horizontal */
   display: flex;
   flex-wrap: nowrap;
-
-  /* centrado horizontal */
-  margin: 0 auto;
 }
 
 .stepper-bar::-webkit-scrollbar {
-  display: none;              /* oculta scrollbar en navegadores WebKit */
-}
-
-/* =========================== */
-/*  PASO ACTIVO CON “BRILLO”   */
-/* =========================== */
-.stepper-bar li.active {
-  background-color: var(--step6-accent);   /* azul celeste */
-  color: #0d1117;                          /* texto oscuro */
-
-  /* halo luminoso */
-  box-shadow:
-    0 0 0 2px rgb(0 0 0 / 35%) inset,      /* filo interior oscuro */
-    0 0 12px 4px var(--step6-accent);      /* resplandor exterior  */
+  display: none; /* oculta scrollbar en navegadores WebKit */
 }
 
 /* Responsivo: ocultar logo en pantallas <768px */
@@ -62,4 +48,5 @@
   .stepper-header {
     justify-content: center;
   }
+
 }
