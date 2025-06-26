@@ -28,20 +28,18 @@
 }
 
 /* Opción de selección en listados */
-.btn-select {
-  border: none;
-  padding: 0.5rem 1rem;
-  color: #fff;
-  background-color: #0d6efd;
-  display: inline-flex;
-  align-items: center;
+.btn-select{
+  display:inline-flex;
+  align-items:center;
+  gap:.35rem;
+  padding:.3rem .75rem;
+  font-weight:600;
+  background:var(--step6-accent);
+  color:#0d1117;
+  border:0;
 }
-
-/* Resalta la opción seleccionada */
-.btn-select:hover {
-  background-color: #0b5ed7;
-  color: #fff;
-}
+.btn-select i{width:14px;height:14px;stroke:currentColor;}
+.btn-select:hover{filter:brightness(1.15);}
 
 /* Variante con borde para acciones secundarias */
 .btn-outline-primary {
