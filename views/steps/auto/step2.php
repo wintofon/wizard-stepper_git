@@ -185,28 +185,19 @@ $hasPrev   = is_int($prevType) && array_key_exists((int)$prevType, $types)
   <meta charset="utf-8">
   <title>Paso 2 – Mecanizado & Estrategia</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <?php
-    $styles = [
-      'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
-      'assets/css/components/strategy.css',
-      'assets/css/objects/step-common.css',
-    ];
-    $embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
-    include __DIR__ . '/../../partials/styles.php';
-  ?>
-  <?php if (!$embedded): ?>
-  <script>
-    window.BASE_URL = <?= json_encode(BASE_URL) ?>;
-    window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
-  </script>
-  <?php endif; ?>
+  <!-- Bootstrap 5 + estilos del wizard -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="assets/css/objects/step-common.css">
+  <link rel="stylesheet" href="assets/css/components/strategy.css">
 </head>
-<body>
-  <main class="container py-4">
 
+<body>
+<main class="container py-4">
+  <!---- Encabezado idéntico al resto de pasos -------------------->
   <h2 class="step-title"><i data-feather="settings"></i> Mecanizado y estrategia</h2>
   <p class="step-desc">Elegí el tipo de mecanizado y la estrategia recomendada.</p>
 
+  <!---- Errores globales -->
   <?php if (!empty($errors)): ?>
     <div class="alert-custom">
       <ul class="mb-0">
@@ -217,111 +208,120 @@ $hasPrev   = is_int($prevType) && array_key_exists((int)$prevType, $types)
     </div>
   <?php endif; ?>
 
-  <form id="formStrat" method="post" action="" novalidate>
-    <!-- Campos ocultos: step y csrf -->
+  <!---- FORMULARIO PRINCIPAL -->
+  <form id="strategyForm" method="post" novalidate>
+    <!-- ocultos -->
     <input type="hidden" name="step"       value="2">
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>">
     <input type="hidden" name="machining_type_id" id="machining_type_id"
-           value="<?= $hasPrev ? (int)$prevType : '' ?>">
+           value="<?= $hasPrev ? (int)$prevType  : '' ?>">
     <input type="hidden" name="strategy_id"       id="strategy_id"
            value="<?= $hasPrev ? (int)$prevStrat : '' ?>">
 
-    <!-- 1) Tipo de mecanizado -->
+    <!-- 1 · Tipo de mecanizado -->
     <h5>Tipo de mecanizado</h5>
-    <div id="typeRow" class="d-flex flex-wrap mb-3">
+    <div id="machiningRow" class="d-flex flex-wrap mb-3">
       <?php foreach ($types as $tid => $tname): ?>
-        <button
-          type="button"
-          class="btn btn-outline-primary btn-type <?= ($hasPrev && (int)$prevType === $tid) ? 'active' : '' ?>"
-          data-tid="<?= $tid ?>"
-        ><?= htmlspecialchars($tname, ENT_QUOTES) ?></button>
+        <button type="button"
+                class="btn btn-outline-primary btn-machining me-2 mb-2 <?= ($hasPrev && (int)$prevType === $tid) ? 'active' : '' ?>"
+                data-id="<?= $tid ?>">
+          <?= htmlspecialchars($tname, ENT_QUOTES) ?>
+        </button>
       <?php endforeach; ?>
     </div>
 
-    <!-- 2) Estrategias (se muestran tras elegir tipo) -->
-    <div
-      id="stratBox"
-      class="mb-3"
-      style="<?= $hasPrev ? 'display:block' : 'display:none' ?>"
+    <!-- 2 · Estrategias (se muestra luego) -->
+    <div id="strategyBox" class="mb-3" style="<?= $hasPrev ? 'display:block' : 'display:none' ?>">
       <h5>Estrategia</h5>
-      <div id="stratCol">
+      <div id="strategyButtons">
         <?php if ($hasPrev):
           foreach ($lists[(int)$prevType] as $s): ?>
-            <button
-              type="button"
-              class="btn btn-outline-secondary btn-strat <?= ((int)$prevStrat === $s['id']) ? 'active' : '' ?>"
-              data-sid="<?= $s['id'] ?>"
-            ><?= htmlspecialchars($s['name'], ENT_QUOTES) ?></button>
+            <button type="button"
+                    class="btn btn-outline-secondary btn-strategy me-2 mb-2 <?= ((int)$prevStrat === $s['id']) ? 'active' : '' ?>"
+                    data-id="<?= $s['id'] ?>">
+              <?= htmlspecialchars($s['name'], ENT_QUOTES) ?>
+            </button>
         <?php endforeach; endif; ?>
       </div>
     </div>
 
-    <!-- 3) Botón “Siguiente” -->
-    <div id="next-button-container" class="text-start mt-4" style="display: <?= $hasPrev ? 'block' : 'none' ?>;">
-      <button type="submit" id="btn-next" class="btn btn-primary btn-lg">
+    <!-- 3 · Botón Siguiente -->
+    <div id="nextContainer" class="text-start mt-4" style="display:<?= $hasPrev ? 'block' : 'none' ?>">
+      <button type="submit" class="btn btn-primary btn-lg">
         Siguiente <i data-feather="arrow-right" class="ms-1"></i>
       </button>
     </div>
   </form>
+</main>
 
-  <script>
-  (function() {
-    // Datos PHP → JS
-    const types = <?= json_encode($types, JSON_UNESCAPED_UNICODE) ?>;
-    const lists = <?= json_encode($lists, JSON_UNESCAPED_UNICODE) ?>;
-    // Elementos del DOM
-    const typeRow  = document.getElementById('typeRow');
-    const stratBox = document.getElementById('stratBox');
-    const stratCol = document.getElementById('stratCol');
-    const inType   = document.getElementById('machining_type_id');
-    const inStrat  = document.getElementById('strategy_id');
-    const nextContainer = document.getElementById('next-button-container');
-    const nextBtn  = document.getElementById('btn-next');
+<!---- Bootstrap + Feather Icons scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/feather-icons@4/dist/feather.min.js"></script>
 
-    function resetStrat() {
-      stratCol.innerHTML = '';
-      stratBox.style.display = 'none';
-      inStrat.value = '';
-      nextContainer.style.display = 'none';
-    }
+<script>
+/* PHP → JS */
+const types  = <?= json_encode($types , JSON_UNESCAPED_UNICODE) ?>;
+const lists  = <?= json_encode($lists , JSON_UNESCAPED_UNICODE) ?>;
 
-    // Clic en tipo de mecanizado
-    typeRow.querySelectorAll('.btn-type').forEach(btn => {
-      btn.addEventListener('click', () => {
-        typeRow.querySelectorAll('.btn-type').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+/* Elementos DOM */
+const machRow   = document.getElementById('machiningRow');
+const stratBox  = document.getElementById('strategyBox');
+const stratBtns = document.getElementById('strategyButtons');
+const inputMt   = document.getElementById('machining_type_id');
+const inputSt   = document.getElementById('strategy_id');
+const nextBox   = document.getElementById('nextContainer');
 
-        const tid = parseInt(btn.dataset.tid, 10);
-        inType.value = tid;
-        resetStrat();
+/* Reset de estrategias al cambiar tipo */
+const resetStrategies = () => {
+  stratBtns.innerHTML = '';
+  stratBox.style.display = 'none';
+  inputSt.value = '';
+  nextBox.style.display = 'none';
+};
 
-        (lists[tid] || []).forEach(s => {
-          const b = document.createElement('button');
-          b.type = 'button';
-          b.className = 'btn btn-outline-secondary btn-strat';
-          b.textContent = s.name;
-          b.dataset.sid = s.id;
-          b.addEventListener('click', () => {
-            stratCol.querySelectorAll('.btn-strat').forEach(x => x.classList.remove('active'));
-            b.classList.add('active');
-            inStrat.value = s.id;
-            nextContainer.style.display = 'block';
-          });
-          stratCol.appendChild(b);
-        });
-        stratBox.style.display = 'block';
-      });
-    });
+/* Render de estrategias según tipo */
+const renderStrategies = tid => {
+  (lists[tid] || []).forEach(s => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'btn btn-outline-secondary btn-strategy me-2 mb-2';
+    b.dataset.id = s.id;
+    b.textContent = s.name;
+    b.onclick = () => {
+      stratBtns.querySelectorAll('.btn-strategy').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      inputSt.value = s.id;
+      nextBox.style.display = 'block';
+    };
+    stratBtns.appendChild(b);
+  });
+  stratBox.style.display = 'block';
+};
 
-    // Si había valores previos, mostrar estrategias
-    if (inType.value) {
-      stratBox.style.display = 'block';
-    }
-    if (inType.value && inStrat.value) {
-      nextContainer.style.display = 'block';
-    }
-  })();
-  </script>
-  </main>
+/* Click en tipo de mecanizado */
+machRow.querySelectorAll('.btn-machining').forEach(btn => {
+  btn.addEventListener('click', () => {
+    machRow.querySelectorAll('.btn-machining').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const tid = parseInt(btn.dataset.id, 10);
+    inputMt.value = tid;
+    resetStrategies();
+    renderStrategies(tid);
+  });
+});
+
+/* Validación rápida */
+document.getElementById('strategyForm').addEventListener('submit', e => {
+  if (!inputMt.value || !inputSt.value) {
+    e.preventDefault();
+    alert('Elegí un tipo de mecanizado y una estrategia.');
+  }
+});
+
+/* Feather icons */
+feather.replace({ class: 'feather' });
+</script>
 </body>
 </html>
+
