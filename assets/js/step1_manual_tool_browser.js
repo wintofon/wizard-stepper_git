@@ -140,6 +140,8 @@
           <td class="text-truncate" style="max-width:200px">${t.name}</td>
           <td>${t.diameter_mm}</td><td>${t.flute_count||'-'}</td><td>${t.tool_type}</td>
         </tr>`);
+        const img = tableBody.lastElementChild?.querySelector('img.thumb');
+        if (img && window.checkThumbOrientation) window.checkThumbOrientation(img);
     });
 
     /* hook de selección */

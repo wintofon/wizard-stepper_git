@@ -248,6 +248,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <!-- ─────────────── Scripts ──────────────────────────────────────── -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+  <!-- Detectar orientación de miniaturas -->
+  <script src="<?= asset('assets/js/thumb_orientation.js') ?>"></script>
+
   <!-- Script principal del paso (se encarga de rellenar la tabla y habilitar radios) -->
   <script src="<?= asset('assets/js/step1_manual_tool_browser.js') ?>"
           onload="window._TOOL_BROWSER_LOADED=true"
