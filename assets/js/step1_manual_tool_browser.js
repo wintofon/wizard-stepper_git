@@ -22,21 +22,6 @@
     let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
   };
 
-  // Marca las miniaturas verticales con la clase `.portrait`
-  const markPortrait = (img) => {
-    if (!img) return;
-    const check = () => {
-      if (img.naturalHeight > img.naturalWidth) {
-        img.classList.add('portrait');
-      }
-    };
-    if (img.complete) {
-      check();
-    } else {
-      img.addEventListener('load', check, { once: true });
-    }
-  };
-
   /* -------- elementos clave --------------------------------------- */
   const facetBox      = document.getElementById('facetBox');
   const brandWarning  = document.getElementById('brandWarning');
@@ -155,8 +140,6 @@
           <td class="text-truncate" style="max-width:200px">${t.name}</td>
           <td>${t.diameter_mm}</td><td>${t.flute_count||'-'}</td><td>${t.tool_type}</td>
         </tr>`);
-        const img = tableBody.lastElementChild.querySelector('img.thumb');
-        markPortrait(img);
     });
 
     /* hook de selección */
