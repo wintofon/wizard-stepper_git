@@ -200,17 +200,14 @@ try {
     <!-- ↓ Aquí se pintarán dinámicamente las “fresa-card” por JS ↓ -->
   </div>
 
-  <!-- 7.3) Formulario que almacenará la selección -->
-  <form id="selectForm" method="post" action="">
+  <!-- 7.3) Formulario oculto que se usará al pulsar “Seleccionar” -->
+  <form id="selectForm" method="post" action="" style="display:none;">
     <input type="hidden" name="step" value="3">
     <input type="hidden" id="tool_id"    name="tool_id"    value="">
     <input type="hidden" id="tool_table" name="tool_table" value="">
-    <div id="next-button-container" class="text-start mt-4" style="display:none;">
-      <button type="submit" id="btn-next" class="btn btn-primary btn-lg">
-        Siguiente <i data-feather="arrow-right" class="ms-1"></i>
-      </button>
-    </div>
   </form>
+
+  <!-- Botón "Siguiente" removido -->
 
   <!-- 7.4) Consola interna de debugging -->
 
@@ -249,8 +246,6 @@ try {
     const selectForm   = document.getElementById('selectForm');
     const inputToolId  = document.getElementById('tool_id');
     const inputToolTbl = document.getElementById('tool_table');
-    const nextContainer= document.getElementById('next-button-container');
-    const nextBtn      = document.getElementById('btn-next');
 
     let allTools = [];     // Aquí se guardará el array de fresas recibido
     let diameters = [];    // Diámetros únicos (array de strings con 3 decimales)
@@ -314,7 +309,6 @@ try {
      */
     function renderTools() {
       container.innerHTML = ''; // Limpiamos contenedor
-      nextContainer.style.display = 'none';
 
       if (allTools.length === 0) {
         container.innerHTML = `<div class="alert alert-warning">No se encontraron herramientas compatibles.</div>`;
@@ -399,8 +393,7 @@ try {
     }
 
     /**
-     * 5) Agrega listener a cada botón “Seleccionar”.
-     *    Guarda la herramienta y muestra el botón "Siguiente".
+     * 5) Agrega listener a cada botón “Seleccionar” para enviar el formulario.
      */
     function attachCardListeners() {
       document.querySelectorAll('.btn-select').forEach(btn => {
@@ -410,7 +403,7 @@ try {
           dbg('► [step3.js] Seleccionada herramienta → table=', tbl, 'tool_id=', id);
           inputToolId.value  = id;
           inputToolTbl.value = tbl;
-          nextContainer.style.display = 'block';
+          selectForm.requestSubmit();
         });
       });
     }
