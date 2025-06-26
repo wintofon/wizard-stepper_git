@@ -1,16 +1,18 @@
 {
   "extends": [
-    "stylelint-config-standard",
-    "stylelint-config-clean-order"
+    "stylelint-config-standard"
   ],
   "plugins": [
-    "stylelint-declaration-strict-value"
+    "stylelint-order"
   ],
   "rules": {
-    "no-duplicate-selectors": true,
-    "declaration-block-no-redundant-longhand-properties": true,
-    "selector-id-pattern": null,
-    "keyframes-name-pattern": null,
-    "declaration-block-single-line-max-declarations": null
+    "selector-class-pattern": null,
+    "order/order": [
+      "custom-properties",
+      "dollar-variables",
+      "declarations",
+      "rules",
+      "at-rules"
+    ]
   }
 }
