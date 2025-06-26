@@ -32,8 +32,7 @@
   display: flex;
   flex-wrap: nowrap;
 
-  /* ───── NUEVO ─────  
-     centra toda la barra dentro del header */
+  /* centrado horizontal */
   margin: 0 auto;
 }
 
@@ -41,10 +40,17 @@
   display: none;              /* oculta scrollbar en navegadores WebKit */
 }
 
-/* =========  PASO ACTIVO  (nuevo) =================================== */
+/* =========================== */
+/*  PASO ACTIVO CON “BRILLO”   */
+/* =========================== */
 .stepper-bar li.active {
-  background-color: var(--step6-accent); /* azul celeste del proyecto */
-  color: #0d1117;                        /* texto oscuro para contraste */
+  background-color: var(--step6-accent);   /* azul celeste */
+  color: #0d1117;                          /* texto oscuro */
+
+  /* halo luminoso */
+  box-shadow:
+    0 0 0 2px rgb(0 0 0 / 35%) inset,      /* filo interior oscuro */
+    0 0 12px 4px var(--step6-accent);      /* resplandor exterior  */
 }
 
 /* Responsivo: ocultar logo en pantallas <768px */
