@@ -12,12 +12,9 @@
   padding: .7rem 1.4rem;
   border-color: #256fa1;
   border-radius: .4rem;
-
   font-size: 1rem;
   color: #fff;
-
   background-color: #2b8ac6;
-
   transition: background .3s, border-color .3s;
 }
 
@@ -38,7 +35,7 @@
   color:#0d1117;
   border:0;
 }
-.btn-select i{width:14px;height:14px;stroke:currentColor;}
+.btn-select i{width:14px;height:14px;stroke:currentcolor;}
 .btn-select:hover{filter:brightness(1.15);}
 
 /* Variante con borde para acciones secundarias */

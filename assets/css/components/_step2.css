@@ -11,10 +11,9 @@
 
 .tool-image {
   display: block;
-
   width: 100%;
   height: auto;
-  border-radius: 0rem;
+  border-radius: 0;
 
   /* Remove drop shadow to keep image flat */
   box-shadow: none;

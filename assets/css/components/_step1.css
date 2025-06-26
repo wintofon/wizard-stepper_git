@@ -54,26 +54,21 @@ aside.filter-bar{
 
 .facet-header {        /* Cabecera de cada filtro desplegable */
   cursor: pointer;
-
   padding: .4rem .5rem;
   border-bottom: 1px solid var(--border-panel);
-
   font-size: .85rem;
   font-weight: 600;
   color: var(--text-color-muted);
-
   background: var(--bg-panel);
 }
 
 .facet-body {          /* Cuerpo ocultable con opciones */
   overflow-y: auto;
   display: none;
-
   max-height: 220px;
   padding: .25rem .5rem;
   border-right: 1px solid var(--border-panel);
   border-left: 1px solid var(--border-panel);
-
   background: #0f172a;
 }
 
@@ -83,9 +78,7 @@ aside.filter-bar{
 
 .facet-body label {    /* Etiquetas de las opciones */
   display: block;
-
   margin-bottom: 2px;
-
   font-size: .8rem;
   color: var(--text-color-muted);
   white-space: nowrap;
@@ -95,17 +88,14 @@ aside.filter-bar{
   width: 100%;
   margin-bottom: .25rem;
   border: 1px solid var(--border-panel);
-
   font-size: 0.75rem;
   color: var(--text-color-muted);
-
   background: var(--bg-panel);
 }
 
 .thumb {               /* Miniaturas de marcas */
   width: 80px;        /* ancho ampliado */
   height: auto;       /* mantiene proporción */
-
   object-fit: contain; /* evita distorsión de la imagen */
   transition: transform .2s;
 }
@@ -129,12 +119,9 @@ aside.filter-bar{
   z-index: 9999;
   right: 8px;
   bottom: 8px;
-
   padding: .75rem 1rem;
   border-radius: 6px;
-
   color: #fff;
-
   background: #dc2626;
   box-shadow: 0 0 10px rgb(0 0 0 / 30%);
 }
