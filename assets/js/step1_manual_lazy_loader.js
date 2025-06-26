@@ -20,6 +20,23 @@ const materialId = parseInt(
 const strategyMeta = document.querySelector('meta[name="strategy-id"]');
 const strategyId = strategyMeta ? parseInt(strategyMeta.content, 10) : null;
 
+// --- rotación de miniaturas verticales ----------------------------------
+function marcarRetrato(img) {
+  if (img.naturalHeight > img.naturalWidth) {
+    img.classList.add('portrait');
+  }
+}
+
+function ajustarMiniaturas(scope = document) {
+  scope.querySelectorAll('img.thumb').forEach((img) => {
+    if (img.complete) {
+      marcarRetrato(img);
+    } else {
+      img.addEventListener('load', () => marcarRetrato(img), { once: true });
+    }
+  });
+}
+
 console.log('Sentinel:', sentinel);
 
 const scrollContainer = document.querySelector('.list-scroll-container');
@@ -73,6 +90,7 @@ export async function loadPage() {
           <td>${t.tool_type ?? ""}</td>`;
         tbody.appendChild(tr);
       });
+      ajustarMiniaturas(tbody);
     }
     hasMore = data.hasMore;
     if (hasMore) {

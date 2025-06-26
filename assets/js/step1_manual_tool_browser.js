@@ -35,6 +35,23 @@
   let toolsData   = [];
   let currentSort = { col:null, dir:null };
 
+  /* -------- rotación de imágenes verticales ----------------------- */
+  function marcarRetrato(img){
+    if(img.naturalHeight > img.naturalWidth){
+      img.classList.add('portrait');
+    }
+  }
+
+  function ajustarMiniaturas(scope=document){
+    scope.querySelectorAll('img.thumb').forEach(img=>{
+      if(img.complete){
+        marcarRetrato(img);
+      } else {
+        img.addEventListener('load',()=>marcarRetrato(img),{once:true});
+      }
+    });
+  }
+
   /* ========== CARGAR FACETAS ====================================== */
   fetch(`${BASE_URL}/public/tools_facets.php`,{cache:'no-store'})
     .then(r => r.ok ? r.json() : Promise.reject(r.statusText))
@@ -153,6 +170,7 @@
       };
     });
     ordenarIconos();
+    ajustarMiniaturas(tableBody);
   }
 
   /* ========== ORDENAMIENTO CLIENT-SIDE ============================ */
