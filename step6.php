@@ -16,6 +16,8 @@ function respondError(int $code, string $msg): never {
 try {
     session_start();
 
+    require_once __DIR__ . '/includes/db.php';
+
     // Simple rate limiting: allow max 5 POSTs per minute per session
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!isset($_SESSION['step6_requests'])) {
@@ -39,79 +41,27 @@ if (!isset($_SESSION['csrf_token'])) {
 }
 $csrf = $_SESSION['csrf_token'];
 
-// Default parameters (could come from previous steps)
-$defaults = [
-    'diameter'   => 10.0,   // mm
-    'flutes'     => 2,
-    'rpm_min'    => 1000,
-    'rpm_max'    => 24000,
-    'feed_max'   => 3000,   // mm/min
-    'thickness'  => 5.0,    // mm
-    'Kc11'       => 1800.0, // N/mm^2
-    'mc'         => 0.25,
-    'coef_seg'   => 1.2,
-    'rack_rad'   => deg2rad(5.0),
-];
-
-// Get inputs or defaults
-$fz      = isset($_POST['fz']) ? (float)$_POST['fz'] : 0.05;
-$vc      = isset($_POST['vc']) ? (float)$_POST['vc'] : 200.0;
-$ae      = isset($_POST['ae']) ? (float)$_POST['ae'] : $defaults['diameter'] / 2;
-$passes  = isset($_POST['passes']) ? (int)$_POST['passes'] : 1;
-$mcVal   = isset($_POST['mc']) ? (float)$_POST['mc'] : $defaults['mc'];
+require_once __DIR__ . '/src/Utils/Step6Service.php';
 
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!hash_equals($csrf, (string)($_POST['csrf_token'] ?? ''))) {
         $errors[] = 'Token de seguridad inválido.';
     }
-    if ($fz <= 0) $errors[] = 'fz debe ser > 0';
-    if ($vc <= 0) $errors[] = 'vc debe ser > 0';
-    if ($ae <= 0) $errors[] = 'ae debe ser > 0';
 }
 
-$result = null;
-try {
-if (!$errors) {
-    $D = $defaults['diameter'];
-    $Z = $defaults['flutes'];
-    $rpmMin = $defaults['rpm_min'];
-    $rpmMax = $defaults['rpm_max'];
-    $frMax  = $defaults['feed_max'];
-    $coefSeg = $defaults['coef_seg'];
-    $Kc11 = $defaults['Kc11'];
-    $mc = $mcVal;
-    $alpha = $defaults['rack_rad'];
-    $eta = 0.85;
+$service = new Step6Service($pdo, $_SESSION);
+$data    = $service->calculate();
 
-    $rpmCalc = ($vc * 1000.0) / (M_PI * $D);
-    $rpm = (int)round(max($rpmMin, min($rpmCalc, $rpmMax)));
-    $feed = min($rpm * $fz * $Z, $frMax);
+$defaults = $data['defaults'];
+$fz       = $data['inputs']['fz'];
+$vc       = $data['inputs']['vc'];
+$ae       = $data['inputs']['ae'];
+$passes   = $data['inputs']['passes'];
+$mcVal    = $data['inputs']['mc'];
 
-    $phi = 2 * asin(min(1.0, $ae / $D));
-    $hm  = $phi !== 0.0 ? ($fz * (1 - cos($phi)) / $phi) : $fz;
-
-    $ap  = $defaults['thickness'] / max(1, $passes);
-    $mmr = round(($ap * $feed * $ae) / 1000.0, 2);
-
-    $Fct = $Kc11 * pow($hm, -$mc) * $ap * $fz * $Z * (1 + $coefSeg * tan($alpha));
-    $kW  = ($Fct * $vc) / (60000.0 * $eta);
-    $W   = (int)round($kW * 1000.0);
-    $HP  = round($kW * 1.341, 2);
-
-    $result = [
-        'rpm'   => $rpm,
-        'feed'  => $feed,
-        'hp'    => $HP,
-        'watts' => $W,
-        'mmr'   => $mmr,
-        'hm'    => $hm,
-        'ap'    => $ap,
-    ];
-}
-} catch (Throwable $e) {
-    $errors[] = 'Error interno: ' . $e->getMessage();
-}
+$errors   = array_merge($errors, $data['errors']);
+$result   = $data['result'];
 ?>
 <!DOCTYPE html>
 <html lang="es">
