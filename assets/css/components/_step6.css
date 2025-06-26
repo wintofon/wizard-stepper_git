@@ -1,46 +1,41 @@
 /* ============================================================================
- *  STEP-6  ·  Hoja completa (v3) – Ajustes 27 Jun 2025
- *  Cambios pedidos:
- *    1) Las 3 tarjetas (Ajustes / Resultados / Radar) mantienen la MISMA altura
- *       ↳ se estiran al alto de la más alta.
- *    2) En “Especificaciones Técnicas” el layout sin viñetas, alineado
- *       etiqueta-valor como “Configuración de Usuario”.
- *    3) Labels “ae (mm) (ancho de pasada)”, “Vc”, etc. en BLANCO (#fff).
- *    4) Texto bajo la fresa principal más grande (tool-name / tool-type).
+ *  STEP-6  ·  Hoja completa (v4) – 27 Jun 2025
+ *  Cambios respecto a v3:
+ *    • .tool-type ahora usa el celeste de acento (#7fdcff) y está en bold.
+ *    • Mantengo mismos ajustes de altura, etiquetas blancas, etc.
  * ==========================================================================*/
 
 /* --------------------------------------------------------------------------
-   0) Variables base
+   0) Variables
    --------------------------------------------------------------------------*/
 :root{
-  --step6-accent:            var(--accent-color);
-  --step6-bg-card:           var(--bg-card);
-  --step6-border:            var(--border-color);
-  --step6-radius:            var(--border-radius-xxl);
-  --step6-text-sec:          #e5e7eb;
+  --step6-accent:            var(--accent-color, #7fdcff);
+  --step6-bg-card:           var(--bg-card, #0d1117);
+  --step6-border:            var(--border-color, #2c2f33);
+  --step6-radius:            var(--border-radius-xxl, .75rem);
+  --step6-text-sec:          #e5e7eb;      /* gris claro (casi blanco) */
 }
 [data-theme='dark']{
-  --step6-accent:#7fdcff;--step6-bg-card:#161b22;--step6-border:#2c2f33;
+  --step6-accent:#7fdcff;
+  --step6-bg-card:#161b22;
+  --step6-border:#2c2f33;
   --step6-text-sec:#e5e7eb;
 }
 
 /* --------------------------------------------------------------------------
-   1) Grilla → display:grid  +  ítems flex-column  +  misma altura
+   1) Grilla universal (convierte .row en grid + ítems stretch)
    --------------------------------------------------------------------------*/
 .cards-grid.row{
   display:grid!important;
   grid-template-columns:repeat(auto-fit,minmax(22rem,1fr));
   gap:clamp(.75rem,2vw,1rem);
   --bs-gutter-x:0;margin-left:0!important;margin-right:0!important;
-  align-items:stretch;              /* ← todas las celdas mismo alto */
+  align-items:stretch;
 }
 .cards-grid.row>[class^="col-"],
 .cards-grid.row>[class*=" col-"]{
-  width:auto!important;
-  flex:0 0 auto!important;
-  padding:0!important;
-  display:flex;                     /* ← para que .card se estire    */
-  flex-direction:column;
+  width:auto!important; flex:0 0 auto!important; padding:0!important;
+  display:flex; flex-direction:column;
 }
 
 /* --------------------------------------------------------------------------
@@ -50,81 +45,111 @@
   border:1px solid var(--step6-border);
   border-radius:var(--step6-radius);
   background:var(--step6-bg-card);
-  display:flex;flex-direction:column; /* backup */
+  display:flex; flex-direction:column;
 }
-.card-header{font-weight:600;text-align:center;
-  color:var(--step6-accent);background:var(--bg-header);}
+.card-header{
+  font-weight:600; text-align:center;
+  color:var(--step6-accent); background:var(--bg-header,#0d1117);
+}
 
 /* --------------------------------------------------------------------------
-   3) Ficha de herramienta (tipografía + imagen)
+   3) Bloque de la herramienta
    --------------------------------------------------------------------------*/
-.tool-image{display:block;margin:clamp(.5rem,2vw,.75rem) auto;max-height:7.5rem;object-fit:contain;}
-.tool-name {margin-top:.5rem;font-size:clamp(1.2rem,1.5vw,1.4rem);font-weight:700;}
-.tool-type {font-size:clamp(1.05rem,1.3vw,1.2rem);color:var(--step6-text-sec);}
+.tool-image{
+  display:block; margin:clamp(.5rem,2vw,.75rem) auto;
+  max-height:7.5rem; object-fit:contain;
+}
+.tool-name{
+  margin-top:.6rem;
+  font-size:clamp(1.25rem,1.6vw,1.5rem);  /* ↑ más grande */
+  font-weight:700; color:#fff;
+}
+.tool-type{                                /* ← celeste + bold */
+  font-size:clamp(1.05rem,1.3vw,1.2rem);
+  font-weight:600;
+  color:var(--step6-accent);
+}
 
 /* --------------------------------------------------------------------------
-   4) Sliders  +  etiquetas blancas
+   4) Sliders + labels blancos
    --------------------------------------------------------------------------*/
 .form-label,
-.param-label{color:#fff;}           /* ← blanco puro */
-.slider-wrap{position:relative;}
+.param-label,
+.area-results small{ color:#fff!important; }
+.slider-wrap{ position:relative; }
 .slider-bubble{
-  position:absolute;top:-1.6rem;left:calc(var(--val)*1%);transform:translateX(-50%);
-  padding:.1rem .35rem;border-radius:.25rem;font-size:.75rem;color:var(--bg-body);
-  background:var(--step6-accent);
+  position:absolute; top:-1.6rem; left:calc(var(--val)*1%);
+  transform:translateX(-50%);
+  padding:.1rem .35rem; border-radius:.25rem;
+  font-size:.75rem; color:var(--bg-body,#0d1117); background:var(--step6-accent);
 }
 
 /* --------------------------------------------------------------------------
    5) Resultados rápidos
    --------------------------------------------------------------------------*/
-.result-box{flex:1;min-width:5rem;margin:.3rem;padding:.5rem;
-            border:1px solid var(--step6-border);border-radius:.25rem;text-align:center;}
-.param-unit{color:var(--step6-text-sec);}
-.fw-bold{color:var(--step6-accent);}
+.result-box{
+  flex:1; min-width:5rem; margin:.3rem; padding:.5rem;
+  border:1px solid var(--step6-border); border-radius:.25rem; text-align:center;
+}
+.fw-bold{ color:var(--step6-accent); }
+.param-unit{ color:var(--step6-text-sec); }
 
 /* --------------------------------------------------------------------------
    6) Radar chart
    --------------------------------------------------------------------------*/
-#radarChart{max-width:100%;}
+#radarChart{ max-width:100%; }
 
 /* --------------------------------------------------------------------------
-   7) Especificaciones Técnicas – sin viñetas + alineación como Config
+   7) Especificaciones (igual layout que Config)
    --------------------------------------------------------------------------*/
-.spec-list{margin:0;padding:0;list-style:none;}      /* ← quita bullets */
-.spec-list li{display:flex;justify-content:space-between;margin-bottom:.35rem;}
-.spec-list li span:first-child{color:var(--step6-text-sec);}
-.spec-list li span:last-child {font-weight:600;color:var(--step6-accent);}
+.area-specs .spec-list{ margin:0; padding:0; list-style:none; }
+.area-specs .spec-list li{
+  display:flex; justify-content:space-between; margin:.35rem 0;
+}
+.area-specs .spec-list span:first-child{ color:var(--step6-text-sec); }
+.area-specs .spec-list span:last-child { color:var(--step6-accent); font-weight:600; }
 
 /* --------------------------------------------------------------------------
-   8) Configuración  &  Notas (heredan estilos)
+   8) Configuración + Notas
    --------------------------------------------------------------------------*/
-.config-section-title{font-weight:600;color:#fff;}
-.label-static,.notes-list li div,.text-secondary{color:var(--step6-text-sec)!important;}
-.value-static{font-weight:600;color:var(--step6-accent);}
-.notes-list{margin:0;padding:0;list-style:none;}
-.notes-list li{display:flex;gap:.5rem;align-items:flex-start;padding:.25rem 0;}
-.notes-list li i{margin-top:.2rem;font-size:1rem;color:var(--step6-accent);}
+.config-section-title{ font-weight:600; color:#fff; }
+.label-static,
+.notes-list li div,
+.text-secondary{ color:var(--step6-text-sec)!important; }
+.value-static{ font-weight:600; color:var(--step6-accent); }
+.notes-list{ margin:0; padding:0; list-style:none; }
+.notes-list li{ display:flex; gap:.5rem; align-items:flex-start; padding:.25rem 0; }
+.notes-list li i{ margin-top:.2rem; font-size:1rem; color:var(--step6-accent); }
 
 /* --------------------------------------------------------------------------
    9) Spinner
    --------------------------------------------------------------------------*/
 .spinner-overlay{
-  position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;
-  border-radius:var(--step6-radius);background:rgb(0 0 0 / 50%);visibility:hidden;
+  position:absolute; inset:0; z-index:20;
+  display:flex; align-items:center; justify-content:center;
+  border-radius:var(--step6-radius);
+  background:rgb(0 0 0 / 50%); visibility:hidden;
 }
-.loading .spinner-overlay,.spinner-overlay.show{visibility:visible;}
-.spinner-border{--spinner-size:3rem;width:var(--spinner-size);height:var(--spinner-size);
-  border:.25rem solid var(--step6-accent);border-right-color:transparent;border-radius:50%;
-  animation:spin .8s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg);}}
+.spinner-overlay.show,
+.loading .spinner-overlay{ visibility:visible; }
+.spinner-border{
+  --spinner-size:3rem;
+  width:var(--spinner-size); height:var(--spinner-size);
+  border:.25rem solid var(--step6-accent); border-right-color:transparent;
+  border-radius:50%; animation:spin .8s linear infinite;
+}
+@keyframes spin{ to{ transform:rotate(360deg);} }
 
 /* --------------------------------------------------------------------------
    10) Debug panel
    --------------------------------------------------------------------------*/
-.debug-panel{position:fixed;left:0;right:0;bottom:0;z-index:9999;max-height:9.375rem;
-  padding:.5rem;overflow-y:auto;display:none;font-family:Consolas,monospace;font-size:.85rem;
-  color:var(--step6-accent);background:rgb(0 0 0 / 80%);}
-.debug-panel.show{display:block;}
+.debug-panel{
+  position:fixed; left:0; right:0; bottom:0; z-index:9999;
+  max-height:9.375rem; padding:.5rem; overflow-y:auto; display:none;
+  font-family:Consolas,monospace; font-size:.85rem;
+  color:var(--step6-accent); background:rgb(0 0 0 / 80%);
+}
+.debug-panel.show{ display:block; }
 
 /* --------------------------------------------------------------------------
    11) Helper DevTools (overflow visual)
