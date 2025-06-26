@@ -42,16 +42,31 @@
   const getProg = () => Number(localStorage.getItem(LS_KEY)) || 1;
   const setProg = s => localStorage.setItem(LS_KEY, s);
 
-  const renderBar = current => {
-    const prog = getProg();
-    stepsBar.forEach(li => {
-      const n = Number(li.dataset.step);
-      li.classList.toggle('done',      n < prog);
-      li.classList.toggle('active',    n === current);
-      li.classList.toggle('clickable', n <= prog - 1);
-      li.innerHTML = `<span>${n}. ${li.dataset.label}</span>` + (n < prog ? ' ✅' : n === current ? ' 🟢' : '');
-    });
-  };
+const renderBar = current => {
+  const prog = getProg();               // paso más alto alcanzado
+
+  stepsBar.forEach(li => {
+    const n = Number(li.dataset.step);
+
+    // ­­­­­­­­­­­­­­­­­­­­­­­­­­­­­ clases de estado
+    li.classList.toggle('done',      n < prog);
+    li.classList.toggle('active',    n === current);
+    li.classList.toggle('clickable', n <= prog - 1);
+
+    // ­­­­­­­­­­­­­­­­­­­­­­­­­­­­­ icono según estado
+    let icon = '';
+    if (n < prog)         icon = '<i data-feather="check-circle"></i>';   // completado
+    else if (n === current) icon = '<i data-feather="zap"></i>';          // activo
+    else                  icon = '<i data-feather="circle"></i>';        // pendiente
+
+    // ­­­­­­­­­­­­­­­­­­­­­­­­­­­­­ contenido final
+    li.innerHTML = `<span>${n}. ${li.dataset.label}</span> ${icon}`;
+  });
+
+  /* IMPORTANTE: tras modificar el DOM, refrescamos Feather */
+  feather.replace({ class: 'feather' });
+};
+
 
   const runStepScripts = container => group('runStepScripts', () => {
     if (container.querySelector('html, head, body')) {
