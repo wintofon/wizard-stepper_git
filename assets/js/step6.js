@@ -46,12 +46,26 @@
       if (radar && Array.isArray(d.radar)) { radar.data.datasets[0].data = d.radar; radar.update(); }
     } catch (e) { dbg('paint err', e); }
   }
-  function getPayload() {
+  function getPayload () {
+    const base = window.step6Params || {};
     return {
-      fz: parseFloat(sliders.fz && sliders.fz.value),
-      vc: parseFloat(sliders.vc && sliders.vc.value),
-      ae: parseFloat(sliders.ae && sliders.ae.value),
-      passes: parseInt(sliders.p && sliders.p.value, 10)
+      /* sliders */
+      fz:     parseFloat(sliders.fz.value),
+      vc:     parseFloat(sliders.vc.value),
+      ae:     parseFloat(sliders.ae.value),
+      passes: parseInt(sliders.p.value, 10),
+      /* extras requeridos por el backend */
+      thickness: base.thickness,
+      D:         base.D,
+      Z:         base.Z,
+      params: {
+        fr_max:   base.fr_max,
+        coef_seg: base.coef_seg,
+        Kc11:     base.Kc11,
+        mc:       base.mc,
+        alpha:    base.alpha,
+        eta:      base.eta
+      }
     };
   }
   function fetchData(body, key, retry) {
