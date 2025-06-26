@@ -1,115 +1,107 @@
 /* =========================================================================
  * File: strategy.css   ·   Paso 3 – Estrategia
+ * Refactor “premium look”  ·  28-Jun-2025
  * -------------------------------------------------------------------------
- * • Refactor liviano: se mantiene toda la estructura actual pero:
- *     – Se unifica la paleta con la de Paso 6 mediante variables.
- *     – Se eliminan los !important innecesarios.
- *     – Se añaden transiciones suaves y pequeños accesos a accesibilidad.
- * -------------------------------------------------------------------------
- * 2025-06-28
+ *  ✦ Mantiene la estructura original, pero agrega micro-animaciones,
+ *    sombras suaves y estados focus accesibles.
+ *  ✦ Usa siempre variables; fácil de retocar.
  * =========================================================================*/
 
-/* ────────────────── 0. Imports globales ────────────────── */
-@import url('../settings/_variables.css');   /* define --step6-accent */
-@import url('../generic/reset.css');
-@import url('../elements/_typography.css');
-
-/* ────────────────── 1. Variables locales ───────────────── */
-:root {
+/* ─────────────── 0. Variables locales / fallback ─────────────── */
+:root{
   --strat-accent:   var(--step6-accent, #7fdcff);
   --strat-bg-dark:  #1a2638;
   --strat-bg-dark2: #25334b;
   --strat-text:     #ffffff;
   --strat-border:   #2c2f33;
+  --strat-radius:   0.45rem;
+  --strat-shadow:   0 4px 10px rgb(0 0 0 / .25);
 }
 
-/* ────────────────── 2. Cabeceras  ──────────────────────── */
-h2,
-h5 { color: var(--strat-accent); }
+/* ─────────────── 1. Heading / subtitles ─────────────────────── */
+h2, h5{color:var(--strat-accent);font-weight:600;}
 
-/* ────────────────── 3. Botones de categoría ───────────── */
-.btn-cat {
-  margin: .35rem .45rem;
-  white-space: nowrap;
-  color: var(--strat-text);
-  background: var(--strat-bg-dark);
-  border: 1px solid var(--strat-border);
-  transition: background .25s, color .25s, border-color .25s;
+/* ─────────────── 2. Botones de CATEGORÍA ─────────────────────── */
+.btn-cat{
+  margin:.35rem .45rem;padding:.55rem 1rem;
+  color:var(--strat-text);background:var(--strat-bg-dark);
+  border:1px solid var(--strat-border);border-radius:var(--strat-radius);
+  transition:
+    background .25s,color .25s,
+    transform .2s cubic-bezier(.4,.3,.2,1),
+    box-shadow .2s;
 }
-.btn-cat:hover       { background: var(--strat-bg-dark2); }
-.btn-cat.active      { background: var(--strat-accent);   color:#0d1117; }
+.btn-cat:hover{
+  background:var(--strat-bg-dark2);
+  box-shadow:var(--strat-shadow);
+  transform:translateY(-2px) scale(1.02);
+}
+.btn-cat:focus-visible{
+  outline:2px solid var(--strat-accent);
+  outline-offset:2px;
+}
+.btn-cat.active{
+  background:var(--strat-accent);color:#0d1117;
+  border-color:var(--strat-accent);
+  box-shadow:0 0 0 3px rgb(127 220 255 / .4);
+}
 
-/* ────────────────── 4. Botones de estrategia ──────────── */
+/* ─────────────── 3. Botones de ESTRATEGIA ────────────────────── */
 .btn-strategy,
-.btn-strat {
-  width: 100%;
-  margin: .25rem 0;
-  color: var(--strat-text);
-  background: var(--strat-bg-dark);
-  border: 1px solid var(--strat-border);
-  transition: background .25s, color .25s, border-color .25s;
+.btn-strat{
+  width:100%;margin:.25rem 0;padding:.6rem 1rem;
+  color:var(--strat-text);background:var(--strat-bg-dark);
+  border:1px solid var(--strat-border);border-radius:var(--strat-radius);
+  text-align:left;
+  transition:background .25s,color .25s,box-shadow .2s,transform .2s;
 }
 .btn-strategy:hover,
-.btn-strat:hover      { background: var(--strat-bg-dark2); }
+.btn-strat:hover{
+  background:var(--strat-bg-dark2);
+  box-shadow:var(--strat-shadow);
+  transform:translateY(-2px) scale(1.01);
+}
+.btn-strategy:focus-visible,
+.btn-strat:focus-visible{
+  outline:2px solid var(--strat-accent);
+  outline-offset:2px;
+}
 .btn-strategy.active,
-.btn-strat.active     { background: var(--strat-accent);    color:#0d1117; }
-
-/* ────────────────── 5. Alertas personalizadas ─────────── */
-.alert-custom {
-  margin-bottom: 1rem;
-  padding: 0.75rem 1rem;
-  border: 1px solid #f5c2c7;
-  color: #f8d7da;
-  background: #4c1d1d;
+.btn-strat.active{
+  background:var(--strat-accent);color:#0d1117;
+  border-color:var(--strat-accent);
+  box-shadow:0 0 0 3px rgb(127 220 255 / .4),var(--strat-shadow);
 }
 
-/* ────────────────── 6. Debug box ───────────────────────── */
-.debug-box {
-  overflow-y: auto;
-  max-width: 1000px;
-  height: 160px;
-  margin: 2rem auto 0;
-  padding: 1rem;
-  border-top: 1px solid #2e5b78;
-  border-radius: 6px;
-  font-family: monospace;
-  font-size: 0.85rem;
-  color: #a7d3e9;
-  white-space: pre-wrap;
-  background: #102735;
+/* ─────────────── 4. Alertas personalizadas ───────────────────── */
+.alert-custom{
+  margin-bottom:1rem;padding:.75rem 1rem;border:1px solid #f5c2c7;
+  color:#f8d7da;background:#4c1d1d;border-radius:var(--strat-radius);
 }
 
-/* ────────────────── 7. Dropdown búsqueda ───────────────── */
-.dropdown-search {
-  position: absolute;
-  z-index: 1000;
-  display: none;
-  width: 100%;
-  max-height: 200px;
-  overflow-y: auto;
-  border: 1px solid #444;
-  background: #000;
-}
-.dropdown-search .item {
-  cursor: pointer;
-  padding: .5rem .75rem;
-  color: #f1f1f1;
-}
-.dropdown-search .item:hover { background: #333; }
-.dropdown-search .hl {
-  color: #000;
-  background: #ffd54f;
-}
-#no-match-msg {
-  display: none;
-  margin-top: .25rem;
-  font-size: .875rem;
-  color: #dc3545;
+/* ─────────────── 5. Debug box (sin cambios mayores) ─────────── */
+.debug-box{
+  overflow-y:auto;max-width:1000px;height:160px;margin:2rem auto 0;
+  padding:1rem;border-top:1px solid #2e5b78;border-radius:6px;
+  font-family:monospace;font-size:.85rem;color:#a7d3e9;
+  white-space:pre-wrap;background:#102735;
 }
 
-/* ────────────────── 8. Responsive ─────────────────────── */
-@media (width <= 768px) {
-  .btn-cat,
-  .btn-strategy,
-  .btn-strat { width: 100%; }
+/* ─────────────── 6. Dropdown búsqueda ───────────────────────── */
+.dropdown-search{
+  position:absolute;z-index:1000;display:none;width:100%;
+  max-height:200px;overflow-y:auto;border:1px solid #444;
+  background:#000;border-radius:var(--strat-radius);
+}
+.dropdown-search .item{
+  cursor:pointer;padding:.5rem .75rem;color:#f1f1f1;
+  transition:background .2s;
+}
+.dropdown-search .item:hover{background:#333;}
+.dropdown-search .hl{color:#000;background:#ffd54f;}
+#no-match-msg{display:none;margin-top:.25rem;font-size:.875rem;color:#dc3545;}
+
+/* ─────────────── 7. Responsive tweaks ───────────────────────── */
+@media (width <= 768px){
+  .btn-cat,.btn-strategy,.btn-strat{width:100%;}
 }
