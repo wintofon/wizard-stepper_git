@@ -814,22 +814,22 @@ safeScript(
 );
 
 /*-----------------------------------------------------------------
- *  5) Tu propio step6.js (solo local; sin CDN)
+ *  5) Tu propio step6.js (ahora ES module, solo local; sin CDN)
  *----------------------------------------------------------------*/
-safeScript('assets/js/step6.js');
+echo '<script type="module" src="' . asset('assets/js/step6.module.js') . '"></script>' . PHP_EOL;
 ?>
 
 <script>
-  // Inicializar paso 6 cuando el DOM y step6.js estén listos
+  // Inicializar paso 6 cuando el DOM y el módulo estén listos
   document.addEventListener('DOMContentLoaded', function () {
     try {
-      if (typeof window.initStep6 === 'function') {
-        window.initStep6();
+      if (window.step6 && typeof window.step6.init === 'function') {
+        window.step6.init();
       } else {
-        console.error('initStep6 no definido');
+        console.error('step6.init no definido');
       }
     } catch (e) {
-      console.error('Error en initStep6', e);
+      console.error('Error en step6.init', e);
     }
   });
 </script>
