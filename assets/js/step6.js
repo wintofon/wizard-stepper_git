@@ -1,350 +1,102 @@
-/*
- * File: step6.js
- * Main responsibility: Part of the CNC Wizard Stepper.
- * Related files: See others in this project.
- * TODO: Extend documentation.
- */
-/** Ubicación: C:\xampp\htdocs\wizard-stepper_git\assets\js\step6.js */
-/* global Chart */
-
-// Mantiene la instancia del gráfico entre ejecuciones
-//
-(function (window, document) {
+/* STEP6-AJAX */
+(function (w, d) {
   'use strict';
+  var DEBUG = w.DEBUG === true;
+  var ttl = 600000; // 10 min
+  function dbg() { if (DEBUG) console.log.apply(console, arguments); }
+  function grp(t, fn) { if (!DEBUG) return fn(); console.group(t); try { return fn(); } finally { console.groupEnd(); } }
+  function q(id) { return d.getElementById(id); }
 
-  window.radarChartInstance = window.radarChartInstance || null;
-
-  window.initStep6 = function () {
-  const requiredIds = ['sliderFz','sliderVc','sliderAe','sliderPasadas','radarChart','errorMsg'];
-  const missing = requiredIds.filter(id => document.getElementById(id) === null);
-  if (missing.length > 0) {
-    console.error('[step6] Elementos DOM faltantes:', missing);
-    alert('Error crítico: faltan elementos de interfaz: ' + missing.join(', '));
-    return; // aborta initStep6 para que no intente operar sobre elementos nulos
-  }
-
-  const UI = {
-    errBox: document.getElementById('errorMsg'),
-    show(msg) {
-      this.errBox.textContent = msg;
-      this.errBox.style.display = 'block';
-    },
-    clear() {
-      this.errBox.style.display = 'none';
-      this.errBox.textContent = '';
-    },
-    fatal(msg) {
-      alert(msg);
-    }
-  };
-
+  var step = d.querySelector('.step6');
+  var errBox = q('errorMsg');
+  var sliders = { fz: q('sliderFz'), vc: q('sliderVc'), ae: q('sliderAe'), p: q('sliderPasadas') };
+  var out = { rpm: q('outN'), feed: q('outVf'), vc: q('outVc'), fz: q('outFz'), hm: q('outHm'), hp: q('outHp'), mmr: q('valueMrr'), fc: q('valueFc'), w: q('valueW'), eta: q('valueEta'), ae: q('outAe'), ap: q('outAp') };
+  var radar = null;
   try {
-  const BASE_URL = window.BASE_URL || '';
-  const DEBUG = window.DEBUG ?? false;
-  const TAG = '[WizardStepper]';
-  const logger = (lvl, ...a) => { if (!DEBUG) return; const ts = new Date().toISOString(); console[lvl](`${TAG} ${ts}`, ...a); };
-  const log = (...a) => logger('log', ...a);
-  const warn = (...a) => logger('warn', ...a);
-  const error = (...a) => logger('error', ...a);
-  const table = d => { if (DEBUG) console.table(d); };
-  const group = (title, fn) => { if (!DEBUG) return fn(); console.group(`${TAG} ${new Date().toISOString()} ${title}`); try { return fn(); } finally { console.groupEnd(); } };
-  // 1. Parámetros inyectados por PHP
-  const {
-    diameter: D = 0,
-    flute_count: Z = 1,
-    rpm_min: rpmMin = 0,
-    rpm_max: rpmMax = 0,
-    fr_max = Infinity,
-    coef_seg = 0,
-    Kc11 = 1,
-    mc = 1,
-    alpha = 0,
-    eta = 1,
-  } = window.step6Params || {};
-
-  const csrfToken = window.step6Csrf;
-
-  // 2. Referencias al DOM
-  const sFz   = document.getElementById('sliderFz'),
-        sVc   = document.getElementById('sliderVc'),
-        sAe   = document.getElementById('sliderAe'),
-        sP    = document.getElementById('sliderPasadas'),
-        infoP = document.getElementById('textPasadasInfo'),
-        out   = {
-          vc:  document.getElementById('outVc'),
-          fz:  document.getElementById('outFz'),
-          hm:  document.getElementById('outHm'),
-          n:   document.getElementById('outN'),
-          vf:  document.getElementById('outVf'),
-          hp:  document.getElementById('outHp'),
-          mmr: document.getElementById('valueMrr'),
-          fc:  document.getElementById('valueFc'),
-          w:   document.getElementById('valueW'),
-          eta: document.getElementById('valueEta'),
-          ae:  document.getElementById('outAe'),  // ← nuevo
-        ap:  document.getElementById('outAp')   // ← nuevo
-      };
-
-  function enhanceSlider(slider) {
-    return group('enhanceSlider', () => {
-    log('slider', slider);
-    const wrap = slider.closest('.slider-wrap');
-    if (!wrap) return;
-    const bubble = wrap.querySelector('.slider-bubble');
-    const min = parseFloat(slider.min || 0);
-    const max = parseFloat(slider.max || 1);
-    const step = parseFloat(slider.step || 1);
-    wrap.style.setProperty('--step-pct', (step / (max - min)) * 100);
-    function update(val) {
-      const pct = ((val - min) / (max - min)) * 100;
-      wrap.style.setProperty('--val', pct);
-      if (bubble) bubble.textContent = parseFloat(val).toFixed(step < 1 ? 2 : 0);
-    }
-    slider.addEventListener('input', e => update(parseFloat(e.target.value)));
-    update(parseFloat(slider.value));
-    log('return void');
-    });
-  }
-
-  // 3. Límites de Vc desde rpmMin/rpmMax
-  const vcMinAllowed = (rpmMin * Math.PI * D) / 1000;
-  const vcMaxAllowed = (rpmMax * Math.PI * D) / 1000;
-  sVc.min = vcMinAllowed.toFixed(1);
-  sVc.max = vcMaxAllowed.toFixed(1);
-  if (+sVc.value < vcMinAllowed) sVc.value = vcMinAllowed.toFixed(1);
-  if (+sVc.value > vcMaxAllowed) sVc.value = vcMaxAllowed.toFixed(1);
-
-  // 4. Radar Chart init
-  const canvas = document.getElementById('radarChart');
-  if (window.radarChartInstance) {
-    window.radarChartInstance.destroy();
-  }
-  const ctx = canvas.getContext('2d');
-  window.radarChartInstance = new Chart(ctx, {
-    type: 'radar',
-    data: {
-      labels: ['Vida útil','Terminación','Potencia'],
-      datasets:[{
-        data:[0,0,0],
-        backgroundColor:'rgba(79,195,247,0.35)',
-        borderColor:'rgba(79,195,247,0.8)',
-        borderWidth:2
-      }]
-    },
-    options:{scales:{r:{max:100,ticks:{stepSize:20}}},plugins:{legend:{display:false}}}
-  });
-  const radar = window.radarChartInstance;
-
-  // 5. Mostrar/ocultar errores (centralizado en UI)
-
-  // 6. Calcular feedrate Vf
-  function computeFeed(vc, fz) {
-    return group('computeFeed', () => {
-      log('inputs', { vc, fz });
-      const rpm = (vc * 1000) / (Math.PI * D);
-      const result = rpm * fz * Z;
-      log('return', result);
-      return result;
-    });
-  }
-
-  // 7. Bloqueo de slider
-  function lockSlider(slider, msg) {
-    if (!slider.dataset.prevValue) slider.dataset.prevValue = slider.value;
-    slider.value = slider.dataset.prevValue;
-    slider.disabled = true;
-    UI.show(msg);
-  }
-  function unlockSlider(slider) {
-    slider.disabled = false;
-    slider.dataset.prevValue = '';
-  }
-
-  // Deshabilita controles y muestra spinner
-  function setLoading(on) {
-    const container = document.querySelector('.step6');
-    container.classList.toggle('loading', !!on);
-    [sFz, sVc, sAe, sP].forEach(slider => slider.disabled = !!on);
-  }
-
-  // 8. Pasadas slider / info
-  const thickness = parseFloat(sP.dataset.thickness);
-  function updatePasadasSlider() {
-    const maxP = Math.ceil(thickness / parseFloat(sAe.value));
-    sP.min = 1; sP.max = maxP; sP.step = 1;
-    if (sP.value > maxP) sP.value = maxP;
-  }
-  function updatePasadasInfo() {
-    const p = +sP.value;
-    infoP.textContent = `${p} pasadas de ${(thickness/p).toFixed(2)} mm`;
-  }
-
-  // 9. Utilidades de tiempo
-  const CONFIG = { debounceMs: 200, throttleMs: 50 };
-  function debounce(fn, ms = CONFIG.debounceMs) {
-    let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
-  }
-  function throttle(fn, ms = CONFIG.throttleMs) {
-    let last = 0, timer; return (...a) => {
-      const now = Date.now();
-      if (now - last >= ms) { last = now; fn(...a); }
-      else { clearTimeout(timer); timer = setTimeout(() => { last = Date.now(); fn(...a); }, ms - (now - last)); }
-    };
-  }
-  // Controla y cancela la petición AJAX previa si es necesario
-  let abortCtr;
-  const debouncedRecalc = debounce(recalc, CONFIG.debounceMs);
-  const throttledOnChange = throttle(e => {
-    if (e.target === sAe) {
-      updatePasadasSlider();
-      updatePasadasInfo();
-    } else if (e.target === sP) {
-      updatePasadasInfo();
-    }
-    onParamChange.call(e.target, e);
-    debouncedRecalc();
-  }, CONFIG.throttleMs);
-
-  // 10. Handler común para fz/vc
-  function onParamChange() {
-    group('onParamChange', () => {
-      log('vc', sVc.value, 'fz', sFz.value);
-    UI.clear();
-    const vc = parseFloat(sVc.value),
-          fz = parseFloat(sFz.value),
-          feed = computeFeed(vc, fz);
-
-    if (feed > fr_max) {
-      lockSlider(this, `Feedrate supera límite (${fr_max}). Ajusta el otro valor.`);
-      return;
-    }
-    if (feed <= 0) {
-      lockSlider(this, `Feedrate demasiado bajo.`);
-      return;
-    }
-    unlockSlider(sVc);
-    unlockSlider(sFz);
-    log('return void');
-    });
-  }
-
-  // 11. Conectar listeners
-  [sFz, sVc, sAe, sP].forEach(slider =>
-    slider.addEventListener('input', throttledOnChange)
-  );
-
-  // 12. AJAX + recalc
-  async function recalc() {
-    if (UI.errBox.textContent) {
-      console.warn('[step6] Hay un error activo, cancelando recálculo');
-      return;
-    }
-    return group('recalc', async () => {
-    if (abortCtr) abortCtr.abort();
-    abortCtr = new AbortController();
-    const signal = abortCtr.signal;
-
-    const fz = parseFloat(sFz.value),
-          vc = parseFloat(sVc.value),
-          ae = parseFloat(sAe.value),
-          passes = parseInt(sP.value, 10);
-    if (!Number.isFinite(fz) || fz < parseFloat(sFz.min) || fz > parseFloat(sFz.max)) {
-      return UI.show('fz fuera de rango (' + sFz.min + '–' + sFz.max + ')');
-    }
-    if (!Number.isFinite(vc) || vc < parseFloat(sVc.min) || vc > parseFloat(sVc.max)) {
-      return UI.show('Vc fuera de rango (' + sVc.min + '–' + sVc.max + ')');
-    }
-    if (!Number.isFinite(ae) || ae < parseFloat(sAe.min) || ae > parseFloat(sAe.max)) {
-      return UI.show('Ae fuera de rango (' + sAe.min + '–' + sAe.max + ')');
-    }
-    if (!Number.isInteger(passes) || passes < parseInt(sP.min) || passes > parseInt(sP.max)) {
-      return UI.show('Número de pasadas inválido');
-    }
-
-    const payload = {
-      fz,
-      vc,
-      ae,
-      passes,
-      thickness: thickness,
-      D, Z,
-      params:    { fr_max, coef_seg, Kc11, mc, alpha, eta }
-    };
-
-    table(payload);
-    setLoading(true);
-    try {
-      const res = await fetch(`${BASE_URL}/ajax/step6_ajax_legacy_minimal.php`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': csrfToken,
-          'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: JSON.stringify(payload),
-        signal,
-        cache: 'no-store',
-        credentials: 'same-origin'
+    var ctx = q('radarChart');
+    if (w.Chart && ctx) {
+      radar = new w.Chart(ctx.getContext('2d'), {
+        type: 'radar',
+        data: { labels: ['Vida útil', 'Terminación', 'Potencia'], datasets: [{ data: [0, 0, 0], backgroundColor: 'rgba(79,195,247,0.35)', borderColor: 'rgba(79,195,247,0.8)', borderWidth: 2 }] },
+        options: { scales: { r: { max: 100, ticks: { stepSize: 20 } } }, plugins: { legend: { display: false } } }
       });
-      if (res.status === 403) {
-        return UI.show('Sesión expirada. Recargá la página.');
-      }
-      if (!res.ok) {
-        return UI.show(`AJAX error ${res.status}`);
-      }
-      const msg = await res.json();
-      if (!msg.success) {
-        return UI.show(`Servidor: ${msg.error}`);
-      }
-      const d = msg.data;
-
-      // 13. Pinta resultados
-      out.vc.textContent  = `${d.vc} m/min`;
-      out.fz.textContent  = `${d.fz} mm/tooth`;
-      out.hm.textContent  = `${d.hm} mm`;
-      out.n.textContent   = d.n;
-      out.vf.textContent  = `${d.vf} mm/min`;
-      out.hp.textContent  = `${d.hp} HP`;
-      out.mmr.textContent = d.mmr;
-      out.fc.textContent  = d.fc;
-      out.w.textContent   = d.watts;
-      out.eta.textContent = d.etaPercent;
-      // ← Aquí pintamos los nuevos
-      out.ae.textContent  = d.ae.toFixed(2);
-      out.ap.textContent  = d.ap.toFixed(3);
-
-      // 14. Radar
-      if (Array.isArray(d.radar) && d.radar.length === 3) {
-        radar.data.datasets[0].data = d.radar;
-        radar.update();
-      }
-      table(d);
-    } catch (e) {
-      if (e.name === 'AbortError') {
-        return;
-      }
-      error('recalc error', e);
-      UI.show(`Conexión fallida: ${e.message}`);
-    } finally {
-      setLoading(false);
     }
-    log('return void');
-    });
-  }
+  } catch (e) { dbg('chart fail', e); }
 
-  // 15. Kickoff
-  [sFz, sVc, sAe, sP].forEach(enhanceSlider);
-  updatePasadasSlider();
-  updatePasadasInfo();
-  recalc();
-  if (!window.step6ErrorHandlerAdded) {
-    window.addEventListener('error', ev => UI.show(`JS: ${ev.message}`));
-    window.step6ErrorHandlerAdded = true;
+  w.addEventListener('unload', function () { try { Object.keys(sessionStorage).forEach(function (k) { if (k.indexOf('step6:') === 0) sessionStorage.removeItem(k); }); } catch (e) {} });
+
+  function hash(s) { var h = 0, i; for (i = 0; i < s.length; i++) { h = (h << 5) - h + s.charCodeAt(i); h |= 0; } return h.toString(36); }
+  function showErr(m) { if (errBox) errBox.textContent = m; }
+  function clearErr() { if (errBox) errBox.textContent = ''; }
+  function setLoading(on) { if (step) step.classList.toggle('loading', !!on); Object.keys(sliders).forEach(function (k) { var s = sliders[k]; if (s) s.disabled = !!on; }); }
+  function paint(d) {
+    try {
+      if (out.vc) out.vc.textContent = d.vc + ' m/min';
+      if (out.fz) out.fz.textContent = d.fz + ' mm/tooth';
+      if (out.rpm) out.rpm.textContent = d.n;
+      if (out.feed) out.feed.textContent = d.vf + ' mm/min';
+      if (out.hm) out.hm.textContent = d.hm + ' mm';
+      if (out.hp) out.hp.textContent = d.hp + ' HP';
+      if (out.mmr) out.mmr.textContent = d.mmr;
+      if (out.fc) out.fc.textContent = d.fc;
+      if (out.w) out.w.textContent = d.watts;
+      if (out.eta) out.eta.textContent = d.etaPercent;
+      if (out.ae) out.ae.textContent = d.ae.toFixed(2);
+      if (out.ap) out.ap.textContent = d.ap.toFixed(3);
+      if (radar && Array.isArray(d.radar)) { radar.data.datasets[0].data = d.radar; radar.update(); }
+    } catch (e) { dbg('paint err', e); }
   }
-  } catch (e) {
-    console.error('[step6] init error', e);
-    UI.fatal(`JS: ${e.message}`);
+  function getPayload() {
+    return {
+      fz: parseFloat(sliders.fz && sliders.fz.value),
+      vc: parseFloat(sliders.vc && sliders.vc.value),
+      ae: parseFloat(sliders.ae && sliders.ae.value),
+      passes: parseInt(sliders.p && sliders.p.value, 10)
+    };
   }
+  function fetchData(body, key, retry) {
+    var ctrl = new AbortController();
+    var to = setTimeout(function () { ctrl.abort(); }, 8000);
+    var t0 = performance.now();
+    return fetch('ajax/step6_ajax_legacy_minimal.php', {
+      method: 'POST',
+      body: body,
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': w.step6Csrf, 'Accept': '*/*' },
+      credentials: 'same-origin',
+      cache: 'no-store',
+      signal: ctrl.signal
+    }).then(function (r) {
+      clearTimeout(to);
+      grp('response', function () { dbg('status', r.status); });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    }).then(function (j) {
+      if (!j.success) throw new Error(j.error || 'Error');
+      sessionStorage.setItem(key, JSON.stringify({ ts: Date.now(), data: j.data }));
+      paint(j.data);
+    }).catch(function (e) {
+      if (retry && (e.name === 'AbortError' || e.message === 'Failed to fetch')) return fetchData(body, key, false);
+      showErr(e.message);
+    }).finally(function () { setLoading(false); dbg('ms', (performance.now() - t0).toFixed(1)); });
+  }
+  function recalc() {
+    try {
+      clearErr();
+      var p = getPayload();
+      var body = JSON.stringify(p);
+      var key = 'step6:' + hash(body);
+      var item;
+      try { item = JSON.parse(sessionStorage.getItem(key) || 'null'); } catch (e) { item = null; }
+      if (item && Date.now() - item.ts < ttl) paint(item.data);
+      setLoading(true);
+      grp('request', function () { dbg(p); });
+      fetchData(body, key, true);
+    } catch (e) { showErr(e.message); setLoading(false); }
+  }
+  w.initStep6 = function () {
+    try {
+      ['fz', 'vc', 'ae', 'p'].forEach(function (k) { if (sliders[k]) sliders[k].addEventListener('input', recalc); });
+      recalc();
+    } catch (e) { showErr(e.message); }
   };
-
 })(window, document);

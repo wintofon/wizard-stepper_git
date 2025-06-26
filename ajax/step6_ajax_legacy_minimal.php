@@ -24,6 +24,7 @@
  */
 
 declare(strict_types=1);
+header('Content-Type: application/json; charset=UTF-8');
 // Fijar BASE_URL adecuado aun estando en /ajax
 if (!getenv('BASE_URL')) {
     $base = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/');
@@ -31,27 +32,34 @@ if (!getenv('BASE_URL')) {
 }
 require_once __DIR__ . '/../src/Config/AppConfig.php';
 
-// Cabeceras JSON
-header('Content-Type: application/json; charset=UTF-8');
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 
-// Iniciar sesión para CSRF
-session_start(); // ensures $_SESSION['csrf_token'] is available
-
-// Confirm AJAX header to avoid serving full HTML
-$isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
-          $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest';
-if (!$isAjax) {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Invalid request']);
-    exit;
-}
+session_start();
 
 function respond_json_error(string $msg, int $code = 400): never {
     http_response_code($code);
     echo json_encode(['success' => false, 'error' => $msg], JSON_UNESCAPED_UNICODE);
     exit;
 }
+
+function require_fields(array $a, array $keys): void {
+    foreach ($keys as $k) {
+        if (!array_key_exists($k, $a)) {
+            respond_json_error("Falta parámetro: $k");
+        }
+    }
+}
+
+try {
+    if (empty($_SERVER['HTTP_ACCEPT'])) {
+        header('Accept: */*');
+    }
+
+    $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+              $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest';
+    if (!$isAjax) {
+        respond_json_error('Invalid request', 400);
+    }
 
 // 0. CSRF: validar token enviado en header X-CSRF-Token
 $token = (string)($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
@@ -67,11 +75,7 @@ if (!is_array($input)) {
 }
 
 // 2. Campos obligatorios
-foreach (['fz','vc','ae','passes','thickness','D','Z','params'] as $f) {
-    if (!array_key_exists($f, $input)) {
-        respond_json_error("Falta parámetro: $f");
-    }
-}
+require_fields($input, ['fz','vc','ae','passes','thickness','D','Z','params']);
 
 // 3. Mapear parámetros
 $fz        = (float)$input['fz'];
@@ -91,9 +95,7 @@ $mc      = (float)($params['mc']       ?? 1.0);
 $alpha   = (float)($params['alpha']    ?? 0.0);
 $eta     = (float)($params['eta']      ?? 1.0);
 
-try {
-
-// 4. Cálculos CNC
+    // 4. Cálculos CNC
 // 4.1 Ángulo φ y espesor hm
 $phi = 2 * asin(min(1.0, $ae / $D));
 $hm  = ($phi !== 0.0)
@@ -149,5 +151,6 @@ echo json_encode([
     ],
 ], JSON_UNESCAPED_UNICODE);
 } catch (Throwable $e) {
+    error_log('[step6][AJAX] ' . $e->getMessage());
     respond_json_error('Error interno', 500);
 }
