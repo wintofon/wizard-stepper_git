@@ -54,9 +54,7 @@ body{
 
   /* permitir desplazamiento horizontal cuando la lista es muy larga  */
   overflow-x:auto;
-
   width:100%;                             /* ocupa 100 % del viewport      */
-
   background:transparent;                 /* transparente = hereda fondo   */
 
   /* sombra inferior + línea interior para separar del contenido      */
@@ -75,11 +73,8 @@ body{
 .stepper-container::after{
   pointer-events:none;
   content:"";
-
   position:absolute; z-index:5;         /* no bloquean clicks            */ top:0; bottom:0;
-
   width:14px;                             /* ancho de la “tapa”            */
-
   background:#162235;                     /* mismo azul oscuro interno     */
 }
 
@@ -102,13 +97,10 @@ body{
   /* scroll suave si la lista se desborda                             */
   overflow-x:auto;
   display:flex;                            /* items en fila                */
-
   width:max-content;                       /* ancho = suma de hijos        */
   margin:0 auto;                           /* bloc centrado horizontal     */
   padding:0;                               /* reset lista                  */
-
   list-style:none;                         /* sin bullets                  */
-
   background:transparent;
 }
 
@@ -122,11 +114,8 @@ body{
 /* ──────────────────── 4) LOGO opcional – .logo-stepper ───────────── */
 .logo-stepper{
   display:flex; align-items:center;        /* centra vertical imagen/logo  */
-
   padding:0 1.25rem;                       /* respiración horizontal       */
-
   font-weight:500;                         /* texto/brand en peso medio    */
-
   background:#162235;                      /* mismo fondo que los pasos    */
 
   /* Romboide: esquina izquierda puntiaguda                            */
@@ -141,23 +130,18 @@ body{
 /* ──────────────────────────── 5) ITEMS LI (pasos) ─────────────────── */
 .stepper li{
   position:relative;                       /* para pseudo-elementos        */
-
  overflow:hidden;
   flex:0 0 auto;                           /* ancho fijo según contenido   */
-
   margin-left:-12px;                       /* superposición romboides      */
   padding:.75rem 1.25rem;                  /* caja clicable cómoda         */
   border-bottom:2px solid transparent;     /* línea base (override c/estado) */
-
  font-size:1rem;
   font-weight:500; color:#d2d2d2;       /* gris claro inactivo          */ text-overflow:ellipsis; text-transform:uppercase;
   white-space:nowrap;
-
   background:#162235;
 
   /* punta romboide derecha                                             */
   clip-path:polygon(12px 0,100% 0,calc(100% - 12px) 100%,0 100%);
-
   transition:background .3s,color .3s;     /* fade suave al cambiar estado */
 }
 
@@ -170,11 +154,8 @@ body{
 /* separador vertical entre pasos                                       */
 .stepper li:not(:last-child)::after{
   content:"";
-
   position:absolute; top:12%; right:0; bottom:12%;
-
   width:1px;
-
  background:rgb(255 255 255 / 15%);
 }
 
@@ -195,14 +176,10 @@ body{
 .stepper li.active::before,
 .stepper li.done::before{
   content:"";
-
   position:absolute; top:0; left:0;
-
  width:0;                     /* animación: de 0% a 100%      */
   height:4px;
-
   background:#00bfff;
-
   animation:fill-bar .45s forwards;
 }
 
@@ -213,9 +190,7 @@ body{
 .stepper li .icon{
   width:1em; height:1em;
   margin-left:.35rem;
-
  vertical-align:middle;
-
   stroke-width:2;
 }
 
@@ -224,10 +199,8 @@ body{
 /* Modo compacto: <=1200 px ------------------------------------------ */
 @media(width <=1200px){
   .stepper{ scrollbar-width:none; /* oculta scroll              */
-
     overflow-x:hidden;
     display:block;
-
  width:100%;
     margin:0 auto;
   }
@@ -239,12 +212,9 @@ body{
   /* …excepto el paso activo (full-width, centrado) */
   .stepper li.active{
     display:block!important;
-
     box-sizing:border-box;
     width:100%; margin:0; padding:1rem;
-
     font-size:1.15rem; font-weight:500; text-align:center;
-
     clip-path:none;
   }
   .stepper li.done{display:none!important;}
@@ -276,7 +246,6 @@ body{
 .stepper li.active:not(.anim-done){
   animation:slideInX .35s ease-out both,
              glowBar 1s .35s ease-out 1;
-
   animation-composition:add;              /* acumular animaciones         */
 }
 

@@ -41,7 +41,6 @@
 
   /* Parche para evitar recuadro interno heredado */
   border: 0 !important;
-
   background: transparent !important;
   box-shadow: none !important;
 }

@@ -3,11 +3,11 @@
  *  Cambios respecto a v3:
  *    • .tool-type ahora usa el celeste de acento (#7fdcff) y está en bold.
  *    • Mantengo mismos ajustes de altura, etiquetas blancas, etc.
- * ==========================================================================*/
+ * ========================================================================== */
 
 /* --------------------------------------------------------------------------
    0) Variables
-   --------------------------------------------------------------------------*/
+   -------------------------------------------------------------------------- */
 :root{
   --step6-accent:            var(--accent-color, #7fdcff);
   --step6-bg-card:           var(--bg-card, #0d1117);
@@ -15,6 +15,7 @@
   --step6-radius:            var(--border-radius-xxl, .75rem);
   --step6-text-sec:          #e5e7eb;      /* gris claro (casi blanco) */
 }
+
 [data-theme='dark']{
   --step6-accent:#7fdcff;
   --step6-bg-card:#161b22;
@@ -24,14 +25,16 @@
 
 /* --------------------------------------------------------------------------
    1) Grilla universal (convierte .row en grid + ítems stretch)
-   --------------------------------------------------------------------------*/
+   -------------------------------------------------------------------------- */
 .cards-grid.row{
+  --bs-gutter-x:0;
+
   display:grid!important;
   grid-template-columns:repeat(auto-fit,minmax(22rem,1fr));
-  gap:clamp(.75rem,2vw,1rem);
-  --bs-gutter-x:0;margin-left:0!important;margin-right:0!important;
+  gap:clamp(.75rem,2vw,1rem);margin-left:0!important;margin-right:0!important;
   align-items:stretch;
 }
+
 .cards-grid.row>[class^="col-"],
 .cards-grid.row>[class*=" col-"]{
   width:auto!important; flex:0 0 auto!important; padding:0!important;
@@ -40,13 +43,14 @@
 
 /* --------------------------------------------------------------------------
    2) Tarjetas genéricas
-   --------------------------------------------------------------------------*/
+   -------------------------------------------------------------------------- */
 .cards-grid .card{
   border:1px solid var(--step6-border);
   border-radius:var(--step6-radius);
   background:var(--step6-bg-card);
   display:flex; flex-direction:column;
 }
+
 .card-header{
   font-weight:600; text-align:center;
   color:var(--step6-accent); background:var(--bg-header,#0d1117);
@@ -54,16 +58,18 @@
 
 /* --------------------------------------------------------------------------
    3) Bloque de la herramienta
-   --------------------------------------------------------------------------*/
+   -------------------------------------------------------------------------- */
 .tool-image{
   display:block; margin:clamp(.5rem,2vw,.75rem) auto;
   max-height:7.5rem; object-fit:contain;
 }
+
 .tool-name{
   margin-top:.6rem;
   font-size:clamp(1.25rem,1.6vw,1.5rem);  /* ↑ más grande */
   font-weight:700; color:#fff;
 }
+
 .tool-type{                                /* ← celeste + bold */
   font-size:clamp(1.05rem,1.3vw,1.2rem);
   font-weight:600;
@@ -72,11 +78,12 @@
 
 /* --------------------------------------------------------------------------
    4) Sliders + labels blancos
-   --------------------------------------------------------------------------*/
+   -------------------------------------------------------------------------- */
 .form-label,
 .param-label,
 .area-results small{ color:#fff!important; }
 .slider-wrap{ position:relative; }
+
 .slider-bubble{
   position:absolute; top:-1.6rem; left:calc(var(--val)*1%);
   transform:translateX(-50%);
@@ -86,7 +93,7 @@
 
 /* --------------------------------------------------------------------------
    5) Resultados rápidos
-   --------------------------------------------------------------------------*/
+   -------------------------------------------------------------------------- */
 .result-box{
   flex:1; min-width:5rem; margin:.3rem; padding:.5rem;
   border:1px solid var(--step6-border); border-radius:.25rem; text-align:center;
@@ -96,13 +103,14 @@
 
 /* --------------------------------------------------------------------------
    6) Radar chart
-   --------------------------------------------------------------------------*/
+   -------------------------------------------------------------------------- */
 #radarChart{ max-width:100%; }
 
 /* --------------------------------------------------------------------------
    7) Especificaciones (igual layout que Config)
-   --------------------------------------------------------------------------*/
+   -------------------------------------------------------------------------- */
 .area-specs .spec-list{ margin:0; padding:0; list-style:none; }
+
 .area-specs .spec-list li{
   display:flex; justify-content:space-between; margin:.35rem 0;
 }
@@ -111,8 +119,9 @@
 
 /* --------------------------------------------------------------------------
    8) Configuración + Notas
-   --------------------------------------------------------------------------*/
+   -------------------------------------------------------------------------- */
 .config-section-title{ font-weight:600; color:#fff; }
+
 .label-static,
 .notes-list li div,
 .text-secondary{ color:var(--step6-text-sec)!important; }
@@ -123,26 +132,30 @@
 
 /* --------------------------------------------------------------------------
    9) Spinner
-   --------------------------------------------------------------------------*/
+   -------------------------------------------------------------------------- */
 .spinner-overlay{
   position:absolute; inset:0; z-index:20;
   display:flex; align-items:center; justify-content:center;
   border-radius:var(--step6-radius);
   background:rgb(0 0 0 / 50%); visibility:hidden;
 }
+
 .spinner-overlay.show,
 .loading .spinner-overlay{ visibility:visible; }
+
 .spinner-border{
   --spinner-size:3rem;
+
   width:var(--spinner-size); height:var(--spinner-size);
   border:.25rem solid var(--step6-accent); border-right-color:transparent;
   border-radius:50%; animation:spin .8s linear infinite;
 }
+
 @keyframes spin{ to{ transform:rotate(360deg);} }
 
 /* --------------------------------------------------------------------------
    10) Debug panel
-   --------------------------------------------------------------------------*/
+   -------------------------------------------------------------------------- */
 .debug-panel{
   position:fixed; left:0; right:0; bottom:0; z-index:9999;
   max-height:9.375rem; padding:.5rem; overflow-y:auto; display:none;
@@ -153,7 +166,8 @@
 
 /* --------------------------------------------------------------------------
    11) Helper DevTools (overflow visual)
-   --------------------------------------------------------------------------*/
+   -------------------------------------------------------------------------- */
+
 /*
 // Resalta en rojo cualquier elemento con overflow horizontal
 document.querySelectorAll('*').forEach(el=>{

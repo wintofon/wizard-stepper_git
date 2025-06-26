@@ -22,12 +22,9 @@
 
 .footer-link {
   display: block;
-
   padding: 0.2rem 0;
-
   color: #bbb;
   text-decoration: none;
-
   transition: color 0.2s;
 }
 
