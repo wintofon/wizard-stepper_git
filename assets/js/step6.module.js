@@ -144,5 +144,4 @@ export function init() {
     recalc();
   } catch (e) { showErr(e.message); }
 }
-window.step6 = { init };
-console.info('[step6] init() registrado');
+console.info('[step6] init() exportado');

@@ -83,7 +83,7 @@ if (!$embedded) {
     header('Expect-CT: max-age=86400, enforce');
     header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
     header('Pragma: no-cache');
-    header("Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://cdn.jsdelivr.net");
+    header("Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net");
 }
 
 // ------------------------------------------------------------------
@@ -817,22 +817,10 @@ safeScript(
 /*-----------------------------------------------------------------
  *  5) Tu propio step6.js (ahora ES module, solo local; sin CDN)
  *----------------------------------------------------------------*/
-echo '<script type="module" src="' . asset('assets/js/step6.module.js') . '"></script>' . PHP_EOL;
 ?>
-
-<script>
-  // Inicializar paso 6 cuando el DOM y el módulo estén listos
-  document.addEventListener('DOMContentLoaded', function () {
-    try {
-      if (window.step6 && typeof window.step6.init === 'function') {
-        window.step6.init();
-      } else {
-        console.error('step6.init no definido');
-      }
-    } catch (e) {
-      console.error('Error en step6.init', e);
-    }
-  });
+<script type="module">
+  import { init } from "<?= asset('assets/js/step6.module.js') ?>";
+  document.addEventListener('DOMContentLoaded', init);
 </script>
 
 <script>

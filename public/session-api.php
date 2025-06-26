@@ -25,7 +25,7 @@ $method   = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $isDebug  = filter_input(INPUT_GET, 'debug', FILTER_VALIDATE_BOOLEAN) === true;
 
 /* 2 · CSRF (solo si hace falta) */
-if ($method !== 'GET' || !$isDebug) {
+if (!($method === 'GET' && $isDebug)) { // MOD
     $headerToken   = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
     $sessionToken  = $_SESSION['csrf_token']       ?? null;
 
