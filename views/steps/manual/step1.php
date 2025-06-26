@@ -179,9 +179,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
              onerror="this.remove()">
       </div>
 
-      <div class="row">
-        <!-- Filtros -->
-        <aside class="col-md-3 sidebar">
+      <div class="filter-wrapper open">
+        <button class="filter-toggle" aria-label="Mostrar/ocultar filtros">
+          <i data-feather="chevron-left"></i>
+        </button>
+        <aside class="filter-bar">
           <div class="card h-100 shadow-sm">
             <div class="card-header bg-primary text-white py-2">
               <i class="bi bi-funnel"></i> Filtros
@@ -192,9 +194,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
           </div>
         </aside>
+      </div>
 
+      <div class="row">
         <!-- Tabla -->
-        <main class="col-md-9">
+        <main class="col-md-12">
           <div class="input-group mb-2">
             <span class="input-group-text">
               <i class="bi bi-search"></i>
@@ -254,6 +258,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           onerror="console.error('❌ step1_manual_tool_browser.js no cargó');">
   </script>
   <script type="module" src="<?= asset('assets/js/step1_manual_lazy_loader.js') ?>"></script>
+
+  <script nonce="<?= $nonce ?>">
+    document.querySelector('.filter-toggle')?.addEventListener('click', () => {
+      const wrap = document.querySelector('.filter-wrapper');
+      if (!wrap) return;
+      wrap.classList.toggle('open');
+      const icon = document.querySelector('.filter-toggle i');
+      const isOpen = wrap.classList.contains('open');
+      icon?.setAttribute('data-feather', isOpen ? 'chevron-left' : 'chevron-right');
+      if (window.feather && typeof feather.replace === 'function') {
+        feather.replace();
+      }
+    });
+  </script>
 
   <script type="module" nonce="<?= $nonce ?>">
       import { initToolTable } from '<?= asset('assets/js/step1_manual_table_hook.js') ?>';
