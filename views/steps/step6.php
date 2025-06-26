@@ -528,69 +528,125 @@ foreach ($styles as [$local, $cdn]) {
     </div>
   </div>
 
-  <!-- ESPECIFICACIONES / CONFIGURACIÓN / NOTAS -->
-  <div class="row gx-3 mb-4 cards-grid">
-    <!-- Especificaciones -->
-    <div class="col-12 col-lg-4 mb-3">
-      <div class="card h-100 shadow-sm">
-        <div class="card-header text-center p-3"
-             data-bs-toggle="collapse"
-             data-bs-target="#specCollapse"
-             aria-expanded="true">
-          <h5 class="mb-0">Especificaciones Técnicas</h5>
-        </div>
-        <div id="specCollapse" class="collapse show">
-          <div class="card-body p-4">
-            <div class="row gx-0 align-items-center">
-              <div class="col-12 col-lg-7 px-2 mb-4 mb-lg-0">
-                <ul class="spec-list mb-0 px-2">
-                  <li><span>Diámetro de corte (d1):</span>
-                      <span><?= number_format($diameterMb,3,'.','') ?>
-                      <span class="param-unit">mm</span>
-                      </span>
-                  </li>
-                  <li><span>Diámetro del vástago:</span>
-                      <span><?= number_format($shankMb,3,'.','') ?>
-                      <span class="param-unit">mm</span>
-                      </span>
-                  </li>
-                  <li><span>Longitud de corte:</span>
-                      <span><?= number_format($cutLenMb,3,'.','') ?>
-                      <span class="param-unit">mm</span>
-                      </span>
-                  </li>
-                  <li><span>Longitud de filo:</span>
-                      <span><?= number_format($fluteLenMb,3,'.','') ?>
-                      <span class="param-unit">mm</span>
-                      </span>
-                  </li>
-                  <li><span>Longitud total:</span>
-                      <span><?= number_format($fullLenMb,3,'.','') ?>
-                      <span class="param-unit">mm</span>
-                      </span>
-                  </li>
-                  <li><span>Número de filos (Z):</span><span><?= $fluteCountMb ?></span></li>
-                  <li><span>Tipo de punta:</span><span><?= $toolType ?></span></li>
-                  <li><span>Recubrimiento:</span><span><?= $coatingMb ?></span></li>
-                  <li><span>Material fabricación:</span><span><?= $materialMb ?></span></li>
-                  <li><span>Marca:</span><span><?= $brandMb ?></span></li>
-                  <li><span>País de origen:</span><span><?= $madeInMb ?></span></li>
-                </ul>
+<!-- Especificaciones (formato “Configuración de Usuario”) -->
+<div class="col-12 col-lg-4 mb-3 area-specs">
+  <div class="card h-100 shadow-sm">
+    <!-- Cabecera colapsable -->
+    <div class="card-header text-center p-3"
+         data-bs-toggle="collapse"
+         data-bs-target="#specCollapse"
+         aria-expanded="true">
+      <h5 class="mb-0">Especificaciones Técnicas</h5>
+    </div>
+
+    <div id="specCollapse" class="collapse show">
+      <div class="card-body p-4">
+        <div class="row gx-0 align-items-center">
+          <!--────────────────── Atributos ordenados ──────────────────-->
+          <div class="col-12 col-lg-7 px-2 mb-4 mb-lg-0">
+
+            <!-- Nº de filos -------------------------------------------------->
+            <div class="config-section mb-3">
+              <div class="config-section-title">Filos</div>
+
+              <div class="config-item">
+                <div class="label-static">Número de filos (Z):</div>
+                <div class="value-static"><?= $fluteCountMb ?></div>
               </div>
-              <div class="col-12 col-lg-5 px-2 d-flex justify-content-center align-items-center">
-                <?php if ($vectorURL): ?>
-                  <img src="<?= htmlspecialchars($vectorURL, ENT_QUOTES) ?>"
-                       alt="Imagen vectorial herramienta"
-                       class="vector-image mx-auto d-block">
-                <?php else: ?>
-                  <div class="text-secondary">Sin imagen vectorial</div>
-                <?php endif; ?>
+            </div>
+
+            <!-- Diámetros --------------------------------------------------->
+            <div class="config-section mb-3">
+              <div class="config-section-title">Diámetros</div>
+
+              <div class="config-item">
+                <div class="label-static">Diámetro de corte (d1):</div>
+                <div class="value-static">
+                  <?= number_format($diameterMb,3,'.','') ?> <span class="param-unit">mm</span>
+                </div>
+              </div>
+
+              <div class="config-item">
+                <div class="label-static">Diámetro del vástago:</div>
+                <div class="value-static">
+                  <?= number_format($shankMb,3,'.','') ?> <span class="param-unit">mm</span>
+                </div>
+              </div>
+
+              <div class="config-item">
+                <div class="label-static">Tipo de punta:</div>
+                <div class="value-static"><?= $toolType ?></div>
+              </div>
+            </div>
+
+            <!-- Longitudes -------------------------------------------------->
+            <div class="config-section mb-3">
+              <div class="config-section-title">Longitudes</div>
+
+              <div class="config-item">
+                <div class="label-static">Longitud de corte:</div>
+                <div class="value-static">
+                  <?= number_format($cutLenMb,3,'.','') ?> <span class="param-unit">mm</span>
+                </div>
+              </div>
+
+              <div class="config-item">
+                <div class="label-static">Longitud de filo:</div>
+                <div class="value-static">
+                  <?= number_format($fluteLenMb,3,'.','') ?> <span class="param-unit">mm</span>
+                </div>
+              </div>
+
+              <div class="config-item">
+                <div class="label-static">Longitud total:</div>
+                <div class="value-static">
+                  <?= number_format($fullLenMb,3,'.','') ?> <span class="param-unit">mm</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Material, recubrimiento, marca, origen --------------------->
+            <div class="config-section">
+              <div class="config-section-title">Composición</div>
+
+              <div class="config-item">
+                <div class="label-static">Material fabricación:</div>
+                <div class="value-static"><?= $materialMb ?></div>
+              </div>
+
+              <div class="config-item">
+                <div class="label-static">Recubrimiento:</div>
+                <div class="value-static"><?= $coatingMb ?></div>
+              </div>
+
+              <div class="config-item">
+                <div class="label-static">Marca:</div>
+                <div class="value-static"><?= $brandMb ?></div>
+              </div>
+
+              <div class="config-item">
+                <div class="label-static">País de origen:</div>
+                <div class="value-static"><?= $madeInMb ?></div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
+
+          <!--────────── Imagen vectorial ──────────-->
+          <div class="col-12 col-lg-5 px-2 d-flex justify-content-center align-items-center">
+            <?php if ($vectorURL): ?>
+              <img src="<?= htmlspecialchars($vectorURL, ENT_QUOTES) ?>"
+                   alt="Imagen vectorial herramienta"
+                   class="vector-image mx-auto d-block">
+            <?php else: ?>
+              <div class="text-secondary">Sin imagen vectorial</div>
+            <?php endif; ?>
+          </div>
+        </div><!-- /.row -->
+      </div><!-- /.card-body -->
+    </div><!-- /.collapse -->
+  </div><!-- /.card -->
+</div><!-- /.area-specs -->
+
 
     <!-- Configuración -->
     <div class="col-12 col-lg-4 mb-3">
