@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 14-05-2025 a las 20:24:43
+-- Tiempo de generación: 28-06-2025 a las 01:57:40
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -93,7 +93,8 @@ CREATE TABLE `materials` (
   `material_id` int(11) NOT NULL,
   `category_id` int(11) DEFAULT NULL,
   `name` varchar(100) NOT NULL,
-  `spec_energy` float DEFAULT NULL,
+  `kc11` float DEFAULT NULL,
+  `mc` float DEFAULT NULL,
   `image` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -101,13 +102,13 @@ CREATE TABLE `materials` (
 -- Volcado de datos para la tabla `materials`
 --
 
-INSERT INTO `materials` (`material_id`, `category_id`, `name`, `spec_energy`, `image`) VALUES
-(3, 1, 'Genérico Madera Dura', 0, 'materials/164496.png'),
-(4, 1, 'Genérico Madera Media', 0, NULL),
-(5, 1, 'Genérico Madera Blanda', 0, NULL),
-(6, 3, 'Genérico Plástico', 0, NULL),
-(7, 4, 'Genérico Contrachapado / Terciado', NULL, NULL),
-(8, 1, 'Genérico Fibrofácil (MDF)', NULL, NULL);
+INSERT INTO `materials` (`material_id`, `category_id`, `name`, `kc11`, `mc`, `image`) VALUES
+(3, 1, 'Genérico Madera Dura', 3000, 0.2, 'materials/164496.png'),
+(4, 1, 'Genérico Madera Media', 2200, 0.21, NULL),
+(5, 1, 'Genérico Madera Blanda', 1600, 0.22, NULL),
+(6, 3, 'Genérico Plástico', 2500, 0.25, NULL),
+(7, 4, 'Genérico Contrachapado / Terciado', 1800, 0.2, NULL),
+(8, 1, 'Genérico Fibrofácil (MDF)', 1200, 0.2, NULL);
 
 -- --------------------------------------------------------
 
@@ -233,12 +234,12 @@ CREATE TABLE `toolsmaterial_sgs` (
 --
 
 INSERT INTO `toolsmaterial_sgs` (`tool_material_id`, `tool_id`, `material_id`, `vc_m_min`, `fz_min_mm`, `fz_max_mm`, `ap_slot_mm`, `ae_slot_mm`, `rating`) VALUES
-(182, 22, 8, 200, 0.1, 0.2, 1, 1, 0),
-(183, 23, 8, 200, 0.11, 0.21, 1, 1, 0),
-(184, 24, 8, 200, 0.12, 0.22, 1, 1, 0),
-(185, 25, 8, 200, 0.13, 0.23, 1, 1, 0),
-(186, 26, 8, 200, 0.14, 0.24, 1, 1, 0),
-(187, 27, 8, 200, 0.15, 0.25, 1, 1, 0);
+(188, 22, 8, 200, 0.1, 0.2, 1, 1, 3),
+(189, 23, 8, 200, 0.11, 0.21, 1, 1, 3),
+(190, 24, 8, 200, 0.12, 0.22, 1, 1, 3),
+(191, 25, 8, 200, 0.13, 0.23, 1, 1, 3),
+(192, 26, 8, 200, 0.14, 0.24, 1, 1, 3),
+(193, 27, 8, 200, 0.15, 0.25, 1, 1, 3);
 
 -- --------------------------------------------------------
 
@@ -261,24 +262,24 @@ INSERT INTO `toolstrategy` (`tool_strategy_id`, `tool_table`, `tool_id`, `strate
 (52, 'tools_sgs', 7, 3),
 (53, 'tools_sgs', 7, 1),
 (54, 'tools_sgs', 7, 2),
-(151, 'tools_sgs', 22, 1),
-(152, 'tools_sgs', 22, 2),
-(153, 'tools_sgs', 22, 3),
-(154, 'tools_sgs', 23, 1),
-(155, 'tools_sgs', 23, 2),
-(156, 'tools_sgs', 23, 3),
-(157, 'tools_sgs', 24, 1),
-(158, 'tools_sgs', 24, 2),
-(159, 'tools_sgs', 24, 3),
-(160, 'tools_sgs', 25, 1),
-(161, 'tools_sgs', 25, 2),
-(162, 'tools_sgs', 25, 3),
-(163, 'tools_sgs', 26, 1),
-(164, 'tools_sgs', 26, 2),
-(165, 'tools_sgs', 26, 3),
-(166, 'tools_sgs', 27, 1),
-(167, 'tools_sgs', 27, 2),
-(168, 'tools_sgs', 27, 3);
+(169, 'tools_sgs', 22, 1),
+(170, 'tools_sgs', 22, 2),
+(171, 'tools_sgs', 22, 3),
+(172, 'tools_sgs', 23, 1),
+(173, 'tools_sgs', 23, 2),
+(174, 'tools_sgs', 23, 3),
+(175, 'tools_sgs', 24, 1),
+(176, 'tools_sgs', 24, 2),
+(177, 'tools_sgs', 24, 3),
+(178, 'tools_sgs', 25, 1),
+(179, 'tools_sgs', 25, 2),
+(180, 'tools_sgs', 25, 3),
+(181, 'tools_sgs', 26, 1),
+(182, 'tools_sgs', 26, 2),
+(183, 'tools_sgs', 26, 3),
+(184, 'tools_sgs', 27, 1),
+(185, 'tools_sgs', 27, 2),
+(186, 'tools_sgs', 27, 3);
 
 -- --------------------------------------------------------
 
@@ -406,7 +407,7 @@ CREATE TABLE `tools_sgs` (
   `coated` varchar(20) DEFAULT NULL,
   `notes` text DEFAULT NULL,
   `image` varchar(255) DEFAULT NULL,
-  `image_dimensions` varchar(25) DEFAULT NULL
+  `image_dimensions` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -419,23 +420,23 @@ INSERT INTO `tools_sgs` (`tool_id`, `series_id`, `tool_code`, `name`, `flute_cou
 (10, 4, '90009', '', 2, 4.763, 6.350, 0.000, 19.050, 63.500, 30.00, 30.00, 0.00, 0.000, 'EM-WOOD', 'EEUU', '', 'Sin recubrir', '', 'assets/img/tools/SGS_21M_VECTOR.png', ''),
 (11, 4, '90013', '', 2, 6.350, 6.350, 0.000, 19.050, 63.500, 30.00, 30.00, 0.00, 0.000, 'EM-WOOD', 'EEUU', '', 'Sin recubrir', '', 'assets/img/tools/SGS_21M_VECTOR.png', ''),
 (12, 4, '90017', '', 2, 6.350, 6.350, 0.000, 25.400, 63.500, 30.00, 30.00, 0.00, 0.000, 'EM-WOOD', 'EEUU', '', 'Sin recubrir', '', 'assets/img/tools/SGS_21M_VECTOR.png', ''),
-(13, 4, '90021', '', 2, 7.938, 7.938, 0.000, 25.400, 63.500, 30.00, 30.00, 0.00, 0.000, 'EM-WOOD', 'EEUU', '', 'Sin recubrir', '', 'assets/img/tools/SGS_21M_VECTOR.png', ''),
-(14, 4, '90025', '', 2, 7.938, 12.700, 0.000, 25.400, 76.200, 30.00, 30.00, 0.00, 0.000, 'EM-WOOD', 'EEUU', '', 'Sin recubrir', '', 'assets/img/tools/SGS_21M_VECTOR.png', ''),
-(15, 4, '90029', 'j', 2, 9.525, 9.525, NULL, 25.400, 63.500, NULL, 30.00, NULL, NULL, 'EM-SQUARE', 'EEUU', '', 'Sin recubrir', NULL, NULL, NULL),
-(16, 4, '90033', '', 2, 9.525, 12.700, 0.000, 31.750, 76.200, 30.00, 30.00, 0.00, 0.000, 'EM-WOOD', 'EEUU', '', 'Sin recubrir', '', 'assets/img/tools/SGS_21M_VECTOR.png', ''),
+(13, 4, '90021', 'assets/img/tools/SGS_21M_VECTOR.png', 2, 7.938, 7.938, 0.000, 25.400, 63.500, 30.00, 30.00, 0.00, 0.000, 'EM-WOOD', 'EEUU', '', 'Sin recubrir', '', 'assets/img/tools/SGS_21M_VECTOR.png', ''),
+(14, 4, '90025', 'assets/img/tools/SGS_21M_VECTOR.png', 2, 7.938, 12.700, 0.000, 25.400, 76.200, 30.00, 30.00, 0.00, 0.000, 'EM-WOOD', 'EEUU', '', 'Sin recubrir', '', 'assets/img/tools/SGS_21M_VECTOR.png', ''),
+(15, 4, '90029', 'assets/img/tools/SGS_21M_VECTOR.png', 2, 9.525, 9.525, 25.400, 25.400, 63.500, NULL, 30.00, NULL, NULL, 'EM-SQUARE', 'EEUU', '', 'Sin recubrir', NULL, NULL, NULL),
+(16, 4, '90033', 'assets/img/tools/SGS_21M_VECTOR.png', 2, 9.525, 12.700, 0.000, 31.750, 76.200, 30.00, 30.00, 0.00, 0.000, 'EM-WOOD', 'EEUU', '', 'Sin recubrir', '', 'assets/img/tools/SGS_21M_VECTOR.png', ''),
 (17, 4, '90037', '', 2, 12.700, 12.700, 0.000, 31.750, 76.200, 30.00, 30.00, 0.00, 0.000, 'EM-WOOD', 'EEUU', '', 'Sin recubrir', '', 'assets/img/tools/SGS_21M_VECTOR.png', ''),
 (18, 4, '90041', '', 2, 12.700, 12.700, 0.000, 38.100, 88.900, 30.00, 30.00, 0.00, 0.000, 'EM-WOOD', 'EEUU', '', 'Sin recubrir', '', 'assets/img/tools/SGS_21M_VECTOR.png', ''),
 (19, 4, '90045', '', 2, 12.700, 12.700, 0.000, 50.800, 101.600, 30.00, 30.00, 0.00, 0.000, 'EM-WOOD', 'EEUU', '', 'Sin recubrir', '', 'assets/img/tools/SGS_21M_VECTOR.png', ''),
-(20, 4, '90049', '', 2, 15.875, 15.875, 0.000, 50.800, 114.300, 30.00, 30.00, 0.00, 0.000, 'EM-WOOD', 'EEUU', '', 'Sin recubrir', '', 'assets/img/tools/SGS_21M_VECTOR.png', ''),
-(21, 4, '90053', '', 2, 19.050, 19.050, 0.000, 50.800, 114.300, 30.00, 30.00, 0.00, 0.000, 'EM-WOOD', 'EEUU', '', 'Sin recubrir', '', 'assets/img/tools/SGS_21M_VECTOR.png', ''),
-(22, 1, '90101', '', 2, 3.000, 6.000, 0.000, 13.000, 50.000, 30.00, 30.00, 0.00, 0.000, 'EM-WOOD', 'EEUU', '10', 'Sin recubrir', '', 'aaa', ''),
-(23, 1, '90107', '', 2, 4.000, 6.000, 0.000, 16.000, 63.000, 30.00, 30.00, 0.00, 0.000, 'EM-WOOD', 'EEUU', '', 'Sin recubrir', '', '', ''),
-(24, 1, '90109', '', 2, 5.000, 6.000, 0.000, 19.000, 63.000, 30.00, 30.00, 0.00, 0.000, 'EM-WOOD', 'EEUU', '', 'Sin recubrir', '', '', ''),
-(25, 1, '90113', '', 2, 6.000, 6.000, 0.000, 25.000, 63.000, 30.00, 30.00, 0.00, 0.000, 'EM-WOOD', 'EEUU', '', 'Sin recubrir', '', '', ''),
-(26, 1, '90121', '', 2, 8.000, 8.000, 0.000, 25.000, 63.000, 0.00, 30.00, 0.00, 0.000, 'EM-SQUARE', 'EEUU', '', 'Sin recubrir', '', '', ''),
-(27, 1, '90129', '', 2, 10.000, 10.000, 0.000, 31.000, 75.000, 0.00, 30.00, 0.00, 0.000, 'EM-SQUARE', 'EEUU', '', 'Sin recubrir', '', '', ''),
-(28, 3, '90137', '', 2, 12.000, 12.000, 0.000, 31.000, 75.000, 0.00, 30.00, 0.00, 0.000, 'EM-WOOD', 'EEUU', '', 'Sin recubrir', '', '', ''),
-(29, 5, '91001', 'Wood Router – Down Cut', 2, 3.175, 6.350, 0.000, 12.700, 50.800, NULL, -30.00, 0.00, 0.000, 'EM-WOOD', 'EEUU', '', 'Sin recubrir', NULL, 'assets/img/tools/SGS_22M_VECTOR.png', NULL),
+(20, 4, '90049', 'Wood Router – Down Cut', 2, 15.875, 15.875, 0.000, 50.800, 114.300, 30.00, 30.00, 0.00, 0.000, 'EM-WOOD', 'EEUU', '', 'Sin recubrir', '', 'assets/img/tools/SGS_21M.png', 'assets/img/tools/SGS_21M_VECTOR.png'),
+(21, 4, '90053', 'Wood Router – Down Cut', 2, 19.050, 19.050, 0.000, 50.800, 114.300, 30.00, 30.00, 0.00, 0.000, 'EM-WOOD', 'EEUU', '', 'Sin recubrir', '', 'assets/img/tools/SGS_21M.png', 'assets/img/tools/SGS_21M_VECTOR.png'),
+(22, 1, '90101', 'Wood Router – Down Cut', 2, 3.000, 6.000, 13.000, 13.000, 50.000, 30.00, 30.00, 0.00, 0.000, 'EM-WOOD', 'EEUU', '10', 'Sin recubrir', '', 'assets/img/tools/SGS_21M.png', 'assets/img/tools/SGS_21M_VECTOR.png'),
+(23, 1, '90107', 'Wood Router – Down Cut', 2, 4.000, 6.000, 16.000, 16.000, 63.000, 30.00, 30.00, 0.00, 0.000, 'EM-WOOD', 'EEUU', '', 'Sin recubrir', '', 'assets/img/tools/SGS_21M.png', 'assets/img/tools/SGS_21M_VECTOR.png'),
+(24, 1, '90109', 'Wood Router – Down Cut', 2, 5.000, 6.000, 19.000, 19.000, 63.000, 30.00, 30.00, 0.00, 0.000, 'EM-WOOD', 'EEUU', '', 'Sin recubrir', '', 'assets/img/tools/SGS_21M.png', 'assets/img/tools/SGS_21M_VECTOR.png'),
+(25, 1, '90113', 'Wood Router – Down Cut', 2, 6.000, 6.000, 25.000, 25.000, 63.000, 30.00, 30.00, 0.00, 0.000, 'EM-WOOD', 'EEUU', '', 'Sin recubrir', '', 'assets/img/tools/SGS_21M.png', 'assets/img/tools/SGS_21M_VECTOR.png'),
+(26, 1, '90121', 'Wood Router – Down Cut', 2, 8.000, 8.000, 25.000, 25.000, 63.000, 30.00, 30.00, 0.00, 0.000, 'EM-SQUARE', 'EEUU', '', 'Sin recubrir', '', 'assets/img/tools/SGS_21M.png', 'assets/img/tools/SGS_21M_VECTOR.png'),
+(27, 1, '90129', 'Wood Router – Down Cut', 2, 10.000, 10.000, 10.000, 31.000, 75.000, 30.00, 30.00, 0.00, 0.000, 'EM-SQUARE', 'EEUU', '', 'Sin recubrir', '', 'assets/img/tools/SGS_21M.png', 'assets/img/tools/SGS_21M_VECTOR.png'),
+(28, 3, '90137', 'Wood Router – Down Cut', 2, 12.000, 12.000, 12.000, 12.000, 75.000, 30.00, 30.00, 0.00, 0.000, 'EM-WOOD', 'EEUU', '', 'Sin recubrir', '', 'assets/img/tools/SGS_21M.png', 'assets/img/tools/SGS_21M_VECTOR.png'),
+(29, 5, '91001', 'Wood Router – Down Cut', 2, 3.175, 6.350, 0.000, 12.700, 50.800, 30.00, -30.00, 0.00, 0.000, 'EM-WOOD', 'EEUU', '', 'Sin recubrir', NULL, 'assets/img/tools/SGS_22M_VECTOR.png', NULL),
 (30, 5, '91005', 'Wood Router – Down Cut', 2, 3.969, 6.350, 0.000, 15.875, 63.500, NULL, -30.00, 0.00, 0.000, 'EM-WOOD', 'EEUU', '', 'Sin recubrir', NULL, 'assets/img/tools/SGS_22M_VECTOR.png', NULL),
 (31, 5, '91009', 'Wood Router – Down Cut', 2, 4.763, 6.350, 0.000, 19.050, 63.500, NULL, -30.00, 0.00, 0.000, 'EM-WOOD', 'EEUU', '', 'Sin recubrir', NULL, 'assets/img/tools/SGS_22M_VECTOR.png', NULL),
 (32, 5, '91013', 'Wood Router – Down Cut', 2, 6.350, 6.350, 0.000, 19.050, 63.500, NULL, -30.00, 0.00, 0.000, 'EM-WOOD', 'EEUU', '', 'Sin recubrir', NULL, 'assets/img/tools/SGS_22M_VECTOR.png', NULL),
@@ -492,6 +493,7 @@ CREATE TABLE `transmissions` (
   `rpm_min` int(11) NOT NULL DEFAULT 3000,
   `rpm_max` int(11) NOT NULL DEFAULT 18000,
   `feed_max` int(11) NOT NULL DEFAULT 5000,
+  `hp_default` int(3) NOT NULL,
   `image` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -499,8 +501,8 @@ CREATE TABLE `transmissions` (
 -- Volcado de datos para la tabla `transmissions`
 --
 
-INSERT INTO `transmissions` (`id`, `name`, `coef_security`, `rpm_min`, `rpm_max`, `feed_max`, `image`) VALUES
-(1, 'Bolas recirculantes', 1, 3000, 18000, 5000, 'transmissions/bolas_recirculantes.jpg');
+INSERT INTO `transmissions` (`id`, `name`, `coef_security`, `rpm_min`, `rpm_max`, `feed_max`, `hp_default`, `image`) VALUES
+(1, 'Bolas recirculantes', 1, 3000, 18000, 5000, 3, 'transmissions/bolas_recirculantes.jpg');
 
 -- --------------------------------------------------------
 
@@ -722,13 +724,13 @@ ALTER TABLE `toolsmaterial_schneider`
 -- AUTO_INCREMENT de la tabla `toolsmaterial_sgs`
 --
 ALTER TABLE `toolsmaterial_sgs`
-  MODIFY `tool_material_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=188;
+  MODIFY `tool_material_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=194;
 
 --
 -- AUTO_INCREMENT de la tabla `toolstrategy`
 --
 ALTER TABLE `toolstrategy`
-  MODIFY `tool_strategy_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=169;
+  MODIFY `tool_strategy_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=187;
 
 --
 -- AUTO_INCREMENT de la tabla `tools_generico`
