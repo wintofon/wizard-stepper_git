@@ -108,7 +108,6 @@ declare(strict_types=1);
   <!-- SCRIPT GLOBAL DEL STEPPER -->
   <script src="<?= asset('assets/js/wizard_stepper.js') ?>" defer></script>
   <script src="<?= asset('assets/js/dashboard.js') ?>" defer></script>
-  <script src="<?= asset('assets/js/step6.js') ?>" defer></script>
 
   <!-- FOOTER CORPORATIVO (NO INTERFIERE CON EL MAIN) -->
   <footer class="footer-schneider text-white mt-5">
