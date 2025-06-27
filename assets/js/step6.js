@@ -1,53 +1,65 @@
-/** Ubicación: C:\xampp\htdocs\wizard-stepper\assets\js\step6.js */
-(() => {
-  // 1. Parámetros inyectados por PHP
+/*  assets/js/step6.module.js
+   -------------------------------------------------------------
+   Paso 6 – Módulo ESM unificado
+   · Exporta   init()            → permite import dinámico
+   · Expone   window.step6.init  → compatibilidad vieja
+   · Usa      window.step6AjaxUrl (inyectado por PHP) como
+     endpoint, con fallback razonable.
+   · Todas las rutas, tokens y parámetros provienen de las
+     variables globales que ya insertaba el PHP.
+----------------------------------------------------------------*/
+
+export function init () {
+  /* ----------------------------------------------------------
+   * 1. Parámetros inyectados por PHP
+   * -------------------------------------------------------- */
   const {
-    diameter: D,
-    flute_count: Z,
-    rpm_min: rpmMin,
-    rpm_max: rpmMax,
+    diameter          : D,
+    flute_count       : Z,
+    rpm_min           : rpmMin,
+    rpm_max           : rpmMax,
     fr_max,
-    coef_seg, Kc11, mc, alpha, eta,
-  } = window.step6Params || {};
+    coef_seg, Kc11, mc, alpha, eta
+  } = window.step6Params ?? {};
 
-  const csrfToken = window.step6Csrf;
+  const csrfToken = window.step6Csrf ?? '';
+  const ajaxURL   = window.step6AjaxUrl ||
+                    `${(window.BASE_URL ?? '')}/ajax/step6_ajax_legacy_minimal.php`;
 
-  // 2. Referencias al DOM
-  const sFz   = document.getElementById('sliderFz'),
-        sVc   = document.getElementById('sliderVc'),
-        sAe   = document.getElementById('sliderAe'),
-        sP    = document.getElementById('sliderPasadas'),
-        infoP = document.getElementById('textPasadasInfo'),
-        UI    = {
-          errBox: document.getElementById('errorMsg'),
-          show(msg) {
-            this.errBox.textContent = msg;
-            this.errBox.style.display = 'block';
-          },
-          clear() {
-            this.errBox.style.display = 'none';
-            this.errBox.textContent = '';
-          },
-          fatal(msg) {
-            alert(msg);
-          }
-        },
-        out   = {
-          vc:  document.getElementById('outVc'),
-          fz:  document.getElementById('outFz'),
-          hm:  document.getElementById('outHm'),
-          n:   document.getElementById('outN'),
-          vf:  document.getElementById('outVf'),
-          hp:  document.getElementById('outHp'),
-          mmr: document.getElementById('valueMrr'),
-          fc:  document.getElementById('valueFc'),
-          w:   document.getElementById('valueW'),
-          eta: document.getElementById('valueEta'),
-          ae:  document.getElementById('outAe'),  // ← nuevo
-          ap:  document.getElementById('outAp')   // ← nuevo
-        };
+  /* ----------------------------------------------------------
+   * 2. Referencias al DOM
+   * -------------------------------------------------------- */
+  const sFz =  q('sliderFz'),
+        sVc =  q('sliderVc'),
+        sAe =  q('sliderAe'),
+        sP  =  q('sliderPasadas'),
+        infoP = q('textPasadasInfo'),
+        errBox = q('errorMsg');
 
-  // 3. Límites de Vc desde rpmMin/rpmMax
+  const out = {
+    vc :  q('outVc'),
+    fz :  q('outFz'),
+    hm :  q('outHm'),
+    n  :  q('outN'),
+    vf :  q('outVf'),
+    hp :  q('outHp'),
+    mmr:  q('valueMrr'),
+    fc :  q('valueFc'),
+    w  :  q('valueW'),
+    eta:  q('valueEta'),
+    ae :  q('outAe'),
+    ap :  q('outAp')
+  };
+
+  const UI = {
+    show (m){ errBox.textContent = m; errBox.style.display='block'; },
+    clear(){  errBox.style.display='none'; errBox.textContent='';  },
+    fatal(m){ alert(m); }
+  };
+
+  /* ----------------------------------------------------------
+   * 3. Límites dinámicos de Vc
+   * -------------------------------------------------------- */
   const vcMinAllowed = (rpmMin * Math.PI * D) / 1000;
   const vcMaxAllowed = (rpmMax * Math.PI * D) / 1000;
   sVc.min = vcMinAllowed.toFixed(1);
@@ -55,154 +67,139 @@
   if (+sVc.value < vcMinAllowed) sVc.value = vcMinAllowed.toFixed(1);
   if (+sVc.value > vcMaxAllowed) sVc.value = vcMaxAllowed.toFixed(1);
 
-  // 4. Radar Chart init
-  const ctx = document.getElementById('radarChart').getContext('2d');
-  const radar = new Chart(ctx, {
-    type: 'radar',
-    data: {
-      labels: ['Vida útil','Terminación','Potencia'],
-      datasets:[{
-        data:[0,0,0],
-        backgroundColor:'rgba(79,195,247,0.35)',
-        borderColor:'rgba(79,195,247,0.8)',
-        borderWidth:2
-      }]
-    },
-    options:{scales:{r:{max:100,ticks:{stepSize:20}}},plugins:{legend:{display:false}}}
-  });
+  /* ----------------------------------------------------------
+   * 4. Radar Chart (Chart.js)
+   * -------------------------------------------------------- */
+  let radar = null;
+  try{
+    const ctx = q('radarChart')?.getContext('2d');
+    if (ctx && window.Chart){
+      radar = new Chart(ctx,{
+        type:'radar',
+        data:{ labels:['Vida útil','Terminación','Potencia'],
+               datasets:[{ data:[0,0,0],
+                           backgroundColor:'rgba(79,195,247,.35)',
+                           borderColor:'rgba(79,195,247,.8)', borderWidth:2 }]},
+        options:{ scales:{ r:{ max:100,ticks:{ stepSize:20 } } },
+                  plugins:{ legend:{ display:false } } }
+      });
+    }
+  }catch(e){ console.warn('[step6] Chart init error',e); }
 
-  // 5. Mostrar/ocultar errores (centralizado en UI)
-
-  // 6. Calcular feedrate Vf
-  function computeFeed(vc, fz) {
-    const rpm = (vc * 1000) / (Math.PI * D);
-    return rpm * fz * Z;
-  }
-
-  // 7. Bloqueo de slider
-  function lockSlider(slider, msg) {
-    slider.value = slider.dataset.limitValue;
-    slider.disabled = true;
-    UI.show(msg);
-  }
-  function unlockSlider(slider) {
-    slider.disabled = false;
-  }
-
-  // 8. Pasadas slider / info
+  /* ----------------------------------------------------------
+   * 5. Utilidades
+   * -------------------------------------------------------- */
   const thickness = parseFloat(sP.dataset.thickness);
-  function updatePasadasSlider() {
+
+  function q(id){ return document.getElementById(id); }
+
+  function computeFeed(vc,fz){
+    const rpm = (vc*1000)/(Math.PI*D);
+    return rpm*fz*Z;
+  }
+
+  function updatePassSlider(){
     const maxP = Math.ceil(thickness / parseFloat(sAe.value));
-    sP.min = 1; sP.max = maxP; sP.step = 1;
-    if (sP.value > maxP) sP.value = maxP;
+    sP.min=1; sP.max=maxP; sP.step=1;
+    if (+sP.value>maxP) sP.value=maxP;
   }
-  function updatePasadasInfo() {
+  function updatePassInfo(){
     const p = +sP.value;
-    infoP.textContent = `${p} pasadas de ${(thickness/p).toFixed(2)} mm`;
+    infoP.textContent = `${p} pasada${p>1?'s':''} de ${(thickness/p).toFixed(2)} mm`;
   }
 
-  // 9. Debounce
-  let timer;
-  function scheduleRecalc() {
-    UI.clear();
-    clearTimeout(timer);
-    timer = setTimeout(recalc, 200);
-  }
+  let debounceId;
+  const debounce = fn => { clearTimeout(debounceId); debounceId = setTimeout(fn,200); };
 
-  // 10. Handler común para fz/vc
-  function onParamChange() {
+  /* ----------------------------------------------------------
+   * 6. Listeners de sliders
+   * -------------------------------------------------------- */
+  function onFzVcChange(){
     UI.clear();
-    const vc = parseFloat(sVc.value),
-          fz = parseFloat(sFz.value),
-          feed = computeFeed(vc, fz);
+    const vc = +sVc.value, fz = +sFz.value, feed = computeFeed(vc,fz);
 
-    if (feed > fr_max) {
-      this.dataset.limitValue = this.value;
-      lockSlider(this, `Feedrate supera límite (${fr_max}). Ajusta el otro valor.`);
+    if (feed>fr_max){
+      UI.show(`Feedrate supera límite (${fr_max}). Ajustá Vc o fz.`);
       return;
     }
-    if (feed <= 0) {
-      this.dataset.limitValue = this.value;
-      lockSlider(this, `Feedrate demasiado bajo.`);
-      return;
-    }
-    unlockSlider(sVc);
-    unlockSlider(sFz);
-    scheduleRecalc();
+    debounce(recalc);
   }
 
-  // 11. Conectar listeners
-  sFz.addEventListener('input', onParamChange);
-  sVc.addEventListener('input', onParamChange);
-  sAe.addEventListener('input', () => {
-    updatePasadasSlider();
-    updatePasadasInfo();
-    scheduleRecalc();
-  });
-  sP.addEventListener('input', () => {
-    updatePasadasInfo();
-    scheduleRecalc();
-  });
+  [sFz, sVc].forEach(s => s.addEventListener('input', onFzVcChange));
+  sAe.addEventListener('input', () => { updatePassSlider(); updatePassInfo(); debounce(recalc); });
+  sP .addEventListener('input', () => { updatePassInfo();                 debounce(recalc); });
 
-  // 12. AJAX + recalc
-  async function recalc() {
+  /* ----------------------------------------------------------
+   * 7. AJAX + pintado de resultados
+   * -------------------------------------------------------- */
+  async function recalc(){
     const payload = {
-      fz:        parseFloat(sFz.value),
-      vc:        parseFloat(sVc.value),
-      ae:        parseFloat(sAe.value),
-      passes:    parseInt(sP.value,10),
-      thickness: thickness,
+      fz: +sFz.value,
+      vc: +sVc.value,
+      ae: +sAe.value,
+      passes: +sP.value,
+      thickness,
       D, Z,
-      params:    { fr_max, coef_seg, Kc11, mc, alpha, eta }
+      params:{ fr_max, coef_seg, Kc11, mc, alpha, eta }
     };
 
-    try {
-      const res = await fetch('/wizard-stepper/step_minimo_ajax.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+    try{
+      const r = await fetch(ajaxURL,{
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
           'X-CSRF-Token': csrfToken
         },
-        body: JSON.stringify(payload),
-        cache: 'no-store'
+        body:JSON.stringify(payload),
+        cache:'no-store',
+        credentials:'same-origin'
       });
-      if (!res.ok) {
-        return UI.show(`AJAX error ${res.status}`);
-      }
-      const msg = await res.json();
-      if (!msg.success) {
-        return UI.show(`Servidor: ${msg.error}`);
-      }
-      const d = msg.data;
+      if(!r.ok) throw new Error(`HTTP ${r.status}`);
+      const j = await r.json();
+      if(!j.success) throw new Error(j.error||'Error');
 
-      // 13. Pinta resultados
-      out.vc.textContent  = `${d.vc} m/min`;
-      out.fz.textContent  = `${d.fz} mm/tooth`;
-      out.hm.textContent  = `${d.hm} mm`;
-      out.n.textContent   = d.n;
-      out.vf.textContent  = `${d.vf} mm/min`;
-      out.hp.textContent  = `${d.hp} HP`;
+      paint(j.data);
+    }catch(e){
+      UI.show(e.message);
+      console.error('[step6] AJAX fail',e);
+    }
+  }
+
+  function paint(d){
+    try{
+      out.vc .textContent = `${d.vc} m/min`;
+      out.fz .textContent = `${d.fz} mm/tooth`;
+      out.hm .textContent = `${d.hm} mm`;
+      out.n  .textContent = d.n;
+      out.vf .textContent = `${d.vf} mm/min`;
+      out.hp .textContent = `${d.hp} HP`;
       out.mmr.textContent = d.mmr;
-      out.fc.textContent  = d.fc;
-      out.w.textContent   = d.watts;
+      out.fc .textContent = d.fc;
+      out.w  .textContent = d.watts;
       out.eta.textContent = d.etaPercent;
-      // ← Aquí pintamos los nuevos
-      out.ae.textContent  = d.ae.toFixed(2);
-      out.ap.textContent  = d.ap.toFixed(3);
+      out.ae .textContent = d.ae.toFixed(2);
+      out.ap .textContent = d.ap.toFixed(3);
 
-      // 14. Radar
-      if (Array.isArray(d.radar) && d.radar.length === 3) {
+      if(radar && Array.isArray(d.radar)){
         radar.data.datasets[0].data = d.radar;
         radar.update();
       }
-    } catch (e) {
-      UI.show(`Conexión fallida: ${e.message}`);
-    }
+    }catch(e){ console.error('[step6] paint()',e); }
   }
 
-  // 15. Kickoff
-  updatePasadasSlider();
-  updatePasadasInfo();
+  /* ----------------------------------------------------------
+   * 8. Kick-off
+   * -------------------------------------------------------- */
+  updatePassSlider();
+  updatePassInfo();
   recalc();
-  window.addEventListener('error', ev => UI.show(`JS: ${ev.message}`));
-})();
+  console.info('%c[step6] init OK','color:#4fc3f7;font-weight:700');
+}
+
+/* ----------------------------------------------------------------
+ * Compatibilidad legacy – deja disponible window.step6.init
+ * ----------------------------------------------------------------*/
+if (typeof window !== 'undefined'){
+  window.step6 = window.step6 || {};
+  window.step6.init = init;
+}
