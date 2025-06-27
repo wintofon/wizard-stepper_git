@@ -11,12 +11,13 @@ export function init () {
     'textPasadasInfo','errorMsg'
   ];
   const els = ids.map(id => document.getElementById(id));
-  if (els.some(el => !el)) {
+  const missing = ids.filter((_, i) => !els[i]);
+  if (missing.length) {
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', init, { once: true });
       console.info('[step6] esperando DOMContentLoaded');
     } else {
-      console.warn('[step6] elementos necesarios no encontrados');
+      console.warn('[step6] faltan elementos:', missing.join(', '));
     }
     return;
   }
