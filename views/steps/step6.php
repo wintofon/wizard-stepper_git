@@ -819,21 +819,7 @@ safeScript(
  *----------------------------------------------------------------*/
 ?>
 <!-- views/steps/step6.php  ── al final, justo antes de </body> -->
-<script type="module">
-  (async () => {
-    try {
-      // Carga dinámica del módulo
-      const { init } = await import("<?= asset('assets/js/step6.module.js') ?>");
-      console.info('%c[step6] Módulo cargado OK', 'color:#4fc3f7;font-weight:700');
 
-      // Inicializa cuando el DOM esté listo
-      document.addEventListener('DOMContentLoaded', init);
-    } catch (err) {
-      // Cualquier problema (404, CSP, sintaxis, etc.)
-      console.error('[step6] ❌ No se pudo cargar el módulo:', err);
-    }
-  })();
-</script>
   <script type="module" src="<?= asset('assets/js/step6.js') ?>"></script>
 
 <script>
