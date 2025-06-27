@@ -16,7 +16,8 @@
 
 /* ─────────────── 1. Variables locales ────────────── */
 :root{
-  --p5-accent:      var(--step6-accent, #7fdcff); /* celeste corporativo */
+  --p5-accent:      var(--step6-accent, #7fdcff); /* celeste para títulos */
+  --p5-green:       #198754;                    /* mismo verde que paso 3 */
   --p5-bg-dark:     #1a2638;
   --p5-bg-dark2:    #25334b;
   --p5-text:        #ffffff;
@@ -57,6 +58,33 @@ h5.step-subtitle{
   color: var(--p5-text-muted);
   background-color: var(--p5-bg-dark2);
   border-color: var(--p5-border);
+}
+
+/* ─────────────── 4a. Radios tipo estrategia ─────── */
+.btn-check + label.btn-outline-primary{
+  margin: .35rem .45rem;
+  color: var(--p5-text);
+  background: var(--p5-bg-dark);
+  border: 1px solid var(--p5-border);
+  border-radius: var(--p5-radius);
+  transition:
+    background .25s, color .25s, border-color .25s,
+    box-shadow .2s, transform .2s cubic-bezier(.4,.3,.2,1);
+}
+.btn-check + label.btn-outline-primary:hover{
+  background: var(--p5-bg-dark2);
+  box-shadow: var(--p5-shadow);
+  transform: translateY(-2px) scale(1.01);
+}
+.btn-check:focus-visible + label.btn-outline-primary{
+  outline: 2px solid var(--p5-green);
+  outline-offset: 2px;
+}
+.btn-check:checked + label.btn-outline-primary{
+  background: var(--p5-green);
+  border-color: var(--p5-green);
+  color: #0d1117;
+  box-shadow: 0 0 0 3px rgb(25 135 84 /.4);
 }
 
 /* ─────────────── 5. Botón Siguiente / Guardar ────── */
