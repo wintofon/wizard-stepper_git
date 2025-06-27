@@ -6,6 +6,21 @@
 
 declare(strict_types=1);
 
+if (!function_exists('respondError')) {
+    function respondError(int $code, string $msg): void {
+        http_response_code($code);
+        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+            $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') {
+            header('Content-Type: application/json');
+            echo json_encode(['error' => $msg], JSON_UNESCAPED_UNICODE);
+        } else {
+            header('Content-Type: text/html; charset=UTF-8');
+            echo '<p>' . htmlspecialchars($msg, ENT_QUOTES, 'UTF-8') . '</p>';
+        }
+        exit;
+    }
+}
+
 set_exception_handler(function(Throwable $e){
     error_log('[step6][EXCEPTION] '.$e->getMessage()."\n".$e->getTraceAsString());
     http_response_code(500);

@@ -7,6 +7,22 @@
  * @TODO Extend documentation.
  */
 declare(strict_types=1);
+
+if (!function_exists('respondError')) {
+    function respondError(int $code, string $msg): void {
+        http_response_code($code);
+        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+            $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') {
+            header('Content-Type: application/json');
+            echo json_encode(['error' => $msg], JSON_UNESCAPED_UNICODE);
+        } else {
+            header('Content-Type: text/html; charset=UTF-8');
+            echo '<p>' . htmlspecialchars($msg, ENT_QUOTES, 'UTF-8') . '</p>';
+        }
+        exit;
+    }
+}
+
 require_once __DIR__ . '/../../../src/Utils/Session.php';
 /**
  * File: step3.php
