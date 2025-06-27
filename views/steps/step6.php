@@ -818,10 +818,23 @@ safeScript(
  *  5) Tu propio step6.js (ahora ES module, solo local; sin CDN)
  *----------------------------------------------------------------*/
 ?>
+<!-- views/steps/step6.php  ── al final, justo antes de </body> -->
 <script type="module">
-  import { init } from "<?= asset('assets/js/step6.module.js') ?>";
-  document.addEventListener('DOMContentLoaded', init);
+  (async () => {
+    try {
+      // Carga dinámica del módulo
+      const { init } = await import("<?= asset('assets/js/step6.module.js') ?>");
+      console.info('%c[step6] Módulo cargado OK', 'color:#4fc3f7;font-weight:700');
+
+      // Inicializa cuando el DOM esté listo
+      document.addEventListener('DOMContentLoaded', init);
+    } catch (err) {
+      // Cualquier problema (404, CSP, sintaxis, etc.)
+      console.error('[step6] ❌ No se pudo cargar el módulo:', err);
+    }
+  })();
 </script>
+
 
 <script>
 /*-- Feather.replace() seguro: reintenta 10× cada 120 ms --*/
