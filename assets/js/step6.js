@@ -1,4 +1,4 @@
-/*  assets/js/step6.module.js
+/*  assets/js/step6.js
    -------------------------------------------------------------
    Paso 6 – Módulo ESM unificado
    · Exporta   init()            → permite import dinámico

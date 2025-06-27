@@ -2,7 +2,7 @@
 /**
  *  Paso 6 – AJAX • Re-cálculo de parámetros
  *  -------------------------------------------------------------------------
- *  ▸ Endpoint exclusivo para peticiones `fetch()` en assets/js/step6.module.js
+ *  ▸ Endpoint exclusivo para peticiones `fetch()` en assets/js/step6.js
  *  ▸ Entrada  : JSON            (ver $requiredKeys)
  *  ▸ Salida   : { success, data, error? }
  *  ▸ Seguridad:  • Sólo XMLHttpRequest

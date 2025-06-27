@@ -820,7 +820,17 @@ safeScript(
 ?>
 <!-- views/steps/step6.php  ── al final, justo antes de </body> -->
 
-  <script type="module" src="<?= asset('assets/js/step6.js') ?>"></script>
+  <script type="module">
+    (async () => {
+      try {
+        const { init } = await import("<?= asset('assets/js/step6.js') ?>");
+        console.info('%c[step6] módulo cargado OK', 'color:#4fc3f7;font-weight:700');
+        init();
+      } catch (e) {
+        console.error('[step6] módulo no encontrado', e);
+      }
+    })();
+  </script>
 
 <script>
 /*-- Feather.replace() seguro: reintenta 10× cada 120 ms --*/
