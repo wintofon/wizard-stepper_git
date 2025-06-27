@@ -18,7 +18,8 @@ h2 {
 
 .form-label {
   font-weight: 600;
-  color: var(--text-color-sec);
+  /* Usamos el acento corporativo para destacarlo */
+  color: var(--accent-color);
 }
 
 #diaFilter.form-select {

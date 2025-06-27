@@ -22,6 +22,15 @@
   background-color: #1f2a36;
 }
 
+/* Marca en color acento y características en blanco */
+.fresa-card strong {
+  color: var(--accent-color);
+}
+
+.fresa-card small {
+  color: var(--text-color);
+}
+
 .estrella {
   color: #f0ad4e;
 }
