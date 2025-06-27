@@ -6,6 +6,17 @@
 ----------------------------------------------------------------*/
 
 export function init () {
+  const ready = document.getElementById('sliderVc');
+  if (!ready) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init, { once: true });
+      console.info('[step6] esperando DOMContentLoaded');
+    } else {
+      console.warn('[step6] #sliderVc no encontrado');
+    }
+    return;
+  }
+
   /* ---------- 1. Variables globales inyectadas por PHP ---------- */
   const {
     diameter : D, flute_count : Z,
@@ -20,9 +31,17 @@ export function init () {
   /* ---------------- 2. DOM helpers ---------------- */
   const q = id => document.getElementById(id);
 
-  const sFz = q('sliderFz'),  sVc = q('sliderVc'),
-        sAe = q('sliderAe'),  sP  = q('sliderPasadas'),
-        infoP = q('textPasadasInfo'),  errBox = q('errorMsg');
+  const sVc = ready,
+        sFz = q('sliderFz'),
+        sAe = q('sliderAe'),
+        sP  = q('sliderPasadas'),
+        infoP = q('textPasadasInfo'),
+        errBox = q('errorMsg');
+
+  if (!sFz || !sVc || !sAe || !sP || !infoP || !errBox) {
+    console.error('[step6] elementos críticos del DOM faltantes');
+    return;
+  }
 
   const out = {
     vc : q('outVc'), fz : q('outFz'), hm : q('outHm'),
@@ -30,6 +49,11 @@ export function init () {
     mmr: q('valueMrr'), fc : q('valueFc'), w : q('valueW'),
     eta: q('valueEta'), ae : q('outAe'),   ap : q('outAp')
   };
+
+  if (Object.values(out).some(e => !e)) {
+    console.error('[step6] elementos de salida faltantes');
+    return;
+  }
 
   const UI = {
     show (m){ errBox.textContent = m; errBox.style.display = 'block'; },

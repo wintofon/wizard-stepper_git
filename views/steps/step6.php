@@ -823,7 +823,16 @@ safeScript(
 
 <!-- Script principal del paso 6  -->
 
-
+<script type="module"
+        src="<?= asset('assets/js/step6.js') ?>"
+        defer
+        onload="console.info('[step6] script cargado')"
+        onerror="console.error('[step6] error al cargar script')"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    window.step6?.init?.();
+  });
+</script>
 
 <script>
 /*-- Feather.replace() seguro: reintenta 10× cada 120 ms --*/
