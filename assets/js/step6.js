@@ -1,127 +1,208 @@
-/* STEP6-AJAX */
-(function (w, d) {
-  'use strict';
-  console.info('[step6] JS cargado');
-  var DEBUG = w.DEBUG === true;
-  var ttl = 600000; // 10 min
-  function dbg() { if (DEBUG) console.log.apply(console, arguments); }
-  function grp(t, fn) { if (!DEBUG) return fn(); console.group(t); try { return fn(); } finally { console.groupEnd(); } }
-  function q(id) { return d.getElementById(id); }
-  var csrfToken = w.step6Csrf || (d.querySelector('meta[name="csrf-token"]') && d.querySelector('meta[name="csrf-token"]').content) || '';
+/** Ubicación: C:\xampp\htdocs\wizard-stepper\assets\js\step6.js */
+(() => {
+  // 1. Parámetros inyectados por PHP
+  const {
+    diameter: D,
+    flute_count: Z,
+    rpm_min: rpmMin,
+    rpm_max: rpmMax,
+    fr_max,
+    coef_seg, Kc11, mc, alpha, eta,
+  } = window.step6Params || {};
 
-  var step = d.querySelector('.step6');
-  var errBox = q('errorMsg');
-  var sliders = { fz: q('sliderFz'), vc: q('sliderVc'), ae: q('sliderAe'), p: q('sliderPasadas') };
-  var out = { rpm: q('outN'), feed: q('outVf'), vc: q('outVc'), fz: q('outFz'), hm: q('outHm'), hp: q('outHp'), mmr: q('valueMrr'), fc: q('valueFc'), w: q('valueW'), eta: q('valueEta'), ae: q('outAe'), ap: q('outAp') };
-  var radar = null;
-  try {
-    var ctx = q('radarChart');
-    if (w.Chart && ctx) {
-      radar = new w.Chart(ctx.getContext('2d'), {
-        type: 'radar',
-        data: { labels: ['Vida útil', 'Terminación', 'Potencia'], datasets: [{ data: [0, 0, 0], backgroundColor: 'rgba(79,195,247,0.35)', borderColor: 'rgba(79,195,247,0.8)', borderWidth: 2 }] },
-        options: { scales: { r: { max: 100, ticks: { stepSize: 20 } } }, plugins: { legend: { display: false } } }
-      });
+  const csrfToken = window.step6Csrf;
+
+  // 2. Referencias al DOM
+  const sFz   = document.getElementById('sliderFz'),
+        sVc   = document.getElementById('sliderVc'),
+        sAe   = document.getElementById('sliderAe'),
+        sP    = document.getElementById('sliderPasadas'),
+        infoP = document.getElementById('textPasadasInfo'),
+        UI    = {
+          errBox: document.getElementById('errorMsg'),
+          show(msg) {
+            this.errBox.textContent = msg;
+            this.errBox.style.display = 'block';
+          },
+          clear() {
+            this.errBox.style.display = 'none';
+            this.errBox.textContent = '';
+          },
+          fatal(msg) {
+            alert(msg);
+          }
+        },
+        out   = {
+          vc:  document.getElementById('outVc'),
+          fz:  document.getElementById('outFz'),
+          hm:  document.getElementById('outHm'),
+          n:   document.getElementById('outN'),
+          vf:  document.getElementById('outVf'),
+          hp:  document.getElementById('outHp'),
+          mmr: document.getElementById('valueMrr'),
+          fc:  document.getElementById('valueFc'),
+          w:   document.getElementById('valueW'),
+          eta: document.getElementById('valueEta'),
+          ae:  document.getElementById('outAe'),  // ← nuevo
+          ap:  document.getElementById('outAp')   // ← nuevo
+        };
+
+  // 3. Límites de Vc desde rpmMin/rpmMax
+  const vcMinAllowed = (rpmMin * Math.PI * D) / 1000;
+  const vcMaxAllowed = (rpmMax * Math.PI * D) / 1000;
+  sVc.min = vcMinAllowed.toFixed(1);
+  sVc.max = vcMaxAllowed.toFixed(1);
+  if (+sVc.value < vcMinAllowed) sVc.value = vcMinAllowed.toFixed(1);
+  if (+sVc.value > vcMaxAllowed) sVc.value = vcMaxAllowed.toFixed(1);
+
+  // 4. Radar Chart init
+  const ctx = document.getElementById('radarChart').getContext('2d');
+  const radar = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: ['Vida útil','Terminación','Potencia'],
+      datasets:[{
+        data:[0,0,0],
+        backgroundColor:'rgba(79,195,247,0.35)',
+        borderColor:'rgba(79,195,247,0.8)',
+        borderWidth:2
+      }]
+    },
+    options:{scales:{r:{max:100,ticks:{stepSize:20}}},plugins:{legend:{display:false}}}
+  });
+
+  // 5. Mostrar/ocultar errores (centralizado en UI)
+
+  // 6. Calcular feedrate Vf
+  function computeFeed(vc, fz) {
+    const rpm = (vc * 1000) / (Math.PI * D);
+    return rpm * fz * Z;
+  }
+
+  // 7. Bloqueo de slider
+  function lockSlider(slider, msg) {
+    slider.value = slider.dataset.limitValue;
+    slider.disabled = true;
+    UI.show(msg);
+  }
+  function unlockSlider(slider) {
+    slider.disabled = false;
+  }
+
+  // 8. Pasadas slider / info
+  const thickness = parseFloat(sP.dataset.thickness);
+  function updatePasadasSlider() {
+    const maxP = Math.ceil(thickness / parseFloat(sAe.value));
+    sP.min = 1; sP.max = maxP; sP.step = 1;
+    if (sP.value > maxP) sP.value = maxP;
+  }
+  function updatePasadasInfo() {
+    const p = +sP.value;
+    infoP.textContent = `${p} pasadas de ${(thickness/p).toFixed(2)} mm`;
+  }
+
+  // 9. Debounce
+  let timer;
+  function scheduleRecalc() {
+    UI.clear();
+    clearTimeout(timer);
+    timer = setTimeout(recalc, 200);
+  }
+
+  // 10. Handler común para fz/vc
+  function onParamChange() {
+    UI.clear();
+    const vc = parseFloat(sVc.value),
+          fz = parseFloat(sFz.value),
+          feed = computeFeed(vc, fz);
+
+    if (feed > fr_max) {
+      this.dataset.limitValue = this.value;
+      lockSlider(this, `Feedrate supera límite (${fr_max}). Ajusta el otro valor.`);
+      return;
     }
-  } catch (e) { dbg('chart fail', e); }
-
-  w.addEventListener('unload', function () { try { Object.keys(sessionStorage).forEach(function (k) { if (k.indexOf('step6:') === 0) sessionStorage.removeItem(k); }); } catch (e) {} });
-
-  function hash(s) { var h = 0, i; for (i = 0; i < s.length; i++) { h = (h << 5) - h + s.charCodeAt(i); h |= 0; } return h.toString(36); }
-  function showErr(m) { if (errBox) errBox.textContent = m; }
-  function clearErr() { if (errBox) errBox.textContent = ''; }
-  function setLoading(on) { if (step) step.classList.toggle('loading', !!on); Object.keys(sliders).forEach(function (k) { var s = sliders[k]; if (s) s.disabled = !!on; }); }
-  function paint(d) {
-    try {
-      if (out.vc) out.vc.textContent = d.vc + ' m/min';
-      if (out.fz) out.fz.textContent = d.fz + ' mm/tooth';
-      if (out.rpm) out.rpm.textContent = d.n;
-      if (out.feed) out.feed.textContent = d.vf + ' mm/min';
-      if (out.hm) out.hm.textContent = d.hm + ' mm';
-      if (out.hp) out.hp.textContent = d.hp + ' HP';
-      if (out.mmr) out.mmr.textContent = d.mmr;
-      if (out.fc) out.fc.textContent = d.fc;
-      if (out.w) out.w.textContent = d.watts;
-      if (out.eta) out.eta.textContent = d.etaPercent;
-      if (out.ae) out.ae.textContent = d.ae.toFixed(2);
-      if (out.ap) out.ap.textContent = d.ap.toFixed(3);
-      if (radar && Array.isArray(d.radar)) { radar.data.datasets[0].data = d.radar; radar.update(); }
-    } catch (e) { dbg('paint err', e); }
+    if (feed <= 0) {
+      this.dataset.limitValue = this.value;
+      lockSlider(this, `Feedrate demasiado bajo.`);
+      return;
+    }
+    unlockSlider(sVc);
+    unlockSlider(sFz);
+    scheduleRecalc();
   }
-  function getPayload () {
-    const base = window.step6Params || {};
-    return {
-      /* sliders */
-      fz:     parseFloat(sliders.fz.value),
-      vc:     parseFloat(sliders.vc.value),
-      ae:     parseFloat(sliders.ae.value),
-      passes: parseInt(sliders.p.value, 10),
-      /* extras requeridos por el backend */
-      thickness: base.thickness,
-      D:         base.D,
-      Z:         base.Z,
-      params: {
-        fr_max:   base.fr_max,
-        coef_seg: base.coef_seg,
-        Kc11:     base.Kc11,
-        mc:       base.mc,
-        alpha:    base.alpha,
-        eta:      base.eta
-      }
+
+  // 11. Conectar listeners
+  sFz.addEventListener('input', onParamChange);
+  sVc.addEventListener('input', onParamChange);
+  sAe.addEventListener('input', () => {
+    updatePasadasSlider();
+    updatePasadasInfo();
+    scheduleRecalc();
+  });
+  sP.addEventListener('input', () => {
+    updatePasadasInfo();
+    scheduleRecalc();
+  });
+
+  // 12. AJAX + recalc
+  async function recalc() {
+    const payload = {
+      fz:        parseFloat(sFz.value),
+      vc:        parseFloat(sVc.value),
+      ae:        parseFloat(sAe.value),
+      passes:    parseInt(sP.value,10),
+      thickness: thickness,
+      D, Z,
+      params:    { fr_max, coef_seg, Kc11, mc, alpha, eta }
     };
-  }
-  function fetchData(body, key, retry) {
-    var ctrl = new AbortController();
-    var to = setTimeout(function () { ctrl.abort(); }, 8000);
-    var t0 = performance.now();
-    var url = w.step6AjaxUrl ||
-              (w.BASE_URL ? w.BASE_URL + '/ajax/step6_ajax_legacy_minimal.php'
-                          : 'ajax/step6_ajax_legacy_minimal.php');
-    return fetch(url, {
-      method: 'POST',
-      body: body,
-      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken, 'Accept': '*/*' },
-      credentials: 'same-origin',
-      cache: 'no-store',
-      signal: ctrl.signal
-    }).then(function (r) {
-      clearTimeout(to);
-      grp('response', function () { dbg('status', r.status); });
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      return r.json();
-    }).then(function (j) {
-      if (!j.success) throw new Error(j.error || 'Error');
-      sessionStorage.setItem(key, JSON.stringify({ ts: Date.now(), data: j.data }));
-      paint(j.data);
-      console.info('[step6] AJAX cargado correctamente');
-    }).catch(function (e) {
-      if (retry && (e.name === 'AbortError' || e.message === 'Failed to fetch')) return fetchData(body, key, false);
-      showErr(e.message);
-      console.error('[step6] Error AJAX:', e);
-    }).finally(function () { setLoading(false); dbg('ms', (performance.now() - t0).toFixed(1)); });
-  }
-  function recalc() {
+
     try {
-      clearErr();
-      var p = getPayload();
-      var body = JSON.stringify(p);
-      var key = 'step6:' + hash(body);
-      var item;
-      try { item = JSON.parse(sessionStorage.getItem(key) || 'null'); } catch (e) { item = null; }
-      if (item && Date.now() - item.ts < ttl) paint(item.data);
-      setLoading(true);
-      grp('request', function () {
-        if (typeof console.table === 'function') console.table(p);
-        dbg(p);
+      const res = await fetch('/wizard-stepper/step_minimo_ajax.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        },
+        body: JSON.stringify(payload),
+        cache: 'no-store'
       });
-      fetchData(body, key, true);
-    } catch (e) { showErr(e.message); setLoading(false); }
+      if (!res.ok) {
+        return UI.show(`AJAX error ${res.status}`);
+      }
+      const msg = await res.json();
+      if (!msg.success) {
+        return UI.show(`Servidor: ${msg.error}`);
+      }
+      const d = msg.data;
+
+      // 13. Pinta resultados
+      out.vc.textContent  = `${d.vc} m/min`;
+      out.fz.textContent  = `${d.fz} mm/tooth`;
+      out.hm.textContent  = `${d.hm} mm`;
+      out.n.textContent   = d.n;
+      out.vf.textContent  = `${d.vf} mm/min`;
+      out.hp.textContent  = `${d.hp} HP`;
+      out.mmr.textContent = d.mmr;
+      out.fc.textContent  = d.fc;
+      out.w.textContent   = d.watts;
+      out.eta.textContent = d.etaPercent;
+      // ← Aquí pintamos los nuevos
+      out.ae.textContent  = d.ae.toFixed(2);
+      out.ap.textContent  = d.ap.toFixed(3);
+
+      // 14. Radar
+      if (Array.isArray(d.radar) && d.radar.length === 3) {
+        radar.data.datasets[0].data = d.radar;
+        radar.update();
+      }
+    } catch (e) {
+      UI.show(`Conexión fallida: ${e.message}`);
+    }
   }
-  w.initStep6 = function () {
-    try {
-      ['fz', 'vc', 'ae', 'p'].forEach(function (k) { if (sliders[k]) sliders[k].addEventListener('input', recalc); });
-      recalc();
-    } catch (e) { showErr(e.message); }
-  };
-  console.info('[step6] initStep6 registrado');
-})(window, document);
+
+  // 15. Kickoff
+  updatePasadasSlider();
+  updatePasadasInfo();
+  recalc();
+  window.addEventListener('error', ev => UI.show(`JS: ${ev.message}`));
+})();
