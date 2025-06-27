@@ -18,6 +18,18 @@ if (!getenv('BASE_URL')) {
 require_once __DIR__ . '/../src/Config/AppConfig.php';
 require_once __DIR__ . '/../src/Utils/Session.php';
 
+// Obtener BASE_URL y BASE_HOST de entorno o calcularlos
+$baseUrl = getenv('BASE_URL');
+if ($baseUrl === false) {
+    $baseUrl = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/');
+}
+$baseHost = getenv('BASE_HOST');
+if ($baseHost === false) {
+    $scheme    = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $host      = $_SERVER['HTTP_HOST'] ?? 'localhost';
+    $baseHost  = $scheme . '://' . $host;
+}
+
 $DEBUG = filter_input(INPUT_GET, 'debug', FILTER_VALIDATE_BOOLEAN);
 if ($DEBUG) {
     error_reporting(E_ALL);
@@ -115,7 +127,8 @@ dbg('🔄 Nueva sesión limpia generada');
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="<?= asset('assets/css/generic/reset.css') ?>">
   <script>
-    const BASE_URL = <?= json_encode(BASE_URL) ?>;
+    window.BASE_URL  = <?= json_encode($baseUrl) ?>;
+    window.BASE_HOST = <?= json_encode($baseHost) ?>;
   </script>
 </head>
 <body class="center-screen">
@@ -141,7 +154,7 @@ dbg('🔄 Nueva sesión limpia generada');
     });
 
     setTimeout(() => {
-      window.location.replace(BASE_URL + "/wizard.php");
+      window.location.replace(window.BASE_URL + "/wizard.php");
     }, 200);
   </script>
 </body>
