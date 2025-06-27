@@ -95,7 +95,9 @@ function fetchData(body, key, retry) {
   const ctrl = new AbortController();
   const to = setTimeout(() => { ctrl.abort(); }, 8000);
   const t0 = performance.now();
-  const url = w.step6AjaxUrl || 'ajax/step6_ajax_legacy_minimal.php';
+  const url = w.step6AjaxUrl ||
+              (w.BASE_URL ? `${w.BASE_URL}/ajax/step6_ajax_legacy_minimal.php`
+                          : 'ajax/step6_ajax_legacy_minimal.php');
   return fetch(url, {
     method: 'POST',
     body,
