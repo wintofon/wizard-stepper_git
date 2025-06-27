@@ -820,19 +820,14 @@ safeScript(
 ?>
 <!-- views/steps/step6.php  ── al final, justo antes de </body> -->
 
-<script type="module">
-  const url = "<?= asset('assets/js/step6.js') ?>";
-  console.log('%c[debug] intento importar →', 'color:#f8b400', url);
-  (async () => {
-    try {
-      const { init } = await import(url);
-      console.info('%c[step6] módulo cargado OK', 'color:#4fc3f7;font-weight:700');
-      init();
-    } catch (e) {
-      console.error('[step6] módulo no encontrado', e);
-    }
-  })();
+<!-- Script principal del paso 6  -->
+<script type="module"
+        src="<?= asset('assets/js/step6.js') ?>"
+        onload="window.step6?.init?.();                // arranca el módulo
+                 console.info('[step6] JS cargado 👍');"
+        onerror="console.error('❌ step6.js no se pudo cargar');">
 </script>
+
 
 <script>
 /*-- Feather.replace() seguro: reintenta 10× cada 120 ms --*/
