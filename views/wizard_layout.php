@@ -110,12 +110,16 @@ declare(strict_types=1);
   <script src="<?= asset('assets/js/dashboard.js') ?>" defer></script>
 
 
-<script type="module"
-        src="<?= asset('assets/js/step6.js') ?>"
-        onload="window.step6?.init?.();                // arranca el módulo
-                 console.info('[step6] JS cargado 👍');"
-        onerror="console.error('❌ step6.js no se pudo cargar');">
+<script type="module" src="<?= full_url('assets/js/step6.js') ?>" defer></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    if (window.step6?.init) {
+      window.step6.init();
+      console.info('[step6] init() llamado tras DOMContentLoaded');
+    }
+  });
 </script>
+
 <!-- justo antes de </body> -->
 
 
