@@ -817,16 +817,17 @@ safeScript(
 /*-----------------------------------------------------------------
  *  5) Tu propio step6.js (ahora ES module, solo local; sin CDN)
  *----------------------------------------------------------------*/
-?>
-<!-- views/steps/step6.php  ── al final, justo antes de </body> -->
-
-<!-- Script principal del paso 6  -->
 <script type="module"
         src="<?= asset('assets/js/step6.js') ?>"
         onload="window.step6?.init?.();                // arranca el módulo
                  console.info('[step6] JS cargado 👍');"
         onerror="console.error('❌ step6.js no se pudo cargar');">
 </script>
+?>
+<!-- views/steps/step6.php  ── al final, justo antes de </body> -->
+
+<!-- Script principal del paso 6  -->
+
 
 <!-- justo antes de </body> -->
 
