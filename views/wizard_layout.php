@@ -109,6 +109,17 @@ declare(strict_types=1);
   <script src="<?= asset('assets/js/wizard_stepper.js') ?>" defer></script>
   <script src="<?= asset('assets/js/dashboard.js') ?>" defer></script>
 
+
+<script type="module"
+        src="<?= asset('assets/js/step6.js') ?>"
+        onload="window.step6?.init?.();                // arranca el módulo
+                 console.info('[step6] JS cargado 👍');"
+        onerror="console.error('❌ step6.js no se pudo cargar');">
+</script>
+<!-- justo antes de </body> -->
+
+
+
   <!-- FOOTER CORPORATIVO (NO INTERFIERE CON EL MAIN) -->
   <footer class="footer-schneider text-white mt-5">
     <div class="container py-4">
