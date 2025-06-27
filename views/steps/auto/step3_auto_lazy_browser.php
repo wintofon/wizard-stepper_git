@@ -41,7 +41,7 @@ $thickness  = $_SESSION['thickness']  ?? null;
 </head>
 <body>
   <main class="container py-4">
-    <h2>Herramientas compatibles</h2>
+    <h2 class="step-title"><i data-feather="tool"></i> Herramientas compatibles</h2>
     <div class="mb-3">
       <label for="diaFilter" class="form-label">Filtrar por diámetro</label>
       <select id="diaFilter" class="form-select">
