@@ -823,18 +823,6 @@ safeScript(
 
 <!-- Script principal del paso 6  -->
 
-<script type="module"
-        src="<?= asset('assets/js/step6.js') ?>"
-        onload="window.step6?.init?.();                // arranca el módulo
-                 console.info('[step6] JS cargado 👍');"
-        onerror="console.error('❌ step6.js no se pudo cargar');">
-</script>
-<!-- justo antes de </body> -->
-
-  <script src="<?= asset('assets/js/step6.js') ?>"
-          onload="window._TOOL_BROWSER_LOADED=true"
-          onerror="console.error('❌ step6.js');">
-  </script>
 
 
 <script>
