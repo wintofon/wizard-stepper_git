@@ -1,21 +1,33 @@
-/*
- * File: _step2.css
- * Main responsibility: Part of the CNC Wizard Stepper.
- * Related files: See others in this project.
- * TODO: Extend documentation.
- */
+/* =========================================================
+ * tool-image · versión “izquierda + responsive”
+ * ---------------------------------------------------------
+ * · Se alinea al borde izquierdo anulando el centrado
+ * · Mantiene altura máxima en pantallas medianas-grandes
+ * · Escala al 100 % del ancho disponible cuando el viewport
+ *   sea angosto (<576 px) para evitar desbordes
+ * =======================================================*/
 
-/* File: assets/css/step2_manual.css */
+/* --- regla base (≥576 px) -------------------------------- */
+.tool-image{
+  /* alineación */
+  margin-left:0!important;      /* pega la imagen a la izquierda            */
+  margin-right:auto!important;  /* empuja resto del espacio a la derecha    */
 
-/* Estilos específicos para el paso 2 manual */
+  /* tamaño / proporción */
+  max-height:7.5rem;            /* la altura que ya usabas                  */
+  width:auto;                   /* ajusta ancho según proporción            */
+  height:auto;                  /* evita deformaciones                      */
+  object-fit:contain;           /* nunca estira la imagen                   */
 
-.tool-image {
-  display: block;
+  /* estética */
+  border-radius:0;              /* sin bordes redondeados                   */
+  box-shadow:none;              /* sin sombra                               */
+}
 
-  width: 100%;
-  height: auto;
-  border-radius: 0rem;
-
-  /* Remove drop shadow to keep image flat */
-  box-shadow: none;
+/* --- pantallas pequeñas (<576 px) ------------------------- */
+@media (max-width:575.98px){
+  .tool-image{
+    width:100%;                 /* aprovecha todo el ancho de la tarjeta    */
+    max-height:none;            /* deja que la altura crezca si hace falta  */
+  }
 }
