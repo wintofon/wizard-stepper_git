@@ -823,12 +823,9 @@ safeScript(
 
 <!-- Script principal del paso 6  -->
 
-<script 
-  type="module" 
-  defer 
-  src="<?= asset('assets/js/step6.js') ?>"
-  onload="console.info('[step6] module loaded 👍'); window.step6?.init?.();"
-  onerror="console.error('❌ step6.js failed to load');">
+<script type="module" defer src="<?= asset('assets/js/step6.js') ?>"
+        onload="console.info('[step6] módulo cargado 👍'); window.step6.init();"
+        onerror="console.error('❌ step6.js no se pudo cargar');">
 </script>
 
 <script>

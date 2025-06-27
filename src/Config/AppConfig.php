@@ -15,7 +15,12 @@ declare(strict_types=1);
 
 if (!defined('BASE_URL')) {
     $env  = getenv('BASE_URL');
-    $base = $env !== false ? $env : dirname($_SERVER['SCRIPT_NAME']);
+    $base = $env !== false ? $env : dirname(dirname($_SERVER['SCRIPT_NAME']));
+
+    if (($_SERVER['HTTP_HOST'] ?? '') === 'localhost' && !str_contains($base, 'wizard-stepper')) {
+        $base = rtrim($base, '/') . '/wizard-stepper';
+    }
+
     define('BASE_URL', rtrim($base, '/'));
 }
 
@@ -30,9 +35,19 @@ if (!defined('BASE_HOST')) {
 if (!function_exists('asset')) {
     function asset(string $path): string
     {
-        return BASE_URL === ''
-            ? '/' . ltrim($path, '/')
-            : BASE_URL . '/' . ltrim($path, '/');
+        if (preg_match('#^(?:https?:)?//#', $path)) {
+            return $path; // ya es absoluta
+        }
+
+        $clean = '/' . ltrim($path, '/');
+        return rtrim(BASE_URL, '/') . $clean;
+    }
+
+    // Test manual: visitar .../src/Config/AppConfig.php?test_asset=1 y verificar
+    // en la pestaña Red que la URL devuelta responda 200 OK
+    if (isset($_GET['test_asset'])) {
+        echo asset('assets/js/step6.js');
+        exit;
     }
 }
 
