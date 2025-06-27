@@ -829,7 +829,12 @@ safeScript(
 </script>
 
 <!-- justo antes de </body> -->
-<script type="module" src="<?= asset('assets/js/step6.js') ?>"></script>
+
+  <script src="<?= asset('assets/js/step6.js') ?>"
+          onload="window._TOOL_BROWSER_LOADED=true"
+          onerror="console.error('❌ step6.js');">
+  </script>
+
 
 <script>
 /*-- Feather.replace() seguro: reintenta 10× cada 120 ms --*/
