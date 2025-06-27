@@ -338,10 +338,10 @@ try {
           const clean = String(tool.image).replace(/^\/+/, '');
           img.src = baseUrl + clean;
         } else {
-          img.src = baseUrl + 'assets/img/logos/logo_stepper.png';
+          img.src = '<?= asset('assets/img/logos/logo_stepper.png') ?>';
         }
         img.alt = 'Imagen de la fresa';
-        img.onerror = () => { img.src = baseUrl + 'assets/img/logos/logo_stepper.png'; };
+        img.onerror = () => { img.src = '<?= asset('assets/img/logos/logo_stepper.png') ?>'; };
         imgCol.appendChild(img);
         card.appendChild(imgCol);
 
