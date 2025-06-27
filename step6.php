@@ -1,19 +1,14 @@
 <?php
 
-function respondError(int $code, string $msg): void
-{
+function respondError(int $code, string $msg): never {
     http_response_code($code);
-    $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH'])
-        && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
-
-    if ($isAjax) {
+    if (str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json')) {
         header('Content-Type: application/json; charset=UTF-8');
         echo json_encode(['error' => $msg], JSON_UNESCAPED_UNICODE);
     } else {
-        echo '<!DOCTYPE html><html><body>'
-            . '<p>'
-            . htmlspecialchars($msg, ENT_QUOTES, 'UTF-8')
-            . '</p></body></html>';
+        echo '<div class="step-error alert alert-danger m-3">' .
+             htmlspecialchars($msg, ENT_QUOTES, 'UTF-8') .
+             '</div>';
     }
     exit;
 }
