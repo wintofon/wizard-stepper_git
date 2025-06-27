@@ -74,7 +74,9 @@
     var ctrl = new AbortController();
     var to = setTimeout(function () { ctrl.abort(); }, 8000);
     var t0 = performance.now();
-    var url = w.step6AjaxUrl || 'ajax/step6_ajax_legacy_minimal.php';
+    var url = w.step6AjaxUrl ||
+              (w.BASE_URL ? w.BASE_URL + '/ajax/step6_ajax_legacy_minimal.php'
+                          : 'ajax/step6_ajax_legacy_minimal.php');
     return fetch(url, {
       method: 'POST',
       body: body,
