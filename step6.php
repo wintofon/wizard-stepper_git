@@ -263,6 +263,14 @@ window.addEventListener('error', e => {
   console.error('unhandled error', e.error || e.message);
 });
 </script>
+<script src="assets/js/step6.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    if (window.initStep6) {
+      window.initStep6();
+    }
+  });
+</script>
 </body>
 </html>
 <?php
