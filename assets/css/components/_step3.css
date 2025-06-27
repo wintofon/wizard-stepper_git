@@ -22,3 +22,8 @@
   color: var(--text-color);
   background-color: var(--bg-card);
 }
+
+.form-label {
+  font-weight: 600;
+  color: var(--accent-color);
+}
