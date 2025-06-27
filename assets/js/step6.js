@@ -1,162 +1,218 @@
-/*  assets/js/step6.js
-   -------------------------------------------------------------
-   Paso 6 – Módulo ESM unificado
-   · Exporta   init()            → permite import dinámico
-   · Expone   window.step6.init  → compatibilidad vieja
-----------------------------------------------------------------*/
+/* ==========================================================================
+ * assets/js/step6.js  ·  PASO 6 – Wizard CNC
+ * --------------------------------------------------------------------------
+ * • ES module auto‑inicializable → export default { init }
+ * • Maneja sliders (fz, Vc, Ae, pasadas) y hace _fetch_ al endpoint
+ *     step6_ajax_legacy_minimal.php enviando los valores actuales.
+ * • Incluye CSRF, credentials:same‑origin, AbortController con reintento ×1,
+ *   y overlay de spinner para UX.
+ * • Nunca rompe el DOM: todos los errores se muestran en #errorMsg y nunca
+ *   detienen la interacción de los sliders.
+ * • Requiere: Feather (opcional), Chart.js, CountUp.js (precargados).
+ * ========================================================================= */
 
-export function init () {
-  const ids = [
-    'sliderVc','sliderFz','sliderAe','sliderPasadas',
-    'textPasadasInfo','errorMsg'
-  ];
-  const els = ids.map(id => document.getElementById(id));
-  const missing = ids.filter((_, i) => !els[i]);
-  if (missing.length) {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', init, { once: true });
-      console.info('[step6] esperando DOMContentLoaded');
-    } else {
-      console.warn('[step6] faltan elementos:', missing.join(', '));
+/* global Chart, CountUp, window */
+
+/********************  CONSTANTES / ESTADO GLOBALES  *********************/
+const {
+  step6Params:   BASE_PARAMS,
+  step6Csrf:     CSRF,
+  step6AjaxUrl:  AJAX_URL
+} = window;
+
+const $ = (sel, ctx = document) => ctx.querySelector(sel);
+const $all = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
+
+const state = {
+  // Valores dinámicos
+  fz:  BASE_PARAMS.fz0,
+  vc:  BASE_PARAMS.vc0,
+  ae:  BASE_PARAMS.diameter_mm * 0.5,
+  ap:  BASE_PARAMS.ap_slot,
+  // AbortController actual
+  abort: null,
+  // Chart instance / CountUps
+  chart: null,
+  counters: {},
+};
+
+/*****************************  UTILIDADES  ******************************/
+const fmt = (n, dec = 1) => Number.parseFloat(n).toFixed(dec);
+
+function setText (id, v, dec = 1) {
+  const el = $(id.startsWith('#') ? id : `#${id}`);
+  if (el) el.textContent = fmt(v, dec);
+}
+
+function showError (msg = '') {
+  const box = $('#errorMsg');
+  if (!box) return;
+  box.textContent = msg;
+  box.style.display = msg ? 'block' : 'none';
+}
+
+function toggleSpinner (show = true) {
+  let overlay = $('#ajaxSpinner');
+  if (!overlay && show) {
+    overlay = document.createElement('div');
+    overlay.id = 'ajaxSpinner';
+    overlay.style.cssText = `position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.4);z-index:9999;backdrop-filter:blur(2px)`;
+    overlay.innerHTML = '<div class="spinner-border" role="status" style="width:3rem;height:3rem;"></div>';
+    document.body.appendChild(overlay);
+  }
+  if (overlay) overlay.style.display = show ? 'flex' : 'none';
+}
+
+function debounce (fn, ms = 300) {
+  let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
+}
+
+/***************************  ACTUALIZAR UI  *****************************/
+function applyBackendData (d) {
+  // Actualizar contadores grandes
+  setText('#outVf', d.feed, 0);
+  setText('#outN',  d.rpm, 0);
+  setText('#outVc', d.vc, 1);
+  setText('#outFz', d.fz, 4);
+  setText('#outAp', d.ap, 2);
+  setText('#outAe', d.ae, 2);
+  setText('#outHm', d.hm, 4);
+  setText('#outHp', d.hp, 2);
+  setText('#valueMrr', d.mmr, 0);
+  setText('#valueFc',  d.fc, 0);
+  setText('#valueW',   d.w,  0);
+  setText('#valueEta', d.eta,0);
+
+  // Radar chart (5 ejes ejemplo): Mrr, Fc, W, Hp, Eta
+  const radarData = [d.mmr_norm, d.fc_norm, d.w_norm, d.hp_norm, d.eta];
+  if (!state.chart) createRadar(radarData); else updateRadar(radarData);
+}
+
+function createRadar (dataArr) {
+  const ctx = $('#radarChart');
+  if (!ctx || !Chart) return;
+  state.chart = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: ['MMR','Fc','W','Hp','η'],
+      datasets: [{
+        label: 'Distribución',
+        data: dataArr,
+        fill: true,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { r: { min:0, max:1 } }
     }
-    return;
-  }
+  });
+}
 
-  /* ---------- 1. Variables globales inyectadas por PHP ---------- */
-  const {
-    diameter : D, flute_count : Z,
-    rpm_min  : rpmMin, rpm_max : rpmMax,
-    fr_max, coef_seg, Kc11, mc, alpha, eta
-  } = window.step6Params ?? {};
+function updateRadar (arr) {
+  if (!state.chart) return;
+  state.chart.data.datasets[0].data = arr;
+  state.chart.update();
+}
 
-  const csrfToken = window.step6Csrf ?? '';
-  const ajaxURL   = window.step6AjaxUrl ||
-                    `${(window.BASE_URL ?? '')}/ajax/step6_ajax_legacy_minimal.php`;
+/*****************************  AJAX CALL  ******************************/
+async function fetchBackend () {
+  // Abort anterior si existe
+  if (state.abort) state.abort.abort();
+  state.abort = new AbortController();
+  const body = new URLSearchParams({
+    csrf_token: CSRF,
+    fz: state.fz,
+    vc: state.vc,
+    ae: state.ae,
+    ap: state.ap,
+  });
 
-  /* ---------------- 2. DOM helpers ---------------- */
-  const q = id => document.getElementById(id);
+  toggleSpinner(true);
+  showError('');
 
-  const [sVc, sFz, sAe, sP, infoP, errBox] = els;
-
-  const out = {
-    vc : q('outVc'), fz : q('outFz'), hm : q('outHm'),
-    n  : q('outN'),  vf : q('outVf'), hp : q('outHp'),
-    mmr: q('valueMrr'), fc : q('valueFc'), w : q('valueW'),
-    eta: q('valueEta'), ae : q('outAe'),   ap : q('outAp')
-  };
-
-  if (Object.values(out).some(e => !e)) {
-    console.error('[step6] elementos de salida faltantes');
-    return;
-  }
-
-  const UI = {
-    show (m){ errBox.textContent = m; errBox.style.display = 'block'; },
-    clear(){  errBox.style.display = 'none'; errBox.textContent = '';  },
-  };
-
-  /* ---------------- 3. Vc dinámico ---------------- */
-  const vcMin = (rpmMin * Math.PI * D) / 1000;
-  const vcMax = (rpmMax * Math.PI * D) / 1000;
-  sVc.min = vcMin.toFixed(1); sVc.max = vcMax.toFixed(1);
-  if (+sVc.value < vcMin) sVc.value = vcMin.toFixed(1);
-  if (+sVc.value > vcMax) sVc.value = vcMax.toFixed(1);
-
-  /* ---------------- 4. Radar ---------------- */
-  let radar = null;
   try {
-    const ctx = q('radarChart')?.getContext('2d');
-    if (ctx && window.Chart) {
-      radar = new Chart(ctx, {
-        type:'radar',
-        data:{ labels:['Vida útil','Terminación','Potencia'],
-               datasets:[{ data:[0,0,0],
-                           backgroundColor:'rgba(79,195,247,.35)',
-                           borderColor:'rgba(79,195,247,.8)', borderWidth:2 }]},
-        options:{ scales:{ r:{ max:100,ticks:{ stepSize:20 } } },
-                  plugins:{ legend:{ display:false } } }
-      });
-    }
-  } catch(e){ console.warn('[step6] Chart init error', e); }
+    const res = await fetch(AJAX_URL, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+      },
+      body,
+      signal: state.abort.signal
+    });
 
-  /* ---------------- 5. Sliders auxiliares ---------------- */
-  const thickness = parseFloat(sP.dataset.thickness);
-  const updatePassSlider = () => {
-    const maxP = Math.ceil(thickness / parseFloat(sAe.value));
-    sP.min = 1; sP.max = maxP; sP.step = 1;
-    if (+sP.value > maxP) sP.value = maxP;
-  };
-  const updatePassInfo   = () => {
-    const p = +sP.value;
-    infoP.textContent = `${p} pasada${p>1?'s':''} de ${(thickness/p).toFixed(2)} mm`;
-  };
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    if (json.success === false) throw new Error(json.error || 'error');
 
-  /* ---------------- 6. Debounce ---------------- */
-  let to; const debounce = fn => { clearTimeout(to); to = setTimeout(fn,200); };
-
-  /* ---------------- 7. Listeners ---------------- */
-  const computeFeed = (vc,fz)=>((vc*1000)/(Math.PI*D))*fz*Z;
-  function onFzVc () {
-    UI.clear();
-    const feed = computeFeed(+sVc.value, +sFz.value);
-    if (feed > fr_max) { UI.show(`Límite feedrate ${fr_max}`); return; }
-    debounce(recalc);
+    applyBackendData(json.data ?? json); // flexible
   }
-  sFz.addEventListener('input', onFzVc);
-  sVc.addEventListener('input', onFzVc);
-  sAe.addEventListener('input', ()=>{ updatePassSlider(); updatePassInfo(); debounce(recalc); });
-  sP .addEventListener('input', ()=>{ updatePassInfo(); debounce(recalc); });
-
-  /* ---------------- 8. AJAX ---------------- */
-  async function recalc (){
-    const body = {
-      fz:+sFz.value, vc:+sVc.value, ae:+sAe.value, passes:+sP.value,
-      thickness, D, Z,
-      params:{ fr_max, coef_seg, Kc11, mc, alpha, eta }
-    };
-    try{
-      const r = await fetch(ajaxURL,{
-        method:'POST',
-        headers:{ 'Content-Type':'application/json', 'X-CSRF-Token':csrfToken },
-        body:JSON.stringify(body), cache:'no-store', credentials:'same-origin'
-      });
-      if(!r.ok) throw new Error(`HTTP ${r.status}`);
-      const j = await r.json();
-      if(!j.success) throw new Error(j.error||'Error');
-      paint(j.data);
-      console.info('%c[step6] AJAX OK', 'color:#42e8a7');
-    }catch(e){
-      UI.show(`⚠️ ${e.message}`); console.error('[step6] AJAX fail', e);
+  catch (err) {
+    // Reintento x1 en NetworkError
+    if (err.name === 'AbortError') return; // abort nuevo → ignora
+    console.error('[step6] fetch error', err);
+    if (!state._retried) {
+      state._retried = true;
+      setTimeout(fetchBackend, 600);
+    } else {
+      showError('Error al recalcular parámetros.');
     }
   }
+  finally {
+    toggleSpinner(false);
+    state._retried = false;
+  }
+}
 
-  function paint (d){
-    try{
-      out.vc.textContent  = `${d.vc} m/min`;
-      out.fz.textContent  = `${d.fz} mm/tooth`;
-      out.hm.textContent  = `${d.hm} mm`;
-      out.n .textContent  = d.n;
-      out.vf.textContent  = `${d.vf} mm/min`;
-      out.hp.textContent  = `${d.hp} HP`;
-      out.mmr.textContent = d.mmr;
-      out.fc.textContent  = d.fc;
-      out.w .textContent  = d.watts;
-      out.eta.textContent = d.etaPercent;
-      out.ae.textContent  = d.ae.toFixed(2);
-      out.ap.textContent  = d.ap.toFixed(3);
-      if(radar){ radar.data.datasets[0].data = d.radar; radar.update(); }
-    }catch(e){ console.error('[step6] paint()', e); }
+/****************************  SLIDERS  *********************************/
+function bindSlider (id, key, dec = 4) {
+  const el = $(id);
+  if (!el) return;
+
+  const bubble = el.nextElementSibling;
+  const updateBubble = () => {
+    bubble.textContent = fmt(el.value, dec);
+  };
+  updateBubble();
+
+  el.addEventListener('input', debounce(() => {
+    state[key] = parseFloat(el.value);
+    $(key === 'fz' ? '#valFz' : key === 'vc' ? '#valVc' : '#valAe').textContent = fmt(el.value, dec);
+    fetchBackend();
+  }, 250));
+
+  el.addEventListener('input', updateBubble);
+}
+
+/****************************  INIT  ************************************/
+export function init () {
+  // Vincular sliders
+  bindSlider('#sliderFz',  'fz', 4);
+  bindSlider('#sliderVc',  'vc', 1);
+  bindSlider('#sliderAe',  'ae', 1);
+  bindSlider('#sliderPasadas', 'ap', 0);
+
+  // Primer fetch para pintar valores normalizados
+  fetchBackend();
+
+  // Contadores grandes animados
+  if (CountUp) {
+    ['outVf','outN'].forEach(id => {
+      const val = parseFloat($("#"+id).textContent);
+      state.counters[id] = new CountUp($("#"+id), val, { duration: .7, separator: ' ' });
+      if (!state.counters[id].error) state.counters[id].start();
+    });
   }
 
-  /* ---------------- 9. Kick-off ---------------- */
-  updatePassSlider();
-  updatePassInfo();
-  recalc();
-  console.info('%c[step6] init OK', 'color:#4fc3f7;font-weight:700');
+  console.info('%c[step6] init listo', 'color:#4caf50;font-weight:bold');
 }
 
-/* ---------- Compatibilidad legacy ---------- */
-if (typeof window !== 'undefined'){
-  window.step6 = window.step6 || {};
-  window.step6.init = init;
-}
+// Expone compatibilidad antigua → window.step6.init()
+window.step6 = window.step6 || {};
+window.step6.init = init;
+
+// Auto‑ejecución si cargó como <script type="module" defer>
+if (document.readyState !== 'loading') init();
+else document.addEventListener('DOMContentLoaded', init);
