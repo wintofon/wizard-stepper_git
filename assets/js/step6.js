@@ -1,223 +1,160 @@
-/* ==========================================================================
- * assets/js/step6.js  ·  PASO 6 – Wizard CNC (FIX v1.1)
- * --------------------------------------------------------------------------
- * • ES module auto-inicializable → export default { init }
- * • Maneja sliders (fz, Vc, Ae, pasadas) y hace _fetch_ al endpoint
- *     step6_ajax_legacy_minimal.php enviando los valores actuales.
- * • Incluye CSRF, credentials:same-origin, AbortController con reintento ×1,
- *   y overlay de spinner para UX.
- * • Nunca rompe el DOM: todos los errores se muestran en #errorMsg y nunca
- *   detienen la interacción de los sliders.
- * • Requiere: Feather (opcional), Chart.js, CountUp.js (precargados).
- * ========================================================================= */
+/* =====================================================================
+ * assets/js/step6.js ·  PASO 6 — Wizard CNC  (Versión Sin AJAX)
+ * ---------------------------------------------------------------------
+ * 👉  Calcula **todo** del lado cliente.  No llama al backend.
+ * ---------------------------------------------------------------------
+ * ·  ES module auto-inicializable → export { init }
+ * ·  Reacciona a los sliders (Vc, fz, ae, pasadas) y recalcula en vivo:
+ *        n  (RPM), vf  (Feedrate), hm  (h chip),
+ *        MMR, Fc, Potencia (W & HP) y η (%)
+ * ·  Usa params inyectados por PHP (`window.step6Params`). Si faltan, pone
+ *    defaults seguros para que nunca crashee.
+ * ·  Sin dependencias de servidor, sin fetch, sin AbortController.
+ * ·  Radar Chart opcional (Chart.js) para 5 métricas normalizadas.
+ * ====================================================================*/
 
 /* global Chart, CountUp, window */
 
-/********************  CONSTANTES / ESTADO GLOBAL  *********************/
-// Desestructuramos con FALLOS CONTROLADOS: si el backend no inyectó alguna
-// variable, usamos defaults para que el script no explote.
-const BASE_PARAMS = window.step6Params   || {};
-const CSRF        = window.step6Csrf     || '';
-const AJAX_URL    = window.step6AjaxUrl  || '';
+/************************ 1. CONST & STATE *****************************/
+const P = window.step6Params || {};
+const {
+  // Geometría y máquina
+  diameter      : D          = 1,    // mm
+  flute_count   : Z          = 1,
+  thickness     : THK        = 10,   // mm
+  feed_max      : FR_MAX     = 6000, // mm/min
+  hp            : HP_AVAIL   = 1.5,  // HP disponibles
+  // Coef. de corte (opcionales)
+  coef_seg      : K_SEG      = 1,    // coef de seguridad
+  Kc11          : KC         = 1500, // N/mm^2
+  mc                        = 0.2,  // exponente empírico
+  alpha         : ALPHA      = 0.25, // factor potencia
+} = P;
 
-const $ = (sel, ctx = document) => ctx.querySelector(sel);
-const $all = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
+const $ = (sel, ctx=document)=>ctx.querySelector(sel);
+const fmt=(n,d=1)=>Number.parseFloat(n).toFixed(d);
 
 const state = {
-  // Valores dinámicos → si falta algo vienen en 0 para que el fetch inicial
-  // lo sobreescriba con la respuesta real del backend.
-  fz:  +BASE_PARAMS.fz0        || 0,
-  vc:  +BASE_PARAMS.vc0        || 0,
-  ae:  (+BASE_PARAMS.diameter_mm || 1) * 0.5,
-  ap:  +BASE_PARAMS.ap_slot     || 1,
-  // AbortController actual
-  abort: null,
-  // Chart instance / CountUps
-  chart: null,
-  counters: {},
+  fz : +P.fz0  || 0.02,                       // mm/diente
+  vc : +P.vc0  || 100,                        // m/min
+  ae : (+P.diameter_mm||D)*0.5,               // mm
+  ap : +P.ap_slot || 1,                       // mm (por pasada)
+  // Chart / CountUps
+  chart:null, counters:{},
 };
 
-/*****************************  UTILIDADES  ******************************/
-const fmt = (n, dec = 1) => Number.parseFloat(n).toFixed(dec);
+/************************ 2. DOM refs **********************************/
+const SLIDERS = {
+  vc :  $('#sliderVc'),
+  fz :  $('#sliderFz'),
+  ae :  $('#sliderAe'),
+  p  :  $('#sliderPasadas'),
+};
+const BUBBLES = {
+  vc : SLIDERS.vc?.nextElementSibling,
+  fz : SLIDERS.fz?.nextElementSibling,
+  ae : SLIDERS.ae?.nextElementSibling,
+};
+const LABELS = {
+  vc : $('#valVc'), fz : $('#valFz'), ae : $('#valAe'),
+};
+const OUT = {
+  vf : $('#outVf'), n : $('#outN'),   vc : $('#outVc'), fz : $('#outFz'),
+  hm : $('#outHm'), hp: $('#outHp'),  mmr: $('#valueMrr'),
+  fc : $('#valueFc'), w : $('#valueW'), eta: $('#valueEta'),
+  ae : $('#outAe'), ap : $('#outAp'),
+};
+const INFO_P   = $('#textPasadasInfo');
+const ERR_BOX  = $('#errorMsg');
 
-function setText (id, v, dec = 1) {
-  const el = $(id.startsWith('#') ? id : `#${id}`);
-  if (el) el.textContent = fmt(v, dec);
+/************************ 3. UTILIDADES DOM ****************************/
+function showErr(msg=''){ ERR_BOX.textContent=msg; ERR_BOX.style.display=msg?'block':'none'; }
+function updBubble(k){ if(BUBBLES[k]) BUBBLES[k].textContent=fmt(state[k],k==='fz'?4:1); }
+function updLabel (k){ if(LABELS[k])  LABELS[k].textContent = fmt(state[k],k==='fz'?4:1); }
+function setOut(id,v,d=1){ if(OUT[id]) OUT[id].textContent = fmt(v,d); }
+
+/************************ 4. CÁLCULOS LOCALES **************************/
+function rpmFromVc(vc){ return (vc*1000)/(Math.PI*D); }               // rev/min
+function feedFrom(vc,fz){ return rpmFromVc(vc)*fz*Z; }                // mm/min
+function hmFrom(fz,ae,D){ return fz*Math.sqrt(ae/D); }                // chip medio
+function mmrFrom(vf,ae,ap){ return vf*ae*ap; }                        // mm^3/min
+function fcFrom(K,mmr){ return K*mmr*1e-3; }                          // N (aprox)
+function wattsFrom(fc,vf){ return (fc*vf)/60000; }                    // W
+function hpFrom(w){ return w/745.699872; }
+function etaFrom(hp){ return Math.min(100,(hp/HP_AVAIL)*100); }
+
+/************************ 5. RADAR CHART *******************************/
+function makeRadar(arr){
+  const ctx=$('#radarChart'); if(!ctx||!Chart) return;
+  state.chart=new Chart(ctx,{type:'radar',data:{labels:['MMR','Fc','W','Hp','η'],datasets:[{data:arr,fill:true,borderWidth:2}]},options:{scales:{r:{min:0,max:1}},plugins:{legend:{display:false}}}});
+}
+function updRadar(arr){ if(!state.chart) makeRadar(arr); else{ state.chart.data.datasets[0].data=arr; state.chart.update(); } }
+
+/************************ 6. RECÁLCULO GENERAL *************************/
+function recalc(){
+  showErr('');
+  // 1) Validaciones simples
+  const vf = feedFrom(state.vc,state.fz);
+  if (vf>FR_MAX){ showErr(`Límite feedrate ${FR_MAX}`); return; }
+
+  // 2) Cálculos principales
+  const n   = rpmFromVc(state.vc);
+  const hm  = hmFrom(state.fz,state.ae,D);
+  const ap  = THK/Math.max(1,state.ap);
+  const mmr = mmrFrom(vf,state.ae,ap);
+  const fc  = fcFrom(KC,mmr);
+  const w   = wattsFrom(fc,vf);
+  const hp  = hpFrom(w);
+  const eta = etaFrom(hp);
+
+  // 3) Salida UI
+  setOut('vc', state.vc,1); setOut('fz',state.fz,4);
+  setOut('vf',vf,0);        setOut('n',n,0);
+  setOut('hm',hm,4);        setOut('ae',state.ae,2);
+  setOut('ap',ap,2);        setOut('mmr',mmr,0);
+  setOut('fc',fc,0);        setOut('w',w,0);
+  setOut('hp',hp,2);        setOut('eta',eta,0);
+
+  // 4) Radar normalizado (simple: dividir por máximos admisibles)
+  const norm = x=>Math.min(1,x);
+  updRadar([ norm(mmr/1e5), norm(fc/1e4), norm(w/3000), norm(hp/HP_AVAIL), norm(eta/100) ]);
 }
 
-function showError (msg = '') {
-  const box = $('#errorMsg');
-  if (!box) return;
-  box.textContent = msg;
-  box.style.display = msg ? 'block' : 'none';
+/************************ 7. SLIDERS & EVENTOS *************************/
+function bindSlider(name,dec=1){
+  const el=SLIDERS[name]; if(!el) return;
+  const setVal=()=>{ state[name]=parseFloat(el.value); updBubble(name); updLabel(name); recalc(); };
+  updBubble(name); updLabel(name);
+  el.addEventListener('input',()=>{ state[name]=parseFloat(el.value); updBubble(name); });
+  el.addEventListener('change',setVal);
+}
+function initPassSlider(){
+  const maxP=Math.ceil(THK/state.ae); SLIDERS.p.min=1; SLIDERS.p.max=maxP; SLIDERS.p.step=1; if(+SLIDERS.p.value>maxP) SLIDERS.p.value=maxP; state.ap=+SLIDERS.p.value; updPassInfo();
+  SLIDERS.p.addEventListener('input',()=>{ state.ap=+SLIDERS.p.value; updPassInfo(); recalc(); });
+}
+function updPassInfo(){ const p=state.ap; INFO_P.textContent=`${p} pasada${p>1?'s':''} de ${(THK/p).toFixed(2)} mm`; }
+
+/************************ 8. INIT PÚBLICO ******************************/
+export function init(){
+  if(!SLIDERS.fz){ console.warn('[step6] sliders faltantes'); return; }
+  // Configurar rangos Vc según rpm_min/max si existen
+  if(P.rpm_min&&P.rpm_max){ SLIDERS.vc.min=fmt((P.rpm_min*Math.PI*D)/1000,1); SLIDERS.vc.max=fmt((P.rpm_max*Math.PI*D)/1000,1); }
+  // Valores iniciales
+  SLIDERS.vc.value=state.vc; SLIDERS.fz.value=state.fz; SLIDERS.ae.value=state.ae; SLIDERS.p.value=state.ap;
+
+  // Enlazar sliders
+  bindSlider('vc',1); bindSlider('fz',4); bindSlider('ae',1); initPassSlider();
+
+  // Radar inicial & primera pasada de cálculo
+  makeRadar([0,0,0,0,0]); recalc();
+
+  // Contadores animados para Vf y RPM
+  if(CountUp){ ['outVf','outN'].forEach(id=>{ const node=$('#'+id); const v=parseFloat(node.textContent)||0; state.counters[id]=new CountUp(node,v,{duration:.6,separator:' '}); if(!state.counters[id].error) state.counters[id].start(); }); }
+
+  console.info('%c[step6] init sin AJAX listo','color:#29b6f6;font-weight:bold');
 }
 
-function toggleSpinner (show = true) {
-  let overlay = $('#ajaxSpinner');
-  if (!overlay && show) {
-    overlay = document.createElement('div');
-    overlay.id = 'ajaxSpinner';
-    overlay.style.cssText = `position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.45);z-index:9999;backdrop-filter:blur(1.5px)`;
-    overlay.innerHTML = '<div class="spinner-border" role="status" style="width:3rem;height:3rem;"></div>';
-    document.body.appendChild(overlay);
-  }
-  if (overlay) overlay.style.display = show ? 'flex' : 'none';
-}
-
-function debounce (fn, ms = 300) {
-  let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
-}
-
-/***************************  ACTUALIZAR UI  *****************************/
-function applyBackendData (d) {
-  if (!d) return;
-  // Actualizar contadores grandes
-  setText('#outVf', d.feed, 0);
-  setText('#outN',  d.rpm, 0);
-  setText('#outVc', d.vc, 1);
-  setText('#outFz', d.fz, 4);
-  setText('#outAp', d.ap, 2);
-  setText('#outAe', d.ae, 2);
-  setText('#outHm', d.hm, 4);
-  setText('#outHp', d.hp, 2);
-  setText('#valueMrr', d.mmr, 0);
-  setText('#valueFc',  d.fc, 0);
-  setText('#valueW',   d.w,  0);
-  setText('#valueEta', d.eta,0);
-
-  // Radar chart (5 ejes): Mmr, Fc, W, Hp, Eta
-  const radarData = [d.mmr_norm, d.fc_norm, d.w_norm, d.hp_norm, d.eta];
-  if (!state.chart) createRadar(radarData); else updateRadar(radarData);
-}
-
-function createRadar (dataArr) {
-  const ctx = $('#radarChart');
-  if (!ctx || !Chart) return;
-  state.chart = new Chart(ctx, {
-    type: 'radar',
-    data: {
-      labels: ['MMR','Fc','W','Hp','η'],
-      datasets: [{
-        label: 'Distribución',
-        data: dataArr,
-        fill: true,
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { display: false } },
-      scales: { r: { min:0, max:1 } }
-    }
-  });
-}
-
-function updateRadar (arr) {
-  if (!state.chart) return;
-  state.chart.data.datasets[0].data = arr;
-  state.chart.update();
-}
-
-/*****************************  AJAX CALL  ******************************/
-async function fetchBackend () {
-  if (!AJAX_URL) { showError('Endpoint AJAX no definido'); return; }
-
-  // Abort anterior si existe
-  if (state.abort) state.abort.abort();
-  state.abort = new AbortController();
-  const body = new URLSearchParams({
-    csrf_token: CSRF,
-    fz: state.fz,
-    vc: state.vc,
-    ae: state.ae,
-    ap: state.ap,
-  });
-
-  toggleSpinner(true);
-  showError('');
-
-  try {
-    const res = await fetch(AJAX_URL, {
-      method: 'POST',
-      credentials: 'same-origin',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-      },
-      body,
-      signal: state.abort.signal
-    });
-
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json = await res.json();
-    if (json.success === false) throw new Error(json.error || 'error');
-
-    applyBackendData(json.data ?? json); // flexible backend
-  }
-  catch (err) {
-    if (err.name === 'AbortError') return; // se abortó por nueva petición
-    console.error('[step6] fetch error', err);
-    if (!state._retried) {
-      state._retried = true;
-      setTimeout(fetchBackend, 700);
-    } else {
-      showError('Error al recalcular parámetros.');
-    }
-  }
-  finally {
-    toggleSpinner(false);
-    state._retried = false;
-  }
-}
-
-/****************************  SLIDERS  *********************************/
-function bindSlider (id, key, dec = 4) {
-  const el = $(id);
-  if (!el) return;
-
-  const bubble = el.nextElementSibling;
-  const updateBubble = () => { bubble.textContent = fmt(el.value, dec); };
-  updateBubble();
-
-  el.addEventListener('input', debounce(() => {
-    state[key] = parseFloat(el.value);
-    const lbl = key === 'fz' ? '#valFz' : key === 'vc' ? '#valVc' : key === 'ae' ? '#valAe' : '';
-    if (lbl) $(lbl).textContent = fmt(el.value, dec);
-    fetchBackend();
-  }, 250));
-
-  el.addEventListener('input', updateBubble);
-}
-
-/****************************  INIT  ************************************/
-export function init () {
-  // Verificación mínima
-  if (!$('#sliderFz')) { console.warn('[step6] sliders no encontrados'); return; }
-
-  // Vincular sliders
-  bindSlider('#sliderFz',       'fz', 4);
-  bindSlider('#sliderVc',       'vc', 1);
-  bindSlider('#sliderAe',       'ae', 1);
-  bindSlider('#sliderPasadas',  'ap', 0);
-
-  // Primer fetch → llena métricas reales
-  fetchBackend();
-
-  // Animar contadores iniciales si existen valores
-  if (CountUp) {
-    ['outVf','outN'].forEach(id => {
-      const node = $('#'+id); if (!node) return;
-      const val = parseFloat(node.textContent.replace(/\s/g,'')) || 0;
-      state.counters[id] = new CountUp(node, val, { duration: .8, separator: ' ' });
-      if (!state.counters[id].error) state.counters[id].start();
-    });
-  }
-
-  console.info('%c[step6] init listo', 'color:#4caf50;font-weight:bold');
-}
-
-// Compat retro  → window.step6.init()
-window.step6 = window.step6 || {}; window.step6.init = init;
-
-// Auto-ejecución
-if (document.readyState !== 'loading') init();
-else document.addEventListener('DOMContentLoaded', init);
+/********************* 9. AUTO-EJECUCIÓN / LEGACY **********************/
+if(typeof window!=='undefined'){ window.step6=window.step6||{}; window.step6.init=init; }
+if(document.readyState!=='loading') init();
+else document.addEventListener('DOMContentLoaded',init);
