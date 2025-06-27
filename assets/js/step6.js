@@ -29,10 +29,10 @@ export function init () {
   /* ----------------------------------------------------------
    * 2. Referencias al DOM
    * -------------------------------------------------------- */
-  const sFz =  q('sliderFz'),
-        sVc =  q('sliderVc'),
-        sAe =  q('sliderAe'),
-        sP  =  q('sliderPasadas'),
+  const sFz  = q('sliderFz'),
+        sVc  = q('sliderVc'),
+        sAe  = q('sliderAe'),
+        sP   = q('sliderPasadas'),
         infoP = q('textPasadasInfo'),
         errBox = q('errorMsg');
 
@@ -52,8 +52,8 @@ export function init () {
   };
 
   const UI = {
-    show (m){ errBox.textContent = m; errBox.style.display='block'; },
-    clear(){  errBox.style.display='none'; errBox.textContent='';  },
+    show (m){ errBox.textContent = m; errBox.style.display = 'block'; },
+    clear(){   errBox.style.display = 'none'; errBox.textContent = '';  },
     fatal(m){ alert(m); }
   };
 
@@ -71,54 +71,60 @@ export function init () {
    * 4. Radar Chart (Chart.js)
    * -------------------------------------------------------- */
   let radar = null;
-  try{
+  try {
     const ctx = q('radarChart')?.getContext('2d');
-    if (ctx && window.Chart){
-      radar = new Chart(ctx,{
-        type:'radar',
-        data:{ labels:['Vida útil','Terminación','Potencia'],
-               datasets:[{ data:[0,0,0],
-                           backgroundColor:'rgba(79,195,247,.35)',
-                           borderColor:'rgba(79,195,247,.8)', borderWidth:2 }]},
-        options:{ scales:{ r:{ max:100,ticks:{ stepSize:20 } } },
-                  plugins:{ legend:{ display:false } } }
+    if (ctx && window.Chart) {
+      radar = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: ['Vida útil', 'Terminación', 'Potencia'],
+          datasets:[{
+            data:[0,0,0],
+            backgroundColor:'rgba(79,195,247,.35)',
+            borderColor:'rgba(79,195,247,.8)',
+            borderWidth:2
+          }]
+        },
+        options:{
+          scales:{ r:{ max:100, ticks:{ stepSize:20 } } },
+          plugins:{ legend:{ display:false } }
+        }
       });
     }
-  }catch(e){ console.warn('[step6] Chart init error',e); }
+  } catch(e){ console.warn('[step6] Chart init error', e); }
 
   /* ----------------------------------------------------------
    * 5. Utilidades
    * -------------------------------------------------------- */
   const thickness = parseFloat(sP.dataset.thickness);
 
-  function q(id){ return document.getElementById(id); }
+  function q (id){ return document.getElementById(id); }
 
-  function computeFeed(vc,fz){
-    const rpm = (vc*1000)/(Math.PI*D);
-    return rpm*fz*Z;
+  function computeFeed (vc, fz){
+    const rpm = (vc * 1000) / (Math.PI * D);
+    return rpm * fz * Z;
   }
 
-  function updatePassSlider(){
+  function updatePassSlider (){
     const maxP = Math.ceil(thickness / parseFloat(sAe.value));
-    sP.min=1; sP.max=maxP; sP.step=1;
-    if (+sP.value>maxP) sP.value=maxP;
+    sP.min = 1; sP.max = maxP; sP.step = 1;
+    if (+sP.value > maxP) sP.value = maxP;
   }
-  function updatePassInfo(){
+  function updatePassInfo (){
     const p = +sP.value;
     infoP.textContent = `${p} pasada${p>1?'s':''} de ${(thickness/p).toFixed(2)} mm`;
   }
 
   let debounceId;
-  const debounce = fn => { clearTimeout(debounceId); debounceId = setTimeout(fn,200); };
+  const debounce = fn => { clearTimeout(debounceId); debounceId = setTimeout(fn, 200); };
 
   /* ----------------------------------------------------------
    * 6. Listeners de sliders
    * -------------------------------------------------------- */
-  function onFzVcChange(){
+  function onFzVcChange (){
     UI.clear();
-    const vc = +sVc.value, fz = +sFz.value, feed = computeFeed(vc,fz);
-
-    if (feed>fr_max){
+    const vc = +sVc.value, fz = +sFz.value, feed = computeFeed(vc, fz);
+    if (feed > fr_max) {
       UI.show(`Feedrate supera límite (${fr_max}). Ajustá Vc o fz.`);
       return;
     }
@@ -127,12 +133,12 @@ export function init () {
 
   [sFz, sVc].forEach(s => s.addEventListener('input', onFzVcChange));
   sAe.addEventListener('input', () => { updatePassSlider(); updatePassInfo(); debounce(recalc); });
-  sP .addEventListener('input', () => { updatePassInfo();                 debounce(recalc); });
+  sP .addEventListener('input', () => { updatePassInfo(); debounce(recalc); });
 
   /* ----------------------------------------------------------
    * 7. AJAX + pintado de resultados
    * -------------------------------------------------------- */
-  async function recalc(){
+  async function recalc (){
     const payload = {
       fz: +sFz.value,
       vc: +sVc.value,
@@ -144,28 +150,33 @@ export function init () {
     };
 
     try{
-      const r = await fetch(ajaxURL,{
+      const r = await fetch(ajaxURL, {
         method:'POST',
         headers:{
           'Content-Type':'application/json',
           'X-CSRF-Token': csrfToken
         },
-        body:JSON.stringify(payload),
+        body: JSON.stringify(payload),
         cache:'no-store',
         credentials:'same-origin'
       });
       if(!r.ok) throw new Error(`HTTP ${r.status}`);
       const j = await r.json();
-      if(!j.success) throw new Error(j.error||'Error');
-
+      if(!j.success) throw new Error(j.error || 'Error');
       paint(j.data);
+
+      /* ---------- AVISO DE ÉXITO ---------- */
+      console.info('%c[step6] AJAX OK', 'color:#42e8a7');
+      UI.show('Datos actualizados ✔️');
+      setTimeout(() => UI.clear(), 2500);
+
     }catch(e){
-      UI.show(e.message);
-      console.error('[step6] AJAX fail',e);
+      UI.show(`⚠️ ${e.message}`);
+      console.error('[step6] AJAX fail', e);
     }
   }
 
-  function paint(d){
+  function paint (d){
     try{
       out.vc .textContent = `${d.vc} m/min`;
       out.fz .textContent = `${d.fz} mm/tooth`;
@@ -180,11 +191,11 @@ export function init () {
       out.ae .textContent = d.ae.toFixed(2);
       out.ap .textContent = d.ap.toFixed(3);
 
-      if(radar && Array.isArray(d.radar)){
+      if (radar && Array.isArray(d.radar)) {
         radar.data.datasets[0].data = d.radar;
         radar.update();
       }
-    }catch(e){ console.error('[step6] paint()',e); }
+    } catch (e){ console.error('[step6] paint()', e); }
   }
 
   /* ----------------------------------------------------------
@@ -193,7 +204,7 @@ export function init () {
   updatePassSlider();
   updatePassInfo();
   recalc();
-  console.info('%c[step6] init OK','color:#4fc3f7;font-weight:700');
+  console.info('%c[step6] init OK', 'color:#4fc3f7;font-weight:700');
 }
 
 /* ----------------------------------------------------------------
