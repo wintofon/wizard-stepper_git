@@ -6,13 +6,17 @@
 ----------------------------------------------------------------*/
 
 export function init () {
-  const ready = document.getElementById('sliderVc');
-  if (!ready) {
+  const ids = [
+    'sliderVc','sliderFz','sliderAe','sliderPasadas',
+    'textPasadasInfo','errorMsg'
+  ];
+  const els = ids.map(id => document.getElementById(id));
+  if (els.some(el => !el)) {
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', init, { once: true });
       console.info('[step6] esperando DOMContentLoaded');
     } else {
-      console.warn('[step6] #sliderVc no encontrado');
+      console.warn('[step6] elementos necesarios no encontrados');
     }
     return;
   }
@@ -31,17 +35,7 @@ export function init () {
   /* ---------------- 2. DOM helpers ---------------- */
   const q = id => document.getElementById(id);
 
-  const sVc = ready,
-        sFz = q('sliderFz'),
-        sAe = q('sliderAe'),
-        sP  = q('sliderPasadas'),
-        infoP = q('textPasadasInfo'),
-        errBox = q('errorMsg');
-
-  if (!sFz || !sVc || !sAe || !sP || !infoP || !errBox) {
-    console.error('[step6] elementos críticos del DOM faltantes');
-    return;
-  }
+  const [sVc, sFz, sAe, sP, infoP, errBox] = els;
 
   const out = {
     vc : q('outVc'), fz : q('outFz'), hm : q('outHm'),

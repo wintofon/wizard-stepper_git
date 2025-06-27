@@ -263,13 +263,12 @@ window.addEventListener('error', e => {
   console.error('unhandled error', e.error || e.message);
 });
 </script>
-<script src="assets/js/step6.js"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    if (window.initStep6) {
-      window.initStep6();
-    }
-  });
+<script 
+  type="module" 
+  defer 
+  src="assets/js/step6.js"
+  onload="console.info('[step6] module loaded 👍'); window.step6?.init?.();"
+  onerror="console.error('❌ step6.js failed to load');">
 </script>
 </body>
 </html>
