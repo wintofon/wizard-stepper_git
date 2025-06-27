@@ -19,11 +19,25 @@ set_exception_handler(function(Throwable $e){
 });
 
 // ------------------------------------------------------------------
-// 1. BASE_URL
+// 1. BASE_URL y BASE_HOST
 // ------------------------------------------------------------------
-if (!getenv('BASE_URL')) {
-    $base = dirname(dirname(dirname($_SERVER['SCRIPT_NAME'])));
-    putenv('BASE_URL=' . rtrim($base, '/'));
+$baseUrl = getenv('BASE_URL');
+if ($baseUrl === false) {
+    $baseUrl = dirname(dirname(dirname($_SERVER['SCRIPT_NAME'])));
+}
+$baseUrl = rtrim($baseUrl, '/');
+
+$baseHost = getenv('BASE_HOST');
+if ($baseHost === false) {
+    $scheme    = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $baseHost = $scheme . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
+}
+
+if (!defined('BASE_URL')) {
+    define('BASE_URL', $baseUrl);
+}
+if (!defined('BASE_HOST')) {
+    define('BASE_HOST', $baseHost);
 }
 
 // ------------------------------------------------------------------
@@ -336,8 +350,8 @@ foreach ($styles as [$local, $cdn]) {
 
 <?php if (!$embedded): ?>
 <script>
-  window.BASE_URL = <?= json_encode(BASE_URL) ?>;
-  window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
+  window.BASE_URL = <?= json_encode($baseUrl) ?>;
+  window.BASE_HOST = <?= json_encode($baseHost) ?>;
 </script>
 <?php endif; ?>
 </head><body>
