@@ -834,7 +834,7 @@ safeScript(
     }
   })();
 </script>
-  <script type="module" src="<?= asset('assets/js/step6.module.js') ?>"></script>
+  <script type="module" src="<?= asset('assets/js/step6.js') ?>"></script>
 
 <script>
 /*-- Feather.replace() seguro: reintenta 10× cada 120 ms --*/
