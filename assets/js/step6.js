@@ -1,10 +1,10 @@
 /* ==========================================================================
- * assets/js/step6.js  ·  PASO 6 – Wizard CNC
+ * assets/js/step6.js  ·  PASO 6 – Wizard CNC (FIX v1.1)
  * --------------------------------------------------------------------------
- * • ES module auto‑inicializable → export default { init }
+ * • ES module auto-inicializable → export default { init }
  * • Maneja sliders (fz, Vc, Ae, pasadas) y hace _fetch_ al endpoint
- *     step6_ajax_legacy_minimal.php enviando los valores actuales.
- * • Incluye CSRF, credentials:same‑origin, AbortController con reintento ×1,
+ *     step6_ajax_legacy_minimal.php enviando los valores actuales.
+ * • Incluye CSRF, credentials:same-origin, AbortController con reintento ×1,
  *   y overlay de spinner para UX.
  * • Nunca rompe el DOM: todos los errores se muestran en #errorMsg y nunca
  *   detienen la interacción de los sliders.
@@ -13,22 +13,23 @@
 
 /* global Chart, CountUp, window */
 
-/********************  CONSTANTES / ESTADO GLOBALES  *********************/
-const {
-  step6Params:   BASE_PARAMS,
-  step6Csrf:     CSRF,
-  step6AjaxUrl:  AJAX_URL
-} = window;
+/********************  CONSTANTES / ESTADO GLOBAL  *********************/
+// Desestructuramos con FALLOS CONTROLADOS: si el backend no inyectó alguna
+// variable, usamos defaults para que el script no explote.
+const BASE_PARAMS = window.step6Params   || {};
+const CSRF        = window.step6Csrf     || '';
+const AJAX_URL    = window.step6AjaxUrl  || '';
 
 const $ = (sel, ctx = document) => ctx.querySelector(sel);
 const $all = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
 
 const state = {
-  // Valores dinámicos
-  fz:  BASE_PARAMS.fz0,
-  vc:  BASE_PARAMS.vc0,
-  ae:  BASE_PARAMS.diameter_mm * 0.5,
-  ap:  BASE_PARAMS.ap_slot,
+  // Valores dinámicos → si falta algo vienen en 0 para que el fetch inicial
+  // lo sobreescriba con la respuesta real del backend.
+  fz:  +BASE_PARAMS.fz0        || 0,
+  vc:  +BASE_PARAMS.vc0        || 0,
+  ae:  (+BASE_PARAMS.diameter_mm || 1) * 0.5,
+  ap:  +BASE_PARAMS.ap_slot     || 1,
   // AbortController actual
   abort: null,
   // Chart instance / CountUps
@@ -56,7 +57,7 @@ function toggleSpinner (show = true) {
   if (!overlay && show) {
     overlay = document.createElement('div');
     overlay.id = 'ajaxSpinner';
-    overlay.style.cssText = `position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.4);z-index:9999;backdrop-filter:blur(2px)`;
+    overlay.style.cssText = `position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.45);z-index:9999;backdrop-filter:blur(1.5px)`;
     overlay.innerHTML = '<div class="spinner-border" role="status" style="width:3rem;height:3rem;"></div>';
     document.body.appendChild(overlay);
   }
@@ -69,6 +70,7 @@ function debounce (fn, ms = 300) {
 
 /***************************  ACTUALIZAR UI  *****************************/
 function applyBackendData (d) {
+  if (!d) return;
   // Actualizar contadores grandes
   setText('#outVf', d.feed, 0);
   setText('#outN',  d.rpm, 0);
@@ -83,7 +85,7 @@ function applyBackendData (d) {
   setText('#valueW',   d.w,  0);
   setText('#valueEta', d.eta,0);
 
-  // Radar chart (5 ejes ejemplo): Mrr, Fc, W, Hp, Eta
+  // Radar chart (5 ejes): Mmr, Fc, W, Hp, Eta
   const radarData = [d.mmr_norm, d.fc_norm, d.w_norm, d.hp_norm, d.eta];
   if (!state.chart) createRadar(radarData); else updateRadar(radarData);
 }
@@ -117,6 +119,8 @@ function updateRadar (arr) {
 
 /*****************************  AJAX CALL  ******************************/
 async function fetchBackend () {
+  if (!AJAX_URL) { showError('Endpoint AJAX no definido'); return; }
+
   // Abort anterior si existe
   if (state.abort) state.abort.abort();
   state.abort = new AbortController();
@@ -147,15 +151,14 @@ async function fetchBackend () {
     const json = await res.json();
     if (json.success === false) throw new Error(json.error || 'error');
 
-    applyBackendData(json.data ?? json); // flexible
+    applyBackendData(json.data ?? json); // flexible backend
   }
   catch (err) {
-    // Reintento x1 en NetworkError
-    if (err.name === 'AbortError') return; // abort nuevo → ignora
+    if (err.name === 'AbortError') return; // se abortó por nueva petición
     console.error('[step6] fetch error', err);
     if (!state._retried) {
       state._retried = true;
-      setTimeout(fetchBackend, 600);
+      setTimeout(fetchBackend, 700);
     } else {
       showError('Error al recalcular parámetros.');
     }
@@ -172,14 +175,13 @@ function bindSlider (id, key, dec = 4) {
   if (!el) return;
 
   const bubble = el.nextElementSibling;
-  const updateBubble = () => {
-    bubble.textContent = fmt(el.value, dec);
-  };
+  const updateBubble = () => { bubble.textContent = fmt(el.value, dec); };
   updateBubble();
 
   el.addEventListener('input', debounce(() => {
     state[key] = parseFloat(el.value);
-    $(key === 'fz' ? '#valFz' : key === 'vc' ? '#valVc' : '#valAe').textContent = fmt(el.value, dec);
+    const lbl = key === 'fz' ? '#valFz' : key === 'vc' ? '#valVc' : key === 'ae' ? '#valAe' : '';
+    if (lbl) $(lbl).textContent = fmt(el.value, dec);
     fetchBackend();
   }, 250));
 
@@ -188,20 +190,24 @@ function bindSlider (id, key, dec = 4) {
 
 /****************************  INIT  ************************************/
 export function init () {
-  // Vincular sliders
-  bindSlider('#sliderFz',  'fz', 4);
-  bindSlider('#sliderVc',  'vc', 1);
-  bindSlider('#sliderAe',  'ae', 1);
-  bindSlider('#sliderPasadas', 'ap', 0);
+  // Verificación mínima
+  if (!$('#sliderFz')) { console.warn('[step6] sliders no encontrados'); return; }
 
-  // Primer fetch para pintar valores normalizados
+  // Vincular sliders
+  bindSlider('#sliderFz',       'fz', 4);
+  bindSlider('#sliderVc',       'vc', 1);
+  bindSlider('#sliderAe',       'ae', 1);
+  bindSlider('#sliderPasadas',  'ap', 0);
+
+  // Primer fetch → llena métricas reales
   fetchBackend();
 
-  // Contadores grandes animados
+  // Animar contadores iniciales si existen valores
   if (CountUp) {
     ['outVf','outN'].forEach(id => {
-      const val = parseFloat($("#"+id).textContent);
-      state.counters[id] = new CountUp($("#"+id), val, { duration: .7, separator: ' ' });
+      const node = $('#'+id); if (!node) return;
+      const val = parseFloat(node.textContent.replace(/\s/g,'')) || 0;
+      state.counters[id] = new CountUp(node, val, { duration: .8, separator: ' ' });
       if (!state.counters[id].error) state.counters[id].start();
     });
   }
@@ -209,10 +215,9 @@ export function init () {
   console.info('%c[step6] init listo', 'color:#4caf50;font-weight:bold');
 }
 
-// Expone compatibilidad antigua → window.step6.init()
-window.step6 = window.step6 || {};
-window.step6.init = init;
+// Compat retro  → window.step6.init()
+window.step6 = window.step6 || {}; window.step6.init = init;
 
-// Auto‑ejecución si cargó como <script type="module" defer>
+// Auto-ejecución
 if (document.readyState !== 'loading') init();
 else document.addEventListener('DOMContentLoaded', init);
