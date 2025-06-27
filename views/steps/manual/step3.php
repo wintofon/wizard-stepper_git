@@ -8,6 +8,24 @@
  */
 declare(strict_types=1);
 require_once __DIR__ . '/../../../src/Utils/Session.php';
+
+function respondError(int $code, string $msg): void
+{
+    http_response_code($code);
+    $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+        strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+
+    if ($isAjax) {
+        header('Content-Type: application/json; charset=UTF-8');
+        echo json_encode(['error' => $msg], JSON_UNESCAPED_UNICODE);
+    } else {
+        echo '<!DOCTYPE html><html><body>'
+            . '<p>'
+            . htmlspecialchars($msg, ENT_QUOTES, 'UTF-8')
+            . '</p></body></html>';
+    }
+    exit;
+}
 /**
  * File: step3.php
  * ------------------------------------------------------------------
