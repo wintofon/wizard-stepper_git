@@ -204,6 +204,9 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
     hp      : document.getElementById('hp')
   };
 
+  /* Scroll suave a un elemento (si existe) */
+  function smoothTo(el){ if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }
+
   /* Ocultar todo hasta elegir transmisión */
   const hideParams = () => {
     paramSec.style.display = 'none';
@@ -222,6 +225,7 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
 
     Object.values(inputs).forEach(i => i.disabled=false);
     paramSec.style.display = 'block';
+    smoothTo(paramSec);
     validate();
   }));
 
@@ -247,6 +251,7 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
     }
 
     nextWrap.style.display = ok ? 'block' : 'none';
+    if (ok) smoothTo(nextWrap);
     return ok;
   }
 
