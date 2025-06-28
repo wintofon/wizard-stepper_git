@@ -109,21 +109,6 @@ declare(strict_types=1);
   <script src="<?= asset('assets/js/wizard_stepper.js') ?>" defer></script>
   <script src="<?= asset('assets/js/dashboard.js') ?>" defer></script>
 
-<script 
-  type="module" 
-  defer 
-  src="<?= asset('assets/js/step6.js') ?>"
-  onload="console.info('[step6] module loaded 👍'); window.step6?.init?.();"
-  onerror="console.error('❌ step6.js failed to load');">
-</script>
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    if (window.step6?.init) {
-      window.step6.init();
-      console.info('[step6] init() llamado tras DOMContentLoaded');
-    }
-  });
-</script>
 
 <!-- justo antes de </body> -->
 
