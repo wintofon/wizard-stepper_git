@@ -287,6 +287,9 @@ const inputMt  = document.getElementById('machining_type_id');
 const inputSt  = document.getElementById('strategy_id');
 const nextBox  = document.getElementById('nextContainer');
 
+/* Scroll suave a un elemento (si existe) */
+function smoothTo(el){ if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }
+
 /* Helpers debug */
 window.dbg = (...m)=>{ console.log('[DBG]',...m);
   const d=document.getElementById('debug'); if(d) d.textContent+=m.join(' ')+'\n';};
@@ -304,10 +307,11 @@ machRow.querySelectorAll('.btn-machining').forEach(b=>{
       sb.type='button'; sb.className='btn btn-outline-secondary btn-strategy me-2 mb-2';
       sb.dataset.id=e.id; sb.textContent=e.name;
       sb.onclick=()=>{stratBtns.querySelectorAll('.btn-strategy').forEach(x=>x.classList.remove('active'));
-                      sb.classList.add('active'); inputSt.value=e.id; nextBox.style.display='block';};
+                      sb.classList.add('active'); inputSt.value=e.id; nextBox.style.display='block'; smoothTo(nextBox);};
       stratBtns.appendChild(sb);
     });
     stratBox.style.display='block';
+    smoothTo(stratBox);
   });
 });
 
