@@ -110,7 +110,6 @@ declare(strict_types=1);
   <script src="<?= asset('assets/js/dashboard.js') ?>" defer></script>
 
 
-<script type="module" src="<?= full_url('assets/js/step6.js') ?>" defer></script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     if (window.step6?.init) {
