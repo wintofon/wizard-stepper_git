@@ -109,7 +109,7 @@ const renderBar = current => {
       return;
     }
 
-    stepHolder.style.opacity = '.3';
+    stepHolder.classList.remove('show');
     fetch(`${LOAD_ENDPOINT}?step=${step}${DEBUG ? '&debug=1' : ''}`, { cache: 'no-store' })
       .then(r => {
         if (r.status === 403) throw new Error('FORBIDDEN');
@@ -122,13 +122,12 @@ const renderBar = current => {
 
         requestAnimationFrame(() => {
           if (window.feather) feather.replace();
+          stepHolder.classList.add('show');
         });
 
         if (window.bootstrap && bootstrap.Tooltip) {
           document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
         }
-
-        stepHolder.style.opacity = '1';
         renderBar(step);
         hookEvents();
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -139,6 +138,7 @@ const renderBar = current => {
         error('Error loadStep', err);
         dbgMsg(err.message);
         stepHolder.innerHTML = `<div class="alert alert-danger">⚠️ Error cargando el paso ${step}: ${err.message}</div>`;
+        stepHolder.classList.add('show');
         if (err.message === 'FORBIDDEN') {
           localStorage.removeItem(LS_KEY);
           dbgMsg('⚠️ Sesión desfasada. Reinicio.');
