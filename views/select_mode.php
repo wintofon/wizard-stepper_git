@@ -49,6 +49,7 @@
         <span>Te guiamos paso a paso para elegir la herramienta ideal según tu experiencia, material y tipo de corte.</span>
       </label>
     </div>
+    <button type="submit" class="btn btn-primary mt-3">Continuar</button>
   </form>
 </main>
 <script src="https://unpkg.com/lucide@latest"></script>
