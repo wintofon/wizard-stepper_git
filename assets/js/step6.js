@@ -23,7 +23,7 @@
   const DEBUG  = window.DEBUG ?? false;
   const TAG    = '[Step6]';
   const stamp  = () => new Date().toISOString();
-  const say    = (lvl, ...m) => { if (DEBUG) console[lvl](${TAG} ${stamp()}, ...m); };
+  const say    = (lvl, ...m) => { if (DEBUG) console[lvl](`${TAG} ${stamp()}`, ...m); };
   const log    = (...m) => say('log',   ...m);
   const warn   = (...m) => say('warn',  ...m);
   const error  = (...m) => say('error', ...m);
@@ -165,7 +165,7 @@
     SL.pass.max = maxP; SL.pass.min = 1; SL.pass.step = 1;
     if (+SL.pass.value > maxP) SL.pass.value = maxP;
     state.ap = +SL.pass.value;
-    if (infoPass) infoPass.textContent = ${state.ap} pasada${state.ap>1?'s':''} de ${(THK/state.ap).toFixed(2)} mm;
+    if (infoPass) infoPass.textContent = `${state.ap} pasada${state.ap>1?'s':''} de ${(THK/state.ap).toFixed(2)} mm`;
   };
 
   /* ───────────── INPUT HANDLER (todos sliders) ─────────── */
