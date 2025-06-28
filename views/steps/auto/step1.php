@@ -237,7 +237,7 @@ dbg('children', $children);
 
     <!-- 1) Buscador -->
     <div class="mb-3 position-relative">
-      <label for="matSearch" class="form-label">Buscar material (2+ letras)</label>
+      <label for="matSearch" class="form-label search-label">Buscar material (2+ letras)</label>
       <input
         id="matSearch"
         class="form-control"
@@ -249,6 +249,7 @@ dbg('children', $children);
     </div>
 
     <!-- 2) Categorías -->
+    <h5>— O elegí por categoría:</h5>
     <h5>Categoría</h5>
     <div id="catRow" class="d-flex flex-wrap mb-3">
       <?php foreach ($parents as $pid => $pname): ?>
@@ -270,7 +271,7 @@ dbg('children', $children);
 
     <!-- 4) Espesor (se muestra tras elegir Material) -->
     <div id="thickGroup" class="mb-3" style="display:none">
-      <label for="thick" class="form-label">Espesor</label>
+      <h5 for="matCol" class="form-label mat-label">Espesor</h5>
       <div class="input-group">
         <input
           type="number"
