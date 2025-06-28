@@ -190,7 +190,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
 
   <!-- 1) Buscador -->
   <div class="mb-3 position-relative">
-    <label for="matSearch" class="form-label">Buscar material (2+ letras)</label>
+    <label for="matSearch" class="form-label search-label">Buscar material (2+ letras)</label>
     <input id="matSearch" class="form-control" autocomplete="off" placeholder="Ej.: MDF…">
     <div id="no-match-msg">Material no encontrado</div>
     <div id="searchDropdown" class="dropdown-search"></div>
@@ -214,7 +214,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
 
   <!-- 4) Espesor -->
   <div id="thickGroup" class="mb-3" style="display:none">
-    <h5 for="matCol" class="form-label">Espesor</h5>
+    <h5 for="matCol" class="form-label mat-label">Espesor</h5>
     <div class="input-group">
       <input type="number" id="thick" name="thickness" class="form-control" step="0.1" min="0.1" required>
       <span class="input-group-text">mm</span>

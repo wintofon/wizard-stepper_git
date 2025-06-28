@@ -39,6 +39,12 @@ h5{ color:var(--mat-accent); font-weight:600; }
   font-size:1.25rem; /* coincide con h5 bootstrap */
   margin-bottom:.35rem;
 }
+.form-label.search-label{
+  color:var(--mat-text);
+  font-weight:600;
+  font-size:1.25rem;
+  margin-bottom:.35rem;
+}
 .form-label.mat-label small{ font-size:.9rem; }
 
 /* 2‑ter. Hint local “— o elegí por categoría —” */
