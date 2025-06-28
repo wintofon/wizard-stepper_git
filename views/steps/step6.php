@@ -846,12 +846,6 @@ safeScript(
 /*-----------------------------------------------------------------
  *  5) Tu propio step6.js (ahora ES module, solo local; sin CDN)
  *----------------------------------------------------------------*/
-
-?>
-<!-- views/steps/step6.php  ── al final, justo antes de </body> -->
-
-<!-- Script principal del paso 6  -->
-
 <script 
   type="module" 
   defer 
@@ -859,6 +853,11 @@ safeScript(
   onload="console.info('[step6] module loaded 👍'); window.step6?.init?.();"
   onerror="console.error('❌ step6.js failed to load');">
 </script>
+?>
+<!-- views/steps/step6.php  ── al final, justo antes de </body> -->
+
+<!-- Script principal del paso 6  -->
+
 
 <script>
 /*-- Feather.replace() seguro: reintenta 10× cada 120 ms --*/
