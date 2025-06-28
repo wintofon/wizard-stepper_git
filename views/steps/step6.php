@@ -778,6 +778,15 @@ foreach ($styles as [$local, $cdn]) {
 
 
 </div><!-- .content-main -->
+
+<script 
+  type="module" 
+  defer 
+  src="<?= asset('assets/js/step6.js') ?>"
+  onload="console.info('[step6] module loaded 👍'); window.step6?.init?.();"
+  onerror="console.error('❌ step6.js failed to load');">
+</script>
+
 <!-- ========== SCRIPTS (blindados) ========== -->
 <script>
   /*-- Parámetros técnicos + CSRF (100 % seguro) --*/
@@ -846,13 +855,7 @@ safeScript(
 /*-----------------------------------------------------------------
  *  5) Tu propio step6.js (ahora ES module, solo local; sin CDN)
  *----------------------------------------------------------------*/
-<script 
-  type="module" 
-  defer 
-  src="<?= asset('assets/js/step6.js') ?>"
-  onload="console.info('[step6] module loaded 👍'); window.step6?.init?.();"
-  onerror="console.error('❌ step6.js failed to load');">
-</script>
+
 ?>
 <!-- views/steps/step6.php  ── al final, justo antes de </body> -->
 
