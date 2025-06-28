@@ -24,8 +24,8 @@ body {
 body {
   display: flex;
   flex-direction: column;
-  /* stepper should sit flush with the top */
-  padding-top: 0;
+  /* leave space for the sticky stepper */
+  padding-top: 3.5rem;
 }
 
 .wizard-body {
