@@ -24,6 +24,8 @@ body {
 body {
   display: flex;
   flex-direction: column;
+  /* leave space for the fixed stepper */
+  padding-top: var(--stepper-offset, 70px);
 }
 
 .wizard-body {
