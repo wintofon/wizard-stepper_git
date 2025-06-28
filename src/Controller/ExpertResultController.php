@@ -1,29 +1,14 @@
 <?php
 /**
- * File: ExpertResultController.php
+ * ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+ * ┃  ExpertResultController.php  –  ¡Versión ÉPICA 2025! ┃
+ * ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
  *
- * Main responsibility: Part of the CNC Wizard Stepper.
+ * - Calcula todos los parámetros técnicos que Step 6 necesita.
+ * - Asegura que NUNCA falte ni una sola clave esperada por el JS.
+ * - Si algo sale mal, deja un registro en el log con prefijo [ExpertResultController].
  *
- * Called by: views/steps/step6.php
- * Important session keys read:
- *   - $_SESSION['tool_table']    Current tool table
- *   - $_SESSION['tool_id']       Selected tool identifier
- *   - $_SESSION['material']      Material ID
- *   - $_SESSION['trans_id']      Machine/operation ID
- *   - $_SESSION['rpm_min']       Minimum RPM allowed
- *   - $_SESSION['rpm_max']       Maximum RPM allowed
- *   - $_SESSION['fr_max']        Maximum feed rate
- *   - $_SESSION['thickness']     Material thickness
- *   - $_SESSION['hp']            Available machine horsepower
- * @TODO Extend documentation.
- */
-/**
- * ExpertResultController.php
- *
- * Ubicación: C:\xampp\htdocs\wizard-stepper_git\src\Controller\ExpertResultController.php
- *
- * Controlador robusto y debugable para recopilar todos los parámetros técnicos
- * usados en la vista Paso 6 del Wizard CNC.
+ *  Autor:  Tú, maestro CNC  🛠️⚡
  */
 
 declare(strict_types=1);
@@ -35,36 +20,27 @@ use ConfigModel;
 use CNCCalculator;
 
 if (!function_exists('dbg')) {
-    /**
-     * Registra mensajes de debug en el log de errores.
-     *
-     * @param string $msg
-     */
     function dbg(string $msg): void
-    {
-        error_log('[ExpertResultController] ' . $msg);
-    }
+    {   error_log('[ExpertResultController] ' . $msg); }
 }
 
 class ExpertResultController
 {
     /**
-     * Recopila y calcula todos los parámetros técnicos para la vista Paso 6.
+     * Devuelve un súper-array con TODO lo que el front-end demanda.
      *
-     * @param \PDO  $pdo     Conexión a la BD
-     * @param array $session Copia de $_SESSION
+     * @param \PDO  $pdo
+     * @param array $session  Copia de $_SESSION
      * @return array<string,mixed>
-     * @throws \RuntimeException si falta dato o hay error interno
+     * @throws \RuntimeException
      */
     public static function getResultData(\PDO $pdo, array $session): array
     {
-        // 1) Validar datos de sesión
-        // These session keys are populated across earlier wizard steps
+        /* ───────────────────── 1) Validación de sesión ───────────────────── */
         $required = [
             'tool_table','tool_id','material','trans_id',
             'rpm_min','rpm_max','fr_max','thickness','hp'
         ];
-        // Abort if any mandatory session value is missing
         foreach ($required as $key) {
             if (empty($session[$key])) {
                 dbg("Sesión incompleta: falta {$key}");
@@ -72,97 +48,105 @@ class ExpertResultController
             }
         }
 
-        // 2) Extraer parámetros
-        // Values come from $_SESSION as passed by the step 5 form
+        /* ───────────────────── 2) Datos básicos ─────────────────────────── */
         $tbl        = (string)$session['tool_table'];
-        $toolId     = (int)$session['tool_id'];
-        $materialId = (int)$session['material'];
-        $transId    = (int)$session['trans_id'];
-        $rpmMin     = (float)$session['rpm_min'];   // limits configured on step 5
-        $rpmMax     = (float)$session['rpm_max'];   // limits configured on step 5
-        $frMax      = (float)$session['fr_max'];    // feed rate maximum
-        $thickness  = (float)$session['thickness']; // part thickness
-        $hpAvail    = (float)$session['hp'];        // machine horsepower
+        $toolId     = (int)   $session['tool_id'];
+        $materialId = (int)   $session['material'];
+        $transId    = (int)   $session['trans_id'];
 
-        try {
-            // 3) Datos de la herramienta
-            $tool = ToolModel::getTool($pdo, $tbl, $toolId);
-            if (!$tool) {
-                dbg("Herramienta no encontrada: {$tbl}[{$toolId}]");
-                throw new \RuntimeException('Herramienta no encontrada.');
-            }
-            $diameter   = (float)($tool['diameter_mm'] ?? 0);
-            $fluteCount = (int)  ($tool['flute_count']  ?? 0);
-            $rackRad    = deg2rad((float)($tool['rack_angle'] ?? 0)); // rad
+        $rpmMin     = (float) $session['rpm_min'];
+        $rpmMax     = (float) $session['rpm_max'];
+        $frMax      = (float) $session['fr_max'];
+        $thickness  = (float) $session['thickness'];
+        $hpAvail    = (float) $session['hp'];
 
-            // 4) Datos de material
-            $matTbl = str_replace('tools_', 'toolsmaterial_', $tbl);
-            $mat = ToolModel::getMaterialData($pdo, $matTbl, $toolId, $materialId);
-            if (!$mat) {
-                dbg("Sin datos de material en {$matTbl} para fresa {$toolId}");
-                throw new \RuntimeException('Datos de material no disponibles.');
-            }
-            $vcMin0 = (float)$mat['vc_m_min'];
-            $fzMin0 = (float)$mat['fz_min_mm'];
-            $fzMax0 = (float)$mat['fz_max_mm'];
-            $apSlot = (float)$mat['ap_slot_mm'];
-            $aeSlot = (float)$mat['ae_slot_mm'];
-            $vcMax0 = $vcMin0 * 1.25;
-
-            // 5) Coeficientes globales
-            $Kc11    = ConfigModel::getKc11($pdo, $materialId);
-            $mc      = ConfigModel::getMc($pdo, $materialId);
-            $coefSeg = ConfigModel::getCoefSeg($pdo, $transId);
-
-            // 6) Cálculos base
-            // Apply machining formulas to compute initial feed and speed
-            $fz0      = (($fzMin0 + $fzMax0) / 2) * $coefSeg;
-            $vc0      = $vcMin0;
-            $passes0  = 1;
-            $ap0      = $passes0 > 0 ? round($thickness / $passes0, 3) : 0.0;
-            $ae0      = $aeSlot;
-
-            $rpmCalc0 = CNCCalculator::rpm($vc0, $diameter);
-            $rpm0     = (int) round(min(max($rpmCalc0, $rpmMin), $rpmMax));
-
-            $feed0    = min(CNCCalculator::feed($rpm0, $fz0, $fluteCount), $frMax);
-            $mmrBase  = CNCCalculator::mmr($ap0, $feed0, $ae0);
-
-            // 7) Empaquetar resultados
-            return [
-                'diameter'     => $diameter,
-                'flute_count'  => $fluteCount,
-                'rack_rad'     => $rackRad,
-                'vc_min0'      => $vcMin0,
-                'vc_max0'      => $vcMax0,
-                'fz_min0'      => $fzMin0,
-                'fz_max0'      => $fzMax0,
-                'ap_slot'      => $apSlot,
-                'ae_slot'      => $aeSlot,
-                'Kc11'         => $Kc11,
-                'mc'           => $mc,
-                'coef_seg'     => $coefSeg,
-                'fz0'          => $fz0,
-                'vc0'          => $vc0,
-                'passes0'      => $passes0,
-                'ap0'          => $ap0,
-                'ae0'          => $ae0,
-                'rpm_calc0'    => $rpmCalc0,
-                'rpm0'         => $rpm0,
-                'feed0'        => $feed0,
-                'mmr_base'     => $mmrBase,
-                'rpm_min'      => $rpmMin,
-                'rpm_max'      => $rpmMax,
-                'fr_max'       => $frMax,
-                'hp_avail'     => $hpAvail,
-            ];
-
-        } catch (\Throwable $e) {
-            dbg("Excepción en getResultData: " . $e->getMessage());
-            throw $e;
+        /* ───────────────────── 3) Herramienta ───────────────────────────── */
+        $tool = ToolModel::getTool($pdo, $tbl, $toolId);
+        if (!$tool) {
+            dbg("Herramienta no encontrada: {$tbl}[{$toolId}]");
+            throw new \RuntimeException('Herramienta no encontrada.');
         }
+        $diameter   = (float)($tool['diameter_mm']   ?? 0);
+        $fluteCount = (int)  ($tool['flute_count']   ?? 0);
+        $rackRad    = deg2rad((float)($tool['rack_angle'] ?? 0)); // radianes
+
+        /* ───────────────────── 4) Material ──────────────────────────────── */
+        $matTbl = str_replace('tools_', 'toolsmaterial_', $tbl);
+        $mat = ToolModel::getMaterialData($pdo, $matTbl, $toolId, $materialId);
+        if (!$mat) {
+            dbg("Sin datos de material en {$matTbl} para fresa {$toolId}");
+            throw new \RuntimeException('Datos de material no disponibles.');
+        }
+        $vcMin0 = (float)$mat['vc_m_min'];
+        $fzMin0 = (float)$mat['fz_min_mm'];
+        $fzMax0 = (float)$mat['fz_max_mm'];
+        $apSlot = (float)$mat['ap_slot_mm'];
+        $aeSlot = (float)$mat['ae_slot_mm'];
+        $vcMax0 = $vcMin0 * 1.25;
+
+        /* ───────────────────── 5) Coeficientes globales ─────────────────── */
+        $Kc11    = ConfigModel::getKc11($pdo, $materialId);
+        $mc      = ConfigModel::getMc($pdo, $materialId);
+        $coefSeg = ConfigModel::getCoefSeg($pdo, $transId);
+        $eta     = 1.0;                       // eficiencia global (100 %) – ajústalo si hace falta
+
+        /* ───────────────────── 6) Punto base (rpm, feed, etc.) ──────────── */
+        $fz0      = (($fzMin0 + $fzMax0) / 2) * $coefSeg;      // fz medio × coef seguridad
+        $vc0      = $vcMin0;
+        $passes0  = 1;
+        $ap0      = round($thickness / $passes0, 3);
+        $ae0      = $aeSlot;
+
+        $rpmCalc0 = CNCCalculator::rpm($vc0, $diameter);
+        $rpm0     = (int) round(min(max($rpmCalc0, $rpmMin), $rpmMax));
+
+        $feed0    = min(CNCCalculator::feed($rpm0, $fz0, $fluteCount), $frMax);
+        $mmrBase  = CNCCalculator::mmr($ap0, $feed0, $ae0);
+
+        /* ───────────────────── 7) ¡PAQUETE ÉPICO! ───────────────────────── */
+        return [
+            // — Datos geométricos —
+            'diameter'       => $diameter,
+            'diameter_mm'    => $diameter,      // alias que exige el JS
+            'flute_count'    => $fluteCount,
+            'rack_rad'       => $rackRad,
+
+            // — Límites / máquina —
+            'rpm_min'        => $rpmMin,
+            'rpm_max'        => $rpmMax,
+            'fr_max'         => $frMax,
+            'feed_max'       => $frMax,          // alias para el JS
+            'thickness'      => $thickness,
+            'hp_avail'       => $hpAvail,
+            'eta'            => $eta,            // eficiencia %
+
+            // — Material —
+            'vc_min0'        => $vcMin0,
+            'vc_max0'        => $vcMax0,
+            'fz_min0'        => $fzMin0,
+            'fz_max0'        => $fzMax0,
+            'ap_slot'        => $apSlot,
+            'ae_slot'        => $aeSlot,
+
+            // — Coeficientes —
+            'Kc11'           => $Kc11,
+            'mc'             => $mc,
+            'coef_seg'       => $coefSeg,
+
+            // — Punto base calculado —
+            'fz0'            => $fz0,
+            'vc0'            => $vc0,
+            'passes0'        => $passes0,
+            'ap0'            => $ap0,
+            'ae0'            => $ae0,
+            'rpm_calc0'      => $rpmCalc0,
+            'rpm0'           => $rpm0,
+            'feed0'          => $feed0,
+            'mmr_base'       => $mmrBase,
+        ];
     }
 }
 
-// Alias global
+/*  Para que se pueda invocar como ExpertResultController fuera del
+    namespace (legacy).  */
 \class_alias(__NAMESPACE__ . '\\ExpertResultController', 'ExpertResultController');
