@@ -1,5 +1,3 @@
-cooregime solo eso y damelo entero
-
 /*
  * File: stepper.css
  * Main responsibility: Part of the CNC Wizard Stepper.
@@ -7,9 +5,8 @@ cooregime solo eso y damelo entero
  * TODO: Extend documentation.
  */
 .stepper-header {
-  /* sticky so it remains visible at the top on any scroll context */
-  position: sticky;
-  position: -webkit-sticky;
+  /* fixed so it remains visible at the very top during scroll */
+  position: fixed;
   z-index: 1050;
   top: 0;
   left: 0;

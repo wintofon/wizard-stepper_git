@@ -24,7 +24,7 @@ body {
 body {
   display: flex;
   flex-direction: column;
-  /* leave space for the sticky stepper */
+  /* leave space for the fixed stepper */
   padding-top: 3.5rem;
 }
 
