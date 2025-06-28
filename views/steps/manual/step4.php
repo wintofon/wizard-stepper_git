@@ -1,324 +1,643 @@
-
 <?php
 /**
- * File: step4.php
- *
- * Main responsibility: Part of the CNC Wizard Stepper.
- * Related files: See others in this project.
- * @TODO Extend documentation.
+ * Paso 4 (Auto) – Selección de madera compatible
+ *  • Solo accesible si wizard_progress ≥ 3 (es decir, se completaron los pasos previos).
+ *  • Incluye comprobación CSRF en el POST.
+ *  • Valida que material_id provenga efectivamente de la lista de materiales compatibles.
+ *  • Valida espesor como número > 0.
  */
+
 declare(strict_types=1);
 
-if (!function_exists('respondError')) {
-    function respondError(int $code, string $msg): void {
-        http_response_code($code);
-        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
-            $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') {
-            header('Content-Type: application/json');
-            echo json_encode(['error' => $msg], JSON_UNESCAPED_UNICODE);
-        } else {
-            header('Content-Type: text/html; charset=UTF-8');
-            echo '<p>' . htmlspecialchars($msg, ENT_QUOTES, 'UTF-8') . '</p>';
+// 1) Sesión y flujo
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start([
+        'cookie_secure'   => true,
+        'cookie_httponly' => true,
+        'cookie_samesite' => 'Strict',
+    ]);
+}
+
+// Si no completó el paso 3, lo mandamos al paso 1
+if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 3) {
+    header('Location: step1.php');
+    exit;
+}
+
+// 2) Conexión a BD y debug
+require_once __DIR__ . '/../../../includes/db.php';
+require_once __DIR__ . '/../../../includes/debug.php';
+
+// 3) Generar/verificar CSRF token
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+$csrfToken = $_SESSION['csrf_token'];
+
+// 4) Comprobamos que haya herramienta en sesión
+if (empty($_SESSION['tool_id']) || empty($_SESSION['tool_table'])) {
+    header('Location: step2.php');
+    exit;
+}
+$toolId    = (int)$_SESSION['tool_id'];
+$toolTable = preg_replace('/[^a-z0-9_]/i', '', $_SESSION['tool_table']);
+
+// 5) Cargar lista de maderas compatibles
+$compatTbl = 'toolsmaterial_' . str_replace('tools_', '', $toolTable);
+$sql = "
+    SELECT m.material_id, m.name AS mat, c.category_id, c.name AS cat
+      FROM {$compatTbl} tm
+      JOIN materials m          ON m.material_id = tm.material_id
+      JOIN materialcategories c ON c.category_id = m.category_id
+     WHERE tm.tool_id = :tid
+       AND c.name LIKE 'Madera%'
+     ORDER BY c.name, m.name
+";
+$stmt = $pdo->prepare($sql);
+$stmt->execute([':tid' => $toolId]);
+$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Si no hay datos, mostramos alerta y dejamos avanzar igual (fall-back)
+if (!$data) {
+    $data = [];
+}
+
+// 6) Agrupar para la UI y construir array “flat” para validación en POST
+$cats = [];
+$flat = []; // [{ id, cid, name }]
+foreach ($data as $r) {
+    $cid = (int)$r['category_id'];
+    if (!isset($cats[$cid])) {
+        $cats[$cid] = [
+            'name' => $r['cat'],
+            'mats' => []
+        ];
+    }
+    $cats[$cid]['mats'][] = [
+        'id'   => (int)$r['material_id'],
+        'name' => $r['mat'],
+    ];
+    $flat[] = [
+        'id'   => (int)$r['material_id'],
+        'cid'  => $cid,
+        'name' => $r['mat'],
+    ];
+}
+
+// 7) Procesar POST (validación CSRF + campos)
+$errors = [];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // 7.1) CSRF
+    $postedToken = $_POST['csrf_token'] ?? '';
+    if (!hash_equals($csrfToken, (string)$postedToken)) {
+        $errors[] = "Token de seguridad inválido. Recargá la página e intentá de nuevo.";
+    }
+
+    // 7.2) Verificar “step”
+    $postedStep = filter_input(INPUT_POST, 'step', FILTER_VALIDATE_INT);
+    if ($postedStep !== 4) {
+        $errors[] = "Paso inválido. Reiniciá el wizard.";
+    }
+
+    // 7.3) Validar material_id y espesor
+    $matIdRaw = filter_input(INPUT_POST, 'material_id', FILTER_VALIDATE_INT);
+    $thickRaw = filter_input(INPUT_POST, 'thickness', FILTER_VALIDATE_FLOAT);
+    if ($matIdRaw === false || $matIdRaw === null || $matIdRaw <= 0) {
+        $errors[] = "Seleccioná una madera válida.";
+    }
+    if ($thickRaw === false || $thickRaw === null || $thickRaw <= 0) {
+        $errors[] = "Ingresá un espesor válido (> 0).";
+    }
+
+    // 7.4) Verificar que material_id exista en la lista “flat” (previene manipulación)
+    if (empty($errors) && $data) {
+        $found = false;
+        foreach ($flat as $entry) {
+            if ($entry['id'] === $matIdRaw) {
+                $found = true;
+                break;
+            }
         }
+        if (!$found) {
+            $errors[] = "La madera seleccionada no es compatible.";
+        }
+    }
+
+    // 7.5) Si no hay errores, guardamos en sesión y avanzamos al paso 5
+    if (empty($errors)) {
+        $_SESSION['material_id']     = $matIdRaw;
+        $_SESSION['thickness']       = $thickRaw;
+        $_SESSION['wizard_progress'] = 4;
+        // IMPORTANTE: cerramos la sesión para asegurar escritura
+        session_write_close();
+        header('Location: step5.php');
         exit;
     }
 }
 
-require_once __DIR__ . '/../../../src/Utils/Session.php';
-/**
- * File: views/steps/manual/step4.php
- * Paso 4 (Manual) – Selección de madera compatible
- * Estructura clonada de paso 1 (auto)
- */
-
-//
-// [A] Cabeceras de seguridad / anti-caching
-//
-sendSecurityHeaders('text/html; charset=UTF-8');
-header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-header("Pragma: no-cache");
-header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;");
-
-//
-// [B] Errores y Debug
-//
-$DEBUG = filter_input(INPUT_GET, 'debug', FILTER_VALIDATE_BOOLEAN);
-if ($DEBUG) { error_reporting(E_ALL); ini_set('display_errors', '1'); }
-else        { error_reporting(0);    ini_set('display_errors', '0'); }
-
-require_once __DIR__.'/../../../includes/wizard_helpers.php';
-if ($DEBUG && function_exists('dbg')) dbg('🔧 step4.php iniciado');
-
-//
-// [C] Sesión segura
-//
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_set_cookie_params([
-        'lifetime'=>0,
-        'path'    => BASE_URL . '/',
-        'secure'  =>true,
-        'httponly'=>true,
-        'samesite'=>'Strict'
-    ]);
-    session_start();
-    dbg('🔒 Sesión iniciada');
-}
-
-//
-// [D] Control de flujo
-//
-if (empty($_SESSION['wizard_state']) || $_SESSION['wizard_state']!=='wizard') {
-    header('Location:' . asset('wizard.php')); exit;
-}
-if ((int)($_SESSION['wizard_progress']??0) < 3) {
-    header('Location:' . asset('views/steps/auto/step' . (int)$_SESSION['wizard_progress'] . '.php')); exit;
-}
-
-//
-// [E] Rate-limiting 10 POST / 5 min
-//
-$clientIp = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-$_SESSION['rate_limit'] ??= [];
-$_SESSION['rate_limit'][$clientIp] = array_filter(
-    $_SESSION['rate_limit'][$clientIp] ?? [],
-    fn(int $t)=>($t+300) > time()
-);
-if ($_SERVER['REQUEST_METHOD']==='POST' && count($_SESSION['rate_limit'][$clientIp])>=10) {
-    respondError(200, '429 – Demasiados intentos.');
-}
-
-//
-// [F] CSRF-token
-//
-$_SESSION['csrf_token'] ??= bin2hex(random_bytes(32));
-$csrf = $_SESSION['csrf_token'];
-
-//
-// [G] Dependencias + herramienta seleccionada
-//
-require_once __DIR__.'/../../../includes/db.php';
-require_once __DIR__.'/../../../includes/debug.php';
-
-if (empty($_SESSION['tool_id']) || empty($_SESSION['tool_table'])) {
-    header('Location:' . asset('views/steps/auto/step2.php')); exit;
-}
-$toolId   = (int)$_SESSION['tool_id'];
-$toolTbl  = preg_replace('/[^a-z0-9_]/i','',$_SESSION['tool_table']);
-
-//
-// [H] Cargar categorías “Madera” compatibles
-//
-$compatTbl = 'toolsmaterial_'.str_replace('tools_','',$toolTbl);
-$sql = "
-  SELECT m.material_id, m.name, c.category_id, c.name AS cat
-    FROM {$compatTbl} tm
-    JOIN materials            m ON m.material_id = tm.material_id
-    JOIN materialcategories   c ON c.category_id = m.category_id
-   WHERE tm.tool_id = :tid AND c.name LIKE 'Madera%'
-   ORDER BY c.name, m.name";
-$stmt=$pdo->prepare($sql);
-$stmt->execute([':tid'=>$toolId]);
-$mats=$stmt->fetchAll(PDO::FETCH_ASSOC);
-
-/* Agrupar como en step1 */
-$parents=[]; $children=[];
-foreach ($mats as $m){
-    $cid=(int)$m['category_id'];
-    $parents[$cid]          = $m['cat'];                   // parent = categoría madera
-    $children[$cid][] = [
-        'id'  => (int)$m['material_id'],
-        'cid' => $cid,
-        'name'=> $m['name']
-    ];
-}
-dbg('parents',$parents); dbg('children',$children);
-
-//
-// [I] Procesar POST (idéntico a step1)
-//
-$err=null;
-if ($_SERVER['REQUEST_METHOD']==='POST'){
-    if(!hash_equals($csrf,$_POST['csrf_token']??''))               $err='Token de seguridad inválido.';
-    $mat = filter_input(INPUT_POST,'material_id',FILTER_VALIDATE_INT);
-    $thk = filter_input(INPUT_POST,'thickness'  ,FILTER_VALIDATE_FLOAT);
-    if(!$err && ($mat===false||$mat===null||$mat<1))               $err='Material no válido.';
-    if(!$err && ($thk===false||$thk===null||$thk<=0))              $err='Espesor no válido.';
-    if(!$err && !array_key_exists($mat,array_column($mats,'material_id','material_id')))
-        $err='Material no válido.'; // no coincide con lista
-
-    if(!$err){
-        $_SESSION['rate_limit'][$clientIp][] = time();
-        session_regenerate_id(true);
-        $_SESSION['material_id']=$mat;
-        $_SESSION['thickness'] =(float)$thk;
-        $_SESSION['wizard_progress']=4;
-        header('Location:' . asset('views/steps/manual/step5.php')); exit;
-    }
-}
+// 8) Valores previos (para precargar si vino del “volver atrás”)
+$prevMat      = $_SESSION['material_id'] ?? '';
+$prevThick    = $_SESSION['thickness']    ?? '';
+$hasPrevMat   = is_int($prevMat) && $prevMat > 0;
+$hasPrevThick = is_numeric($prevThick) && $prevThick > 0;
 ?>
-<!DOCTYPE html><html lang="es"><head>
-<meta charset="utf-8">
-<title>Paso 4 – Material</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<?php
-  $styles = [
-    'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
-    'assets/css/generic/material.css',
-    'assets/css/objects/step-common.css',
-  ];
-  $embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
-  include __DIR__ . '/../../partials/styles.php';
-?>
-<?php if (!$embedded): ?>
-<script>
-  window.BASE_URL = <?= json_encode(BASE_URL) ?>;
-  window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
-</script>
-<?php endif; ?>
-</head><body>
-<main class="container py-4">
-<h2 class="step-title"><i data-feather="layers"></i> Material y espesor</h2>
-<p class="step-desc">Indicá el material a procesar y su espesor.</p>
-
-<?php if($err):?>
-  <div class="alert alert-danger"><?=htmlspecialchars($err)?></div>
-<?php endif;?>
-
-<form id="formMat" method="post" novalidate>
-  <input type="hidden" name="step" value="4">
-  <input type="hidden" name="csrf_token" value="<?=htmlspecialchars($csrf)?>">
-  <input type="hidden" name="material_id" id="material_id" value="">
-
-  <!-- 1) Buscador -->
-  <div class="mb-3 position-relative">
-    <label for="matSearch" class="form-label">Buscar material (2+ letras)</label>
-    <input id="matSearch" class="form-control" autocomplete="off" placeholder="Ej.: MDF…">
-    <div id="no-match-msg">Material no encontrado</div>
-    <div id="searchDropdown" class="dropdown-search"></div>
-  </div>
-
-  <!-- 2) Categorías -->
-  <h5>Categoría</h5>
-  <div id="catRow" class="d-flex flex-wrap mb-3">
-    <?php foreach($parents as $pid=>$pname):?>
-      <button type="button" class="btn btn-outline-primary btn-cat" data-pid="<?=$pid?>">
-        <?=htmlspecialchars($pname)?>
-      </button>
-    <?php endforeach;?>
-  </div>
-
-  <!-- 3) Materiales -->
-  <div id="matBox" class="mb-3" style="display:none">
-    <h5>Material</h5><div id="matCol"></div>
-  </div>
-
-  <!-- 4) Espesor -->
-  <div id="thickGroup" class="mb-3" style="display:none">
-    <h5 for="thick" class="form-label">Espesor</h5>
-    <div class="input-group">
-      <input type="number" id="thick" name="thickness" class="form-control" step="0.1" min="0.1" required>
-      <span class="input-group-text">mm</span>
-    </div>
-  </div>
-
-  <!-- 5) Botón “Siguiente” -->
-  <div id="next-button-container" class="text-start mt-4" style="display:none">
-    <button id="btn-next" class="btn btn-primary btn-lg">
-      Siguiente <i data-feather="arrow-right" class="ms-1"></i>
-    </button>
-  </div>
-</form>
-
-</main>
-
-<script>
-function normalizeText(s){return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();}
-
-const parents  = <?=json_encode($parents,JSON_UNESCAPED_UNICODE)?>;
-const children = <?=json_encode($children,JSON_UNESCAPED_UNICODE)?>;
-const matsFlat = <?=json_encode($mats,    JSON_UNESCAPED_UNICODE)?>;
-
-const matBox=document.getElementById('matBox');
-const matCol=document.getElementById('matCol');
-const matInp=document.getElementById('material_id');
-const thick=document.getElementById('thick');
-const thickGrp=document.getElementById('thickGroup');
-const nextCont=document.getElementById('next-button-container');
-const search=document.getElementById('matSearch');
-const noMatch=document.getElementById('no-match-msg');
-const dropdown=document.getElementById('searchDropdown');
-
-const matToPid={};
-Object.entries(children).forEach(([pid,list])=>list.forEach(m=>matToPid[m.id]=pid));
-
-function resetMat(){
-  matCol.innerHTML='';matBox.style.display='none';
-  matInp.value='';thick.value='';thickGrp.style.display='none';
-  nextCont.style.display='none';search.classList.remove('is-invalid');noMatch.style.display='none';
-}
-function validate(){ nextCont.style.display=(matInp.value && parseFloat(thick.value)>0)?'block':'none';}
-function noMatchMsg(st){search.classList.toggle('is-invalid',st);noMatch.style.display=st?'block':'none';}
-function hideDD(){dropdown.style.display='none';dropdown.innerHTML='';}
-function showDropdown(list){
-  dropdown.innerHTML='';list.forEach(m=>{
-    const term=normalizeText(search.value.trim());
-    const raw=m.name, idx=normalizeText(raw).indexOf(term);
-    const item=document.createElement('div');
-    item.className='item';
-    item.innerHTML=idx==-1?raw:
-      raw.slice(0,idx)+'<span class="hl">'+raw.slice(idx,idx+term.length)+'</span>'+raw.slice(idx+term.length);
-    item.onclick=()=>{
-      document.querySelector(.btn-cat[data-pid='${matToPid[m.material_id]}'])?.click();
-      setTimeout(()=>document.querySelector(.btn-mat[data-mid='${m.material_id}'])?.click(),0);
-      hideDD();
-    };
-    dropdown.appendChild(item);
-  });
-  dropdown.style.display='block';
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Paso 4 – Selección de madera</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+   body {
+  --bs-body-bg: #0d1117;
+  --bs-body-color: #e0e0e0;
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  font-family: 'Segoe UI', Roboto, sans-serif;
+  margin: 0;
+  padding: 0;
 }
 
-/* Categorías */
-document.querySelectorAll('.btn-cat').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('.btn-cat').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active'); resetMat();
-    const pid=btn.dataset.pid;
-    (children[pid]||[]).forEach(m=>{
-      const b=document.createElement('button');
-      b.type='button';b.className='btn btn-outline-secondary btn-mat';
-      b.textContent=m.name;b.dataset.mid=m.id;
-      b.addEventListener('click',()=>{
-        document.querySelectorAll('.btn-mat').forEach(x=>x.classList.remove('active'));
-        b.classList.add('active');
-        matInp.value=m.id;search.value=m.name;noMatchMsg(false);
-        thickGrp.style.display='block';validate();hideDD();
-      });
-      matCol.appendChild(b);
-    });
-    matBox.style.display='block';
-  });
-});
+/* -------------------------------
+   📦 Contenedor principal
+---------------------------------- */
+.wizard-body {
+  max-width: 800px;
+  margin: 2rem auto;
+  background: #132330;
+  padding: 2rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 0 24px rgba(0, 0, 0, 0.5);
+  border: 1px solid #264b63;
+}
 
-/* Buscador */
-search.addEventListener('input',e=>{
-  const v=e.target.value.trim();
-  if(v.length<2){noMatchMsg(false);hideDD();return;}
-  const list=matsFlat.filter(m=>normalizeText(m.name).includes(normalizeText(v)));
-  if(!list.length){resetMat();noMatchMsg(true);return;}
-  noMatchMsg(false);showDropdown(list);
-});
-search.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault();}});
-search.addEventListener('blur',()=>setTimeout(hideDD,100));
+/* -------------------------------
+   🟦 Botones por categoría
+---------------------------------- */
+.btn-cat {
+  margin: 0.3rem 0.4rem;
+  white-space: nowrap;
+}
+.btn-cat.active {
+  background: #0d6efd !important;
+  color: #fff !important;
+}
 
-/* Espesor */
-thick.addEventListener('input',validate);
+/* -------------------------------
+   🟩 Botones por material
+---------------------------------- */
+.btn-mat {
+  margin: 0.25rem 0;
+  width: 100%;
+}
+.btn-mat.active {
+  background: #198754 !important;
+  color: #fff !important;
+}
 
-/* Submit */
-document.getElementById('formMat').addEventListener('submit',e=>{
-  if(!matInp.value || parseFloat(thick.value)<=0){
-    e.preventDefault();
-    alert('Debés elegir un material válido y un espesor mayor a 0 antes de continuar.');
+/* -------------------------------
+   📋 Campos de formulario
+---------------------------------- */
+.form-control {
+  background-color: #0f172a;
+  color: #e0e0e0;
+  border-color: #334156;
+}
+.form-control:disabled {
+  background-color: #1e293b;
+  color: #a7b1bb;
+  border-color: #334156;
+}
+.form-label {
+  font-weight: 600;
+  color: #cbd5e0;
+}
+
+/* -------------------------------
+   ⬅️ Botón "Volver"
+---------------------------------- */
+.btn-back {
+  background-color: transparent;
+  border: 1px solid #4fc3f7;
+  color: #4fc3f7;
+  border-radius: 0.4rem;
+  padding: 0.5rem 1rem;
+  transition: background 0.3s, color 0.3s;
+}
+.btn-back:hover {
+  background-color: #4fc3f7;
+  color: #0d1117;
+}
+
+/* -------------------------------
+   ➡️ Botón "Siguiente"
+---------------------------------- */
+.btn-next {
+  background-color: #4fc3f7;
+  border: none;
+  color: #0d1117;
+  border-radius: 0.4rem;
+  padding: 0.5rem 1rem;
+  transition: opacity 0.3s;
+}
+.btn-next:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* -------------------------------
+   ⚠️ Alertas
+---------------------------------- */
+.alert-custom {
+  background-color: #4c1d1d;
+  color: #f8d7da;
+  border: 1px solid #f5c2c7;
+  margin-bottom: 1.5rem;
+}
+.alert-warning {
+  background-color: #ffd966;
+  color: #664d03;
+  border: 1px solid #ffeb3b;
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+}
+
+/* -------------------------------
+   🔍 Dropdown de búsqueda
+---------------------------------- */
+.dropdown-search {
+  position: absolute;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  background: #000;
+  border: 1px solid #444;
+  z-index: 1000;
+  display: none;
+}
+.dropdown-search .item {
+  padding: 0.5rem 0.75rem;
+  color: #f1f1f1;
+  cursor: pointer;
+}
+.dropdown-search .item:hover {
+  background: #333;
+}
+.dropdown-search .hl {
+  background: #ffd54f;
+  color: #000;
+}
+
+/* -------------------------------
+   ❌ Sin coincidencias
+---------------------------------- */
+#noMatchMsg {
+  color: #dc3545;
+  font-size: 0.875rem;
+  display: none;
+  margin-top: 0.25rem;
+}
+
+/* -------------------------------
+   🛠️ Consola interna (debug)
+---------------------------------- */
+.debug-box {
+  background: #102735;
+  color: #a7d3e9;
+  font-family: monospace;
+  font-size: 0.85rem;
+  padding: 1rem;
+  max-width: 1000px;
+  margin: 2rem auto 0;
+  white-space: pre-wrap;
+  height: 160px;
+  overflow-y: auto;
+  border-top: 1px solid #2e5b78;
+  border-radius: 6px;
+}
+
+/* -------------------------------
+   📱 Responsive
+---------------------------------- */
+@media (max-width: 768px) {
+  .btn-cat,
+  .btn-mat {
+    width: 100%;
   }
-});
-</script>
-</body></html>
+}
+  </style>
+</head>
+<body>
+
+  <div class="wizard-body">
+    <h2>Paso 4 – Elegí la madera compatible</h2>
+
+    <!-- Si no se encontró ninguna madera compatible, mostrar alerta -->
+    <?php if (empty($data)): ?>
+      <div class="alert-warning">
+        No se encontraron maderas compatibles para esta fresa.
+      </div>
+    <?php endif; ?>
+
+    <!-- Mostrar errores si existen -->
+    <?php if (!empty($errors)): ?>
+      <div class="alert alert-custom">
+        <ul class="mb-0">
+          <?php foreach ($errors as $e): ?>
+            <li><?= htmlspecialchars($e, ENT_QUOTES) ?></li>
+          <?php endforeach; ?>
+        </ul>
+      </div>
+    <?php endif; ?>
+
+    <form method="post" id="formWood" novalidate>
+      <!-- Campo oculto “step” y CSRF -->
+      <input type="hidden" name="step" value="4">
+      <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>">
+
+      <!-- 1) Buscador / Autocompletado -->
+      <div class="mb-3 position-relative">
+        <label for="matSearch" class="form-label">Buscar (2+ letras)</label>
+        <input
+          id="matSearch"
+          class="form-control"
+          autocomplete="off"
+          placeholder="Ej.: MDF, Blanda…"
+          <?= empty($data) ? 'disabled' : '' ?>
+        >
+        <div id="noMatchMsg">Material no encontrado</div>
+        <div id="searchDropdown" class="dropdown-search"></div>
+      </div>
+
+      <!-- 2) Categorías de madera -->
+      <h5>Categoría</h5>
+      <div id="catRow" class="d-flex flex-wrap mb-3">
+        <?php foreach ($cats as $cid => $c): ?>
+          <button type="button"
+                  class="btn btn-outline-primary btn-cat"
+                  data-cid="<?= $cid ?>"
+                  <?= empty($data) ? 'disabled' : '' ?>>
+            <?= htmlspecialchars($c['name'], ENT_QUOTES) ?>
+          </button>
+        <?php endforeach; ?>
+      </div>
+
+      <!-- 3) Botones de materiales (aparecen al elegir categoría) -->
+      <div id="matBox" style="display:none" class="mb-3">
+        <h5>Madera</h5>
+        <div id="matCol"></div>
+      </div>
+
+      <!-- 4) Espesor (mm) -->
+      <div id="thickGroup" class="mb-3" style="display:none">
+        <label for="thick" class="form-label">Espesor (mm)</label>
+        <input
+          type="number"
+          step="0.1"
+          min="0.1"
+          id="thick"
+          name="thickness"
+          class="form-control"
+          required
+          <?= $hasPrevThick ? "value=\"" . htmlspecialchars((string)$prevThick, ENT_QUOTES) . "\"" : "" ?>
+        >
+      </div>
+
+      <!-- 5) Botones “Volver” y “Siguiente” -->
+      <div class="d-flex align-items-center">
+        <a href="step3.php" class="btn btn-back">
+          ← Volver al Paso 3
+        </a>
+        <button type="submit"
+                class="btn btn-next ms-auto"
+                id="btnNext"
+                <?= (empty($data) || !($hasPrevMat && $hasPrevThick)) ? 'disabled' : '' ?>>
+          Siguiente → Paso 5
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Caja opcional de debugging -->
+  <pre id="debug" class="debug-box"></pre>
+
+  <script>
+  /*────────────────────────────────────────────────────────────────────
+    normalizeText(str):
+      – Quita tildes, convierte a minúsculas.
+      – Permite búsquedas insensibles a tildes y mayúsculas.
+  ────────────────────────────────────────────────────────────────────*/
+  function normalizeText(str) {
+    return str.normalize('NFD')
+              .replace(/[\u0300-\u036f]/g, '')
+              .toLowerCase();
+  }
+
+  /*────────────────────────────────────────────────────────────────────
+    Pasar datos PHP → JS
+  ────────────────────────────────────────────────────────────────────*/
+  const cats    = <?= json_encode($cats, JSON_UNESCAPED_UNICODE) ?>;
+  const flat    = <?= json_encode($flat, JSON_UNESCAPED_UNICODE) ?>;
+  const matCol  = document.getElementById('matCol');
+  const matBox  = document.getElementById('matBox');
+  const thickIn = document.getElementById('thick');
+  const nextBtn = document.getElementById('btnNext');
+  const search  = document.getElementById('matSearch');
+  const noMatch = document.getElementById('noMatchMsg');
+  const dropdown = document.getElementById('searchDropdown');
+
+  /*────────────────────────────────────────────────────────────────────
+    Mapa material_id → parent_id (para búsquedas rápidas)
+  ────────────────────────────────────────────────────────────────────*/
+  const matToPid = {};
+  Object.entries(cats).forEach(([pid, info]) => {
+    info.mats.forEach(m => {
+      matToPid[m.id] = pid;
+    });
+  });
+
+  /*────────────────────────────────────────────────────────────────────
+    Functions auxiliares
+  ────────────────────────────────────────────────────────────────────*/
+  function resetMat() {
+    matCol.innerHTML = '';
+    matBox.style.display = 'none';
+    hiddenMat.value = '';
+    thickIn.value = '';
+    thickIn.parentNode.style.display = 'none';
+    nextBtn.disabled = true;
+    search.classList.remove('is-invalid');
+    noMatch.style.display = 'none';
+    hideDropdown();
+  }
+
+  function validateNext() {
+    const matOk   = hiddenMat.value !== '';
+    const thickOk = parseFloat(thickIn.value) > 0;
+    nextBtn.disabled = !(matOk && thickOk);
+  }
+
+  function noMatchMsg(state) {
+    search.classList.toggle('is-invalid', state);
+    noMatch.style.display = state ? 'block' : 'none';
+  }
+
+  function hideDropdown() {
+    dropdown.style.display = 'none';
+    dropdown.innerHTML = '';
+  }
+
+  function showDropdown(matches) {
+    dropdown.innerHTML = '';
+    matches.forEach(m => {
+      // Resaltar coincidencia parcial
+      const rawText   = m.name;
+      const termNorm  = normalizeText(search.value.trim());
+      const rawNorm   = normalizeText(rawText);
+      let highlighted = rawText;
+      const idxNorm = rawNorm.indexOf(termNorm);
+      if (idxNorm !== -1) {
+        let idxOrigStart = 0;
+        let accumulator = '';
+        for (let i = 0; i < rawText.length; i++) {
+          accumulator += normalizeText(rawText[i]);
+          if (accumulator.endsWith(termNorm)) {
+            idxOrigStart = i + 1 - termNorm.length;
+            break;
+          }
+        }
+        const before = rawText.slice(0, idxOrigStart);
+        const match  = rawText.slice(idxOrigStart, idxOrigStart + termNorm.length);
+        const after  = rawText.slice(idxOrigStart + termNorm.length);
+        highlighted = `${before}<span class="hl">${match}</span>${after}`;
+      }
+      // Crear <div class="item">
+      const item = document.createElement('div');
+      item.className = 'item';
+      item.innerHTML = highlighted;
+      item.dataset.mid = m.id;
+      item.onclick = () => {
+        const pid = matToPid[m.id];
+        const catBtn = document.querySelector(`.btn-cat[data-cid='${pid}']`);
+        if (catBtn) catBtn.click();
+        setTimeout(() => {
+          const matBtn = document.querySelector(`.btn-mat[data-mid='${m.id}']`);
+          if (matBtn) matBtn.click();
+        }, 0);
+        hideDropdown();
+      };
+      dropdown.appendChild(item);
+    });
+    dropdown.style.display = matches.length ? 'block' : 'none';
+  }
+
+  function attemptExactMatch() {
+    const val = search.value.trim();
+    if (val.length < 2) return;
+    const exact = flat.find(x => normalizeText(x.name) === normalizeText(val));
+    if (!exact) return;
+    const pid = matToPid[exact.id];
+    const catBtn = document.querySelector(`.btn-cat[data-cid='${pid}']`);
+    if (catBtn) catBtn.click();
+    setTimeout(() => {
+      const matBtn = document.querySelector(`.btn-mat[data-mid='${exact.id}']`);
+      if (matBtn) matBtn.click();
+    }, 0);
+    hideDropdown();
+  }
+
+  // 1) Crear input hidden para material_id
+  const hiddenMat = document.createElement('input');
+  hiddenMat.type  = 'hidden';
+  hiddenMat.name  = 'material_id';
+  hiddenMat.id    = 'material_id';
+  document.getElementById('formWood').appendChild(hiddenMat);
+
+  /*────────────────────────────────────────────────────────────────────
+    2) Al hacer clic en cada botón de categoría:
+  ────────────────────────────────────────────────────────────────────*/
+  document.querySelectorAll('.btn-cat').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('.btn-cat').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const cid = parseInt(btn.dataset.cid, 10);
+      resetMat();
+
+      (cats[cid].mats || []).forEach(m => {
+        const b = document.createElement('button');
+        b.type      = 'button';
+        b.className = 'btn btn-outline-secondary btn-mat';
+        b.textContent = m.name;
+        b.dataset.mid = m.id;
+        b.onclick = () => {
+          document.querySelectorAll('.btn-mat').forEach(x => x.classList.remove('active'));
+          b.classList.add('active');
+          hiddenMat.value = m.id;
+          search.value = m.name;
+          noMatchMsg(false);
+          thickIn.parentNode.style.display = 'block';
+          validateNext();
+          hideDropdown();
+        };
+        matCol.appendChild(b);
+      });
+
+      matBox.style.display = 'block';
+      hideDropdown();
+    };
+  });
+
+  /*────────────────────────────────────────────────────────────────────
+    3) “input” en el campo de búsqueda
+  ────────────────────────────────────────────────────────────────────*/
+  search.addEventListener('input', e => {
+    const val = e.target.value.trim();
+    if (val.length < 2) {
+      noMatchMsg(false);
+      hideDropdown();
+      return;
+    }
+    const normTerm = normalizeText(val);
+    const matches  = flat.filter(m => normalizeText(m.name).includes(normTerm));
+    if (matches.length === 0) {
+      resetMat();
+      noMatchMsg(true);
+      return;
+    }
+    noMatchMsg(false);
+    showDropdown(matches);
+  });
+
+  /*────────────────────────────────────────────────────────────────────
+    4) “Enter” o “blur” en el campo de búsqueda (coincidencia exacta)
+  ────────────────────────────────────────────────────────────────────*/
+  search.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      attemptExactMatch();
+    }
+  });
+  search.addEventListener('blur', () => {
+    setTimeout(attemptExactMatch, 0);
+  });
+
+  /*────────────────────────────────────────────────────────────────────
+    5) “input” en el campo de espesor activa validateNext()
+  ────────────────────────────────────────────────────────────────────*/
+  thickIn.addEventListener('input', validateNext);
+
+  /*────────────────────────────────────────────────────────────────────
+    6) Validación final on-submit
+  ────────────────────────────────────────────────────────────────────*/
+  document.getElementById('formWood').addEventListener('submit', e => {
+    if (!hiddenMat.value || !(parseFloat(thickIn.value) > 0)) {
+      e.preventDefault();
+      alert('Debés elegir un material válido y un espesor mayor a 0 antes de continuar.');
+    }
+  });
+  </script>
+</body>
+</html>
