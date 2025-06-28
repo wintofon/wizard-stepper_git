@@ -277,6 +277,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
+/* Scroll suave a un elemento (si existe) */
+const smoothTo = el => { if(el) el.scrollIntoView({behavior:'smooth', block:'start'}); };
 /* PHP → JS */
 const grouped = <?= json_encode($grouped, JSON_UNESCAPED_UNICODE) ?>;
 
@@ -304,10 +306,11 @@ machRow.querySelectorAll('.btn-machining').forEach(b=>{
       sb.type='button'; sb.className='btn btn-outline-secondary btn-strategy me-2 mb-2';
       sb.dataset.id=e.id; sb.textContent=e.name;
       sb.onclick=()=>{stratBtns.querySelectorAll('.btn-strategy').forEach(x=>x.classList.remove('active'));
-                      sb.classList.add('active'); inputSt.value=e.id; nextBox.style.display='block';};
+                      sb.classList.add('active'); inputSt.value=e.id; nextBox.style.display='block'; smoothTo(nextBox);};
       stratBtns.appendChild(sb);
     });
     stratBox.style.display='block';
+    smoothTo(stratBox);
   });
 });
 

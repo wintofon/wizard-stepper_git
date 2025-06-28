@@ -281,6 +281,8 @@ $hasPrev   = is_int($prevType) && array_key_exists((int)$prevType, $types)
 <script src="https://cdn.jsdelivr.net/npm/feather-icons@4/dist/feather.min.js"></script>
 
 <script>
+/* Scroll suave a un elemento (si existe) */
+const smoothTo = el => { if (el) el.scrollIntoView({behavior:'smooth', block:'start'}); };
 /* PHP → JS */
 const types  = <?= json_encode($types, JSON_UNESCAPED_UNICODE); ?>;
 const lists  = <?= json_encode($lists, JSON_UNESCAPED_UNICODE); ?>;
@@ -315,10 +317,12 @@ const renderStrategies = tid => {
       b.classList.add('active');
       inStrat.value = s.id;
       nextBox.style.display = 'block';
+      smoothTo(nextBox);
     };
     stratBtns.appendChild(b);
   });
   stratBox.style.display = 'block';
+  smoothTo(stratBox);
 };
 
 /* Click en tipo de mecanizado */
