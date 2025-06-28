@@ -1,14 +1,17 @@
 /* =======================================================================
  * assets/js/step6.js · PASO 6 — Wizard CNC
  * -----------------------------------------------------------------------
- *  ▸ Calcula/valida parámetros de corte 100 % en cliente.
- *  ▸ Slider Vc se mueve −50 %/ +50 % alrededor del valor base.
- *  ▸ Slider «Pasadas» ajusta su límite máximo según espesor del material
- *    y muestra info dinámica.
- *  ▸ Consola súper‑silenciosa – solo log cuando cambia el snapshot.
- *  ▸ Cualquier error fatal se refleja en la UI.
+ *  ▸ Cálculo y validación 100 % en cliente (sin AJAX).
+ *  ▸ Slider Vc oscila entre −50 % y +50 % del valor base *pero* nunca
+ *    sobrepasa las RPM mín / máx declaradas por la máquina.
+ *  ▸ Slider «Pasadas» (ap) se recalcula cada vez que cambia el ancho ae;
+ *    máx = ceil(thickness / ae).  Muestra info dinámica.
+ *  ▸ Consola silenciosa: solo emite log si el *snapshot* cambia.
+ *  ▸ Radar Chart a 3 ejes — Vida Útil · Potencia · Terminación.
+ *      – ↑ fz ⇒ ↑ Vida Útil  &  ↑ Potencia  &  ↓ Terminación.
+ *  ▸ Errores fatales ➜ se avisan en la UI.
  *
- *  @version   4.1.0  2025‑06‑27
+ *  @version   4.3.0  2025‑06‑27
  * =====================================================================*/
 
 /* global Chart, window */
@@ -29,8 +32,8 @@
   /* ───────────────────────── HELPERS ─────────────────────── */
   const $     = (sel, ctx = document) => ctx.querySelector(sel);
   const fmt   = (n, d = 1) => Number.parseFloat(n).toFixed(d);
-  const diff  = (a = {}, b = {}) => [...new Set([...Object.keys(a), ...Object.keys(b)])]
-      .some(k => a[k] !== b[k]);
+  const diff  = (a = {}, b = {}) =>
+    [...new Set([...Object.keys(a), ...Object.keys(b)])].some(k => a[k] !== b[k]);
 
   const fatal = msg => {
     const box = $('#errorMsg');
@@ -42,7 +45,11 @@
   const P = window.step6Params;
   if (!P || Object.keys(P).length === 0) return fatal('step6Params vacío');
 
-  const NEED = ['diameter','flute_count','rpm_min','rpm_max','fr_max','coef_seg','Kc11','mc','eta','fz0','vc0','thickness'];
+  const NEED = [
+    'diameter','flute_count','rpm_min','rpm_max','fr_max',
+    'coef_seg','Kc11','mc','eta','fz0','vc0','thickness',
+    'fz_min0','fz_max0','hp_avail'
+  ];
   const miss = NEED.filter(k => P[k] === undefined);
   if (miss.length) return fatal('Faltan claves: ' + miss.join(', '));
 
@@ -55,29 +62,37 @@
     fr_max:      FR_MAX,
     coef_seg:    K_SEG,
     Kc11:        KC,
-    mc, eta,
+    mc,
+    eta,
     alpha:       ALPHA = 0,
     fz0:         FZ0,
     vc0:         VC0,
     thickness:   THK,
-    hp_avail:    HP_AVAIL = 1
+    hp_avail:    HP_AVAIL,
+    fz_min0:     FZ_MIN,
+    fz_max0:     FZ_MAX
   } = P;
 
   /* ───────────────────────── STATE ───────────────────────── */
   const state = {
-    fz:   +FZ0,
-    vc:   +VC0,
-    ae:   D * 0.5,
-    ap:   1,
+    fz: +FZ0,
+    vc: +VC0,
+    ae: D * 0.5,
+    ap: 1,
     last: {}
   };
 
   /* ───────────────────── DOM REFERENCES ─────────────────── */
-  const SL = { fz:$('#sliderFz'), vc:$('#sliderVc'), ae:$('#sliderAe'), pass:$('#sliderPasadas') };
+  const SL = {
+    fz:   $('#sliderFz'),
+    vc:   $('#sliderVc'),
+    ae:   $('#sliderAe'),
+    pass: $('#sliderPasadas')
+  };
   const OUT = {
-    vc:$('#outVc'), fz:$('#outFz'), hm:$('#outHm'), n:$('#outN'), vf:$('#outVf'),
-    hp:$('#outHp'), mmr:$('#valueMrr'), fc:$('#valueFc'), w:$('#valueW'), eta:$('#valueEta'),
-    ae:$('#outAe'), ap:$('#outAp')
+    vc: $('#outVc'), fz: $('#outFz'), hm: $('#outHm'), n: $('#outN'), vf: $('#outVf'),
+    hp: $('#outHp'), mmr: $('#valueMrr'), fc: $('#valueFc'), w: $('#valueW'), eta: $('#valueEta'),
+    ae: $('#outAe'), ap: $('#outAp')
   };
   const infoPass = $('#textPasadasInfo');
 
@@ -96,22 +111,18 @@
   const makeRadar = () => {
     const c = $('#radarChart')?.getContext('2d');
     if (!c || !window.Chart) return;
-    radar = new Chart(c,{type:'radar',data:{labels:['MMR','Fc','W','Hp','η'],datasets:[{data:[0,0,0,0,0],fill:true,borderWidth:2}]},options:{scales:{r:{min:0,max:1}},plugins:{legend:{display:false}}}});
+    radar = new Chart(c,{type:'radar',data:{labels:['Vida Útil','Potencia','Terminación'],datasets:[{data:[0,0,0],fill:true,borderWidth:2}]},options:{scales:{r:{min:0,max:100,ticks:{stepSize:20}}},plugins:{legend:{display:false}}}});
   };
 
   /* ─────────────────────── RENDER ───────────────────────── */
-  const render = data => {
-    if (!diff(state.last, data)) return; // no cambió nada
-    for (const k in data) {
+  const render = snap => {
+    if (!diff(state.last, snap)) return; // no hubo cambios
+    for (const k in snap) {
       const el = OUT[k]; if (!el) continue;
-      const v = data[k]; el.textContent = (typeof v === 'number') ? fmt(v, v%1?2:0) : v;
+      const v = snap[k]; el.textContent = (typeof v === 'number') ? fmt(v, v%1?2:0) : v;
     }
-    if (radar) {
-      const [mmrV,fcV,wV,hpV,etaV] = [data.mmr,data.fc,data.w,data.hp,data.eta];
-      radar.data.datasets[0].data = [Math.min(1,mmrV/1e5),Math.min(1,fcV/1e4),Math.min(1,wV/3000),Math.min(1,hpV/HP_AVAIL),Math.min(1,etaV/100)];
-      radar.update();
-    }
-    state.last = data; log('render', data);
+    if (radar) { radar.data.datasets[0].data = [snap.life,snap.power,snap.finish]; radar.update(); }
+    state.last = snap; log('render', snap);
   };
 
   /* ────────────────────── CALCULO LOCAL ─────────────────── */
@@ -123,22 +134,34 @@
     const mmrV = mmr(ap,vf,state.ae);
     const fcV  = Fct(hmV,ap,state.fz);
     const kWv  = kW(fcV,state.vc);
-    render({vc:state.vc,fz:state.fz,hm:hmV,n:N|0,vf:vf|0,hp:HP(kWv),mmr:mmrV,fc:fcV|0,w:kWv*1000|0,eta:Math.min(100,(HP(kWv)/HP_AVAIL)*100)|0,ae:state.ae,ap});
+    const hpV  = HP(kWv);
+
+    /* Radar axes (0‑100 %) */
+    const lifePct   = Math.min(100, Math.max(0, ((state.fz - FZ_MIN) / (FZ_MAX - FZ_MIN)) * 100));
+    const powerPct  = Math.min(100, (hpV / HP_AVAIL) * 100);
+    const finishPct = Math.max(0, 100 - lifePct);
+
+    render({
+      vc:state.vc, fz:state.fz, hm:hmV, n:N|0, vf:vf|0, hp:hpV, mmr:mmrV, fc:fcV|0,
+      w:kWv*1000|0, eta:Math.min(100,(hpV/HP_AVAIL)*100)|0, ae:state.ae, ap,
+      life:lifePct, power:powerPct, finish:finishPct
+    });
   };
 
-  /* ───────────── SLIDER UI HELPER (con burbuja) ─────────── */
+  /* ───────────── SLIDER UI HELPER (burbuja) ────────────── */
   const prettify = (slider, dec=3) => {
     if (!slider) return;
     const wrap = slider.closest('.slider-wrap');
     const bub  = wrap?.querySelector('.slider-bubble');
     const min  = +slider.min; const max = +slider.max;
     const show = v => { wrap?.style.setProperty('--val', ((v-min)/(max-min))*100); if(bub) bub.textContent = fmt(v,dec); };
-    show(+slider.value); slider.addEventListener('input', e=>{ show(+e.target.value); onInput(); });
+    show(+slider.value);
+    slider.addEventListener('input', e=>{ show(+e.target.value); onInput(); });
   };
 
   /* ──────────────── ACTUALIZAR PASADAS ──────────────── */
   const syncPassSlider = () => {
-    const maxP = Math.max(1, Math.ceil(THK)); // máx = 1 pasada/mm (simple)
+    const maxP = Math.max(1, Math.ceil(THK / state.ae));
     SL.pass.max = maxP; SL.pass.min = 1; SL.pass.step = 1;
     if (+SL.pass.value > maxP) SL.pass.value = maxP;
     state.ap = +SL.pass.value;
@@ -156,14 +179,16 @@
 
   /* ─────────────────────────── INIT ────────────────────── */
   try {
-    /* Vc slider ±50 % del valor base */
-    const vcMin = VC0 * 0.5;
-    const vcMax = VC0 * 1.5;
-    SL.vc.min = vcMin.toFixed(1);
-    SL.vc.max = vcMax.toFixed(1);
+    /* Vc slider límites: ±50 % del VC0 + respeta RPM min/max */
+    const vcFromRPMmin = (RPM_MIN * Math.PI * D)/1000;
+    const vcFromRPMmax = (RPM_MAX * Math.PI * D)/1000;
+    const vcMin = Math.max(VC0*0.5, vcFromRPMmin);
+    const vcMax = Math.min(VC0*1.5, vcFromRPMmax);
+    SL.vc.min = fmt(vcMin,1);
+    SL.vc.max = fmt(vcMax,1);
     SL.vc.value = fmt(state.vc,1);
 
-    /* Pasadas slider base */
+    /* Pasadas slider arranca en 1 */
     SL.pass.value = 1;
 
     /* Embellecer sliders & listeners */
