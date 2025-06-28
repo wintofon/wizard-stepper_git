@@ -322,6 +322,9 @@ dbg('children', $children);
   const noMatch  = document.getElementById('no-match-msg');
   const dropdown = document.getElementById('searchDropdown');
 
+  /* Scroll suave a un elemento (si existe) */
+  function smoothTo(el){ if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }
+
   //────────────────────────────────────────────────────────────────────
   // Mapa material_id → parent_id
   const matToPid = {};
@@ -345,11 +348,9 @@ dbg('children', $children);
   }
 
   function validate() {
-    if (matInp.value && parseFloat(thick.value) > 0) {
-      nextContainer.style.display = 'block';
-    } else {
-      nextContainer.style.display = 'none';
-    }
+    const ok = matInp.value && parseFloat(thick.value) > 0;
+    nextContainer.style.display = ok ? 'block' : 'none';
+    if (ok) smoothTo(nextContainer);
   }
 
   function noMatchMsg(state) {
@@ -444,11 +445,13 @@ dbg('children', $children);
           thickGrp.style.display = 'block';
           validate();
           hideDropdown();
+          smoothTo(thickGrp);
         };
         matCol.appendChild(b);
       });
 
       matBox.style.display = 'block';
+      smoothTo(matBox);
       hideDropdown();
     };
   });

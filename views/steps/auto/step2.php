@@ -293,6 +293,9 @@ const inType    = document.getElementById('machining_type_id');
 const inStrat   = document.getElementById('strategy_id');
 const nextBox   = document.getElementById('nextContainer');
 
+/* Scroll suave a un elemento (si existe) */
+function smoothTo(el){ if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }
+
 /* Reset estrategias */
 const resetStrategies = () => {
   stratBtns.innerHTML = '';
@@ -315,10 +318,12 @@ const renderStrategies = tid => {
       b.classList.add('active');
       inStrat.value = s.id;
       nextBox.style.display = 'block';
+      smoothTo(nextBox);
     };
     stratBtns.appendChild(b);
   });
   stratBox.style.display = 'block';
+  smoothTo(stratBox);
 };
 
 /* Click en tipo de mecanizado */

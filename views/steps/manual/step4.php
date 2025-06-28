@@ -248,6 +248,9 @@ const search=document.getElementById('matSearch');
 const noMatch=document.getElementById('no-match-msg');
 const dropdown=document.getElementById('searchDropdown');
 
+/* Scroll suave a un elemento (si existe) */
+function smoothTo(el){ if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }
+
 const matToPid={};
 Object.entries(children).forEach(([pid,list])=>list.forEach(m=>matToPid[m.id]=pid));
 
@@ -256,7 +259,11 @@ function resetMat(){
   matInp.value='';thick.value='';thickGrp.style.display='none';
   nextCont.style.display='none';search.classList.remove('is-invalid');noMatch.style.display='none';
 }
-function validate(){ nextCont.style.display=(matInp.value && parseFloat(thick.value)>0)?'block':'none';}
+function validate(){
+  const ok = matInp.value && parseFloat(thick.value)>0;
+  nextCont.style.display = ok?'block':'none';
+  if(ok) smoothTo(nextCont);
+}
 function noMatchMsg(st){search.classList.toggle('is-invalid',st);noMatch.style.display=st?'block':'none';}
 function hideDD(){dropdown.style.display='none';dropdown.innerHTML='';}
 function showDropdown(list){
@@ -291,11 +298,15 @@ document.querySelectorAll('.btn-cat').forEach(btn=>{
         document.querySelectorAll('.btn-mat').forEach(x=>x.classList.remove('active'));
         b.classList.add('active');
         matInp.value=m.id;search.value=m.name;noMatchMsg(false);
-        thickGrp.style.display='block';validate();hideDD();
+        thickGrp.style.display='block';
+        validate();
+        hideDD();
+        smoothTo(thickGrp);
       });
       matCol.appendChild(b);
     });
     matBox.style.display='block';
+    smoothTo(matBox);
   });
 });
 
