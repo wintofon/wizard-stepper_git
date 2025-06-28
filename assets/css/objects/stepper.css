@@ -7,8 +7,9 @@ cooregime solo eso y damelo entero
  * TODO: Extend documentation.
  */
 .stepper-header {
-  /* fixed to remain visible at the very top */
-  position: fixed;
+  /* sticky so it remains visible at the top on any scroll context */
+  position: sticky;
+  position: -webkit-sticky;
   z-index: 1050;
   top: 0;
   left: 0;
