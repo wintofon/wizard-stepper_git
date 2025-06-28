@@ -1,251 +1,237 @@
-/* ========================================================================
- *  assets/js/step6.js · PASO 6 — Wizard CNC  ·  v4.4.0  2025-06-28
- * ------------------------------------------------------------------------
- *  ◉ 100 % cálculo en cliente, sin AJAX.
- *  ◉ Slider Vc oscila ±50 % de Vc₀ **pero** nunca sobrepasa RPM min/max.
- *  ◉ Slider «Pasadas» se recalcula al mover el ancho ae.
- *  ◉ Consola solo loguea cuando el *snapshot* cambia.
- *  ◉ Radar Chart (3 ejes) = Vida Útil · Potencia · Terminación.
- *      – ↑ fz ⇒ ↑ Vida Útil  &  ↑ Potencia  &  ↓ Terminación.
- *  ◉ Debug opcional súper detallado en el cálculo de FcT.
- * ======================================================================*/
+/* =======================================================================
+ *  assets/js/step6.js · PASO 6 — Wizard CNC  ·  v4 · 2025-06-28
+ * -----------------------------------------------------------------------
+ *  ▸ 100 % cálculo local (sin llamadas AJAX).
+ *  ▸ Sliders “fz” y “Vc” respetan **todas** las restricciones:
+ *        – Vc ± 50 % sobre el valor base,
+ *        – pero nunca por fuera de RPM min / RPM max ni Feedrate max.
+ *  ▸ El slider “Pasadas” (ap) se reajusta cada vez que cambia el ancho ae:
+ *        max = ceil( thickness / ae ).
+ *  ▸ Consola “silenciosa”: sólo emite log cuando el *snapshot* cambió.
+ *  ▸ Radar Chart (3 ejes)
+ *        1️⃣ Vida útil ↑ con hₘ bajo
+ *        2️⃣ Consumo de potencia proporcional a HP
+ *        3️⃣ Terminación inversamente proporcional a Vida útil
+ *  ▸ Implementa **modelo de Kienzle** corregido:
+ *        FcT = Kc11 · hₘ^(–mc) · ap · Z · (1+coef·tan α)
+ *        P   = ( Kc11·hₘ^(–mc) · ap · ae · Vf ) / 60 000   [kW]
+ * =====================================================================*/
 
 /* global Chart, window */
 
 (() => {
   'use strict';
 
-/* ────────────────────────────── DEBUG ────────────────────────────── */
+  /* ───────────────────────── DEBUG ───────────────────────── */
   const DEBUG = window.DEBUG ?? false;
   const TAG   = '[Step-6]';
-  const ts    = () => new Date().toISOString();
-  const say   = (lvl, ...m) => { if (DEBUG) console[lvl](`${TAG} ${ts()}`, ...m); };
+  const stamp = () => new Date().toISOString();
+  const say   = (lvl, ...m) => { if (DEBUG) console[lvl](`${TAG} ${stamp()}`, ...m); };
   const log   = (...m) => say('log',   ...m);
   const warn  = (...m) => say('warn',  ...m);
   const error = (...m) => say('error', ...m);
-  const table = data  => { if (DEBUG) console.table(data); };
+  const table = d => { if (DEBUG) console.table(d); };
 
-/* ───────────────────────────── HELPERS ───────────────────────────── */
+  /* ───────────────────────── HELPERS ─────────────────────── */
   const $   = (sel, ctx = document) => ctx.querySelector(sel);
-  const fx  = (n, d = 1) => Number.parseFloat(n).toFixed(d);
+  const fmt = (n, d = 1) => Number.parseFloat(n).toFixed(d);
   const diff = (a = {}, b = {}) =>
     [...new Set([...Object.keys(a), ...Object.keys(b)])].some(k => a[k] !== b[k]);
 
   const fatal = msg => {
     const box = $('#errorMsg');
     if (box) { box.style.display = 'block'; box.textContent = msg; }
-    else     { window.alert?.(msg); }
+    else window.alert?.(msg);
   };
 
-/* ────────────────── PARÁMETROS INYECTADOS POR PHP ───────────────── */
+  /* ─────────────── PARAMS INYECTADOS DESDE PHP ───────────── */
   const P = window.step6Params;
-  if (!P || Object.keys(P).length === 0) { fatal('step6Params vacío'); return; }
+  if (!P || Object.keys(P).length === 0) return fatal('step6Params vacío');
 
-  const REQ = [
+  const NEED = [
     'diameter','flute_count','rpm_min','rpm_max','fr_max',
     'coef_seg','Kc11','mc','eta','fz0','vc0','thickness',
     'fz_min0','fz_max0','hp_avail'
   ];
-  const miss = REQ.filter(k => P[k] === undefined);
-  if (miss.length) { fatal('Faltan claves: ' + miss.join(', ')); return; }
+  const miss = NEED.filter(k => P[k] === undefined);
+  if (miss.length) return fatal('Faltan claves: ' + miss.join(', '));
 
-/* ──────────────────────── DESTRUCTURACIÓN ───────────────────────── */
+  /* ────────────── DESTRUCTURACIÓN CON DEFAULTS ───────────── */
   const {
-    diameter    : D,
-    flute_count : Z,
-    rpm_min     : RPM_MIN,
-    rpm_max     : RPM_MAX,
-    fr_max      : FR_MAX,
-    coef_seg    : K_SEG,
-    Kc11        : KC,
-    mc,
-    eta,
-    alpha       : ALPHA = 0,
-    fz0         : FZ0,
-    vc0         : VC0,
-    thickness   : THK,
-    hp_avail    : HP_AVAIL,
-    fz_min0     : FZ_MIN,
-    fz_max0     : FZ_MAX
+    diameter: D,                  // mm
+    flute_count: Z,               // filos
+    rpm_min: RPM_MIN,
+    rpm_max: RPM_MAX,
+    fr_max: FR_MAX,               // mm/min
+    coef_seg: K_SEG,
+    Kc11: KC,                     // N/mm²
+    mc,                           // exponente
+    eta,                          // eficiencia (1→100 %)
+    alpha: ALPHA = 0,             // rad
+    fz0:  FZ0,
+    vc0:  VC0,
+    thickness: THK,               // mm
+    hp_avail: HP_AVAIL,           // HP máquina
+    fz_min0: FZ_MIN,
+    fz_max0: FZ_MAX
   } = P;
 
-/* ─────────────────────────── STATE ──────────────────────────────── */
+  /* ─────────────────────── STATE ────────────────────────── */
   const state = {
-    fz   : +FZ0,
-    vc   : +VC0,
-    ae   : D * 0.5,
-    ap   : 1,
-    last : {}       // último snapshot renderizado
+    fz: +FZ0,
+    vc: +VC0,
+    ae: D * 0.5,   // 50 % diámetro
+    ap: 1,         // nº de pasadas
+    last: {}       // último snapshot renderizado
   };
 
-/* ───────────────────── REFERENCIAS DOM ──────────────────────────── */
+  /* ───────────────────── DOM REFERENCES ─────────────────── */
   const SL = {
-    fz   : $('#sliderFz'),
-    vc   : $('#sliderVc'),
-    ae   : $('#sliderAe'),
-    pass : $('#sliderPasadas')
+    fz:   $('#sliderFz'),
+    vc:   $('#sliderVc'),
+    ae:   $('#sliderAe'),
+    pass: $('#sliderPasadas')
   };
   const OUT = {
-    vc : $('#outVc'),    fz : $('#outFz'),    hm : $('#outHm'),
-    n  : $('#outN'),     vf : $('#outVf'),    hp : $('#outHp'),
-    mmr: $('#valueMrr'), fc : $('#valueFc'),  w  : $('#valueW'),
-    eta: $('#valueEta'), ae : $('#outAe'),    ap : $('#outAp')
+    vc: $('#outVc'), fz: $('#outFz'), hm: $('#outHm'), n: $('#outN'),
+    vf: $('#outVf'), hp: $('#outHp'), mmr: $('#valueMrr'), fc: $('#valueFc'),
+    w: $('#valueW'), eta: $('#valueEta'), ae: $('#outAe'), ap: $('#outAp')
   };
   const infoPass = $('#textPasadasInfo');
 
-/* ─────────────────────── FORMULAS CNC ───────────────────────────── */
-  const rpm   = vc           => (vc * 1000) / (Math.PI * D);
-  const feed  = (n, fz)      => n * fz * Z;
-  const phi   = ae           => 2 * Math.asin(Math.min(1, ae / D));
-  const hm    = (fz, ae)     => { const p = phi(ae); return p ? fz * (1 - Math.cos(p)) / p : fz; };
-  const mmr   = (ap, vf, ae) => (ap * vf * ae) / 1000;
-  const kW    = (F, Vc)      => (F * Vc) / (60_000 * eta);
-  const HP    = kWval        => kWval * 1.341;
+  /* ───────────────────── FORMULAS BASE ──────────────────── */
+  const rpm      = vc          => (vc * 1000) / (Math.PI * D);                  // rev/min
+  const feed     = (n, fz)     => n * fz * Z;                                   // mm/min
+  const phi      = ae          => 2 * Math.asin(Math.min(1, ae / D));           // rad
+  const hm       = (fz, ae)    => { const p = phi(ae); return p ? fz * (1-Math.cos(p)) / p : fz; };
 
-  /* ——— Fuerza de Corte Total (Kienzle corregida) ——— */
-  const FcT = (hmv, ap, fz) => {
-    const Ac = ap * fz;                       // sección viruta por filo (mm²)
-    const Kc = KC * Math.pow(hmv, -mc);       // coef. específico instantáneo
-    const Fc_per_tooth = Kc * Ac;             // N
-    const geoFactor    = 1 + K_SEG * Math.tan(ALPHA);
-    const Fc_total     = Fc_per_tooth * Z * geoFactor;
-
-    if (DEBUG) {
-      console.groupCollapsed(`${TAG} FcT (fuerza total)`);
-      console.log('Kc11           =', KC, 'N/mm²');
-      console.log('h_m            =', fx(hmv,4), 'mm');
-      console.log('mc             =', mc);
-      console.log('Kc(h_m)        =', fx(Kc,2), 'N/mm²');
-      console.log('ap             =', fx(ap,3), 'mm');
-      console.log('fz             =', fx(fz,4), 'mm/diente');
-      console.log('Ac (ap·fz)     =', fx(Ac,4), 'mm²');
-      console.log('Z activos      =', Z);
-      console.log('coef_seg       =', K_SEG);
-      console.log('alpha (rad)    =', ALPHA);
-      console.log('factor geom    =', fx(geoFactor,3));
-      console.log('Fc / filo      =', fx(Fc_per_tooth,1), 'N');
-      console.log('FcT total      =', fx(Fc_total,1),     'N');
-      console.groupEnd();
-    }
-    return Fc_total;
+  /* Modelo Kienzle corregido */
+  const forceTangential = (hmv, apmm) => {
+    const Kc = KC * Math.pow(hmv, -mc);                 // N/mm²
+    const geom = 1 + K_SEG * Math.tan(ALPHA);           // factor geométrico
+    return Kc * apmm * Z * geom;                        // N
   };
 
-/* ─────────────────────── RADAR CHART ────────────────────────────── */
+  /* Potencia a partir de MRR */
+  const cuttingPowerKW = (ap, ae, vf, hmv) => {
+    const Kc = KC * Math.pow(hmv, -mc);
+    return (Kc * ap * ae * vf) / 60000;                 // kW
+  };
+
+  /* ────────────────────── RADAR CHART ───────────────────── */
   let radar;
-  const initRadar = () => {
+  const makeRadar = () => {
     const ctx = $('#radarChart')?.getContext('2d');
     if (!ctx || !window.Chart) return;
-    radar = new Chart(ctx, {
-      type   : 'radar',
-      data   : {
-        labels   : ['Vida Útil','Potencia','Terminación'],
-        datasets : [{ data:[0,0,0], fill:true, borderWidth:2 }]
-      },
-      options: {
-        scales : { r:{ min:0, max:100, ticks:{ stepSize:20 } } },
-        plugins: { legend:{ display:false } }
-      }
+    radar = new Chart(ctx,{
+      type:'radar',
+      data:{labels:['Vida Útil','Potencia','Terminación'],
+            datasets:[{data:[0,0,0],fill:true,borderWidth:2}]},
+      options:{scales:{r:{min:0,max:100,ticks:{stepSize:20}}},
+               plugins:{legend:{display:false}}}
     });
   };
 
-/* ───────────────────────── RENDER ───────────────────────────────── */
+  /* ─────────────────────── RENDER ───────────────────────── */
   const render = snap => {
-    if (!diff(state.last, snap)) return;        // no hay cambios
+    if (!diff(state.last, snap)) return;           // sin cambios → no log
     for (const k in snap) {
       const el = OUT[k]; if (!el) continue;
-      const v  = snap[k];
-      el.textContent = (typeof v === 'number') ? fx(v, v % 1 ? 2 : 0) : v;
+      const v = snap[k];
+      el.textContent = (typeof v === 'number') ? fmt(v, v % 1 ? 2 : 0) : v;
     }
-    if (radar) { radar.data.datasets[0].data = [snap.life, snap.power, snap.finish]; radar.update(); }
+    if (radar) {
+      radar.data.datasets[0].data = [snap.life, snap.power, snap.finish];
+      radar.update();
+    }
     state.last = snap;
+    log('render', snap);
   };
 
-/* ─────────────────────── RECÁLCULO ─────────────────────────────── */
+  /* ──────────────────── CÁLCULO PRINCIPAL ───────────────── */
   const recalc = () => {
     const N    = rpm(state.vc);
     const vf   = Math.min(feed(N, state.fz), FR_MAX);
-    const ap   = THK / state.ap;
+    const apmm = THK / state.ap;
     const hmV  = hm(state.fz, state.ae);
-    const mmrV = mmr(ap, vf, state.ae);
-    const fcV  = FcT(hmV, ap, state.fz);
-    const kWv  = kW(fcV, state.vc);
-    const hpV  = HP(kWv);
+    const mmrV = (apmm * vf * state.ae) / 1000;          // cm³/min
+    const FcT  = forceTangential(hmV, apmm);             // N
+    const kW   = cuttingPowerKW(apmm, state.ae, vf, hmV);
+    const hpV  = kW * 1.341;
 
-    /* Ejes radar (0-100 %) */
-    const lifePct   = Math.min(100, ((state.fz - FZ_MIN) / (FZ_MAX - FZ_MIN)) * 100);
-    const powerPct  = Math.min(100, (hpV / HP_AVAIL) * 100);
-    const finishPct = Math.max(0, 100 - lifePct);
+    /* ─── Radar: 0-100 % normalizado ─── */
+    const lifePct   = Math.min(100, (FZ_MAX - state.fz)  / (FZ_MAX - FZ_MIN) * 100);
+    const powerPct  = Math.min(100, (hpV    / HP_AVAIL)  * 100);
+    const finishPct = 100 - lifePct;                     // inverso a vida
 
     render({
-      vc:state.vc, fz:state.fz, hm:hmV, n:N|0, vf:vf|0, hp:hpV,
-      mmr:mmrV, fc:fcV|0, w:kWv*1000|0,
-      eta:Math.min(100, (hpV/HP_AVAIL)*100)|0,
-      ae:state.ae, ap,
-      life:lifePct, power:powerPct, finish:finishPct
+      vc: state.vc, fz: state.fz, hm: hmV, n: Math.round(N),
+      vf: Math.round(vf), hp: hpV, mmr: mmrV, fc: Math.round(FcT),
+      w:  Math.round(kW * 1000), eta: Math.round((hpV/HP_AVAIL)*100),
+      ae: state.ae, ap: apmm,
+      life: lifePct, power: powerPct, finish: finishPct
     });
   };
 
-/* ──────────────────── SLIDER VISUAL/BURBUJA ─────────────────────── */
-  const beautifySlider = (slider, dec = 3) => {
+  /* ─────── Embellece slider (burbuja y CSS var) ─────────── */
+  const prettify = (slider, decimals=3) => {
     if (!slider) return;
     const wrap = slider.closest('.slider-wrap');
     const bub  = wrap?.querySelector('.slider-bubble');
     const min  = +slider.min; const max = +slider.max;
-    const disp = v => {
-      wrap?.style.setProperty('--val', ((v - min) / (max - min)) * 100);
-      if (bub) bub.textContent = fx(v, dec);
+    const draw = v=>{
+      wrap?.style.setProperty('--val', ((v-min)/(max-min))*100);
+      if (bub) bub.textContent = fmt(v,decimals);
     };
-    disp(+slider.value);
-    slider.addEventListener('input', e => { disp(+e.target.value); onInput(); });
+    draw(+slider.value);
+    slider.addEventListener('input', e=>{ draw(+e.target.value); onInput(); });
   };
 
-/* ─────────────── SINCRONIZAR SLIDER PASADAS ─────────────────────── */
-  const syncPass = () => {
+  /* ──────── Slider Pasadas depende de ae ─────────── */
+  const syncPassSlider = () => {
     const maxP = Math.max(1, Math.ceil(THK / state.ae));
     SL.pass.max = maxP; SL.pass.min = 1; SL.pass.step = 1;
     if (+SL.pass.value > maxP) SL.pass.value = maxP;
     state.ap = +SL.pass.value;
-    if (infoPass)
-      infoPass.textContent = `${state.ap} pasada${state.ap > 1 ? 's' : ''} · ${(THK / state.ap).toFixed(2)} mm`;
+    if (infoPass) infoPass.textContent =
+      `${state.ap} pasada${state.ap>1?'s':''} de ${(THK/state.ap).toFixed(2)} mm`;
   };
 
-/* ────────────────────── INPUT HANDLER ───────────────────────────── */
+  /* ──────────── Handler común de sliders ─────────── */
   const onInput = () => {
     state.fz = +SL.fz.value;
     state.vc = +SL.vc.value;
     state.ae = +SL.ae.value;
-    syncPass();
+    syncPassSlider();
     recalc();
   };
 
-/* ─────────────────────────── INIT ───────────────────────────────── */
+  /* ───────────────────────── INIT ──────────────────────── */
   try {
-    /* ——— Slider Vc limitado por ±50 % y RPM min/max ——— */
+    /* ── Límites Vc: ±50 % VC0 & dentro de RPM permitidas ── */
     const vcFromRPMmin = (RPM_MIN * Math.PI * D) / 1000;
     const vcFromRPMmax = (RPM_MAX * Math.PI * D) / 1000;
     const vcMin = Math.max(VC0 * 0.5, vcFromRPMmin);
     const vcMax = Math.min(VC0 * 1.5, vcFromRPMmax);
-    SL.vc.min = fx(vcMin, 1);
-    SL.vc.max = fx(vcMax, 1);
-    SL.vc.value = fx(state.vc, 1);
+    SL.vc.min = fmt(vcMin,1);
+    SL.vc.max = fmt(vcMax,1);
+    SL.vc.value = fmt(state.vc,1);
 
     /* Slider Pasadas arranca en 1 */
     SL.pass.value = 1;
 
     /* Embellecer sliders + listeners */
-    beautifySlider(SL.fz, 4);
-    beautifySlider(SL.vc, 1);
-    beautifySlider(SL.ae, 2);
-    beautifySlider(SL.pass, 0);
+    prettify(SL.fz,4); prettify(SL.vc,1); prettify(SL.ae,2); prettify(SL.pass,0);
     ['fz','vc','ae','pass'].forEach(k => SL[k]?.addEventListener('change', onInput));
 
-    /* Radar + primera pasada */
-    initRadar();
-    syncPass();
+    /* Radar + primer render */
+    makeRadar();
+    syncPassSlider();
     recalc();
 
-    log('init listo');
+    log('init OK');
   } catch (e) {
-    error('init error:', e); fatal('JS: ' + e.message);
+    error('init', e);
+    fatal('JS: ' + e.message);
   }
 })();
