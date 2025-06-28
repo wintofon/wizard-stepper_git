@@ -195,7 +195,8 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
     <div id="no-match-msg">Material no encontrado</div>
     <div id="searchDropdown" class="dropdown-search"></div>
   </div>
-
+<!-- Hint categoría --------------------------------------------------- -->
+<p class="mat-label">— o elegí por categoría —</p>
   <!-- 2) Categorías -->
   <h5>Categoría</h5>
   <div id="catRow" class="d-flex flex-wrap mb-3">
