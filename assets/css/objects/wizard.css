@@ -297,5 +297,12 @@ body{
   }
 }
 
-.reset-wrap{ padding:.5rem 1rem; text-align:right; }
+.reset-wrap{
+  padding:.5rem 1rem;
+  text-align:right;
+  position:fixed;
+  top:1rem;
+  right:1rem;
+  z-index:1100;
+}
 
