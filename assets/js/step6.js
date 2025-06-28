@@ -1,207 +1,224 @@
-/* =======================================================================
- * assets/js/step6.js · PASO 6 — Wizard CNC
- * -----------------------------------------------------------------------
- *  ▸ Cálculo y validación 100 % en cliente (sin AJAX).
- *  ▸ Slider Vc oscila entre −50 % y +50 % del valor base *pero* nunca
- *    sobrepasa las RPM mín / máx declaradas por la máquina.
- *  ▸ Slider «Pasadas» (ap) se recalcula cada vez que cambia el ancho ae;
- *    máx = ceil(thickness / ae).  Muestra info dinámica.
- *  ▸ Consola silenciosa: solo emite log si el *snapshot* cambia.
- *  ▸ Radar Chart a 3 ejes — Vida Útil · Potencia · Terminación.
- *      – ↑ fz ⇒ ↑ Vida Útil  &  ↑ Potencia  &  ↓ Terminación.
- *  ▸ Errores fatales ➜ se avisan en la UI.
- *
- *  @version   4.3.0  2025‑06‑27
- * =====================================================================*/
-
-/* global Chart, window */
+/* =====================================================================
+ * assets/js/step6.js · PASO 6 — Wizard CNC · 100 % client-side
+ * ---------------------------------------------------------------------
+ * - Fórmulas = backend 1:1 (hm, MMR, FcT, kW…)
+ * - Sin AJAX en tiempo real: todo se recalcula en el navegador.
+ * - Sliders con “pared móvil”: se bloquean sólo hacia el lado peligroso.
+ * - Radar de 3 variables: Vida útil, Potencia, Terminación.
+ * ====================================================================*/
+/* global Chart, CountUp, window                                          */
 
 (() => {
-  'use strict';
+  /* ---------- 0 · DEBUG helpers ------------------------------------- */
+  const DEBUG = window.DEBUG ?? false;
+  const TAG   = '[Step-6]';
+  const log   = (...a) => DEBUG && console.log (TAG, ...a);
+  const warn  = (...a) => DEBUG && console.warn(TAG, ...a);
+  const table = (d)   => DEBUG && console.table?.(d);
 
-  /* ───────────────────────── DEBUG ───────────────────────── */
-  const DEBUG  = window.DEBUG ?? false;
-  const TAG    = '[Step6]';
-  const stamp  = () => new Date().toISOString();
-  const say    = (lvl, ...m) => { if (DEBUG) console[lvl](`${TAG} ${stamp()}`, ...m); };
-  const log    = (...m) => say('log',   ...m);
-  const warn   = (...m) => say('warn',  ...m);
-  const error  = (...m) => say('error', ...m);
-  const table  = d   => { if (DEBUG) console.table(d); };
-
-  /* ───────────────────────── HELPERS ─────────────────────── */
-  const $     = (sel, ctx = document) => ctx.querySelector(sel);
-  const fmt   = (n, d = 1) => Number.parseFloat(n).toFixed(d);
-  const diff  = (a = {}, b = {}) =>
-    [...new Set([...Object.keys(a), ...Object.keys(b)])].some(k => a[k] !== b[k]);
-
-  const fatal = msg => {
-    const box = $('#errorMsg');
-    if (box) { box.style.display = 'block'; box.textContent = msg; }
-    else window.alert?.(msg);
-  };
-
-  /* ────────────── PARAMS INYECTADOS DESDE PHP ────────────── */
-  const P = window.step6Params;
-  if (!P || Object.keys(P).length === 0) return fatal('step6Params vacío');
-
-  const NEED = [
-    'diameter','flute_count','rpm_min','rpm_max','fr_max',
-    'coef_seg','Kc11','mc','eta','fz0','vc0','thickness',
-    'fz_min0','fz_max0','hp_avail'
+  /* ---------- 1 · Parámetros inyectados por PHP --------------------- */
+  const P = window.step6Params || {};
+  const REQUIRED = [
+    'diameter', 'flute_count',
+    'rpm_min', 'rpm_max', 'fr_max',
+    'fz0', 'vc0',
+    'Kc11', 'mc', 'coef_seg',
+    'rack_rad', 'eta',
+    'thickness'
   ];
-  const miss = NEED.filter(k => P[k] === undefined);
-  if (miss.length) return fatal('Faltan claves: ' + miss.join(', '));
+  const miss = REQUIRED.filter(k => P[k] === undefined);
+  if (miss.length) {
+    console.error(TAG, 'Faltan parámetros críticos:', miss);
+    return;
+  }
 
-  /* ────────────── DESTRUCTURACIÓN CON DEFAULTS ───────────── */
+  /* ––– Desestructuración segura ––––––––––––––––––––––––––––––––––– */
   const {
-    diameter:    D,
-    flute_count: Z,
-    rpm_min:     RPM_MIN,
-    rpm_max:     RPM_MAX,
-    fr_max:      FR_MAX,
-    coef_seg:    K_SEG,
-    Kc11:        KC,
+    diameter      : D,
+    flute_count   : Z,
+    rpm_min       : RPM_MIN,
+    rpm_max       : RPM_MAX,
+    fr_max        : FR_MAX,
+    fz0, vc0,
+    Kc11          : KC,
     mc,
+    coef_seg      : K_SEG,
+    rack_rad      : ALPHA,
     eta,
-    alpha:       ALPHA = 0,
-    fz0:         FZ0,
-    vc0:         VC0,
-    thickness:   THK,
-    hp_avail:    HP_AVAIL,
-    fz_min0:     FZ_MIN,
-    fz_max0:     FZ_MAX
+    thickness     : THK
   } = P;
 
-  /* ───────────────────────── STATE ───────────────────────── */
+  /* ---------- 2 · DOM refs ----------------------------------------- */
+  const $ = sel => document.getElementById(sel);
+  const sliders = {
+    Vc : $('sliderVc'),
+    Fz : $('sliderFz'),
+    Ae : $('sliderAe'),
+    P  : $('sliderPasadas')
+  };
+  const infoPasadas = $('textPasadasInfo');
+  const errBox      = $('errorMsg');
+
+  const out = {
+    vc  : $('outVc'),  fz  : $('outFz'),   hm  : $('outHm'),
+    n   : $('outN'),   vf  : $('outVf'),   hp  : $('outHp'),
+    mmr : $('valueMrr'), fc : $('valueFc'), w   : $('valueW'),
+    eta : $('valueEta'), ae : $('outAe'),   ap  : $('outAp')
+  };
+
+  /* ---------- 3 · Estado mutable ----------------------------------- */
   const state = {
-    fz: +FZ0,
-    vc: +VC0,
-    ae: D * 0.5,
-    ap: 1,
-    last: {}
+    fz : +fz0,
+    vc : +vc0,
+    ae : (+P.diameter ?? D) * 0.5,
+    passes : 1,
+    radarChart : null
   };
 
-  /* ───────────────────── DOM REFERENCES ─────────────────── */
-  const SL = {
-    fz:   $('#sliderFz'),
-    vc:   $('#sliderVc'),
-    ae:   $('#sliderAe'),
-    pass: $('#sliderPasadas')
-  };
-  const OUT = {
-    vc: $('#outVc'), fz: $('#outFz'), hm: $('#outHm'), n: $('#outN'), vf: $('#outVf'),
-    hp: $('#outHp'), mmr: $('#valueMrr'), fc: $('#valueFc'), w: $('#valueW'), eta: $('#valueEta'),
-    ae: $('#outAe'), ap: $('#outAp')
-  };
-  const infoPass = $('#textPasadasInfo');
+  /* ---------- 4 · Math helpers (backend 1:1) ------------------------ */
+  const rpm   = vc            => (vc * 1000) / (Math.PI * D);
+  const feed  = (n, fz)       => n * fz * Z;
+  const phi   = ae            => 2 * Math.asin(Math.min(1, ae / D));
+  const hm    = (fz, ae)      => { const p = phi(ae); return p ? fz * (1 - Math.cos(p)) / p : fz; };
+  const mmr   = (ap, vf, ae)  => (ap * vf * ae) / 1000;
+  const FcT   = (hmv, ap, fz) => KC * Math.pow(hmv, -mc) * ap * fz * Z * (1 + K_SEG * Math.tan(ALPHA));
+  const kW    = (F, Vc)       => (F * Vc) / (60_000 * eta);
+  const hp    = kWv           => kWv * 1.341;
 
-  /* ────────────────────── FORMULAS ──────────────────────── */
-  const rpm  = vc            => (vc*1000)/(Math.PI*D);
-  const feed = (n,fz)        => n*fz*Z;
-  const phi  = ae            => 2*Math.asin(Math.min(1, ae/D));
-  const hm   = (fz,ae)       => { const p = phi(ae); return p ? fz*(1-Math.cos(p))/p : fz; };
-  const mmr  = (ap,vf,ae)    => (ap*vf*ae)/1000;
-  const Fct  = (h,ap,fz)     => KC*Math.pow(h,-mc)*ap*fz*Z*(1+K_SEG*Math.tan(ALPHA));
-  const kW   = (F,Vc)        => (F*Vc)/(60_000*eta);
-  const HP   = kWv           => kWv*1.341;
+  /* ---------- 4½ · límites dinámicos ------------------------------- */
+  function applyDynamicLimits() {
+    /* —— Vc —— */
+    const vcFromRpmMin = (RPM_MIN * Math.PI * D) / 1000;
+    const vcFromRpmMax = (RPM_MAX * Math.PI * D) / 1000;
+    const curFz        = parseFloat(sliders.Fz.value);
+    const vcFromFeed   = (FR_MAX / (curFz * Z)) * (Math.PI * D) / 1000;
 
-  /* ──────────────────── RADAR CHART ─────────────────────── */
-  let radar;
-  const makeRadar = () => {
-    const c = $('#radarChart')?.getContext('2d');
-    if (!c || !window.Chart) return;
-    radar = new Chart(c,{type:'radar',data:{labels:['Vida Útil','Potencia','Terminación'],datasets:[{data:[0,0,0],fill:true,borderWidth:2}]},options:{scales:{r:{min:0,max:100,ticks:{stepSize:20}}},plugins:{legend:{display:false}}}});
-  };
+    sliders.Vc.min = vcFromRpmMin.toFixed(1);
+    sliders.Vc.max = Math.min(vcFromRpmMax, vcFromFeed).toFixed(1);
 
-  /* ─────────────────────── RENDER ───────────────────────── */
-  const render = snap => {
-    if (!diff(state.last, snap)) return; // no hubo cambios
-    for (const k in snap) {
-      const el = OUT[k]; if (!el) continue;
-      const v = snap[k]; el.textContent = (typeof v === 'number') ? fmt(v, v%1?2:0) : v;
-    }
-    if (radar) { radar.data.datasets[0].data = [snap.life,snap.power,snap.finish]; radar.update(); }
-    state.last = snap; log('render', snap);
-  };
-
-  /* ────────────────────── CALCULO LOCAL ─────────────────── */
-  const recalc = () => {
-    const N    = rpm(state.vc);
-    const vf   = Math.min(feed(N,state.fz), FR_MAX);
-    const ap   = THK / state.ap;
-    const hmV  = hm(state.fz,state.ae);
-    const mmrV = mmr(ap,vf,state.ae);
-    const fcV  = Fct(hmV,ap,state.fz);
-    const kWv  = kW(fcV,state.vc);
-    const hpV  = HP(kWv);
-
-    /* Radar axes (0‑100 %) */
-    const lifePct   = Math.min(100, Math.max(0, ((state.fz - FZ_MIN) / (FZ_MAX - FZ_MIN)) * 100));
-    const powerPct  = Math.min(100, (hpV / HP_AVAIL) * 100);
-    const finishPct = Math.max(0, 100 - lifePct);
-
-    render({
-      vc:state.vc, fz:state.fz, hm:hmV, n:N|0, vf:vf|0, hp:hpV, mmr:mmrV, fc:fcV|0,
-      w:kWv*1000|0, eta:Math.min(100,(hpV/HP_AVAIL)*100)|0, ae:state.ae, ap,
-      life:lifePct, power:powerPct, finish:finishPct
-    });
-  };
-
-  /* ───────────── SLIDER UI HELPER (burbuja) ────────────── */
-  const prettify = (slider, dec=3) => {
-    if (!slider) return;
-    const wrap = slider.closest('.slider-wrap');
-    const bub  = wrap?.querySelector('.slider-bubble');
-    const min  = +slider.min; const max = +slider.max;
-    const show = v => { wrap?.style.setProperty('--val', ((v-min)/(max-min))*100); if(bub) bub.textContent = fmt(v,dec); };
-    show(+slider.value);
-    slider.addEventListener('input', e=>{ show(+e.target.value); onInput(); });
-  };
-
-  /* ──────────────── ACTUALIZAR PASADAS ──────────────── */
-  const syncPassSlider = () => {
-    const maxP = Math.max(1, Math.ceil(THK / state.ae));
-    SL.pass.max = maxP; SL.pass.min = 1; SL.pass.step = 1;
-    if (+SL.pass.value > maxP) SL.pass.value = maxP;
-    state.ap = +SL.pass.value;
-    if (infoPass) infoPass.textContent = `${state.ap} pasada${state.ap>1?'s':''} de ${(THK/state.ap).toFixed(2)} mm`;
-  };
-
-  /* ───────────── INPUT HANDLER (todos sliders) ─────────── */
-  const onInput = () => {
-    state.fz = +SL.fz.value;
-    state.vc = +SL.vc.value;
-    state.ae = +SL.ae.value;
-    syncPassSlider();
-    recalc();
-  };
-
-  /* ─────────────────────────── INIT ────────────────────── */
-  try {
-    /* Vc slider límites: ±50 % del VC0 + respeta RPM min/max */
-    const vcFromRPMmin = (RPM_MIN * Math.PI * D)/1000;
-    const vcFromRPMmax = (RPM_MAX * Math.PI * D)/1000;
-    const vcMin = Math.max(VC0*0.5, vcFromRPMmin);
-    const vcMax = Math.min(VC0*1.5, vcFromRPMmax);
-    SL.vc.min = fmt(vcMin,1);
-    SL.vc.max = fmt(vcMax,1);
-    SL.vc.value = fmt(state.vc,1);
-
-    /* Pasadas slider arranca en 1 */
-    SL.pass.value = 1;
-
-    /* Embellecer sliders & listeners */
-    prettify(SL.fz,4); prettify(SL.vc,1); prettify(SL.ae,2); prettify(SL.pass,0);
-    ['fz','vc','ae','pass'].forEach(k=>SL[k]?.addEventListener('change', onInput));
-
-    /* Radar + render inicial */
-    makeRadar();
-    syncPassSlider();
-    recalc();
-
-    log('init OK');
-  } catch (e) {
-    error('init', e); fatal('JS: ' + e.message);
+    /* —— Fz —— */
+    const curVc   = parseFloat(sliders.Vc.value);
+    const curRpm  = rpm(curVc);
+    const fzMax   = FR_MAX / (curRpm * Z);
+    sliders.Fz.max = fzMax.toFixed(4);
   }
+
+  /* ---------- 5 · util DOM ----------------------------------------- */
+  const fmt = (n, d = 1) => Number.parseFloat(n).toFixed(d);
+  const set = (el, v, d) => el && (el.textContent = fmt(v, d));
+
+  function enhanceSlider(sl) {
+    const wrap   = sl.closest('.slider-wrap');
+    const bubble = wrap?.querySelector('.slider-bubble');
+    const step   = parseFloat(sl.step || 1);
+    const min    = () => parseFloat(sl.min || 0);
+    const max    = () => parseFloat(sl.max || 1);
+    const update = () => {
+      const pct = ((sl.value - min()) / (max() - min())) * 100;
+      wrap?.style.setProperty('--val', pct);
+      bubble && (bubble.textContent = fmt(sl.value, step < 1 ? 2 : 0));
+    };
+    sl.addEventListener('input', update);
+    update();
+  }
+
+  /* ---------- 6 · Radar (3 ejes) ----------------------------------- */
+  function makeRadar() {
+    const ctx = $('radarChart').getContext('2d');
+    if (state.radarChart) state.radarChart.destroy();
+    state.radarChart = new Chart(ctx, {
+      type : 'radar',
+      data : {
+        labels   : ['Vida útil', 'Potencia', 'Terminación'],
+        datasets : [{ data: [0, 0, 0], fill: true, borderWidth: 2 }]
+      },
+      options : { scales: { r: { max: 100, ticks: { stepSize: 20 } } },
+                  plugins: { legend: { display: false } } }
+    });
+  }
+
+  /* Potencia, vida útil, terminación (heurístico sencillo) */
+  function radarValues(hpUsed, hpAvail, fz) {
+    const potencia   = Math.min(100, (hpUsed / hpAvail) * 100);
+    const vidaUtil   = Math.min(100, (1 / fz) * 100 * 0.2); // mayor fz ⇒ menor vida
+    const terminacion= Math.max(0, 100 - vidaUtil);         // inverso (aprox.)
+    return [vidaUtil, potencia, terminacion];
+  }
+
+  /* ---------- 7 · Re-cálculo principal ----------------------------- */
+  function recalc() {
+    state.fz     = parseFloat(sliders.Fz.value);
+    state.vc     = parseFloat(sliders.Vc.value);
+    state.ae     = parseFloat(sliders.Ae.value);
+    state.passes = parseInt(sliders.P.value, 10);
+
+    const N      = rpm(state.vc);
+    const vfRaw  = feed(N, state.fz);
+    const vf     = Math.min(vfRaw, FR_MAX);
+    const ap     = THK / state.passes;
+    const hmVal  = hm(state.fz, state.ae);
+    const fct    = FcT(hmVal, ap, state.fz);
+    const kWVal  = kW(fct, state.vc);
+    const watts  = kWVal * 1000;
+    const hpVal  = hp(kWVal);
+    const mmrVal = mmr(ap, vf, state.ae);
+
+    /* ---- pintar ---- */
+    set(out.vc , state.vc, 1);
+    set(out.fz , state.fz, 4);
+    set(out.n  , N, 0);
+    set(out.vf , vf, 0);
+    set(out.hm , hmVal, 4);
+    set(out.ae , state.ae, 2);
+    set(out.ap , ap, 3);
+    set(out.hp , hpVal, 2);
+    set(out.mmr, mmrVal, 0);
+    set(out.fc , fct, 0);
+    set(out.w  , watts, 0);
+    set(out.eta, (hpVal / hp(D ? kWVal : 1) ) .toFixed(0), 0);
+
+    /* Radar */
+    state.radarChart.data.datasets[0].data = radarValues(hpVal, P.hp_avail ?? hpVal, state.fz);
+    state.radarChart.update();
+  }
+
+  /* ---------- 8 · edge hint opcional ------------------------------- */
+  function edgeHint(sl, msg) {
+    const atEdge = (+sl.value >= +sl.max - 1e-10) || (+sl.value <= +sl.min + 1e-10);
+    errBox.style.display = atEdge ? 'block' : 'none';
+    if (atEdge) errBox.textContent = msg;
+  }
+
+  /* ---------- 9 · Listeners ---------------------------------------- */
+  sliders.Fz.addEventListener('input', () => {
+    applyDynamicLimits();
+    edgeHint(sliders.Fz, 'Límite de feedrate');
+    recalc();
+  });
+  sliders.Vc.addEventListener('input', () => {
+    applyDynamicLimits();
+    edgeHint(sliders.Vc, 'Límite de rpm / feedrate');
+    recalc();
+  });
+  sliders.Ae.addEventListener('input', () => {
+    /* al cambiar ancho se recalcula nº pasadas válido */
+    const maxP = Math.ceil(THK / sliders.Ae.value);
+    sliders.P.max = maxP;
+    if (+sliders.P.value > maxP) sliders.P.value = maxP;
+    infoPasadas.textContent = `${sliders.P.value} pasadas de ${(THK / sliders.P.value).toFixed(2)} mm`;
+    recalc();
+  });
+  sliders.P.addEventListener('input', () => {
+    infoPasadas.textContent = `${sliders.P.value} pasadas de ${(THK / sliders.P.value).toFixed(2)} mm`;
+    recalc();
+  });
+
+  /* ---------- 10 · Kick-off ---------------------------------------- */
+  Object.values(sliders).forEach(enhanceSlider);
+  applyDynamicLimits();
+  makeRadar();
+  infoPasadas.textContent = `1 pasadas de ${THK.toFixed(2)} mm`;
+  recalc();
+
+  log('Init completo');
 })();
