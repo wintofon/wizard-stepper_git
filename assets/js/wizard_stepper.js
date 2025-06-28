@@ -131,6 +131,7 @@ const renderBar = current => {
         stepHolder.style.opacity = '1';
         renderBar(step);
         hookEvents();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         window.initLazy?.();
         dbgMsg(`🧭 Paso ${step} cargado correctamente`);
       })
