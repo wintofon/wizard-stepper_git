@@ -196,7 +196,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
     <div id="searchDropdown" class="dropdown-search"></div>
   </div>
 <!-- Hint categoría --------------------------------------------------- -->
-<p class="mat-label">— o elegí por categoría —</p>
+<h5>— O elegí por categoría:</h5>
   <!-- 2) Categorías -->
   <h5>Categoría</h5>
   <div id="catRow" class="d-flex flex-wrap mb-3">
@@ -214,7 +214,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
 
   <!-- 4) Espesor -->
   <div id="thickGroup" class="mb-3" style="display:none">
-    <h5 for="thick" class="form-label">Espesor</h5>
+    <h5 for="matCol" class="form-label">Espesor</h5>
     <div class="input-group">
       <input type="number" id="thick" name="thickness" class="form-control" step="0.1" min="0.1" required>
       <span class="input-group-text">mm</span>
