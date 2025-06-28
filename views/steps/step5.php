@@ -226,11 +226,11 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
     Object.values(inputs).forEach(i => i.disabled=false);
     paramSec.style.display = 'block';
     smoothTo(paramSec);
-    validate();
+    validate({scroll:false});
   }));
 
   /* Validación en vivo */
-  function validate() {
+  function validate({scroll = true} = {}) {
     let ok = true;
     const v  = k => parseFloat(inputs[k].value) || 0;
     const fb = (inp,msg) => {
@@ -251,11 +251,11 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
     }
 
     nextWrap.style.display = ok ? 'block' : 'none';
-    if (ok) smoothTo(nextWrap);
+    if (ok && scroll) smoothTo(nextWrap);
     return ok;
   }
 
-  Object.values(inputs).forEach(i => i.addEventListener('input', validate));
+  Object.values(inputs).forEach(i => i.addEventListener('input', () => validate()));
   form.addEventListener('submit', e => { if(!validate()){ e.preventDefault(); e.stopPropagation(); } });
 })();
 </script>
