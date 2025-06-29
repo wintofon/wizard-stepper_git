@@ -146,6 +146,7 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
 
     <!-- Transmisión -->
     <div class="mb-4">
+   <h2 class="step-title">Seleccione los parámetros de router</h2>
       <label class="form-label d-block">Transmisión</label>
       <div class="btn-group" role="group">
       <?php foreach ($txList as $t):
@@ -155,9 +156,7 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
         <label class="btn btn-outline-primary" for="tx<?=$tid?>"
                data-rpmmin="<?=$t['rpm_min']?>" data-rpmmax="<?=$t['rpm_max']?>"
                data-feedmax="<?=$t['feed_max']?>" data-hpdef="<?=$t['hp_default']?>">
-          <?=htmlspecialchars($t['name'])?>
-        </label>
-      <?php endforeach; ?>
+          <?php endforeach; ?>
       </div>
     </div>
 
@@ -186,84 +185,41 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
         </div>
         <?php endforeach; ?>
       </div>
+    </div>="<?=$t['hp_default']?>">
+          <?=htmlspecialchars($t['name'])?>
+        </label>
+      <?php endforeach; ?>
+      </div>
+    </div>
+
+    <!-- Título parámetros (misma clase que step-title) -->
+    <h2 class="step-title">Seleccione los parámetros de router</h2>
+
+    <!-- Parámetros -->
+    <div id="paramSection">
+      <div class="row g-3">
+        <?php
+          $fields=[
+            ['rpm_min','RPM mínima',1,'rpm'],
+            ['rpm_max','RPM máxima',1,'rpm'],
+            ['feed_max','Avance máx (mm/min)',0.1,'mm/min'],
+            ['hp','Potencia (HP)',0.1,'HP'],
+          ];
+          foreach($fields as [$id,$label,$step,$unit]): ?>
+        <div class="col-md-3">
+          <label for="<?=$id?>" class="form-label"><?=$label?></label>
+          <div class="input-group has-validation">
+            <input type="number" class="form-control" id="<?=$id?>" name="<?=$id?>"
+                   step="<?=$step?>" min="1" value="<?=htmlspecialchars((string)$prev[$id])?>" required>
+            <span class="input-group-text"><?=$unit?></span>
+            <div class="invalid-feedback"></div>
+          </div>
+        </div>
+        <?php endforeach; ?>
+      </div>
     </div>
 
     <!-- Botón -->
     <div id="nextWrap" class="text-start mt-4" style="display:<?= $hasPrev ? 'block' : 'none' ?>">
       <button class="btn btn-primary btn-lg">
-        Siguiente <i data-feather="arrow-right" class="ms-1"></i>
-      </button>
-    </div>
-  </form>
-</main>
-
-<script>
-(() => {
-  const radios   = document.querySelectorAll('.btn-check');
-  const paramSec = document.getElementById('paramSection');
-  const nextWrap = document.getElementById('nextWrap');
-  const form     = document.getElementById('routerForm');
-  const inputs   = {
-    rpm_min : document.getElementById('rpm_min'),
-    rpm_max : document.getElementById('rpm_max'),
-    feed_max: document.getElementById('feed_max'),
-    hp      : document.getElementById('hp')
-  };
-
-  /* Scroll suave a un elemento (si exista) */
-  function smoothTo(el) { if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-
-  /* Ocultar todo hasta elegir transmisión */
-  const hideParams = () => {
-    paramSec.style.display = 'none';
-    nextWrap.style.display = 'none';
-    Object.values(inputs).forEach(i => { i.value = ''; i.disabled = true; });
-  };
-  <?php if (!$hasPrev): ?> hideParams(); <?php endif; ?>
-
-  /* Mostrar parámetros y validar */
-  radios.forEach(r => r.addEventListener('change', () => {
-    const d = document.querySelector(`label[for="${r.id}"]`).dataset;
-    inputs.rpm_min.value  = d.rpmmin;
-    inputs.rpm_max.value  = d.rpmmax;
-    inputs.feed_max.value = d.feedmax;
-    if (!inputs.hp.value) inputs.hp.value = d.hpdef;
-
-    Object.values(inputs).forEach(i => i.disabled = false);
-    paramSec.style.display = 'block';
-    smoothTo(paramSec);
-    validate({ scroll: false });
-  }));
-
-  /* Validación en vivo */
-  function validate({ scroll = true } = {}) {
-    let ok = true;
-    const v = k => parseFloat(inputs[k].value) || 0;
-    const fb = (inp, msg) => {
-      const feedback = inp.parentElement.querySelector('.invalid-feedback');
-      feedback.textContent = msg;
-      inp.classList.toggle('is-invalid', !!msg);
-      if (msg) ok = false;
-    };
-
-    fb(inputs.rpm_min, v('rpm_min') > 0 ? '' : 'Debe ser > 0');
-    fb(inputs.rpm_max, v('rpm_max') > 0 ? '' : 'Debe ser > 0');
-    fb(inputs.feed_max, v('feed_max') > 0 ? '' : 'Debe ser > 0');
-    fb(inputs.hp, v('hp') > 0 ? '' : 'Debe ser > 0');
-
-    if (v('rpm_min') && v('rpm_max') && v('rpm_min') >= v('rpm_max')) {
-      fb(inputs.rpm_min, 'RPM min < max');
-      fb(inputs.rpm_max, 'RPM min < max');
-    }
-
-    nextWrap.style.display = ok ? 'block' : 'none';
-    if (ok && scroll) smoothTo(nextWrap);
-    return ok;
-  }
-
-  Object.values(inputs).forEach(i => i.addEventListener('input', () => validate()));
-  form.addEventListener('submit', e => { if (!validate()) { e.preventDefault(); e.stopPropagation(); } });
-})();
-</script>
-</body>
-</html>
+        Siguiente <i data-feather="arrow-right" class="ms-1"></
