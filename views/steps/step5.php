@@ -169,8 +169,8 @@ $resume = (bool)$prev['id'];
       </div>
     </div>
 
-    <!-- Parámetros del router -->
-    <div id="paramSection">
+    <!-- Parámetros del router (oculto hasta selección) -->
+    <div id="paramSection" style="display:none;">
       <h5 class="step-subtitle">Seleccione los parámetros</h5>
       <div class="row g-3">
         <?php
@@ -205,7 +205,7 @@ $resume = (bool)$prev['id'];
     </div>
 
     <!-- Botón Siguiente -->
-    <div id="nextWrap" class="text-start mt-4" style="display:<?= $resume ? 'block' : 'none' ?>;">
+    <div id="nextWrap" class="text-start mt-4" style="display:none;">
       <button type="submit" class="btn btn-primary btn-lg">
         Siguiente <i data-feather="arrow-right" class="ms-1"></i>
       </button>
@@ -217,43 +217,45 @@ $resume = (bool)$prev['id'];
 (function() {
   // Pasar PHP txList a JS
   const txList = <?= json_encode($txList, JSON_UNESCAPED_UNICODE) ?>;
-  const txRow  = document.getElementById('txRow');
-  const radios = document.querySelectorAll('#routerForm input[name="transmission_id"]');
+  const txRow = document.getElementById('txRow');
+  const paramSection = document.getElementById('paramSection');
+  const nextWrap = document.getElementById('nextWrap');
   const inputs = {
     rpm_min:  document.getElementById('rpm_min'),
     rpm_max:  document.getElementById('rpm_max'),
     feed_max: document.getElementById('feed_max'),
     hp:       document.getElementById('hp'),
   };
-  const paramSection = document.getElementById('paramSection');
-  const nextWrap     = document.getElementById('nextWrap');
 
-  // Función de scroll suave
+  // Scroll suave
   const smoothTo = el => el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-  // Habilitar/deshabilitar inputs
-  const disableAll = () => Object.values(inputs).forEach(i => i.disabled = true);
-  disableAll();
+  // Inicializar: ocultar sección y deshabilitar inputs
+  disableAllInputs();
+  function disableAllInputs() {
+    Object.values(inputs).forEach(i => i.disabled = true);
+  }
 
-  // Evento click en botón de transmisión
+  // Manejar clic en cada botón de transmisión
   txRow.querySelectorAll('.btn-cat').forEach(btn => {
     btn.addEventListener('click', () => {
-      // Activar el botón
+      // Marcar activo
       txRow.querySelectorAll('.btn-cat').forEach(x => x.classList.remove('active'));
       btn.classList.add('active');
 
-      // Cargar datos de la transmisión
+      // Recuperar datos y poblar inputs
       const tx = txList.find(t => t.id == btn.dataset.id);
       inputs.rpm_min.value  = tx.rpm_min;
       inputs.rpm_max.value  = tx.rpm_max;
       inputs.feed_max.value = tx.feed_max;
       inputs.hp.value       = tx.hp_default;
 
-      // Habilitar sección y inputs
+      // Mostrar sección y habilitar
+      disableAllInputs();
       Object.values(inputs).forEach(i => i.disabled = false);
       paramSection.style.display = 'block';
-      smoothTo(paramSection);
       nextWrap.style.display = 'block';
+      smoothTo(paramSection);
     });
   });
 })();
