@@ -132,7 +132,7 @@ window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
 </head>
 <body>
 <main class="container py-4">
-  <h2 class="step-title"><i data-feather="cpu"></i> Configurá tu router</h2>
+  <h2 class="step-title"><i data-feather="cpu"></i> Configurá tu router CNC</h2>
   <p class="step-desc">Ingresá los datos de tu máquina para calcular parámetros.</p>
 
   <?php if ($errors): ?>
@@ -147,7 +147,9 @@ window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
 
     <!-- Transmisión -->
     <div class="mb-4">
-      <label class="form-label d-block">Transmisión</label>
+
+    <h5 class="step-subtitle">Seleccione la Transmisión</h5>
+
       <div class="btn-group" role="group">
         <?php foreach ($txList as $t):
           $tid = (int)$t['id'];
@@ -167,10 +169,11 @@ window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
     </div>
 
     <!-- Subtítulo parámetros -->
-    <h5 class="step-subtitle">Seleccione los parámetros de router</h5>
+
 
     <!-- Parámetros -->
     <div id="paramSection">
+            <h5 class="step-subtitle">Seleccione los parámetros</h5>
       <div class="row g-3">
         <?php
         $fields = [
