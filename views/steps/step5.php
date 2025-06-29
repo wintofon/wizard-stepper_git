@@ -42,13 +42,13 @@ if (empty($_SESSION['csrf_token'])) {
 $csrfToken = $_SESSION['csrf_token'];
 
 /* 4) Transmisiones desde BD
- *     Ahora ordenadas por coeficiente de seguridad (coef_security)
+ *     Ahora ordenadas por coeficiente de seguridad (coef_security) de mayor a menor
  *     y, en caso de empate, por ID ascendente
  */
 $txList = $pdo->query(
     "SELECT id, name, rpm_min, rpm_max, feed_max, hp_default
       FROM transmissions
-     ORDER BY coef_security ASC, id ASC"
+     ORDER BY coef_security DESC, id ASC"
 )->fetchAll(PDO::FETCH_ASSOC);
 
 $validTx = [];
@@ -226,7 +226,7 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
     inputs.feed_max.value = d.feedmax;
     if(!inputs.hp.value)  inputs.hp.value = d.hpdef;
 
-    Object.values(inputs).forEach(i => i.disabled=false);
+   	Object.values(inputs).forEach(i => i.disabled=false);
     paramSec.style.display = 'block';
     smoothTo(paramSec);
     validate({scroll:false});
@@ -259,7 +259,4 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
   }
 
   Object.values(inputs).forEach(i => i.addEventListener('input', () => validate()));
-  form.addEventListener('submit', e => { if(!validate()){ e.preventDefault(); e.stopPropagation(); } });
-})();
-</script>
-</body></html>
+  form.addEventListener('submit', e => { if(!validate()){ e.preventDefault(); e.stop
