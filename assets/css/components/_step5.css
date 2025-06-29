@@ -157,3 +157,41 @@ h5.step-subtitle{
     margin: .5rem 0;
   }
 }
+/* ─────────────── 10. Botones de transmisión (.btn-cat) ─ */
+.btn-cat{
+  margin: .35rem .45rem;
+  padding: .65rem 1.2rem;
+  font-size: .95rem;
+  white-space: nowrap;
+
+  color: var(--p5-text) !important;
+  background: var(--p5-bg-dark) !important;
+  border: 1px solid var(--p5-border) !important;
+  border-radius: var(--p5-radius);
+
+  transition: background .25s, color .25s,
+              box-shadow .2s, transform .2s;
+}
+.btn-cat:hover{
+  background: var(--p5-bg-dark2) !important;
+  box-shadow: var(--p5-shadow);
+  transform: translateY(-2px) scale(1.02);
+}
+.btn-cat:focus-visible{
+  outline: 2px solid var(--p5-accent);
+  outline-offset: 2px;
+}
+.btn-cat.active{
+  background: var(--p5-accent) !important;
+  border-color: var(--p5-accent) !important;
+  color: #0d1117 !important;
+  box-shadow: 0 0 0 3px rgb(127 220 255 /.4);
+}
+
+/* ─────────────── 11. Responsive fine-tune para btn-cat ─ */
+@media (max-width: 768px){
+  .btn-cat{
+    width: 100%;
+    margin: .5rem 0;
+  }
+}
