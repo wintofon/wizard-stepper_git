@@ -45,12 +45,10 @@ $csrfToken = $_SESSION['csrf_token'];
  *     Ahora ordenadas por coeficiente de seguridad (coef_security)
  *     y, en caso de empate, por ID ascendente
  */
-$txList = $pdo->query(""
-    SELECT id, name, rpm_min, rpm_max, feed_max, hp_default
+$txList = $pdo->query(
+    "SELECT id, name, rpm_min, rpm_max, feed_max, hp_default
       FROM transmissions
-    -- Orden por coef_security ascendente, y luego por id ascendente
-    ORDER BY coef_security ASC, id ASC
-""
+     ORDER BY coef_security ASC, id ASC"
 )->fetchAll(PDO::FETCH_ASSOC);
 
 $validTx = [];
