@@ -1,95 +1,94 @@
 /* =========================================================================
  * File: _step5.css          ··  Paso 5 – Máquina / Transmisión
- * Versión v6 “Look unificado”   ··  28-Jun-2025
+ * Versión v6.3 “Look unificado”   ·· 29-Jun-2025
  * -------------------------------------------------------------------------
  *  ➤ Replica la estética refinada de Paso 3 (Estrategia) y Paso 4 (Material):
  *      – Paleta oscura, textos blancos, acento corporativo celeste.
- *      – Inputs y labels coherentes; foco accesible.
- *      – micro-animaciones suaves, halo en focus / active.
- *  ➤ NO se cambia ninguna estructura HTML ni clases existentes.
- *  ➤ Se agregan estilos para botones de transmisión (.btn-cat),
- *     igualando el estilo de categorías de material.
+ *      – Inputs, labels y botones coherentes; foco accesible.
+ *      – Micro-animaciones suaves, halo en focus / active.
+ *  ➤ Se añaden estilos para botones de transmisión (.btn-cat y .btn-outline-primary)
+ *     para mimetizar el estilo de categorías de material.
  * =========================================================================*/
 
-/* ─────────────── 0. Imports globales ─────────────── */
-@import url('../settings/_variables.css');  /*  contiene --step6-accent          */
+/* ─────────────── 0. Imports globales ─────────────────────────────────── */
+@import url('../settings/_variables.css');  /* contiene --step6-accent */
 @import url('../generic/reset.css');
 @import url('../elements/_typography.css');
 
-/* ─────────────── 1. Variables locales ────────────── */
+/* ─────────────── 1. Variables locales ────────────────────────────────── */
 :root{
-  --p5-accent:      var(--step6-accent, #7fdcff); /* celeste corporativo */
-  --p5-bg-dark:     #1a2638;
-  --p5-bg-dark2:    #25334b;
-  --p5-text:        #ffffff;
-  --p5-text-muted:  #a7b1c2;
-  --p5-border:      #2c2f33;
+  --p5-accent:      var(--step6-accent, #7fdcff); /* Celeste corporativo */
+  --p5-bg:          #1a2638;                    /* Fondo principal */
+  --p5-bg-alt:      #25334b;                    /* Fondo alternativo */
+  --p5-text:        #ffffff;                    /* Texto principal */
+  --p5-text-muted:  #a7b1c2;                    /* Texto secundario */
+  --p5-border:      #2c2f33;                    /* Bordes */
 
-  --p5-radius:      .45rem;
-  --p5-shadow:      0 4px 10px rgb(0 0 0 / .25);
+  --p5-radius:      .45rem;                     /* Radio de bordes */
+  --p5-shadow:      0 4px 10px rgb(0 0 0 / .25); /* Sombra suave */
 }
 
-/* ─────────────── 2. Títulos / subtítulos ─────────── */
+/* ─────────────── 2. Tipografía ───────────────────────────────────────── */
 h2.step-title,
-h5.step-subtitle{
+h5.step-subtitle {
   color: var(--p5-accent);
   font-weight: 600;
 }
 
-/* ─────────────── 3. Labels de formulario ─────────── */
-.form-label{
+/* ─────────────── 3. Labels de formulario ───────────────────────────── */
+.form-label {
   font-weight: 600;
   color: var(--p5-text);
   margin-bottom: .4rem;
 }
 
-/* ─────────────── 4. Controles <input> y <select> ─── */
-.form-control{
+/* ─────────────── 4. Controles <input> y <select> ─────────────────────── */
+.form-control {
   color: var(--p5-text);
-  background-color: var(--p5-bg-dark);
+  background-color: var(--p5-bg);
   border: 1px solid var(--p5-border);
   border-radius: var(--p5-radius);
   transition: border-color .25s, box-shadow .25s;
 }
-.form-control:focus{
+.form-control:focus {
   border-color: var(--p5-accent);
-  box-shadow: 0 0 0 .15rem rgb(127 220 255 /.30);
+  box-shadow: 0 0 0 .15rem rgb(127 220 255 / .30);
 }
-.form-control:disabled{
+.form-control:disabled {
   color: var(--p5-text-muted);
-  background-color: var(--p5-bg-dark2);
+  background-color: var(--p5-bg-alt);
   border-color: var(--p5-border);
 }
 
-/* ─────────────── 5. Botón Siguiente / Guardar ────── */
-.btn-next,                 /* clase existente en wizard */
-.btn-primary{              /* fallback BS */
+/* ─────────────── 5. Botón Siguiente / Guardar ───────────────────────── */
+.btn-next,
+.btn-primary { /* fallback BS */
   display: inline-flex;
   align-items: center;
   gap: .4rem;
 
   padding: .6rem 1.4rem;
   font-weight: 600;
+  border-radius: var(--p5-radius);
 
   color: #0d1117;
   background: var(--p5-accent);
   border: 1px solid var(--p5-accent);
-  border-radius: var(--p5-radius);
 
   transition: filter .25s, transform .2s;
 }
 .btn-next:hover,
-.btn-primary:hover{
+.btn-primary:hover {
   filter: brightness(1.12);
   transform: translateY(-1px);
 }
 .btn-next:active,
-.btn-primary:active{
+.btn-primary:active {
   transform: translateY(0);
 }
 
-/* ─────────────── 6. Alertas de error / validación ── */
-.alert-danger{
+/* ─────────────── 6. Alertas de error / validación ───────────────────── */
+.alert-danger {
   border: 1px solid #f5c2c7;
   border-radius: var(--p5-radius);
   padding: .75rem 1rem;
@@ -98,99 +97,65 @@ h5.step-subtitle{
   background: #4c1d1d;
 }
 
-/* ─────────────── 7. Sección de parámetros opcionales */
-#paramSection{
-  /* se muestra/oculta desde JS → aquí solo estilo */
+/* ─────────────── 7. Sección de parámetros opcionales ───────────────── */
+#paramSection {
   margin-bottom: 1.5rem;
   padding: 1rem;
   border: 1px dashed var(--p5-border);
   border-radius: var(--p5-radius);
-  background: var(--p5-bg-dark2);
+  background: var(--p5-bg-alt);
   color: var(--p5-text-muted);
 }
 
-/* ─────────────── 8. Grid / espaciado Bootstrap fix ─ */
-.row.g-3 .col-md-3{
-  margin-bottom: 1rem;  /* respeta g-3 pero unifica con diseño oscuro */
+/* ─────────────── 8. Grid / espaciado Bootstrap fix ──────────────────── */
+.row.g-3 .col-md-3 {
+  margin-bottom: 1rem; /* respeta g-3 pero unifica con diseño oscuro */
 }
 
-/* ─────────────── 9. Botones de transmisión (.btn-cat)  ─ */
-.btn-cat{
-  margin: .35rem .45rem;
-  padding: .65rem 1.2rem;
-  font-size: .95rem;
-  white-space: nowrap;
-
-  color: var(--p5-text);
-  background: var(--p5-bg-dark);
-  border: 1px solid var(--p5-border);
-  border-radius: var(--p5-radius);
-
-  transition: background .25s, color .25s,
-              box-shadow .2s, transform .2s;
-}
-.btn-cat:hover{
-  background: var(--p5-bg-dark2);
-  box-shadow: var(--p5-shadow);
-  transform: translateY(-2px) scale(1.02);
-}
-.btn-cat:focus-visible{
-  outline: 2px solid var(--p5-accent);
-  outline-offset: 2px;
-}
-.btn-cat.active{
-  background: var(--p5-accent);
-  border-color: var(--p5-accent);
-  color: #0d1117;
-  box-shadow: 0 0 0 3px rgb(127 220 255 /.4);
-}
-
-/* ─────────────── 10. Responsive fine-tune ─────────── */
-@media (max-width: 768px){
-  .btn-next,
-  .btn-primary{
-    width: 100%;
-    justify-content: center;
-  }
-  .btn-cat{
-    width: 100%;
-    margin: .5rem 0;
-  }
-}
-/* ─────────────── 10. Botones de transmisión (.btn-cat) ─ */
-.btn-cat{
+/* ─────────────── 9. Botones de transmisión (.btn-cat / .btn-outline-primary) ─ */
+.btn-cat,
+#txRow .btn-outline-primary {
   margin: .35rem .45rem;
   padding: .65rem 1.2rem;
   font-size: .95rem;
   white-space: nowrap;
 
   color: var(--p5-text) !important;
-  background: var(--p5-bg-dark) !important;
+  background: var(--p5-bg) !important;
   border: 1px solid var(--p5-border) !important;
   border-radius: var(--p5-radius);
 
   transition: background .25s, color .25s,
               box-shadow .2s, transform .2s;
 }
-.btn-cat:hover{
-  background: var(--p5-bg-dark2) !important;
+.btn-cat:hover,
+#txRow .btn-outline-primary:hover {
+  background: var(--p5-bg-alt) !important;
   box-shadow: var(--p5-shadow);
   transform: translateY(-2px) scale(1.02);
 }
-.btn-cat:focus-visible{
+.btn-cat:focus-visible,
+#txRow .btn-outline-primary:focus-visible {
   outline: 2px solid var(--p5-accent);
   outline-offset: 2px;
 }
-.btn-cat.active{
+.btn-cat.active,
+#txRow .btn-outline-primary.active {
   background: var(--p5-accent) !important;
   border-color: var(--p5-accent) !important;
   color: #0d1117 !important;
-  box-shadow: 0 0 0 3px rgb(127 220 255 /.4);
+  box-shadow: 0 0 0 3px rgb(127 220 255 / .4);
 }
 
-/* ─────────────── 11. Responsive fine-tune para btn-cat ─ */
-@media (max-width: 768px){
-  .btn-cat{
+/* ─────────────── 10. Responsive fine-tune ──────────────────────────── */
+@media (max-width: 768px) {
+  .btn-next,
+  .btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+  .btn-cat,
+  #txRow .btn-outline-primary {
     width: 100%;
     margin: .5rem 0;
   }
