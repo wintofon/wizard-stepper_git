@@ -42,7 +42,7 @@ if (empty($_SESSION['csrf_token'])) {
 $csrfToken = $_SESSION['csrf_token'];
 
 /* 4) Transmisiones desde BD
- *     Ahora ordenadas por coeficiente de seguridad (coef_security) de mayor a menor
+ *     Ordenadas por coeficiente de seguridad de mayor a menor
  *     y, en caso de empate, por ID ascendente
  */
 $txList = $pdo->query(
@@ -161,6 +161,9 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
       </div>
     </div>
 
+    <!-- Título parámetros -->
+    <h5 class="step-subtitle">Seleccione los parámetros de router</h5>
+
     <!-- Parámetros -->
     <div id="paramSection">
       <div class="row g-3">
@@ -186,7 +189,7 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
     </div>
 
     <!-- Botón -->
-    <div id="nextWrap" class="text-start mt-4" style="display:<?=$hasPrev?'block':'none'?>">
+    <div id="nextWrap" class="text-start mt-4" style="display:<?= $hasPrev ? 'block' : 'none' ?>">
       <button class="btn btn-primary btn-lg">
         Siguiente <i data-feather="arrow-right" class="ms-1"></i>
       </button>
@@ -207,16 +210,16 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
     hp      : document.getElementById('hp')
   };
 
-  /* Scroll suave a un elemento (si existe) */
-  function smoothTo(el){ if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }
+  /* Scroll suave a un elemento (si exista) */
+  function smoothTo(el) { if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
 
   /* Ocultar todo hasta elegir transmisión */
   const hideParams = () => {
     paramSec.style.display = 'none';
     nextWrap.style.display = 'none';
-    Object.values(inputs).forEach(i => { i.value=''; i.disabled=true; });
+    Object.values(inputs).forEach(i => { i.value = ''; i.disabled = true; });
   };
-  <?php if(!$hasPrev): ?> hideParams(); <?php endif; ?>
+  <?php if (!$hasPrev): ?> hideParams(); <?php endif; ?>
 
   /* Mostrar parámetros y validar */
   radios.forEach(r => r.addEventListener('change', () => {
@@ -224,33 +227,33 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
     inputs.rpm_min.value  = d.rpmmin;
     inputs.rpm_max.value  = d.rpmmax;
     inputs.feed_max.value = d.feedmax;
-    if(!inputs.hp.value)  inputs.hp.value = d.hpdef;
+    if (!inputs.hp.value) inputs.hp.value = d.hpdef;
 
-   	Object.values(inputs).forEach(i => i.disabled=false);
+    Object.values(inputs).forEach(i => i.disabled = false);
     paramSec.style.display = 'block';
     smoothTo(paramSec);
-    validate({scroll:false});
+    validate({ scroll: false });
   }));
 
   /* Validación en vivo */
-  function validate({scroll = true} = {}) {
+  function validate({ scroll = true } = {}) {
     let ok = true;
-    const v  = k => parseFloat(inputs[k].value) || 0;
-    const fb = (inp,msg) => {
+    const v = k => parseFloat(inputs[k].value) || 0;
+    const fb = (inp, msg) => {
       const feedback = inp.parentElement.querySelector('.invalid-feedback');
       feedback.textContent = msg;
       inp.classList.toggle('is-invalid', !!msg);
       if (msg) ok = false;
     };
 
-    fb(inputs.rpm_min , v('rpm_min')  > 0 ? '' : 'Debe ser > 0');
-    fb(inputs.rpm_max , v('rpm_max')  > 0 ? '' : 'Debe ser > 0');
+    fb(inputs.rpm_min, v('rpm_min') > 0 ? '' : 'Debe ser > 0');
+    fb(inputs.rpm_max, v('rpm_max') > 0 ? '' : 'Debe ser > 0');
     fb(inputs.feed_max, v('feed_max') > 0 ? '' : 'Debe ser > 0');
-    fb(inputs.hp      , v('hp')       > 0 ? '' : 'Debe ser > 0');
+    fb(inputs.hp, v('hp') > 0 ? '' : 'Debe ser > 0');
 
     if (v('rpm_min') && v('rpm_max') && v('rpm_min') >= v('rpm_max')) {
-      fb(inputs.rpm_min,'RPM min < max');
-      fb(inputs.rpm_max,'RPM min < max');
+      fb(inputs.rpm_min, 'RPM min < max');
+      fb(inputs.rpm_max, 'RPM min < max');
     }
 
     nextWrap.style.display = ok ? 'block' : 'none';
@@ -259,4 +262,8 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
   }
 
   Object.values(inputs).forEach(i => i.addEventListener('input', () => validate()));
-  form.addEventListener('submit', e => { if(!validate()){ e.preventDefault(); e.stop
+  form.addEventListener('submit', e => { if (!validate()) { e.preventDefault(); e.stopPropagation(); } });
+})();
+</script>
+</body>
+</html>
