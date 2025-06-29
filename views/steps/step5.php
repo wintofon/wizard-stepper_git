@@ -41,12 +41,17 @@ if (empty($_SESSION['csrf_token'])) {
 }
 $csrfToken = $_SESSION['csrf_token'];
 
-/* 4) Transmisiones desde BD */
-$txList = $pdo->query("
+/* 4) Transmisiones desde BD
+ *     Ahora ordenadas por coeficiente de seguridad (coef_security)
+ *     y, en caso de empate, por ID ascendente
+ */
+$txList = $pdo->query(""
     SELECT id, name, rpm_min, rpm_max, feed_max, hp_default
       FROM transmissions
-    ORDER BY name
-")->fetchAll(PDO::FETCH_ASSOC);
+    -- Orden por coef_security ascendente, y luego por id ascendente
+    ORDER BY coef_security ASC, id ASC
+""
+)->fetchAll(PDO::FETCH_ASSOC);
 
 $validTx = [];
 foreach ($txList as $t) {
