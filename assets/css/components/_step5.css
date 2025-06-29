@@ -7,6 +7,8 @@
  *      – Inputs y labels coherentes; foco accesible.
  *      – micro-animaciones suaves, halo en focus / active.
  *  ➤ NO se cambia ninguna estructura HTML ni clases existentes.
+ *  ➤ Se agregan estilos para botones de transmisión (.btn-cat),
+ *     igualando el estilo de categorías de material.
  * =========================================================================*/
 
 /* ─────────────── 0. Imports globales ─────────────── */
@@ -98,7 +100,7 @@ h5.step-subtitle{
 
 /* ─────────────── 7. Sección de parámetros opcionales */
 #paramSection{
-  /* se muestra/oculta desde PHP → aquí solo estilo   */
+  /* se muestra/oculta desde JS → aquí solo estilo */
   margin-bottom: 1.5rem;
   padding: 1rem;
   border: 1px dashed var(--p5-border);
@@ -112,11 +114,46 @@ h5.step-subtitle{
   margin-bottom: 1rem;  /* respeta g-3 pero unifica con diseño oscuro */
 }
 
-/* ─────────────── 9. Responsive fine-tune ─────────── */
-@media (width <= 768px){
+/* ─────────────── 9. Botones de transmisión (.btn-cat)  ─ */
+.btn-cat{
+  margin: .35rem .45rem;
+  padding: .65rem 1.2rem;
+  font-size: .95rem;
+  white-space: nowrap;
+
+  color: var(--p5-text);
+  background: var(--p5-bg-dark);
+  border: 1px solid var(--p5-border);
+  border-radius: var(--p5-radius);
+
+  transition: background .25s, color .25s,
+              box-shadow .2s, transform .2s;
+}
+.btn-cat:hover{
+  background: var(--p5-bg-dark2);
+  box-shadow: var(--p5-shadow);
+  transform: translateY(-2px) scale(1.02);
+}
+.btn-cat:focus-visible{
+  outline: 2px solid var(--p5-accent);
+  outline-offset: 2px;
+}
+.btn-cat.active{
+  background: var(--p5-accent);
+  border-color: var(--p5-accent);
+  color: #0d1117;
+  box-shadow: 0 0 0 3px rgb(127 220 255 /.4);
+}
+
+/* ─────────────── 10. Responsive fine-tune ─────────── */
+@media (max-width: 768px){
   .btn-next,
   .btn-primary{
     width: 100%;
     justify-content: center;
+  }
+  .btn-cat{
+    width: 100%;
+    margin: .5rem 0;
   }
 }
