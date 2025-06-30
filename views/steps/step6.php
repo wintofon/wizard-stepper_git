@@ -502,37 +502,37 @@ foreach ($styles as [$local, $cdn]) {
 
       <!-- Resultados principales -->
       <div class="d-flex justify-content-between align-items-center mb-2">
-        <small>Vc</small>
+        <small>Vc <span class="param-explain">(Velocidad de corte)</span></small>
         <div><span id="outVc" class="fw-bold"><?= $outVc ?></span> <span class="param-unit">m/min</span></div>
       </div>
       <div class="d-flex justify-content-between align-items-center mb-2">
-        <small>fz</small>
+        <small>fz <span class="param-explain">(Avance por diente)</span></small>
         <div><span id="outFz" class="fw-bold">--</span> <span class="param-unit">mm/tooth</span></div>
       </div>
       <div class="d-flex justify-content-between align-items-center mb-2">
-        <small>Ap</small>
+        <small>Ap <span class="param-explain">(Profundidad de corte)</span></small>
         <div><span id="outAp" class="fw-bold">--</span> <span class="param-unit">mm</span></div>
       </div>
       <div class="d-flex justify-content-between align-items-center mb-2">
-        <small>Ae</small>
+        <small>Ae <span class="param-explain">(Ancho de corte)</span></small>
         <div><span id="outAe" class="fw-bold">--</span> <span class="param-unit">mm</span></div>
       </div>
       <div class="d-flex justify-content-between align-items-center mb-2">
-        <small>hm</small>
+        <small>hm <span class="param-explain">(Espesor de viruta)</span></small>
         <div><span id="outHm" class="fw-bold">--</span> <span class="param-unit">mm</span></div>
       </div>
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <small>Hp</small>
+        <small>Hp <span class="param-explain">(Potencia requerida)</span></small>
         <div><span id="outHp" class="fw-bold">--</span> <span class="param-unit">HP</span></div>
       </div>
 
       <!-- Métricas secundarias convertidas a resultados iguales -->
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <small>MMR</small>
+        <small>MMR <span class="param-explain">(Tasa de remoción de material)</span></small>
         <div><span id="valueMrr" class="fw-bold">--</span> <span class="param-unit">mm³/min</span></div>
       </div>
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <small>Fc</small>
+        <small>Fc <span class="param-explain">(Fuerza de corte)</span></small>
         <div><span id="valueFc" class="fw-bold">--</span> <span class="param-unit">N</span></div>
       </div>
     </div>
