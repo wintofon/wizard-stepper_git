@@ -92,7 +92,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Guardar y avanzar si OK
     if (empty($errors)) {
+        // Guardar también alias trans_id para el paso 6
         $_SESSION['transmission_id'] = $id;
+        $_SESSION['trans_id']        = $id;
         $_SESSION['rpm_min']         = $rpmn;
         $_SESSION['rpm_max']         = $rpmm;
         $_SESSION['feed_max']        = $feed;
