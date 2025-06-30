@@ -12,6 +12,7 @@
  *  • Consola silenciosa; solo registra cuando el *snapshot* cambia.
  * ====================================================================*/
 
+document.addEventListener('DOMContentLoaded', () => {
 (() => {
   'use strict';
 
@@ -82,7 +83,9 @@
   const OUT   = {
     vc:$('#outVc'), fz:$('#outFz'), hm:$('#outHm'), n:$('#outN'), vf:$('#outVf'),
     hp:$('#outHp'), mmr:$('#valueMrr'), fc:$('#valueFc'), w:$('#valueW'), eta:$('#valueEta'),
-    ae:$('#outAe'), ap:$('#outAp'), vf_ramp:$('#valueRampVf')
+    ae:$('#outAe'), ap:$('#outAp'),
+    // mapeo del nuevo span para mostrar velocidad de avance en rampa
+    vf_ramp:$('#valueRampVf')
   };
   const infoPass  = $('#textPasadasInfo');
   const errBox    = $('#errorMsg');
@@ -136,6 +139,9 @@
   const render = snap => {
     if (!diff(state.last,snap)) return;
     for (const k in snap) if (OUT[k]) OUT[k].textContent = fmt(snap[k], snap[k]%1?2:0);
+    if (snap.vf_ramp !== undefined && OUT.vf_ramp) {
+      OUT.vf_ramp.textContent = snap.vf_ramp.toFixed(1);
+    }
     radar && (radar.data.datasets[0].data=[snap.life,snap.power,snap.finish],radar.update());
     state.last=snap; log('render',snap);
   };
@@ -145,6 +151,7 @@
     const N      = rpm(state.vc);
     const vfRaw  = feed(N,state.fz);
     const vf     = Math.min(vfRaw,FR_MAX);
+    // cálculo específico de velocidad de avance en rampa
     const vfRamp = vf / Z;
 
     /* Si feedrate topa, corregir fz visualmente para reflejar límite */
@@ -221,3 +228,4 @@
     log('init OK');
   } catch(e) { error(e); fatal('JS: '+e.message);}
 })();
+});
