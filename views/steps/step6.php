@@ -491,16 +491,12 @@ foreach ($styles as [$local, $cdn]) {
     <div class="card-body p-4">
       <div class="results-compact mb-4 d-flex gap-2">
         <div class="result-box text-center flex-fill">
-          <div class="param-label">
-            Feedrate<br><small>(<span class="param-unit">mm/min</span>)</small>
-          </div>
-          <div id="outVf" class="fw-bold display-6"><?= $outVf ?></div>
+          <div class="param-label">Feedrate</div>
+          <div><span id="outVf" class="fw-bold display-6"><?= $outVf ?></span> <span class="param-unit">mm/min</span></div>
         </div>
         <div class="result-box text-center flex-fill">
-          <div class="param-label">
-            Cutting speed<br><small>(<span class="param-unit">RPM</span>)</small>
-          </div>
-          <div id="outN" class="fw-bold display-6"><?= $outN ?></div>
+          <div class="param-label">Cutting speed</div>
+          <div><span id="outN" class="fw-bold display-6"><?= $outN ?></span> <span class="param-unit">RPM</span></div>
         </div>
       </div>
 
