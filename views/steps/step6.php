@@ -530,6 +530,46 @@ foreach ($styles as [$local, $cdn]) {
         <div><span id="outHp" class="fw-bold">--</span> <span class="param-unit">HP</span></div>
       </div>
 
+      <!-- Métricas secundarias convertidas a resultados iguales -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <small>MMR</small>
+        <div><span id="valueMrr" class="fw-bold">--</span> <span class="param-unit">mm³/min</span></div>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <small>Fc</small>
+        <div><span id="valueFc" class="fw-bold">--</span> <span class="param-unit">N</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+      <!-- Resultados principales -->
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <small>Vc</small>
+        <div><span id="outVc" class="fw-bold"><?= $outVc ?></span> <span class="param-unit">m/min</span></div>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <small>fz</small>
+        <div><span id="outFz" class="fw-bold">--</span> <span class="param-unit">mm/tooth</span></div>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <small>Ap</small>
+        <div><span id="outAp" class="fw-bold">--</span> <span class="param-unit">mm</span></div>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <small>Ae</small>
+        <div><span id="outAe" class="fw-bold">--</span> <span class="param-unit">mm</span></div>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <small>hm</small>
+        <div><span id="outHm" class="fw-bold">--</span> <span class="param-unit">mm</span></div>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <small>Hp</small>
+        <div><span id="outHp" class="fw-bold">--</span> <span class="param-unit">HP</span></div>
+      </div>
+
       <!-- Métricas secundarias -->
       <div class="d-flex justify-content-between align-items-center mb-3">
         <div class="param-label">
