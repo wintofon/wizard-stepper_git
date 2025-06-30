@@ -85,9 +85,10 @@ class ExpertResultController
         $vcMax0 = $vcMin0 * 1.25;
 
         /* ───────────────────── 5) Coeficientes globales ─────────────────── */
-        $Kc11    = ConfigModel::getKc11($pdo, $materialId);
-        $mc      = ConfigModel::getMc($pdo, $materialId);
-        $coefSeg = ConfigModel::getCoefSeg($pdo, $transId);
+        $Kc11       = ConfigModel::getKc11($pdo, $materialId);
+        $mc         = ConfigModel::getMc($pdo, $materialId);
+        $coefSeg    = ConfigModel::getCoefSeg($pdo, $transId);
+        $angleRamp  = ConfigModel::getAngleRamp($pdo, $materialId);
         $eta     = 1.0;                       // eficiencia global (100 %) – ajústalo si hace falta
 
         /* ───────────────────── 6) Punto base (rpm, feed, etc.) ──────────── */
@@ -127,6 +128,7 @@ class ExpertResultController
             'fz_max0'        => $fzMax0,
             'ap_slot'        => $apSlot,
             'ae_slot'        => $aeSlot,
+            'angle_ramp'     => $angleRamp,
 
             // — Coeficientes —
             'Kc11'           => $Kc11,
