@@ -186,6 +186,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$errors) {
         $_SESSION['machining_type_id'] = $mtId;
         $_SESSION['strategy_id']       = $stId;
+
+        // También guardar nombres para mostrarlos en el paso 6
+        $_SESSION['strategy_parent'] = $grouped[$mtId]['name'] ?? null;
+        foreach ($grouped[$mtId]['estrategias'] as $e) {
+            if ($e['id'] === $stId) {
+                $_SESSION['strategy_name'] = $e['name'];
+                break;
+            }
+        }
+
         $_SESSION['wizard_progress']   = 3;
         header('Location: step4_select_material.php');
         exit;
