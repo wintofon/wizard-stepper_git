@@ -92,6 +92,7 @@
   border:1px solid var(--step6-border); border-radius:.25rem; text-align:center;
 }
 .fw-bold{ color:var(--step6-accent); }
+.param-explain{ font-size:.65rem; color:var(--step6-text-sec); margin-left:.25rem; }
 .param-unit{ color:var(--step6-text-sec); }
 
 /* --------------------------------------------------------------------------

@@ -165,6 +165,7 @@ input.form-range:focus-visible::-moz-range-thumb {
 }
 
 .param-label   { font-size: 0.75rem; color: var(--step6-text-sec); }
+.param-explain { font-size: 0.65rem; color: var(--step6-text-sec); margin-left: 0.25rem; }
 .fw-bold       { color: var(--step6-accent); }
 
 /* stylelint-disable-next-line selector-id-pattern */
