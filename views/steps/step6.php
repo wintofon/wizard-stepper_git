@@ -491,11 +491,11 @@ foreach ($styles as [$local, $cdn]) {
     <div class="card-body p-4">
       <div class="results-compact mb-4 d-flex gap-2">
         <div class="result-box text-center flex-fill">
-          <div class="param-label">Feedrate</div>
+          <div class="param-label">Feedrate </div> <span class="param-explain">(Velocidad de avance)/span>
           <div><span id="outVf" class="fw-bold display-6"><?= $outVf ?></span> <span class="param-unit">mm/min</span></div>
         </div>
         <div class="result-box text-center flex-fill">
-          <div class="param-label">Cutting speed</div>
+          <div class="param-label">Velocidad del Rotacion </div> <span class="param-explain">(Revoluciones por minuto)/span>
           <div><span id="outN" class="fw-bold display-6"><?= $outN ?></span> <span class="param-unit">RPM</span></div>
         </div>
       </div>
@@ -518,7 +518,7 @@ foreach ($styles as [$local, $cdn]) {
         <div><span id="outAe" class="fw-bold">--</span> <span class="param-unit">mm</span></div>
       </div>
       <div class="d-flex justify-content-between align-items-center mb-2">
-        <small>hm <span class="param-explain">(Espesor de viruta)</span></small>
+        <small>hm <span class="param-explain">(Grosor medio de la viruta)</span></small>
         <div><span id="outHm" class="fw-bold">--</span> <span class="param-unit">mm</span></div>
       </div>
       <div class="d-flex justify-content-between align-items-center mb-3">
