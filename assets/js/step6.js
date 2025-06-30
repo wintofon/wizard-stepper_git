@@ -124,9 +124,8 @@
   const recalc = () => {
     const N      = rpm(state.vc);
     const vfRaw  = feed(N,state.fz);
-    const vf     = Math.min(vfRaw, FR_MAX);
-    const vfDisp = Math.round(vf);   // mismo valor que se muestra en resultados
-    const vfRamp = vfDisp / Z;
+    const vf     = Math.min(vfRaw,FR_MAX);
+    const vfRamp = vf / Z;
 
     /* Si feedrate topa, corregir fz visualmente para reflejar límite */
     if (vfRaw > FR_MAX) state.fz = FR_MAX/(N*Z);
