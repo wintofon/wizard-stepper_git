@@ -173,11 +173,20 @@ $requiredKeys = [
     'tool_table','tool_id','material','trans_id',
     'rpm_min','rpm_max','fr_max','thickness','strategy','hp'
 ];
+
+// Detecta qué claves no existen o están vacías
 $missing = array_filter($requiredKeys, fn($k) => empty($_SESSION[$k]));
+
 if ($missing) {
-    error_log('[step6] Faltan claves: ' . implode(',', $missing));
-    respondError(200, 'ERROR – faltan datos en sesión');
+    // Loguea las claves faltantes
+    error_log('[step6] Faltan claves en sesión: ' . implode(', ', $missing));
+    // Envía respuesta con detalle de las claves que faltan
+    respondError(
+        200,
+        'ERROR – faltan datos en sesión: ' . implode(', ', $missing)
+    );
 }
+
 
 // ------------------------------------------------------------------
 // 11. Conexión BD
