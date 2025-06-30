@@ -171,7 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // ------------------------------------------------------------------
 $requiredKeys = [
     'tool_table','tool_id','material','trans_id',
-    'rpm_min','rpm_max','fr_max','thickness','strategy','hp'
+    'rpm_min','rpm_max','fr_max','thickness','hp'
 ];
 
 // Detecta qué claves no existen o están vacías
