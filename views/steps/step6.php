@@ -281,7 +281,7 @@ $baseFeed= (float)$params['feed0'];
 $baseMmr = (float)$params['mmr_base'];
 $angleRamp = (int)($params['angle_ramp'] ?? 15);
 
-$baseRampFeed = $fluteCountMb > 0 ? $baseFeed / $fluteCountMb : $baseFeed;
+$baseRampFeed = $fluteCountMb > 0 ? $baseFeed / $fluteCountMb : $baseFeed; // calculado solo para compatibilidad, se mostrará desde JS
 
 $outVf = number_format($baseFeed, 0, '.', '');
 $outN  = number_format($baseRpm, 0, '.', '');
@@ -540,7 +540,9 @@ foreach ($styles as [$local, $cdn]) {
       </div>
       <div class="d-flex justify-content-between align-items-center mb-3">
         <small>Velocidad de avance en rampa (<?= $angleRamp ?>°)</small>
-        <div><span id="valueRampVf" class="fw-bold"><?= number_format($baseRampFeed, 1) ?></span> <span class="param-unit">mm/min</span></div>
+        <!-- baseRampFeed se calcula ahora en JS; se muestra '--' hasta que se
+             actualice dinámicamente -->
+        <div><span id="valueRampVf" class="fw-bold">--</span> <span class="param-unit">mm/min</span></div>
       </div>
     </div>
   </div>
