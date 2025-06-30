@@ -34,7 +34,7 @@
   const REQ = [
     'diameter','flute_count','rpm_min','rpm_max','fr_max',
     'coef_seg','Kc11','mc','eta','fz0','vc0','thickness',
-    'fz_min0','fz_max0','hp_avail','angle_ramp'
+    'fz_min0','fz_max0','hp_avail','angle_ramp','cut_length'
   ];
   const missing = REQ.filter(k => P[k] === undefined);
   if (missing.length) return alert(`⚠️  Faltan claves: ${missing.join(', ')}`);
@@ -54,10 +54,11 @@
     fz0:         FZ0,
     vc0:         VC0,
     thickness:   THK,
+    cut_length:  CUT_LEN,
     hp_avail:    HP_AVAIL,
     fz_min0:     FZ_MIN,
     fz_max0:     FZ_MAX,
-    angle_ramp:  ANGLE_RAMP 
+    angle_ramp:  ANGLE_RAMP
   } = P;
 
   /* ──────────────── STATE & CONSTANTS ─────────────── */
@@ -83,10 +84,29 @@
     hp:$('#outHp'), mmr:$('#valueMrr'), fc:$('#valueFc'), w:$('#valueW'), eta:$('#valueEta'),
     ae:$('#outAe'), ap:$('#outAp'), vf_ramp:$('#valueRampVf')
   };
-  const infoPass = $('#textPasadasInfo');
-  const errBox   = $('#errorMsg');
+  const infoPass  = $('#textPasadasInfo');
+  const errBox    = $('#errorMsg');
+  const feedAlert = $('#feedAlert');
+  const rpmAlert  = $('#rpmAlert');
+  const lenAlert  = $('#lenAlert');
 
   const fatal = msg => { errBox? (errBox.textContent=msg,errBox.style.display='block') : alert(msg); };
+
+  const showAlert = (el,msg) => { if(!el) return; el.textContent=msg; el.classList.remove('d-none'); el.classList.add('alert','alert-danger'); };
+  const hideAlert = el => { if(!el) return; el.textContent=''; el.classList.add('d-none'); };
+
+  const validateFeed = vf => {
+    if (vf > FR_MAX) { showAlert(feedAlert, `Feedrate supera el máximo (${FR_MAX} mm/min)`); return false; }
+    hideAlert(feedAlert); return true;
+  };
+  const validateRpm = n => {
+    if (n < RPM_MIN || n > RPM_MAX) { showAlert(rpmAlert, `RPM fuera de rango (${Math.round(n)})`); return false; }
+    hideAlert(rpmAlert); return true;
+  };
+  const validateLength = () => {
+    if (THK > CUT_LEN) { showAlert(lenAlert, `El material (${THK} mm) es de mayor espesor que el largo útil de la fresa (${CUT_LEN} mm).`); return false; }
+    hideAlert(lenAlert); return true;
+  };
 
   /* ──────────────────── FORMULAS ──────────────────── */
   const rpm    = vc          => (vc*1000)/(Math.PI*D);
@@ -131,6 +151,9 @@
     if (vfRaw > FR_MAX) state.fz = FR_MAX/(N*Z);
 
     const apVal  = THK/state.ap;
+    validateFeed(vf);
+    validateRpm(N);
+    validateLength();
     const hmVal  = hm(state.fz,state.ae);
     const kcVal  = kc_h(hmVal);
     const mmrVal = mmr(apVal,vf,state.ae);
