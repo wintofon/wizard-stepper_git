@@ -170,7 +170,7 @@ th{text-align:left;background:#f0f0f0;}
 <table>
 <tr><th>RPM</th><td><span id="outRpm"><?=number_format($result['rpm'])?></span></td></tr>
 <tr><th>Feedrate</th><td><span id="outFeed"><?=number_format($result['feed'],1)?></span> mm/min</td></tr>
-<tr><th>Feedrate en rampa</th><td><span id="outFeedRamp"><?=number_format($result['feed_ramp'],1)?></span> mm/min</td></tr>
+<tr><th>Feedrate en rampa</th><td><span id="valueRampVf"><?=number_format($result['feed_ramp'],1)?></span> mm/min</td></tr>
 <tr><th>Chip thickness</th><td><span id="outHm"><?=number_format($result['hm'],4)?></span> mm</td></tr>
 <tr><th>ap</th><td><span id="outAp"><?=number_format($result['ap'],3)?></span> mm</td></tr>
 <tr><th>Potencia</th><td><span id="outHp"><?=number_format($result['hp'],2)?></span> HP (<span id="outWatts"><?=number_format($result['watts'])?></span> W)</td></tr>
@@ -235,7 +235,7 @@ function recalc(){
 
     document.getElementById('outRpm').textContent = Math.round(rpm);
     document.getElementById('outFeed').textContent = feed.toFixed(1);
-    document.getElementById('outFeedRamp').textContent = rampFeed.toFixed(1);
+    document.getElementById('valueRampVf').textContent = rampFeed.toFixed(1);
     document.getElementById('outHm').textContent = hm.toFixed(4);
     document.getElementById('outAp').textContent = ap.toFixed(3);
     document.getElementById('outMmr').textContent = mmr.toFixed(2);
