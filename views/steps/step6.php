@@ -491,11 +491,11 @@ foreach ($styles as [$local, $cdn]) {
     <div class="card-body p-4">
       <div class="results-compact mb-4 d-flex gap-2">
         <div class="result-box text-center flex-fill">
-          <div class="param-label">Feedrate </div> <span class="param-explain">(Velocidad de avance)/span>
+          <div class="param-label">Feedrate </div> <span class="param-explain">(Velocidad de avance)</span>
           <div><span id="outVf" class="fw-bold display-6"><?= $outVf ?></span> <span class="param-unit">mm/min</span></div>
         </div>
         <div class="result-box text-center flex-fill">
-          <div class="param-label">Velocidad del Rotacion </div> <span class="param-explain">(Revoluciones por minuto)/span>
+          <div class="param-label">Velocidad del Rotacion </div> <span class="param-explain">(Revoluciones por minuto)</span>
           <div><span id="outN" class="fw-bold display-6"><?= $outN ?></span> <span class="param-unit">RPM</span></div>
         </div>
       </div>
