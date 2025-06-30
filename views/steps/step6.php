@@ -549,12 +549,26 @@ foreach ($styles as [$local, $cdn]) {
 
     
 
-    <!-- Radar Chart -->
+    <!-- Radar Chart + Notas -->
     <div class="col-12 col-lg-4 mb-3 area-radar">
       <div class="card h-100 shadow-sm">
         <div class="card-header text-center p-3"><h5 class="mb-0">Distribución Radar</h5></div>
-        <div class="card-body p-4 d-flex justify-content-center align-items-center">
-          <canvas id="radarChart" width="300" height="300"></canvas>
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-center mb-4">
+            <canvas id="radarChart" width="300" height="300"></canvas>
+          </div>
+          <?php if ($notesArray): ?>
+            <ul class="notes-list mb-0">
+              <?php foreach ($notesArray as $note): ?>
+                <li class="d-flex align-items-start mb-2">
+                  <i data-feather="file-text" class="me-2"></i>
+                  <div><?= htmlspecialchars($note, ENT_QUOTES) ?></div>
+                </li>
+              <?php endforeach; ?>
+            </ul>
+          <?php else: ?>
+            <div class="text-secondary">No hay notas adicionales para esta herramienta.</div>
+          <?php endif; ?>
         </div>
       </div>
     </div>
@@ -562,8 +576,8 @@ foreach ($styles as [$local, $cdn]) {
 
 
 <!-- ===============================================================
-     ESPECIFICACIONES  ·  CONFIGURACIÓN ·  NOTAS
-     (tres tarjetas alineadas, idéntico formato de “Configuración
+     ESPECIFICACIONES  ·  CONFIGURACIÓN
+     (dos tarjetas alineadas, idéntico formato de “Configuración
      de Usuario” para la sección Especificaciones Técnicas)
 =============================================================== -->
 <div class="row gx-3 mb-4 cards-grid"><!-- grilla flex→grid -->
@@ -752,29 +766,6 @@ foreach ($styles as [$local, $cdn]) {
   </div><!-- /.area-config -->
 
 
-  <!--─────────────────── 3) NOTAS ADICIONALES ──────────────────-->
-  <div class="col-12 col-lg-4 mb-3 area-notes">
-    <div class="card h-100 shadow-sm">
-      <div class="card-header text-center p-3">
-        <h5 class="mb-0">Notas Adicionales</h5>
-      </div>
-
-      <div class="card-body p-4">
-        <?php if ($notesArray): ?>
-          <ul class="notes-list mb-0">
-            <?php foreach ($notesArray as $note): ?>
-              <li class="d-flex align-items-start mb-2">
-                <i data-feather="file-text" class="me-2"></i>
-                <div><?= htmlspecialchars($note, ENT_QUOTES) ?></div>
-              </li>
-            <?php endforeach; ?>
-          </ul>
-        <?php else: ?>
-          <div class="text-secondary">No hay notas adicionales para esta herramienta.</div>
-        <?php endif; ?>
-      </div>
-    </div><!-- /.card -->
-  </div><!-- /.area-notes -->
 
 </div><!-- /.cards-grid -->
 
