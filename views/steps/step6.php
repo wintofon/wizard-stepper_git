@@ -279,6 +279,9 @@ $frMax   = (float)$params['fr_max'];
 $baseRpm = (int)  $params['rpm0'];
 $baseFeed= (float)$params['feed0'];
 $baseMmr = (float)$params['mmr_base'];
+$angleRamp = (int)($params['angle_ramp'] ?? 15);
+
+$baseRampFeed = $fluteCountMb > 0 ? $baseFeed / $fluteCountMb : $baseFeed;
 
 $outVf = number_format($baseFeed, 0, '.', '');
 $outN  = number_format($baseRpm, 0, '.', '');
@@ -534,6 +537,10 @@ foreach ($styles as [$local, $cdn]) {
       <div class="d-flex justify-content-between align-items-center mb-3">
         <small>Fc <span class="param-explain">(Fuerza de corte)</span></small>
         <div><span id="valueFc" class="fw-bold">--</span> <span class="param-unit">N</span></div>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <small>Velocidad de avance en rampa (<?= $angleRamp ?>°)</small>
+        <div><span id="valueRampVf" class="fw-bold"><?= number_format($baseRampFeed, 1) ?></span> <span class="param-unit">mm/min</span></div>
       </div>
     </div>
   </div>

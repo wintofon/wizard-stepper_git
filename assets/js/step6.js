@@ -34,7 +34,7 @@
   const REQ = [
     'diameter','flute_count','rpm_min','rpm_max','fr_max',
     'coef_seg','Kc11','mc','eta','fz0','vc0','thickness',
-    'fz_min0','fz_max0','hp_avail'
+    'fz_min0','fz_max0','hp_avail','angle_ramp'
   ];
   const missing = REQ.filter(k => P[k] === undefined);
   if (missing.length) return alert(`⚠️  Faltan claves: ${missing.join(', ')}`);
@@ -56,7 +56,8 @@
     thickness:   THK,
     hp_avail:    HP_AVAIL,
     fz_min0:     FZ_MIN,
-    fz_max0:     FZ_MAX
+    fz_max0:     FZ_MAX,
+    angle_ramp:  ANGLE_RAMP = 15
   } = P;
 
   /* ──────────────── STATE & CONSTANTS ─────────────── */
@@ -80,7 +81,7 @@
   const OUT   = {
     vc:$('#outVc'), fz:$('#outFz'), hm:$('#outHm'), n:$('#outN'), vf:$('#outVf'),
     hp:$('#outHp'), mmr:$('#valueMrr'), fc:$('#valueFc'), w:$('#valueW'), eta:$('#valueEta'),
-    ae:$('#outAe'), ap:$('#outAp')
+    ae:$('#outAe'), ap:$('#outAp'), vf_ramp:$('#valueRampVf')
   };
   const infoPass = $('#textPasadasInfo');
   const errBox   = $('#errorMsg');
@@ -124,6 +125,7 @@
     const N      = rpm(state.vc);
     const vfRaw  = feed(N,state.fz);
     const vf     = Math.min(vfRaw,FR_MAX);
+    const vfRamp = vf / Z;
 
     /* Si feedrate topa, corregir fz visualmente para reflejar límite */
     if (vfRaw > FR_MAX) state.fz = FR_MAX/(N*Z);
@@ -142,7 +144,7 @@
     const finishPct = Math.max(0,100-lifePct);
 
     render({
-      vc:state.vc, fz:state.fz, hm:hmVal, n:N|0, vf:vf|0,
+      vc:state.vc, fz:state.fz, hm:hmVal, n:N|0, vf:vf|0, vf_ramp:vfRamp,
       hp:hpVal, mmr:mmrVal, fc:fcVal|0, w:kWval*1000|0,
       eta:Math.min(100,(hpVal/HP_AVAIL)*100)|0,
       ae:state.ae, ap:apVal,

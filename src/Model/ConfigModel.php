@@ -139,6 +139,42 @@ class ConfigModel
             return 1.0;
         }
     }
+
+    /**
+     * Devuelve el ángulo de rampa para un material dado.
+     * Si falla, se retorna el valor por defecto de 15°.
+     *
+     * @param \PDO $pdo          Conexión PDO
+     * @param int  $material_id  ID del material
+     * @return int               Ángulo en grados
+     */
+    public static function getAngleRamp(\PDO $pdo, int $material_id): int
+    {
+        if ($material_id <= 0) {
+            dbg("[ConfigModel::getAngleRamp] material_id inválido: {$material_id}");
+            return 15;
+        }
+
+        try {
+            $stmt = $pdo->prepare("SELECT angle_ramp FROM materials WHERE material_id = ?");
+            $stmt->execute([$material_id]);
+            $val = $stmt->fetchColumn();
+
+            if ($val === false) {
+                dbg("[ConfigModel::getAngleRamp] material_id={$material_id} no encontrado. Usando valor por defecto.");
+                return 15;
+            }
+
+            return (int)$val;
+
+        } catch (\PDOException $e) {
+            dbg("[ConfigModel::getAngleRamp] PDOException: " . $e->getMessage());
+            return 15;
+        } catch (\Throwable $e) {
+            dbg("[ConfigModel::getAngleRamp] Error inesperado: " . $e->getMessage());
+            return 15;
+        }
+    }
 }
 
 // Stub de debug: registra mensajes en el log de errores.
