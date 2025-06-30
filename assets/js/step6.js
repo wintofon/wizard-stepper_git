@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const hideAlert = el => { if(!el) return; el.textContent=''; el.classList.add('d-none'); };
 
   const validateFeed = vf => {
-    if (vf > FR_MAX) { showAlert(feedAlert, `Feedrate supera el máximo (${FR_MAX} mm/min)`); return false; }
+    if (vf >= FR_MAX) { showAlert(feedAlert, `Feedrate supera el máximo (${FR_MAX} mm/min)`); return false; }
     hideAlert(feedAlert); return true;
   };
   const validateRpm = n => {
@@ -155,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const vfRamp = vf / Z;
 
     /* Si feedrate topa, corregir fz visualmente para reflejar límite */
-    if (vfRaw > FR_MAX) state.fz = FR_MAX/(N*Z);
+    if (vfRaw >= FR_MAX) state.fz = FR_MAX/(N*Z);
 
     const apVal  = THK/state.ap;
     validateFeed(vf);
