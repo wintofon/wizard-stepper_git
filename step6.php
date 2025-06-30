@@ -87,6 +87,7 @@ if (!$errors) {
     $rpmCalc = ($vc * 1000.0) / (M_PI * $D);
     $rpm = (int)round(max($rpmMin, min($rpmCalc, $rpmMax)));
     $feed = min($rpm * $fz * $Z, $frMax);
+    $feedRamp = $Z > 0 ? $feed / $Z : $feed;
 
     $phi = 2 * asin(min(1.0, $ae / $D));
     $hm  = $phi !== 0.0 ? ($fz * (1 - cos($phi)) / $phi) : $fz;
@@ -100,13 +101,14 @@ if (!$errors) {
     $HP  = round($kW * 1.341, 2);
 
     $result = [
-        'rpm'   => $rpm,
-        'feed'  => $feed,
-        'hp'    => $HP,
-        'watts' => $W,
-        'mmr'   => $mmr,
-        'hm'    => $hm,
-        'ap'    => $ap,
+        'rpm'       => $rpm,
+        'feed'      => $feed,
+        'feed_ramp' => $feedRamp,
+        'hp'        => $HP,
+        'watts'     => $W,
+        'mmr'       => $mmr,
+        'hm'        => $hm,
+        'ap'        => $ap,
     ];
 }
 } catch (Throwable $e) {
@@ -168,6 +170,7 @@ th{text-align:left;background:#f0f0f0;}
 <table>
 <tr><th>RPM</th><td><span id="outRpm"><?=number_format($result['rpm'])?></span></td></tr>
 <tr><th>Feedrate</th><td><span id="outFeed"><?=number_format($result['feed'],1)?></span> mm/min</td></tr>
+<tr><th>Feedrate en rampa</th><td><span id="outFeedRamp"><?=number_format($result['feed_ramp'],1)?></span> mm/min</td></tr>
 <tr><th>Chip thickness</th><td><span id="outHm"><?=number_format($result['hm'],4)?></span> mm</td></tr>
 <tr><th>ap</th><td><span id="outAp"><?=number_format($result['ap'],3)?></span> mm</td></tr>
 <tr><th>Potencia</th><td><span id="outHp"><?=number_format($result['hp'],2)?></span> HP (<span id="outWatts"><?=number_format($result['watts'])?></span> W)</td></tr>
@@ -220,6 +223,7 @@ function recalc(){
     const rpmCalc = (vc * 1000) / (Math.PI * D);
     const rpm = Math.max(rpmMin, Math.min(rpmCalc, rpmMax));
     const feed = Math.min(rpm * fz * Z, feedMax);
+    const rampFeed = Z > 0 ? feed / Z : feed;
     const phi = 2 * Math.asin(Math.min(1, ae / D));
     const hm = phi !== 0 ? (fz * (1 - Math.cos(phi)) / phi) : fz;
     const ap = thickness / Math.max(1, passes);
@@ -231,6 +235,7 @@ function recalc(){
 
     document.getElementById('outRpm').textContent = Math.round(rpm);
     document.getElementById('outFeed').textContent = feed.toFixed(1);
+    document.getElementById('outFeedRamp').textContent = rampFeed.toFixed(1);
     document.getElementById('outHm').textContent = hm.toFixed(4);
     document.getElementById('outAp').textContent = ap.toFixed(3);
     document.getElementById('outMmr').textContent = mmr.toFixed(2);
