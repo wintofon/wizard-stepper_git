@@ -100,7 +100,7 @@
     hideAlert(feedAlert); return true;
   };
   const validateRpm = n => {
-    if (n < RPM_MIN || n > RPM_MAX) { showAlert(rpmAlert, `RPM fuera de rango (${Math.round(n)})`); return false; }
+    if (n <= RPM_MIN || n >= RPM_MAX) { showAlert(rpmAlert, `RPM fuera de rango (${Math.round(n)})`); return false; }
     hideAlert(rpmAlert); return true;
   };
   const validateLength = () => {
@@ -206,10 +206,10 @@
 
   /* ───────────────────── INIT ─────────────────── */
   try {
-    /* Limitar VC: ±50 % pero dentro de RPM */
-    const vcMin = Math.max(VC0*0.5,(RPM_MIN*Math.PI*D)/1000);
-    const vcMax = Math.min(VC0*1.5,(RPM_MAX*Math.PI*D)/1000);
-    SL.vc.min=fmt(vcMin,1); SL.vc.max=fmt(vcMax,1); SL.vc.value=fmt(state.vc,1);
+    /* Limitar VC: ±50 % del valor base */
+    const vcMin = VC0 * 0.5;
+    const vcMax = VC0 * 1.5;
+    SL.vc.min = fmt(vcMin,1); SL.vc.max = fmt(vcMax,1); SL.vc.value = fmt(state.vc,1);
 
     SL.pass.value=1;                // por defecto 1 pasada
     /* Embellece sliders y listeners */
