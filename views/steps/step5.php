@@ -74,12 +74,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $feed = filter_input(INPUT_POST, 'feed_max',        FILTER_VALIDATE_FLOAT);
     $hp   = filter_input(INPUT_POST, 'hp',              FILTER_VALIDATE_FLOAT);
 
-    if (!isset($validTx[$id]))           $errors[] = 'Elegí una transmisión válida.';
-    if (!$rpmn || $rpmn <= 0)            $errors[] = 'La RPM mínima debe ser > 0.';
-    if (!$rpmm || $rpmm <= 0)            $errors[] = 'La RPM máxima debe ser > 0.';
-    if ($rpmn && $rpmm && $rpmn >= $rpmm)$errors[] = 'La RPM mínima debe ser menor que la máxima.';
-    if (!$feed || $feed <= 0)            $errors[] = 'El avance máximo debe ser > 0.';
-    if (!$hp   || $hp   <= 0)            $errors[] = 'La potencia debe ser > 0.';
+    if (!isset($validTx[$id]))             $errors[] = 'Elegí una transmisión válida.';
+    if (!$rpmn || $rpmn <= 0)              $errors[] = 'La RPM mínima debe ser > 0.';
+    if (!$rpmm || $rpmm <= 0)              $errors[] = 'La RPM máxima debe ser > 0.';
+    if ($rpmn && $rpmm && $rpmn >= $rpmm)  $errors[] = 'La RPM mínima debe ser menor que la máxima.';
+    if (!$feed || $feed <= 0)              $errors[] = 'El avance máximo debe ser > 0.';
+    if (!$hp   || $hp   <= 0)              $errors[] = 'La potencia debe ser > 0.';
 
     if (!$errors) {
         $_SESSION += [
@@ -105,6 +105,7 @@ $prev = [
     'hp'              => $_SESSION['hp']             ?? '',
 ];
 $hasPrev = (int)$prev['transmission_id'] > 0;
+?>
 <?php
   $styles = [
     'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
@@ -133,7 +134,7 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
 
   <form id="routerForm" method="post" novalidate>
     <input type="hidden" name="step" value="5">
-    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf, ENT_QUOTES) ?>">
+    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>">
 
     <!-- Bloque Transmisiones como botones estilo categoría -->
     <div class="mb-4">
@@ -141,7 +142,7 @@ $hasPrev = (int)$prev['transmission_id'] > 0;
       <div id="txRow" class="d-flex flex-wrap">
         <?php foreach ($txList as $tx):
           $tid = (int)$tx['id'];
-          $active = $tid === $prev['id'];
+          $active = $tid === $prev['transmission_id'];
         ?>
         <button
           type="button"
