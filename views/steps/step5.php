@@ -27,48 +27,48 @@ declare(strict_types=1);
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start([
         'cookie_secure'   => true,     // Solo HTTPS
-        'cookie_httponly' => true,     // No JS
-        'cookie_samesite' => 'Strict', // Evita CSRF
+        'cookie_httponly' => true,     // No accesible desde JS
+        'cookie_samesite' => 'Strict', // Previene CSRF
     ]);
 }
 if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 4) {
-    // Si no ha llegado al paso 4, redirige al inicio
     header('Location: step1.php');
     exit;
 }
 
 // --------------------------------------------------
-// 2) Dependencias externas
+// 2) Dependencias (BD, debug)
 // --------------------------------------------------
-require_once __DIR__ . '/../../includes/db.php';     // Proporciona $pdo
-require_once __DIR__ . '/../../includes/debug.php';  // Funciones de debug
+require_once __DIR__ . '/../../includes/db.php';     // instancia $pdo
+require_once __DIR__ . '/../../includes/debug.php';  // helpers de debug
 
 // --------------------------------------------------
 // 3) Generar/recuperar CSRF token
 // --------------------------------------------------
 if (empty($_SESSION['csrf_token'])) {
-    // Nuevo token si no existe
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 $csrfToken = $_SESSION['csrf_token'];
 
 // --------------------------------------------------
-// 4) Obtención de transmisiones desde la BD
-//    Ordenadas por coef_deguriti DESC, luego por id ASC
+// 4) Obtener transmisiones desde la BD
+//    – Incluye coef_security (nombre real en la tabla)
+//    – Ordena por coef_security DESC, luego por id ASC
 // --------------------------------------------------
 $txList = $pdo->query("
-    SELECT id,
-           name,
-           rpm_min,
-           rpm_max,
-           feed_max,
-           hp_default,
-           coef_deguriti
-      FROM transmissions
-    ORDER BY coef_deguriti DESC, id ASC
+    SELECT
+      id,
+      name,
+      rpm_min,
+      rpm_max,
+      feed_max,
+      hp_default,
+      coef_security
+    FROM transmissions
+    ORDER BY coef_security DESC, id ASC
 ")->fetchAll(PDO::FETCH_ASSOC);
 
-// Mapeo rápido para validaciones posteriores
+// Map para validación rápida en POST
 $validTx = [];
 foreach ($txList as $t) {
     $validTx[(int)$t['id']] = [
@@ -80,7 +80,7 @@ foreach ($txList as $t) {
 }
 
 // --------------------------------------------------
-// 5) Procesamiento del formulario POST
+// 5) Procesar formulario POST
 // --------------------------------------------------
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -88,12 +88,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!hash_equals($csrfToken, (string)($_POST['csrf_token'] ?? ''))) {
         $errors[] = 'Token de seguridad inválido. Recargá la página e intentá de nuevo.';
     }
-    // 5.2) Verificar que venga del paso correcto
+    // 5.2) Verificar paso
     if ((int)($_POST['step'] ?? 0) !== 5) {
         $errors[] = 'Paso inválido. Reiniciá el asistente.';
     }
 
-    // 5.3) Recoger valores del POST
+    // 5.3) Recuperar valores del POST
     $id   = filter_input(INPUT_POST, 'trans_id',    FILTER_VALIDATE_INT);
     $rpmn = filter_input(INPUT_POST, 'rpm_min',     FILTER_VALIDATE_INT);
     $rpmm = filter_input(INPUT_POST, 'rpm_max',     FILTER_VALIDATE_INT);
@@ -125,14 +125,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // --------------------------------------------------
-// 6) Preparar valores previos para mostrar en el form
+// 6) Preparar valores previos para el formulario
 // --------------------------------------------------
 $prev = [
-    'trans_id'   => $_SESSION['trans_id']   ?? '',
-    'rpm_min'    => $_SESSION['rpm_min']    ?? '',
-    'rpm_max'    => $_SESSION['rpm_max']    ?? '',
-    'feed_max'   => $_SESSION['feed_max']   ?? '',
-    'hp'         => $_SESSION['hp']         ?? '',
+    'trans_id' => $_SESSION['trans_id'] ?? '',
+    'rpm_min'  => $_SESSION['rpm_min']   ?? '',
+    'rpm_max'  => $_SESSION['rpm_max']   ?? '',
+    'feed_max' => $_SESSION['feed_max']  ?? '',
+    'hp'       => $_SESSION['hp']        ?? '',
 ];
 $hasPrev = (int)$prev['trans_id'] > 0;
 ?>
@@ -143,9 +143,7 @@ $hasPrev = (int)$prev['trans_id'] > 0;
   <title>Paso 5 – Configurá tu router</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
 <?php
-  // --------------------------------------------------
-  // 7) Incluir hojas de estilo
-  // --------------------------------------------------
+  // 7) Incluir estilos CSS
   $styles = [
     'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
     'assets/css/objects/step-common.css',
@@ -160,7 +158,7 @@ $hasPrev = (int)$prev['trans_id'] > 0;
   <h2 class="step-title"><i data-feather="cpu"></i> Configurá tu router CNC</h2>
   <p class="step-desc">Ingresá los datos de tu máquina para calcular parámetros.</p>
 
-  <!-- 9) Mostrar errores de validación -->
+  <!-- 9) Mostrar errores -->
   <?php if (!empty($errors)): ?>
     <div class="alert alert-danger mb-4">
       <ul class="mb-0">
@@ -171,17 +169,15 @@ $hasPrev = (int)$prev['trans_id'] > 0;
     </div>
   <?php endif; ?>
 
-  <!-- 10) Formulario principal -->
+  <!-- 10) Formulario -->
   <form id="routerForm" method="post" novalidate>
-    <!-- Paso y CSRF -->
     <input type="hidden" name="step" value="5">
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>">
-    <!-- Hidden para trans_id -->
     <input type="hidden" name="trans_id" id="trans_id" value="<?= htmlspecialchars($prev['trans_id'], ENT_QUOTES) ?>">
 
-    <!-- 11) Selección de transmisión -->
+    <!-- 11) Lista de transmisiones ordenada -->
     <div class="mb-4">
-      <h5 class="step-subtitle">Seleccione la Transmisión (ordenadas por coef_deguriti)</h5>
+      <h5 class="step-subtitle">Seleccione la Transmisión (ordenadas por coef_security)</h5>
       <div id="txRow" class="d-flex flex-wrap">
         <?php foreach ($txList as $tx):
           $tid    = (int)$tx['id'];
@@ -202,18 +198,18 @@ $hasPrev = (int)$prev['trans_id'] > 0;
       </div>
     </div>
 
-    <!-- 12) Parámetros (oculto hasta selección) -->
+    <!-- 12) Parámetros (oculto) -->
     <div id="paramSection" style="display:none;">
       <h5 class="step-subtitle">Seleccione los parámetros</h5>
       <div class="row g-3">
         <?php
           $fields = [
-            ['rpm_min',   'RPM mínima',    1,   'rpm'],
-            ['rpm_max',   'RPM máxima',    1,   'rpm'],
-            ['feed_max',  'Avance máximo', 0.1, 'mm/min'],
-            ['hp',        'Potencia (HP)', 0.1, 'HP'],
+            ['rpm_min','RPM mínima',1,'rpm'],
+            ['rpm_max','RPM máxima',1,'rpm'],
+            ['feed_max','Avance máximo',0.1,'mm/min'],
+            ['hp','Potencia (HP)',0.1,'HP'],
           ];
-          foreach ($fields as [$key, $label, $step, $unit]):
+          foreach ($fields as [$key,$label,$step,$unit]):
         ?>
         <div class="col-md-3">
           <label for="<?= $key ?>" class="form-label"><?= $label ?></label>
@@ -237,7 +233,7 @@ $hasPrev = (int)$prev['trans_id'] > 0;
       </div>
     </div>
 
-    <!-- 13) Botón Siguiente (se muestra solo si hay selección válida) -->
+    <!-- 13) Botón Siguiente -->
     <div id="nextWrap" class="text-start mt-4" style="display:<?= $hasPrev ? 'block' : 'none' ?>">
       <button type="submit" class="btn btn-primary btn-lg">
         Siguiente <i data-feather="arrow-right" class="ms-1"></i>
@@ -248,8 +244,6 @@ $hasPrev = (int)$prev['trans_id'] > 0;
 
 <script>
 (function() {
-  // Pasamos la lista de transmisiones a JS
-  const txList       = <?= json_encode($txList, JSON_UNESCAPED_UNICODE) ?>;
   const txRow        = document.getElementById('txRow');
   const paramSection = document.getElementById('paramSection');
   const nextWrap     = document.getElementById('nextWrap');
@@ -261,32 +255,30 @@ $hasPrev = (int)$prev['trans_id'] > 0;
   };
   const hiddenTrans  = document.getElementById('trans_id');
 
-  // Función para scroll suave
-  const smoothTo = el => el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-  // Deshabilitamos inputs al cargar
+  // Deshabilitar inputs al cargar
   Object.values(inputs).forEach(i => i.disabled = true);
 
-  // Cada botón de transmisión recibe su listener
+  // Scroll suave
+  const smoothTo = el => el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  // Manejar clic en cada botón
   txRow.querySelectorAll('.btn-cat').forEach(btn => {
     btn.addEventListener('click', () => {
-      // 1) Marcar activo el botón
+      // Activar botón
       txRow.querySelectorAll('.btn-cat').forEach(x => x.classList.remove('active'));
       btn.classList.add('active');
 
-      // 2) Extraer datos del data-attribute
-      const { rpmmin, rpmmax, feedmax, hpdef, id } = btn.dataset;
-
-      // 3) Poblar inputs
+      // Poblar parámetros desde data-attributes
+      const { rpmmin, rpmmax, feedmax, hpdef } = btn.dataset;
       inputs.rpm_min.value  = rpmmin;
       inputs.rpm_max.value  = rpmmax;
       inputs.feed_max.value = feedmax;
       inputs.hp.value       = hpdef;
 
-      // 4) Guardar id en hidden
+      // Guardar selección
       hiddenTrans.value = btn.dataset.id;
 
-      // 5) Mostrar sección y habilitar inputs
+      // Mostrar sección de parámetros
       Object.values(inputs).forEach(i => i.disabled = false);
       paramSection.style.display = 'block';
       nextWrap.style.display     = 'block';
