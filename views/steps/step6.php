@@ -544,6 +544,30 @@ foreach ($styles as [$local, $cdn]) {
 </div>
 
 
+      <!-- Resultados -->
+<div class="col-12 col-lg-4 mb-3 area-results">
+  <div class="card h-100 shadow-sm">
+    <div class="card-header text-center p-3"><h5 class="mb-0">Resultados</h5></div>
+    <div class="card-body p-4">
+      <div class="results-compact mb-4 d-flex gap-2">
+        <div class="result-box text-center flex-fill">
+          <div class="param-label">
+            Feedrate<br><small>(<span class="param-unit">mm/min</span>)</small>
+          </div>
+          <div id="outVf" class="fw-bold display-6"><?= $outVf ?></div>
+          <!-- parámetro usado -->
+          <div class="mt-1"><small>Feed_max: <?= htmlspecialchars($_SESSION['feed_max'] ?? '--', ENT_QUOTES) ?> mm/min</small></div>
+        </div>
+        <div class="result-box text-center flex-fill">
+          <div class="param-label">
+            Cutting speed<br><small>(<span class="param-unit">RPM</span>)</small>
+          </div>
+          <div id="outN" class="fw-bold display-6"><?= $outN ?></div>
+          <!-- parámetro usado -->
+          <div class="mt-1"><small>RPM: <?= htmlspecialchars(($_SESSION['rpm_min'] ?? '--')) ?> – <?= htmlspecialchars(($_SESSION['rpm_max'] ?? '--')) ?></small></div>
+        </div>
+      </div>
+
       <!-- Resultados principales -->
       <div class="d-flex justify-content-between align-items-center mb-2">
         <small>Vc</small>
@@ -570,20 +594,15 @@ foreach ($styles as [$local, $cdn]) {
         <div><span id="outHp" class="fw-bold">--</span> <span class="param-unit">HP</span></div>
       </div>
 
-      <!-- Métricas secundarias -->
+      <!-- Métricas secundarias convertidas a resultados iguales -->
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <div class="param-label">
-          MMR<br><small>(<span class="param-unit">mm³/min</span>)</small>
-        </div>
-        <div id="valueMrr" class="fw-bold">--</div>
+        <small>MMR</small>
+        <div><span id="valueMrr" class="fw-bold">--</span> <span class="param-unit">mm³/min</span></div>
       </div>
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <div class="param-label">
-          Fc<br><small>(<span class="param-unit">N</span>)</small>
-        </div>
-        <div id="valueFc" class="fw-bold">--</div>
+        <small>Fc</small>
+        <div><span id="valueFc" class="fw-bold">--</span> <span class="param-unit">N</span></div>
       </div>
-      <!-- fin métricas secundarias -->
     </div>
   </div>
 </div>
