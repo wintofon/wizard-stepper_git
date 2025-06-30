@@ -484,77 +484,69 @@ foreach ($styles as [$local, $cdn]) {
       </div>
     </div>
 
-    <!-- Resultados -->
-    <div class="col-12 col-lg-4 mb-3 area-results">
-      <div class="card h-100 shadow-sm">
-        <div class="card-header text-center p-3"><h5 class="mb-0">Resultados</h5></div>
-        <div class="card-body p-4">
-          <div class="results-compact mb-4 d-flex gap-2">
-            <div class="result-box text-center flex-fill">
-              <div class="param-label">
-                Feedrate<br><small>(<span class="param-unit">mm/min</span>)</small>
-              </div>
-              <div id="outVf" class="fw-bold display-6"><?= $outVf ?></div>
-            </div>
-            <div class="result-box text-center flex-fill">
-              <div class="param-label">
-                Cutting speed<br><small>(<span class="param-unit">RPM</span>)</small>
-              </div>
-              <div id="outN" class="fw-bold display-6"><?= $outN ?></div>
-            </div>
+<!-- Resultados -->
+<div class="col-12 col-lg-4 mb-3 area-results">
+  <div class="card h-100 shadow-sm">
+    <div class="card-header text-center p-3"><h5 class="mb-0">Resultados</h5></div>
+    <div class="card-body p-4">
+      <div class="results-compact mb-4 d-flex gap-2">
+        <div class="result-box text-center flex-fill">
+          <div class="param-label">
+            Feedrate<br><small>(<span class="param-unit">mm/min</span>)</small>
           </div>
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <small>Vc</small>
-            <div><span id="outVc" class="fw-bold"><?= $outVc ?></span> <span class="param-unit">m/min</span></div>
+          <div id="outVf" class="fw-bold display-6"><?= $outVf ?></div>
+        </div>
+        <div class="result-box text-center flex-fill">
+          <div class="param-label">
+            Cutting speed<br><small>(<span class="param-unit">RPM</span>)</small>
           </div>
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <small>fz</small>
-            <div><span id="outFz" class="fw-bold">--</span> <span class="param-unit">mm/tooth</span></div>
-          </div>
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <small>Ap</small>
-            <div><span id="outAp" class="fw-bold">--</span> <span class="param-unit">mm</span></div>
-          </div>
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <small>Ae</small>
-            <div><span id="outAe" class="fw-bold">--</span> <span class="param-unit">mm</span></div>
-          </div>
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <small>hm</small>
-            <div><span id="outHm" class="fw-bold">--</span> <span class="param-unit">mm</span></div>
-          </div>
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <small>Hp</small>
-            <div><span id="outHp" class="fw-bold">--</span> <span class="param-unit">HP</span></div>
-          </div>
-          <!-- Métricas secundarias -->
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <div class="param-label">
-              MMR<br><small>(<span class="param-unit">mm³/min</span>)</small>
-            </div>
-            <div id="valueMrr" class="fw-bold">--</div>
-          </div>
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <div class="param-label">
-              Fc<br><small>(<span class="param-unit">N</span>)</small>
-            </div>
-            <div id="valueFc" class="fw-bold">--</div>
-          </div>
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <div class="param-label">
-              Potencia<br><small>(<span class="param-unit">W</span>)</small>
-            </div>
-            <div id="valueW" class="fw-bold">--</div>
-          </div>
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <div class="param-label">
-              η<br><small>(<span class="param-unit">%</span>)</small>
-            </div>
-            <div id="valueEta" class="fw-bold">--</div>
-          </div>
+          <div id="outN" class="fw-bold display-6"><?= $outN ?></div>
         </div>
       </div>
+
+      <!-- Resultados principales -->
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <small>Vc</small>
+        <div><span id="outVc" class="fw-bold"><?= $outVc ?></span> <span class="param-unit">m/min</span></div>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <small>fz</small>
+        <div><span id="outFz" class="fw-bold">--</span> <span class="param-unit">mm/tooth</span></div>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <small>Ap</small>
+        <div><span id="outAp" class="fw-bold">--</span> <span class="param-unit">mm</span></div>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <small>Ae</small>
+        <div><span id="outAe" class="fw-bold">--</span> <span class="param-unit">mm</span></div>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <small>hm</small>
+        <div><span id="outHm" class="fw-bold">--</span> <span class="param-unit">mm</span></div>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <small>Hp</small>
+        <div><span id="outHp" class="fw-bold">--</span> <span class="param-unit">HP</span></div>
+      </div>
+
+      <!-- Métricas secundarias -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="param-label">
+          MMR<br><small>(<span class="param-unit">mm³/min</span>)</small>
+        </div>
+        <div id="valueMrr" class="fw-bold">--</div>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="param-label">
+          Fc<br><small>(<span class="param-unit">N</span>)</small>
+        </div>
+        <div id="valueFc" class="fw-bold">--</div>
+      </div>
+      <!-- fin métricas secundarias -->
     </div>
+  </div>
+</div>
 
     <!-- Radar Chart -->
     <div class="col-12 col-lg-4 mb-3 area-radar">
