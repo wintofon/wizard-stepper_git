@@ -170,7 +170,11 @@ th{text-align:left;background:#f0f0f0;}
 <table>
 <tr><th>RPM</th><td><span id="outRpm"><?=number_format($result['rpm'])?></span></td></tr>
 <tr><th>Feedrate</th><td><span id="outFeed"><?=number_format($result['feed'],1)?></span> mm/min</td></tr>
-<tr><th>Feedrate en rampa</th><td><span id="valueRampVf"><?=number_format($result['feed_ramp'],1)?></span> mm/min</td></tr>
+<!--
+  Anteriormente se imprimía $baseRampFeed calculado en PHP.
+  Ahora el valor se obtiene en el navegador, por eso dejamos '--'.
+-->
+<tr><th>Feedrate en rampa</th><td><span id="valueRampVf" class="fw-bold">--</span> mm/min</td></tr>
 <tr><th>Chip thickness</th><td><span id="outHm"><?=number_format($result['hm'],4)?></span> mm</td></tr>
 <tr><th>ap</th><td><span id="outAp"><?=number_format($result['ap'],3)?></span> mm</td></tr>
 <tr><th>Potencia</th><td><span id="outHp"><?=number_format($result['hp'],2)?></span> HP (<span id="outWatts"><?=number_format($result['watts'])?></span> W)</td></tr>
@@ -222,8 +226,9 @@ function recalc(){
 
     const rpmCalc = (vc * 1000) / (Math.PI * D);
     const rpm = Math.max(rpmMin, Math.min(rpmCalc, rpmMax));
-    const feed = Math.min(rpm * fz * Z, feedMax);
-    const rampFeed = Z > 0 ? feed / Z : feed;
+    const feed = Math.min(rpm * fz * Z, feedMax); // velocidad de avance normal
+    // Nuevo cálculo: velocidad de avance en rampa (mm/min)
+    const vfRamp = feed / Z; // divide el avance total por el nº de filos
     const phi = 2 * Math.asin(Math.min(1, ae / D));
     const hm = phi !== 0 ? (fz * (1 - Math.cos(phi)) / phi) : fz;
     const ap = thickness / Math.max(1, passes);
@@ -235,7 +240,9 @@ function recalc(){
 
     document.getElementById('outRpm').textContent = Math.round(rpm);
     document.getElementById('outFeed').textContent = feed.toFixed(1);
-    document.getElementById('valueRampVf').textContent = rampFeed.toFixed(1);
+    // Actualiza el span solo si existe en el DOM
+    const rampEl = document.getElementById('valueRampVf');
+    if (rampEl) rampEl.textContent = vfRamp.toFixed(1);
     document.getElementById('outHm').textContent = hm.toFixed(4);
     document.getElementById('outAp').textContent = ap.toFixed(3);
     document.getElementById('outMmr').textContent = mmr.toFixed(2);
