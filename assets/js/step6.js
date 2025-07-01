@@ -134,7 +134,7 @@
 
     // Curva agresiva para potencia
     const mapPower = r => {
-      const γ = 1.5;
+      const γ = 1;
       const rγ = Math.pow(r, γ);
       return Math.min(100, (100 * rγ) / (1 + rγ));
     };
