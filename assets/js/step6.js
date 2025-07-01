@@ -155,7 +155,7 @@
     const N      = rpm(state.vc);
     const vfRaw  = feed(N,state.fz);
     const vf     = Math.min(vfRaw,FR_MAX);
-    const vfRamp = vf * Math.cos(ANGLE_RAMP * Math.PI / 180);
+    const vfRamp = (vf * Math.cos(ANGLE_RAMP * Math.PI / 180)/Z);
 
 
     /* Si feedrate topa, corregir fz visualmente para reflejar límite */
