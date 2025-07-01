@@ -58,9 +58,7 @@
     hp_avail:    HP_AVAIL,
     fz_min0:     FZ_MIN,
     fz_max0:     FZ_MAX,
-    vfRamp:      VFRAMP,
     angle_ramp:  ANGLE_RAMP
-    
   } = P;
 
   /* ──────────────── STATE & CONSTANTS ─────────────── */
@@ -116,9 +114,9 @@
   const phi    = ae          => 2*Math.asin(Math.min(1, ae/D));
   const hm     = (fz,ae)     => { const p=phi(ae); return p? fz*(1-Math.cos(p))/p : fz; };
   const mmr    = (ap,vf,ae)  => (ap*ae*vf)/1000;
-  const kc_h   = hmV         => KC*Math.pow(hmV,-MC);   // módulo Kc(hm)
-  const FcT    = (kc,ap)     => kc*ap*Z*(1+K_SEG*Math.tan(ALPHA)); // slot completo
-  const kW     = (kc,ap,ae,vf)=> (ap*ae*vf*kc)/(60*1e6*ETA);       // 60·10^6 divisor
+  const kc_h   = hmV         => KC*Math.pow(hmV,-MC);
+  const FcT    = (kc,ap)     => kc*ap*Z*(1+K_SEG*Math.tan(ALPHA));
+  const kW     = (kc,ap,ae,vf)=> (ap*ae*vf*kc)/(60*1e6*ETA);
   const HP     = kWv         => kWv*1.341;
 
   /* ────────────── helper: waitFor(lib) ────────────── */
@@ -133,17 +131,48 @@
   const makeRadar = () => {
     const ctx=$('#radarChart')?.getContext('2d');
     if (!ctx || !window.Chart) return warn('Chart.js ausente: sin radar');
+
+    // Curva agresiva para potencia
+    const mapPower = r => {
+      const γ = 3;
+      const rγ = Math.pow(r, γ);
+      return Math.min(100, (100 * rγ) / (1 + rγ));
+    };
+
     radar = new Chart(ctx,{
       type:'radar',
-      data:{labels:['Vida Útil','Potencia','Terminación'],
-            datasets:[{data:[0,0,0],fill:true,borderWidth:2}]},
-      options:{scales:{r:{min:0,max:100,ticks:{stepSize:20}}},
-               plugins:{legend:{display:false}}}
+      data:{
+        labels:['Vida Útil','Potencia','Terminación'],
+        datasets:[{
+          data:[0,0,0],
+          fill:true,
+          borderWidth:2,
+          backgroundColor:'rgba(255,0,0,0.2)'
+        }]
+      },
+      options:{
+        scales:{
+          r:{
+            min:0,
+            max:100,
+            ticks:{ stepSize:20 }
+          }
+        },
+        plugins:{ legend:{ display:false } }
+      }
     });
+
+    // Override render to inject mapPower
+    const originalRender = render;
+    render = snap => {
+      // recalcular powerPct con curva
+      snap.power = mapPower(snap.hp / (HP_AVAIL || 1) * 100);
+      originalRender(snap);
+    };
   };
 
   /* ─────────────────── render() ─────────────────────── */
-  const render = snap => {
+  let render = snap => {
     if (!diff(state.last,snap)) return;
     for (const k in snap) if (OUT[k]) OUT[k].textContent = fmt(snap[k], snap[k]%1?2:0);
     radar && (radar.data.datasets[0].data=[snap.life,snap.power,snap.finish],radar.update());
@@ -155,21 +184,20 @@
     const N      = rpm(state.vc);
     const vfRaw  = feed(N,state.fz);
     const vf     = Math.min(vfRaw,FR_MAX);
-    const vfRamp = (vf * Math.cos(ANGLE_RAMP * Math.PI / 180)/Z);
+    const vfRamp = vf * Math.cos(ANGLE_RAMP * Math.PI/180) / Z;
 
-
-    /* Si feedrate topa, corregir fz visualmente para reflejar límite */
     if (vfRaw >= FR_MAX) {
       state.fz = FR_MAX/(N*Z);
       SL.fz.value = fmt(state.fz,4);
       const bub = SL.fz.closest('.slider-wrap')?.querySelector('.slider-bubble');
-      bub && (bub.textContent = fmt(state.fz,4));
+      bub && (bub.textContent=fmt(state.fz,4));
     }
 
     const apVal  = THK/state.ap;
     validateFeed(vf);
     validateRpm(N);
     validateLength();
+
     const hmVal  = hm(state.fz,state.ae);
     const kcVal  = kc_h(hmVal);
     const mmrVal = mmr(apVal,vf,state.ae);
@@ -177,22 +205,18 @@
     const kWval  = kW(kcVal,apVal,state.ae,vf);
     const hpVal  = HP(kWval);
 
-    /* Radar 0–100 % */
     const lifePct   = Math.min(100,((state.fz-FZ_MIN)/(FZ_MAX-FZ_MIN))*100);
-    const PWR       = HP_AVAIL || 1;
-    const powerPct  = Math.min(100,(hpVal/PWR)*100);
+    const powerPct  = hpVal / (HP_AVAIL || 1) * 100;
     const finishPct = Math.max(0,100-lifePct);
 
-   render({
-      vc:state.vc, fz:state.fz, hm:hmVal, n:N|0, vf:vf|0, vf_ramp: Math.round(vfRamp),
-      hp:hpVal, mmr:  Math.round(mmrVal), fc:fcVal|0, w:kWval*1000|0,
-      eta:Math.min(100,(hpVal/PWR)*100)|0,
+    render({
+      vc:state.vc, fz:state.fz, hm:hmVal, n:N|0, vf:vf|0, vf_ramp:Math.round(vfRamp),
+      hp:hpVal, mmr:Math.round(mmrVal), fc:fcVal|0, w:(kWval*1000)|0,
+      eta:Math.min(100,powerPct)|0,
       ae:state.ae, ap:apVal,
       life:lifePct, power:powerPct, finish:finishPct
     });
   };
-
-
 
   /* ────────────── Slider UI helper ─────────────── */
   const beautify = (slider,dec=3) => {
@@ -200,18 +224,21 @@
     const wrap = slider.closest('.slider-wrap');
     const bub  = wrap?.querySelector('.slider-bubble');
     const min=+slider.min,max=+slider.max;
-    const paint=v=>{wrap?.style.setProperty('--val',((v-min)/(max-min))*100);
-                    bub&& (bub.textContent=fmt(v,dec));};
-    paint(+slider.value); slider.addEventListener('input',e=>{paint(+e.target.value); onInput();});
+    const paint=v=>{ wrap?.style.setProperty('--val',((v-min)/(max-min))*100);
+                     bub && (bub.textContent=fmt(v,dec)); };
+    paint(+slider.value);
+    slider.addEventListener('input',e=>{ paint(+e.target.value); onInput(); });
   };
 
   /* ─────────────── pasadas sync ─────────────── */
   const syncPass = () => {
-    const maxP=Math.max(1,Math.ceil(THK/state.ae));
-    SL.pass.max=maxP; SL.pass.min=1; SL.pass.step=1;
-    if (+SL.pass.value>maxP) SL.pass.value=maxP;
-    state.ap=+SL.pass.value;
-    infoPass&&(infoPass.textContent=`${state.ap} pasada${state.ap>1?'s':''} de ${(THK/state.ap).toFixed(2)} mm`);
+    const maxP = Math.max(1, Math.ceil(THK/state.ae));
+    SL.pass.max = maxP;
+    SL.pass.min = 1;
+    SL.pass.step = 1;
+    if (+SL.pass.value > maxP) SL.pass.value = maxP;
+    state.ap = +SL.pass.value;
+    infoPass && (infoPass.textContent = `${state.ap} pasada${state.ap>1?'s':''} de ${(THK/state.ap).toFixed(2)} mm`);
   };
 
   /* ─────────────── onInput global ────────────── */
@@ -225,23 +252,29 @@
 
   /* ───────────────────── INIT ─────────────────── */
   try {
-    /* Limitar VC: ±50 % del valor base, dentro de RPM_MIN/MAX */
-    const vcBaseMin = VC0 * 0.5;
-    const vcBaseMax = VC0 * 1.5;
-    const vcFromRpm = rpm => (rpm * Math.PI * D) / 1000;
-    const vcMin = Math.max(vcBaseMin, vcFromRpm(RPM_MIN));
-    const vcMax = Math.min(vcBaseMax, vcFromRpm(RPM_MAX));
-    state.vc = Math.max(vcMin, Math.min(state.vc, vcMax));
-    SL.vc.min = fmt(vcMin,1); SL.vc.max = fmt(vcMax,1); SL.vc.value = fmt(state.vc,1);
+    // Limitar VC: ±50 % del valor base
+    const vcMin = VC0 * 0.5;
+    const vcMax = VC0 * 1.5;
+    SL.vc.min = fmt(vcMin,1);
+    SL.vc.max = fmt(vcMax,1);
+    SL.vc.value = fmt(state.vc,1);
 
-    SL.pass.value=1;                // por defecto 1 pasada
-    /* Embellece sliders y listeners */
-    beautify(SL.fz,4); beautify(SL.vc,1); beautify(SL.ae,2); beautify(SL.pass,0);
-    ['change'].forEach(evt=>['fz','vc','ae','pass']
-      .forEach(k=>SL[k]&&SL[k].addEventListener(evt,onInput)));
+    SL.pass.value = 1;
+    beautify(SL.fz,4);
+    beautify(SL.vc,1);
+    beautify(SL.ae,2);
+    beautify(SL.pass,0);
 
-    /* Esperar a Chart.js antes de iniciar radar y cálculos */
+    ['change'].forEach(evt =>
+      ['fz','vc','ae','pass'].forEach(k =>
+        SL[k] && SL[k].addEventListener(evt, onInput)
+      )
+    );
+
     ready(() => window.Chart, () => { makeRadar(); syncPass(); recalc(); });
     log('init OK (esperando Chart)');
-  } catch(e) { error(e); fatal('JS: '+e.message);}
+  } catch(e) {
+    error(e);
+    fatal('JS: '+e.message);
+  }
 })();
