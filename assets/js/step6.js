@@ -195,7 +195,7 @@ render({
 
   // Fuerzas y potencia
   fc:       fcVal | 0,                                // Fuerza de corte (N)
-  hp:       hpVal,                                    // Potencia requerida (HP)
+  hp: parseFloat(hpVal.toFixed(1)), // deja 1 decimal // Potencia requerida (HP)
   w:        (kWv * 1000) | 0,                         // Potencia en W
   eta:      Math.min(100, powerPct) | 0,              // Eficiencia (%) basado en HP disponible
 
