@@ -275,6 +275,24 @@
     SL.vc.max   = fmt(VC0*1.5,1);
     SL.vc.value = fmt(state.vc,1);
 
+    // Actualiza visualización de límites de Vc en el DOM
+    if (SL.vc) {
+      const wrap = SL.vc.closest('.mb-4');
+      if (wrap) {
+        const vcLabelMin = wrap.querySelector('span:nth-child(1)');
+        const vcLabelMid = wrap.querySelector('#valVc');
+        const vcLabelMax = wrap.querySelector('span:last-child');
+        if (vcLabelMin && vcLabelMid && vcLabelMax) {
+          const vcMin = fmt(VC0 * 0.5, 1);
+          const vcMax = fmt(VC0 * 1.5, 1);
+          const vcVal = fmt(VC0, 1);
+          vcLabelMin.textContent = vcMin;
+          vcLabelMid.textContent = vcVal;
+          vcLabelMax.textContent = vcMax;
+        }
+      }
+    }
+
     SL.ae.min   = fmt(0.1,1);
     SL.ae.max   = fmt(Math.floor(D),1);
     SL.ae.value = fmt(state.ae,1);
