@@ -1,162 +1,238 @@
-/*  assets/js/step6.js
-   -------------------------------------------------------------
-   Paso 6 – Módulo ESM unificado
-   · Exporta   init()            → permite import dinámico
-   · Expone   window.step6.init  → compatibilidad vieja
-----------------------------------------------------------------*/
+/* =======================================================================
+ * assets/js/step6.js · PASO 6 — Wizard CNC
+ * -----------------------------------------------------------------------
+ *  • 100 % cálculo en cliente, sin AJAX.
+ *  • Deslizadores:
+ *      – Vc  = ±50 % del valor base, pero nunca sobrepasa RPM min / max.
+ *      – fz  limitado por tabla (fz_min0..fz_max0) y por feedrate max.
+ *      – ae  actualiza automáticamente el nº de pasadas (ap).
+ *  • Radar Chart de 3 ejes: Vida Útil · Potencia · Terminación.
+ *      – ↑ fz  ⇒ ↑ Vida Útil + ↑ Potencia + ↓ Terminación.
+ *  • Potencia **corrige** divisor:   60 × 10⁶   (mm³/min → kW)
+ *  • Consola silenciosa; solo registra cuando el *snapshot* cambia.
+ * ====================================================================*/
 
-export function init () {
-  const ids = [
-    'sliderVc','sliderFz','sliderAe','sliderPasadas',
-    'textPasadasInfo','errorMsg'
+(() => {
+  'use strict';
+
+  /* ────────────────────── DEBUG helpers ───────────────────── */
+  const DEBUG = window.DEBUG ?? false;
+  const TAG   = '[Step6]';
+  const ts    = () => new Date().toISOString();
+  const say   = (lvl, ...m) => { if (DEBUG) console[lvl](`${TAG} ${ts()}`, ...m); };
+  const log   = (...m) => say('log',   ...m);
+  const warn  = (...m) => say('warn',  ...m);
+  const error = (...m) => say('error', ...m);
+  const table = d => { if (DEBUG) console.table(d); };
+  const diff  = (a={},b={}) => [...new Set([...Object.keys(a),...Object.keys(b)])]
+                               .some(k => a[k]!==b[k]);
+
+  /* ─────────────────── PARAMS INYECTADOS ─────────────────── */
+  const P = window.step6Params;
+  if (!P) return alert('⚠️  step6Params vacío – verifica la sesión.');
+
+  const REQ = [
+    'diameter','flute_count','rpm_min','rpm_max','fr_max',
+    'coef_seg','Kc11','mc','eta','fz0','vc0','thickness',
+    'fz_min0','fz_max0','hp_avail','angle_ramp','cut_length'
   ];
-  const els = ids.map(id => document.getElementById(id));
-  const missing = ids.filter((_, i) => !els[i]);
-  if (missing.length) {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', init, { once: true });
-      console.info('[step6] esperando DOMContentLoaded');
-    } else {
-      console.warn('[step6] faltan elementos:', missing.join(', '));
-    }
-    return;
-  }
+  const missing = REQ.filter(k => P[k] === undefined);
+  if (missing.length) return alert(`⚠️  Faltan claves: ${missing.join(', ')}`);
 
-  /* ---------- 1. Variables globales inyectadas por PHP ---------- */
+  /* ─────────—— DESTRUCTURACIÓN CON ALIAS ─────────—— */
   const {
-    diameter : D, flute_count : Z,
-    rpm_min  : rpmMin, rpm_max : rpmMax,
-    fr_max, coef_seg, Kc11, mc, alpha, eta
-  } = window.step6Params ?? {};
+    diameter:    D,
+    flute_count: Z,
+    rpm_min:     RPM_MIN,
+    rpm_max:     RPM_MAX,
+    fr_max:      FR_MAX,
+    coef_seg:    K_SEG,
+    Kc11:        KC,
+    mc:          MC,
+    eta:         ETA,
+    alpha:       ALPHA = 0,
+    fz0:         FZ0,
+    vc0:         VC0,
+    thickness:   THK,
+    cut_length:  CUT_LEN,
+    hp_avail:    HP_AVAIL,
+    fz_min0:     FZ_MIN,
+    fz_max0:     FZ_MAX,
+    angle_ramp:  ANGLE_RAMP
+  } = P;
 
-  const csrfToken = window.step6Csrf ?? '';
-  const ajaxURL   = window.step6AjaxUrl ||
-                    `${(window.BASE_URL ?? '')}/ajax/step6_ajax_legacy_minimal.php`;
-
-  /* ---------------- 2. DOM helpers ---------------- */
-  const q = id => document.getElementById(id);
-
-  const [sVc, sFz, sAe, sP, infoP, errBox] = els;
-
-  const out = {
-    vc : q('outVc'), fz : q('outFz'), hm : q('outHm'),
-    n  : q('outN'),  vf : q('outVf'), hp : q('outHp'),
-    mmr: q('valueMrr'), fc : q('valueFc'), w : q('valueW'),
-    eta: q('valueEta'), ae : q('outAe'),   ap : q('outAp')
+  /* ──────────────── STATE & CONSTANTS ─────────────── */
+  const state = {
+    fz : +FZ0,
+    vc : +VC0,
+    ae : D*0.5,
+    ap : 1,
+    last:{}
   };
 
-  if (Object.values(out).some(e => !e)) {
-    console.error('[step6] elementos de salida faltantes');
-    return;
-  }
+  /* ─────────────────── DOM references ────────────────── */
+  const $     = (sel,ctx=document)=>ctx.querySelector(sel);
+  const fmt   = (n,d=1)=>Number.parseFloat(n).toFixed(d);
+  const SL    = {
+    fz  : $('#sliderFz'),
+    vc  : $('#sliderVc'),
+    ae  : $('#sliderAe'),
+    pass: $('#sliderPasadas')
+  };
+  const OUT   = {
+    vc:$('#outVc'), fz:$('#outFz'), hm:$('#outHm'), n:$('#outN'), vf:$('#outVf'),
+    hp:$('#outHp'), mmr:$('#valueMrr'), fc:$('#valueFc'), w:$('#valueW'), eta:$('#valueEta'),
+    ae:$('#outAe'), ap:$('#outAp'), vf_ramp:$('#valueRampVf')
+  };
+  const infoPass  = $('#textPasadasInfo');
+  const errBox    = $('#errorMsg');
+  const feedAlert = $('#feedAlert');
+  const rpmAlert  = $('#rpmAlert');
+  const lenAlert  = $('#lenAlert');
 
-  const UI = {
-    show (m){ errBox.textContent = m; errBox.style.display = 'block'; },
-    clear(){  errBox.style.display = 'none'; errBox.textContent = '';  },
+  const fatal = msg => { errBox? (errBox.textContent=msg,errBox.style.display='block') : alert(msg); };
+
+  const showAlert = (el,msg) => { if(!el) return; el.textContent=msg; el.classList.remove('d-none'); el.classList.add('alert','alert-danger'); };
+  const hideAlert = el => { if(!el) return; el.textContent=''; el.classList.add('d-none'); };
+
+  const validateFeed = vf => {
+    if (vf >= FR_MAX) { showAlert(feedAlert, `Feedrate supera el máximo (${FR_MAX} mm/min)`); return false; }
+    hideAlert(feedAlert); return true;
+  };
+  const validateRpm = n => {
+    if (n < RPM_MIN || n > RPM_MAX) { showAlert(rpmAlert, `RPM fuera de rango (${Math.round(n)})`); return false; }
+    hideAlert(rpmAlert); return true;
+  };
+  const validateLength = () => {
+    if (THK > CUT_LEN) { showAlert(lenAlert, `El material (${THK} mm) es de mayor espesor que el largo útil de la fresa (${CUT_LEN} mm).`); return false; }
+    hideAlert(lenAlert); return true;
   };
 
-  /* ---------------- 3. Vc dinámico ---------------- */
-  const vcMin = (rpmMin * Math.PI * D) / 1000;
-  const vcMax = (rpmMax * Math.PI * D) / 1000;
-  sVc.min = vcMin.toFixed(1); sVc.max = vcMax.toFixed(1);
-  if (+sVc.value < vcMin) sVc.value = vcMin.toFixed(1);
-  if (+sVc.value > vcMax) sVc.value = vcMax.toFixed(1);
+  /* ──────────────────── FORMULAS ──────────────────── */
+  const rpm    = vc          => (vc*1000)/(Math.PI*D);
+  const feed   = (n,fz)      => n*fz*Z;
+  const phi    = ae          => 2*Math.asin(Math.min(1, ae/D));
+  const hm     = (fz,ae)     => { const p=phi(ae); return p? fz*(1-Math.cos(p))/p : fz; };
+  const mmr    = (ap,vf,ae)  => (ap*ae*vf)/1000;
+  const kc_h   = hmV         => KC*Math.pow(hmV,-MC);   // módulo Kc(hm)
+  const FcT    = (kc,ap)     => kc*ap*Z*(1+K_SEG*Math.tan(ALPHA)); // slot completo
+  const kW     = (kc,ap,ae,vf)=> (ap*ae*vf*kc)/(60*1e6*ETA);       // 60·10^6 divisor
+  const HP     = kWv         => kWv*1.341;
 
-  /* ---------------- 4. Radar ---------------- */
-  let radar = null;
+  /* ────────────── helper: waitFor(lib) ────────────── */
+  const ready = (test, cb, r = 20) => {
+    if (test()) return cb();
+    if (r) return setTimeout(() => ready(test, cb, r - 1), 120);
+    warn('Dependencia no cargó: se omite función dependiente');
+  };
+
+  /* ───────────────── Radar Chart ───────────────────── */
+  let radar;
+  const makeRadar = () => {
+    const ctx=$('#radarChart')?.getContext('2d');
+    if (!ctx || !window.Chart) return warn('Chart.js ausente: sin radar');
+    radar = new Chart(ctx,{
+      type:'radar',
+      data:{labels:['Vida Útil','Potencia','Terminación'],
+            datasets:[{data:[0,0,0],fill:true,borderWidth:2}]},
+      options:{scales:{r:{min:0,max:100,ticks:{stepSize:20}}},
+               plugins:{legend:{display:false}}}
+    });
+  };
+
+  /* ─────────────────── render() ─────────────────────── */
+  const render = snap => {
+    if (!diff(state.last,snap)) return;
+    for (const k in snap) if (OUT[k]) OUT[k].textContent = fmt(snap[k], snap[k]%1?2:0);
+    radar && (radar.data.datasets[0].data=[snap.life,snap.power,snap.finish],radar.update());
+    state.last=snap; log('render',snap);
+  };
+
+  /* ─────────────────── recalc() ─────────────────────── */
+  const recalc = () => {
+    const N      = rpm(state.vc);
+    const vfRaw  = feed(N,state.fz);
+    const vf     = Math.min(vfRaw,FR_MAX);
+    const vfRamp = vf / Z;
+
+    /* Si feedrate topa, corregir fz visualmente para reflejar límite */
+    if (vfRaw >= FR_MAX) {
+      state.fz = FR_MAX/(N*Z);
+      SL.fz.value = fmt(state.fz,4);
+      const bub = SL.fz.closest('.slider-wrap')?.querySelector('.slider-bubble');
+      bub && (bub.textContent = fmt(state.fz,4));
+    }
+
+    const apVal  = THK/state.ap;
+    validateFeed(vf);
+    validateRpm(N);
+    validateLength();
+    const hmVal  = hm(state.fz,state.ae);
+    const kcVal  = kc_h(hmVal);
+    const mmrVal = mmr(apVal,vf,state.ae);
+    const fcVal  = FcT(kcVal,apVal);
+    const kWval  = kW(kcVal,apVal,state.ae,vf);
+    const hpVal  = HP(kWval);
+
+    /* Radar 0–100 % */
+    const lifePct   = Math.min(100,((state.fz-FZ_MIN)/(FZ_MAX-FZ_MIN))*100);
+    const PWR       = HP_AVAIL || 1;
+    const powerPct  = Math.min(100,(hpVal/PWR)*100);
+    const finishPct = Math.max(0,100-lifePct);
+
+    render({
+      vc:state.vc, fz:state.fz, hm:hmVal, n:N|0, vf:vf|0, vf_ramp:vfRamp,
+      hp:hpVal, mmr:mmrVal, fc:fcVal|0, w:kWval*1000|0,
+      eta:Math.min(100,(hpVal/PWR)*100)|0,
+      ae:state.ae, ap:apVal,
+      life:lifePct, power:powerPct, finish:finishPct
+    });
+  };
+
+  /* ────────────── Slider UI helper ─────────────── */
+  const beautify = (slider,dec=3) => {
+    if (!slider) return;
+    const wrap = slider.closest('.slider-wrap');
+    const bub  = wrap?.querySelector('.slider-bubble');
+    const min=+slider.min,max=+slider.max;
+    const paint=v=>{wrap?.style.setProperty('--val',((v-min)/(max-min))*100);
+                    bub&& (bub.textContent=fmt(v,dec));};
+    paint(+slider.value); slider.addEventListener('input',e=>{paint(+e.target.value); onInput();});
+  };
+
+  /* ─────────────── pasadas sync ─────────────── */
+  const syncPass = () => {
+    const maxP=Math.max(1,Math.ceil(THK/state.ae));
+    SL.pass.max=maxP; SL.pass.min=1; SL.pass.step=1;
+    if (+SL.pass.value>maxP) SL.pass.value=maxP;
+    state.ap=+SL.pass.value;
+    infoPass&&(infoPass.textContent=`${state.ap} pasada${state.ap>1?'s':''} de ${(THK/state.ap).toFixed(2)} mm`);
+  };
+
+  /* ─────────────── onInput global ────────────── */
+  const onInput = () => {
+    state.fz = +SL.fz.value;
+    state.vc = +SL.vc.value;
+    state.ae = +SL.ae.value;
+    syncPass();
+    recalc();
+  };
+
+  /* ───────────────────── INIT ─────────────────── */
   try {
-    const ctx = q('radarChart')?.getContext('2d');
-    if (ctx && window.Chart) {
-      radar = new Chart(ctx, {
-        type:'radar',
-        data:{ labels:['Vida útil','Terminación','Potencia'],
-               datasets:[{ data:[0,0,0],
-                           backgroundColor:'rgba(79,195,247,.35)',
-                           borderColor:'rgba(79,195,247,.8)', borderWidth:2 }]},
-        options:{ scales:{ r:{ max:100,ticks:{ stepSize:20 } } },
-                  plugins:{ legend:{ display:false } } }
-      });
-    }
-  } catch(e){ console.warn('[step6] Chart init error', e); }
+    /* Limitar VC: ±50 % del valor base */
+    const vcMin = VC0 * 0.5;
+    const vcMax = VC0 * 1.5;
+    SL.vc.min = fmt(vcMin,1); SL.vc.max = fmt(vcMax,1); SL.vc.value = fmt(state.vc,1);
 
-  /* ---------------- 5. Sliders auxiliares ---------------- */
-  const thickness = parseFloat(sP.dataset.thickness);
-  const updatePassSlider = () => {
-    const maxP = Math.ceil(thickness / parseFloat(sAe.value));
-    sP.min = 1; sP.max = maxP; sP.step = 1;
-    if (+sP.value > maxP) sP.value = maxP;
-  };
-  const updatePassInfo   = () => {
-    const p = +sP.value;
-    infoP.textContent = `${p} pasada${p>1?'s':''} de ${(thickness/p).toFixed(2)} mm`;
-  };
+    SL.pass.value=1;                // por defecto 1 pasada
+    /* Embellece sliders y listeners */
+    beautify(SL.fz,4); beautify(SL.vc,1); beautify(SL.ae,2); beautify(SL.pass,0);
+    ['change'].forEach(evt=>['fz','vc','ae','pass']
+      .forEach(k=>SL[k]&&SL[k].addEventListener(evt,onInput)));
 
-  /* ---------------- 6. Debounce ---------------- */
-  let to; const debounce = fn => { clearTimeout(to); to = setTimeout(fn,200); };
-
-  /* ---------------- 7. Listeners ---------------- */
-  const computeFeed = (vc,fz)=>((vc*1000)/(Math.PI*D))*fz*Z;
-  function onFzVc () {
-    UI.clear();
-    const feed = computeFeed(+sVc.value, +sFz.value);
-    if (feed > fr_max) { UI.show(`Límite feedrate ${fr_max}`); return; }
-    debounce(recalc);
-  }
-  sFz.addEventListener('input', onFzVc);
-  sVc.addEventListener('input', onFzVc);
-  sAe.addEventListener('input', ()=>{ updatePassSlider(); updatePassInfo(); debounce(recalc); });
-  sP .addEventListener('input', ()=>{ updatePassInfo(); debounce(recalc); });
-
-  /* ---------------- 8. AJAX ---------------- */
-  async function recalc (){
-    const body = {
-      fz:+sFz.value, vc:+sVc.value, ae:+sAe.value, passes:+sP.value,
-      thickness, D, Z,
-      params:{ fr_max, coef_seg, Kc11, mc, alpha, eta }
-    };
-    try{
-      const r = await fetch(ajaxURL,{
-        method:'POST',
-        headers:{ 'Content-Type':'application/json', 'X-CSRF-Token':csrfToken },
-        body:JSON.stringify(body), cache:'no-store', credentials:'same-origin'
-      });
-      if(!r.ok) throw new Error(`HTTP ${r.status}`);
-      const j = await r.json();
-      if(!j.success) throw new Error(j.error||'Error');
-      paint(j.data);
-      console.info('%c[step6] AJAX OK', 'color:#42e8a7');
-    }catch(e){
-      UI.show(`⚠️ ${e.message}`); console.error('[step6] AJAX fail', e);
-    }
-  }
-
-  function paint (d){
-    try{
-      out.vc.textContent  = `${d.vc} m/min`;
-      out.fz.textContent  = `${d.fz} mm/tooth`;
-      out.hm.textContent  = `${d.hm} mm`;
-      out.n .textContent  = d.n;
-      out.vf.textContent  = `${d.vf} mm/min`;
-      out.hp.textContent  = `${d.hp} HP`;
-      out.mmr.textContent = d.mmr;
-      out.fc.textContent  = d.fc;
-      out.w .textContent  = d.watts;
-      out.eta.textContent = d.etaPercent;
-      out.ae.textContent  = d.ae.toFixed(2);
-      out.ap.textContent  = d.ap.toFixed(3);
-      if(radar){ radar.data.datasets[0].data = d.radar; radar.update(); }
-    }catch(e){ console.error('[step6] paint()', e); }
-  }
-
-  /* ---------------- 9. Kick-off ---------------- */
-  updatePassSlider();
-  updatePassInfo();
-  recalc();
-  console.info('%c[step6] init OK', 'color:#4fc3f7;font-weight:700');
-}
-
-/* ---------- Compatibilidad legacy ---------- */
-if (typeof window !== 'undefined'){
-  window.step6 = window.step6 || {};
-  window.step6.init = init;
-}
+    /* Esperar a Chart.js antes de iniciar radar y cálculos */
+    ready(() => window.Chart, () => { makeRadar(); syncPass(); recalc(); });
+    log('init OK (esperando Chart)');
+  } catch(e) { error(e); fatal('JS: '+e.message);}
+})();
