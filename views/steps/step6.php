@@ -269,7 +269,7 @@ $madeInMb      = htmlspecialchars($toolData['made_in']   ?? 'N/A', ENT_QUOTES);
 
 $baseVc  = (float)$params['vc0'];
 $vcMinDb = (float)$params['vc_min0'];
-$vcMaxDb = (float)$params['vc_max0'];
+$vcMaxDb = (float)($params['vc_max0'];
 $baseFz  = (float)$params['fz0'];
 $fzMinDb = (float)$params['fz_min0'];
 $fzMaxDb = (float)$params['fz_max0'];
@@ -281,7 +281,7 @@ $frMax   = (float)$params['fr_max'];
 $baseRpm = (int)  $params['rpm0'];
 $baseFeed= (float)$params['feed0'];
 $baseMmr = (float)$params['mmr_base'];
-$angleRamp = (int)$params['angle_ramp'];
+$angleRamp = (int)($params['angle_ramp'];
 
 $baseRampFeed = $fluteCountMb > 0 ? $baseFeed / $fluteCountMb : $baseFeed; // calculado solo para compatibilidad, se mostrará desde JS
 
