@@ -498,7 +498,7 @@ foreach ($styles as [$local, $cdn]) {
         <div class="result-box text-center flex-fill">
           <div class="param-label">Feedrate </div> <span class="param-explain">(Velocidad de avance)</span>
           <div><span id="outVf" class="fw-bold display-6"><?= $outVf ?></span> <span class="param-unit">mm/min</span></div>
-          <div id="feedAlert" class="alert alert-danger d-none mt-2"></div>
+          <div id="feedAlert" class="alert alert-danger alert-compact d-none mt-2"></div>
         </div>
         <div class="result-box text-center flex-fill">
           <div class="param-label">Velocidad del Rotacion </div> <span class="param-explain">(Revoluciones por minuto)</span>
@@ -562,7 +562,7 @@ foreach ($styles as [$local, $cdn]) {
           <div class="d-flex justify-content-center mb-4">
             <canvas id="radarChart" width="300" height="300"></canvas>
           </div>
-          <div id="rpmAlert" class="alert alert-danger d-none"></div>
+          <div id="rpmAlert" class="alert alert-danger alert-compact d-none"></div>
           <?php if ($notesArray): ?>
             <ul class="notes-list mb-0">
               <?php foreach ($notesArray as $note): ?>
@@ -663,7 +663,7 @@ foreach ($styles as [$local, $cdn]) {
             </div>
           </div>
         </div>
-        <div id="lenAlert" class="alert alert-danger d-none mt-2"></div>
+        <div id="lenAlert" class="alert alert-danger alert-compact d-none mt-2"></div>
 
         <div class="section-divider"></div>
 

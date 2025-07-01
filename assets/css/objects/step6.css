@@ -202,6 +202,9 @@ input.form-range:focus-visible::-moz-range-thumb {
 .notes-list li i { margin-top: 0.2rem; font-size: 1rem; color: var(--step6-accent); }
 .notes-list li div { font-size: 0.9rem; color: var(--step6-text-sec); }
 
+/* Compact alerts for step 6 */
+.alert-compact { padding: 0.25rem 0.5rem; margin-bottom: 0.5rem; font-size: 0.875rem; }
+
 /* helper Bootstrap */
 .text-secondary  { color: var(--step6-text-sec) !important; }
 
