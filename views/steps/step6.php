@@ -1,50 +1,92 @@
 <?php
 /**
- * File: views/steps/step6.php
- * Descripción: Paso 6 – Resultados expertos del Wizard CNC
- *
- * 🔧 Ajustes clave (2025‑07‑13):
- *   1. En modo embebido sólo se imprime el <div class="step6"> y el script
- *      window.step6Params.
- *   2. Doctype, <html>, <head>, <body>, footer y parciales se encierran en
- *      `if (!$embedded)` para no contaminar el DOM.
- *   3. Los <script src> externos se cargan una única vez desde wizard_stepper.js.
- *   4. feather.replace() se ejecuta mediante requestAnimationFrame una sola vez.
- *   5. Cualquier parcial adicional debe sumarse al mismo condicional.
- *   6. Se eliminaron líneas en blanco extra para conservar el minidiff.
- *
- * 👉 Si necesitás debuggear, usá ?debug=1 en la URL y se activan trazas extra.
+ * Paso 6 – Resultados expertos del Wizard CNC
+ * Reescrito con manejo robusto de errores mediante try/catch.
  */
 
 declare(strict_types=1);
 
-if (!getenv('BASE_URL')) {
-    // Sube 3 niveles: /views/steps/step6.php → /wizard-stepper_git
-    putenv(
-        'BASE_URL=' . rtrim(
-            dirname(dirname(dirname($_SERVER['SCRIPT_NAME']))),
-            '/'
-        )
-    );
+if (!function_exists('respondError')) {
+    function respondError(int $code, string $msg): void {
+        http_response_code($code);
+        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+            $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') {
+            header('Content-Type: application/json');
+            echo json_encode(['error' => $msg], JSON_UNESCAPED_UNICODE);
+        } else {
+            header('Content-Type: text/html; charset=UTF-8');
+            echo '<p>' . htmlspecialchars($msg, ENT_QUOTES, 'UTF-8') . '</p>';
+        }
+        exit;
+    }
 }
-require_once __DIR__ . '/../../src/Config/AppConfig.php';
+
+set_exception_handler(function(Throwable $e){
+    error_log('[step6][EXCEPTION] '.$e->getMessage()."\n".$e->getTraceAsString());
+    http_response_code(500);
+    if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH']==='XMLHttpRequest') {
+        header('Content-Type: application/json');
+        echo json_encode(['error'=>'Error interno al procesar parámetros']);
+    } else {
+        include __DIR__.'/../partials/error_500.php';
+    }
+    exit;
+});
+
+// ------------------------------------------------------------------
+// 1. BASE_URL y BASE_HOST
+// ------------------------------------------------------------------
+$baseUrl = getenv('BASE_URL');
+if ($baseUrl === false) {
+    $baseUrl = dirname(dirname(dirname($_SERVER['SCRIPT_NAME'])));
+}
+$baseUrl = rtrim($baseUrl, '/');
+
+$baseHost = getenv('BASE_HOST');
+if ($baseHost === false) {
+    $scheme    = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $baseHost = $scheme . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
+}
+
+if (!defined('BASE_URL')) {
+    define('BASE_URL', $baseUrl);
+}
+if (!defined('BASE_HOST')) {
+    define('BASE_HOST', $baseHost);
+}
+
+// ------------------------------------------------------------------
+// 2. Carga de configuración principal
+// ------------------------------------------------------------------
+$appConfig = __DIR__ . '/../../src/Config/AppConfig.php';
+if (!is_readable($appConfig)) {
+    http_response_code(500);
+    echo 'Error interno: configuración faltante';
+    exit;
+}
+require_once $appConfig;
 
 use App\Controller\ExpertResultController;
 
-// ────────────────────────────────────────────────────────────────
-// Utilidades / helpers
-// ────────────────────────────────────────────────────────────────
+// ------------------------------------------------------------------
+// 3. Helpers opcionales
+// ------------------------------------------------------------------
+$helperFile = __DIR__ . '/../../includes/wizard_helpers.php';
+if (is_readable($helperFile)) {
+    require_once $helperFile;
+}
+if (!function_exists('dbg')) {
+    function dbg(...$a): void { /* no-op */ }
+}
 
-require_once __DIR__ . '/../../includes/wizard_helpers.php';
-
-// ────────────────────────────────────────────────────────────────
-// ¿Vista embebida por load-step.php?
-// ────────────────────────────────────────────────────────────────
+// ------------------------------------------------------------------
+// 4. Modo embebido
+// ------------------------------------------------------------------
 $embedded = defined('WIZARD_EMBEDDED') && WIZARD_EMBEDDED;
 
-// ────────────────────────────────────────────────────────────────
-// Sesión segura (siempre antes de imprimir cabeceras)
-// ────────────────────────────────────────────────────────────────
+// ------------------------------------------------------------------
+// 5. Inicio de sesión
+// ------------------------------------------------------------------
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_set_cookie_params([
         'lifetime' => 0,
@@ -56,80 +98,115 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
 
+// ------------------------------------------------------------------
+// 6. Cabeceras de seguridad
+// ------------------------------------------------------------------
 if (!$embedded) {
-    /* Cabeceras de seguridad */
     header('Content-Type: text/html; charset=UTF-8');
     header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
     header('X-Frame-Options: DENY');
     header('X-Content-Type-Options: nosniff');
     header('Referrer-Policy: no-referrer');
-    header("Permissions-Policy: geolocation=(), microphone=()");
+    header('X-Permitted-Cross-Domain-Policies: none');
+    header('X-DNS-Prefetch-Control: off');
+    header('Expect-CT: max-age=86400, enforce');
     header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
     header('Pragma: no-cache');
-    header(
-        "Content-Security-Policy: default-src 'self';"
-        . " script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;"
-        . " style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;"
-    );
+    header("Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net");
 }
 
-// ────────────────────────────────────────────────────────────────
-// Debug opcional
-// ────────────────────────────────────────────────────────────────
+// ------------------------------------------------------------------
+// 7. Debug opcional
+// ------------------------------------------------------------------
 $DEBUG = filter_input(INPUT_GET, 'debug', FILTER_VALIDATE_BOOLEAN);
 if ($DEBUG && is_readable(__DIR__ . '/../../includes/debug.php')) {
     require_once __DIR__ . '/../../includes/debug.php';
 }
 
-// ────────────────────────────────────────────────────────────────
-// Normalizar nombres en sesión
-// ────────────────────────────────────────────────────────────────
+// ------------------------------------------------------------------
+// 8. Normalizar claves de sesión
+// ------------------------------------------------------------------
 $_SESSION['material'] = $_SESSION['material_id']     ?? ($_SESSION['material']   ?? null);
 $_SESSION['trans_id'] = $_SESSION['transmission_id'] ?? ($_SESSION['trans_id']   ?? null);
 $_SESSION['fr_max']   = $_SESSION['feed_max']        ?? ($_SESSION['fr_max']     ?? null);
 $_SESSION['strategy'] = $_SESSION['strategy_id']     ?? ($_SESSION['strategy']   ?? null);
 
-// ────────────────────────────────────────────────────────────────
-// CSRF token
-// ────────────────────────────────────────────────────────────────
-if (empty($_SESSION['csrf_token'])) {
+// Validaciones adicionales de sesión
+$toolId = filter_var($_SESSION['tool_id'] ?? null, FILTER_VALIDATE_INT);
+$frMax  = filter_var($_SESSION['fr_max'] ?? null, FILTER_VALIDATE_FLOAT);
+$rpmMin = filter_var($_SESSION['rpm_min'] ?? null, FILTER_VALIDATE_FLOAT);
+$rpmMax = filter_var($_SESSION['rpm_max'] ?? null, FILTER_VALIDATE_FLOAT);
+if ($toolId === false || $toolId <= 0 ||
+    $frMax === false || $frMax < 0 ||
+    $rpmMin === false || $rpmMax === false || $rpmMin >= $rpmMax) {
+    respondError(400, 'Parámetro inválido');
+}
+
+// ------------------------------------------------------------------
+// 9. CSRF token
+// ------------------------------------------------------------------
+// Regenera token cada 15 minutos para mayor seguridad
+$tokenTTL = 900; // segundos
+$needsToken = empty($_SESSION['csrf_token']) ||
+              empty($_SESSION['csrf_token_time']) ||
+              ($_SESSION['csrf_token_time'] + $tokenTTL) < time();
+if ($needsToken) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    $_SESSION['csrf_token_time'] = time();
 }
 $csrfToken = $_SESSION['csrf_token'];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!hash_equals($csrfToken, (string)($_POST['csrf_token'] ?? ''))) {
+    $posted = (string)($_POST['csrf_token'] ?? '');
+    if (!hash_equals($csrfToken, $posted)) {
         respondError(200, 'Error CSRF: petición no autorizada.');
+    }
+    if (($_SESSION['csrf_token_time'] + $tokenTTL) < time()) {
+        unset($_SESSION['csrf_token'], $_SESSION['csrf_token_time']);
+        respondError(200, 'Error CSRF: token expirado.');
     }
 }
 
-// ────────────────────────────────────────────────────────────────
-// Validar claves requeridas
-// ────────────────────────────────────────────────────────────────
+// ------------------------------------------------------------------
+// 10. Validación de sesión
+// ------------------------------------------------------------------
 $requiredKeys = [
     'tool_table','tool_id','material','trans_id',
-    'rpm_min','rpm_max','fr_max','thickness',
-    'strategy','hp'
+    'rpm_min','rpm_max','fr_max','thickness','strategy','hp'
 ];
+
+// Detecta qué claves no existen o están vacías
 $missing = array_filter($requiredKeys, fn($k) => empty($_SESSION[$k]));
+
 if ($missing) {
-    respondError(200, 'ERROR – faltan claves en sesión: ' . implode(', ', $missing));
+    // Loguea las claves faltantes
+    error_log('[step6] Faltan claves en sesión: ' . implode(', ', $missing));
+    // Envía respuesta con detalle de las claves que faltan
+    respondError(
+        200,
+        'ERROR – faltan datos en sesión: ' . implode(', ', $missing)
+    );
 }
 
-// ────────────────────────────────────────────────────────────────
-// Conexión BD
-// ────────────────────────────────────────────────────────────────
+
+// ------------------------------------------------------------------
+// 11. Conexión BD
+// ------------------------------------------------------------------
 $dbFile = __DIR__ . '/../../includes/db.php';
 if (!is_readable($dbFile)) {
     respondError(200, 'Error interno: falta el archivo de conexión a la BD.');
 }
-require_once $dbFile;           //-> $pdo
+try {
+    require_once $dbFile; // -> $pdo
+} catch (\Throwable $e) {
+    respondError(200, 'Error interno: fallo al incluir la BD.');
+}
 if (!isset($pdo) || !($pdo instanceof PDO)) {
     respondError(200, 'Error interno: no hay conexión a la base de datos.');
 }
 
-// ────────────────────────────────────────────────────────────────
-// Cargar modelos y utilidades
-// ────────────────────────────────────────────────────────────────
+// ------------------------------------------------------------------
+// 12. Cargar modelos y utilidades
+// ------------------------------------------------------------------
 $root = dirname(__DIR__, 2) . '/';
 foreach ([
     'src/Controller/ExpertResultController.php',
@@ -143,25 +220,35 @@ foreach ([
     require_once $root.$rel;
 }
 
-// ────────────────────────────────────────────────────────────────
-// Datos herramienta y parámetros base
-// ────────────────────────────────────────────────────────────────
+// ------------------------------------------------------------------
+// 13. Obtener datos de herramienta y parámetros
+// ------------------------------------------------------------------
 $toolTable = (string)$_SESSION['tool_table'];
 $toolId    = (int)$_SESSION['tool_id'];
-$toolData  = ToolModel::getTool($pdo, $toolTable, $toolId) ?: null;
+try {
+    $toolData  = ToolModel::getTool($pdo, $toolTable, $toolId) ?: null;
+} catch (\Throwable $e) {
+    respondError(200, 'Error al consultar herramienta.');
+}
 if (!$toolData) {
     respondError(200, 'Herramienta no encontrada.');
 }
 
-$params     = ExpertResultController::getResultData($pdo, $_SESSION);
+try {
+    $params = ExpertResultController::getResultData($pdo, $_SESSION);
+    // Largo de corte agregado a los parámetros para validaciones JS
+    $params['cut_length'] = $toolData['cut_length_mm'] ?? 0;
+} catch (\Throwable $e) {
+    respondError(200, 'Error al generar datos de corte.');
+}
 $jsonParams = json_encode($params, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 if ($jsonParams === false) {
     respondError(200, 'Error interno: no se pudo serializar parámetros técnicos.');
 }
 
-// ────────────────────────────────────────────────────────────────
-// Variables de salida (HTML / JS)
-// ────────────────────────────────────────────────────────────────
+// ------------------------------------------------------------------
+// 14. Variables sanitizadas para HTML
+// ------------------------------------------------------------------
 $serialNumber  = htmlspecialchars($toolData['serie']       ?? '', ENT_QUOTES);
 $toolCode      = htmlspecialchars($toolData['tool_code']   ?? '', ENT_QUOTES);
 $toolName      = htmlspecialchars($toolData['name']        ?? 'N/A', ENT_QUOTES);
@@ -194,8 +281,10 @@ $frMax   = (float)$params['fr_max'];
 $baseRpm = (int)  $params['rpm0'];
 $baseFeed= (float)$params['feed0'];
 $baseMmr = (float)$params['mmr_base'];
+$angleRamp = (int)($params['angle_ramp'] ?? 15);
 
-// Valores mostrados en el dash compacto
+$baseRampFeed = $fluteCountMb > 0 ? $baseFeed / $fluteCountMb : $baseFeed; // calculado solo para compatibilidad, se mostrará desde JS
+
 $outVf = number_format($baseFeed, 0, '.', '');
 $outN  = number_format($baseRpm, 0, '.', '');
 $outVc = number_format($baseVc,   1, '.', '');
@@ -207,20 +296,19 @@ $strategyParent = (string)($_SESSION['strategy_parent'] ?? 'Fresado');
 $thickness      = (float)$_SESSION['thickness'];
 $powerAvail     = (float)$_SESSION['hp'];
 
-// Nombre de transmisión
 try {
     $transName = $pdo->prepare('SELECT name FROM transmissions WHERE id = ?');
     $transName->execute([(int)$_SESSION['trans_id']]);
     $transName = $transName->fetchColumn() ?: 'N/D';
-} catch (Throwable $e) {
+} catch (\Throwable $e) {
     $transName = 'N/D';
 }
 
 $notesArray = $params['notes'] ?? [];
 
-// ────────────────────────────────────────────────────────────────
-// Assets locales
-// ────────────────────────────────────────────────────────────────
+// ------------------------------------------------------------------
+// 15. Assets locales
+// ------------------------------------------------------------------
 $cssBootstrapRel = asset('assets/css/generic/bootstrap.min.css');
 $bootstrapJsRel  = asset('assets/js/bootstrap.bundle.min.js');
 $featherLocal    = $root.'node_modules/feather-icons/dist/feather.min.js';
@@ -239,63 +327,70 @@ if (!file_exists($chartJsLocal))
     $assetErrors[] = 'Chart.js faltante.';
 if (!file_exists($countUpLocal))
     $assetErrors[] = 'CountUp.js faltante.';
-
-// =====================================================================
-// =========================  COMIENZA SALIDA  ==========================
-// =====================================================================
 ?>
-<?php if (!$embedded): ?>
 <!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Cutting Data – Paso&nbsp;6</title>
-  <?php
-    $styles = [
-      $cssBootstrapRel,
-      'assets/css/settings/settings.css',
-      'assets/css/generic/generic.css',
-      'assets/css/elements/elements.css',
-      'assets/css/objects/objects.css',
-      'assets/css/objects/wizard.css',
-      'assets/css/objects/stepper.css',
-      'assets/css/objects/step-common.css',
-      'assets/css/objects/step6.css',
-      'assets/css/components/components.css',
-      'assets/css/components/main.css',
-      'assets/css/components/footer-schneider.css',
-      'assets/css/utilities/utilities.css',
-    ];
-    include __DIR__ . '/../partials/styles.php';
-  ?>
-  <script>
-    window.BASE_URL  = <?= json_encode(BASE_URL) ?>;
-    window.BASE_HOST = <?= json_encode(BASE_HOST) ?>;
-  </script>
-</head>
-<body>
-<?php endif; ?>
+<html lang="es"><head>
+<meta charset="utf-8">
+<title>Paso 6 – Configurá tu router</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="csrf-token" content="<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>">
+<?php
+/* ─── Helper: <link> seguro ───────────────────────────────────────────── */
+function safeStyle(string $local, string $cdn = ''): void
+{
+    $root = dirname(__DIR__, 2) . '/';              // raíz del proyecto
+    $abs  = $root . ltrim($local, '/');             // ruta absoluta
 
-<?php if ($assetErrors): ?>
-  <div class="alert alert-warning text-dark m-3">
-    <strong>⚠️ Archivos faltantes (se usarán CDNs):</strong>
-    <ul>
-      <?php foreach ($assetErrors as $err): ?>
-        <li><?= htmlspecialchars($err, ENT_QUOTES) ?></li>
-      <?php endforeach; ?>
-    </ul>
-  </div>
-<?php endif; ?>
+    if (is_readable($abs)) {
+        // OK local
+        echo '<link rel="stylesheet" href="' . asset($local) . '">' . PHP_EOL;
+    } elseif ($cdn) {
+        // Fallback CDN
+        echo '<link rel="stylesheet" href="' . $cdn . '" crossorigin="anonymous">' . PHP_EOL;
+    } else {
+        // Sin recurso: no se rompe, solo avisa en HTML
+        echo '<!-- ⚠️  ' . htmlspecialchars($local) . ' no encontrado -->' . PHP_EOL;
+    }
+}
 
-<div class="step6">
+/* ─── Lista de hojas de estilo (local + opcional CDN) ──────────────────── */
+$styles = [
+    // [local, cdn]
+    [$cssBootstrapRel, 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css'],
+    ['assets/css/settings/settings.css',          ''],
+    ['assets/css/generic/generic.css',            ''],
+    ['assets/css/elements/elements.css',          ''],
+    ['assets/css/objects/objects.css',            ''],
+    ['assets/css/objects/wizard.css',             ''],
+    ['assets/css/objects/stepper.css',            ''],
+    ['assets/css/objects/step-common.css',        ''],
+    ['assets/css/objects/step6.css',              ''],
+    ['assets/css/components/components.css',      ''],
+    ['assets/css/components/main.css',            ''],
+    ['assets/css/components/footer-schneider.css',''],
+    ['assets/css/utilities/utilities.css',        ''],
+];
+
+/* ─── Render de <link> blindados ──────────────────────────────────────── */
+foreach ($styles as [$local, $cdn]) {
+    safeStyle($local, $cdn);
+}
+?>
+
+<?php if (!$embedded): ?>
+<script>
+  window.BASE_URL = <?= json_encode($baseUrl) ?>;
+  window.BASE_HOST = <?= json_encode($baseHost) ?>;
+</script>
+<?php endif; ?>
+</head><body>
 <div class="content-main">
   <div class="container py-4">
     <h2 class="step-title"><i data-feather="bar-chart-2"></i> Resultados</h2>
     <p class="step-desc">Ajustá los parámetros y revisá los datos de corte.</p>
   <!-- BLOQUE CENTRAL -->
   <div class="row gx-3 mb-4 cards-grid">
-    <div class="col-12 col-lg-4 mb-3 area-tool">
+    <div class="col-12 mb-3 area-tool">
       <div class="card h-100 shadow-sm">
         <div class="card-header text-center p-3">
           <span>#<?= $serialNumber ?> – <?= $toolCode ?></span>
@@ -394,229 +489,84 @@ if (!file_exists($countUpLocal))
       </div>
     </div>
 
-    <!-- Resultados -->
-    <div class="col-12 col-lg-4 mb-3 area-results">
-      <div class="card h-100 shadow-sm">
-        <div class="card-header text-center p-3"><h5 class="mb-0">Resultados</h5></div>
-        <div class="card-body p-4">
-          <div class="results-compact mb-4 d-flex gap-2">
-            <div class="result-box text-center flex-fill">
-              <div class="param-label">
-                Feedrate<br><small>(<span class="param-unit">mm/min</span>)</small>
-              </div>
-              <div id="outVf" class="fw-bold display-6"><?= $outVf ?></div>
-            </div>
-            <div class="result-box text-center flex-fill">
-              <div class="param-label">
-                Cutting speed<br><small>(<span class="param-unit">RPM</span>)</small>
-              </div>
-              <div id="outN" class="fw-bold display-6"><?= $outN ?></div>
-            </div>
-          </div>
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <small>Vc</small>
-            <div><span id="outVc" class="fw-bold"><?= $outVc ?></span> <span class="param-unit">m/min</span></div>
-          </div>
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <small>fz</small>
-            <div><span id="outFz" class="fw-bold">--</span> <span class="param-unit">mm/tooth</span></div>
-          </div>
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <small>Ap</small>
-            <div><span id="outAp" class="fw-bold">--</span> <span class="param-unit">mm</span></div>
-          </div>
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <small>Ae</small>
-            <div><span id="outAe" class="fw-bold">--</span> <span class="param-unit">mm</span></div>
-          </div>
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <small>hm</small>
-            <div><span id="outHm" class="fw-bold">--</span> <span class="param-unit">mm</span></div>
-          </div>
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <small>Hp</small>
-            <div><span id="outHp" class="fw-bold">--</span> <span class="param-unit">HP</span></div>
-          </div>
-          <!-- Métricas secundarias -->
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <div class="param-label">
-              MMR<br><small>(<span class="param-unit">mm³/min</span>)</small>
-            </div>
-            <div id="valueMrr" class="fw-bold">--</div>
-          </div>
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <div class="param-label">
-              Fc<br><small>(<span class="param-unit">N</span>)</small>
-            </div>
-            <div id="valueFc" class="fw-bold">--</div>
-          </div>
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <div class="param-label">
-              Potencia<br><small>(<span class="param-unit">W</span>)</small>
-            </div>
-            <div id="valueW" class="fw-bold">--</div>
-          </div>
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <div class="param-label">
-              η<br><small>(<span class="param-unit">%</span>)</small>
-            </div>
-            <div id="valueEta" class="fw-bold">--</div>
-          </div>
+<!-- Resultados -->
+<div class="col-12 col-lg-4 mb-3 area-results">
+  <div class="card h-100 shadow-sm">
+    <div class="card-header text-center p-3"><h5 class="mb-0">Resultados</h5></div>
+    <div class="card-body p-4">
+      <div class="results-compact mb-4 d-flex gap-2">
+        <div class="result-box text-center flex-fill">
+          <div class="param-label">Feedrate </div> <span class="param-explain">(Velocidad de avance)</span>
+          <div><span id="outVf" class="fw-bold display-6"><?= $outVf ?></span> <span class="param-unit">mm/min</span></div>
+          <div id="feedAlert" class="alert alert-danger d-none mt-2"></div>
+        </div>
+        <div class="result-box text-center flex-fill">
+          <div class="param-label">Velocidad del Rotacion </div> <span class="param-explain">(Revoluciones por minuto)</span>
+          <div><span id="outN" class="fw-bold display-6"><?= $outN ?></span> <span class="param-unit">RPM</span></div>
         </div>
       </div>
-    </div>
 
-    <!-- Radar Chart -->
-    <div class="col-12 col-lg-4 mb-3 area-radar">
-      <div class="card h-100 shadow-sm">
-        <div class="card-header text-center p-3"><h5 class="mb-0">Distribución Radar</h5></div>
-        <div class="card-body p-4 d-flex justify-content-center align-items-center">
-          <canvas id="radarChart" width="300" height="300"></canvas>
-        </div>
+      <!-- Resultados principales -->
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <small>Vc <span class="param-explain">(Velocidad de corte)</span></small>
+        <div><span id="outVc" class="fw-bold"><?= $outVc ?></span> <span class="param-unit">m/min</span></div>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <small>fz <span class="param-explain">(Avance por diente)</span></small>
+        <div><span id="outFz" class="fw-bold">--</span> <span class="param-unit">mm/tooth</span></div>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <small>Ap <span class="param-explain">(Profundidad de corte)</span></small>
+        <div><span id="outAp" class="fw-bold">--</span> <span class="param-unit">mm</span></div>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <small>Ae <span class="param-explain">(Ancho de corte)</span></small>
+        <div><span id="outAe" class="fw-bold">--</span> <span class="param-unit">mm</span></div>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <small>hm <span class="param-explain">(Grosor medio de la viruta)</span></small>
+        <div><span id="outHm" class="fw-bold">--</span> <span class="param-unit">mm</span></div>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <small>Hp <span class="param-explain">(Potencia requerida)</span></small>
+        <div><span id="outHp" class="fw-bold">--</span> <span class="param-unit">HP</span></div>
+      </div>
+
+      <!-- Métricas secundarias convertidas a resultados iguales -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <small>MMR <span class="param-explain">(Tasa de remoción de material)</span></small>
+        <div><span id="valueMrr" class="fw-bold">--</span> <span class="param-unit">mm³/min</span></div>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <small>Fc <span class="param-explain">(Fuerza de corte)</span></small>
+        <div><span id="valueFc" class="fw-bold">--</span> <span class="param-unit">N</span></div>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <small>Velocidad de avance en rampa (<?= $angleRamp ?>°)</small>
+        <!-- baseRampFeed se calcula ahora en JS; se muestra '--' hasta que se
+             actualice dinámicamente -->
+        <div><span id="valueRampVf" class="fw-bold">--</span> <span class="param-unit">mm/min</span></div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- ESPECIFICACIONES / CONFIGURACIÓN / NOTAS -->
-  <div class="row gx-3 mb-4 cards-grid">
-    <!-- Especificaciones -->
-    <div class="col-12 col-lg-4 mb-3">
-      <div class="card h-100 shadow-sm">
-        <div class="card-header text-center p-3"
-             data-bs-toggle="collapse"
-             data-bs-target="#specCollapse"
-             aria-expanded="true">
-          <h5 class="mb-0">Especificaciones Técnicas</h5>
-        </div>
-        <div id="specCollapse" class="collapse show">
-          <div class="card-body p-4">
-            <div class="row gx-0 align-items-center">
-              <div class="col-12 col-lg-7 px-2 mb-4 mb-lg-0">
-                <ul class="spec-list mb-0 px-2">
-                  <li><span>Diámetro de corte (d1):</span>
-                      <span><?= number_format($diameterMb,3,'.','') ?>
-                      <span class="param-unit">mm</span>
-                      </span>
-                  </li>
-                  <li><span>Diámetro del vástago:</span>
-                      <span><?= number_format($shankMb,3,'.','') ?>
-                      <span class="param-unit">mm</span>
-                      </span>
-                  </li>
-                  <li><span>Longitud de corte:</span>
-                      <span><?= number_format($cutLenMb,3,'.','') ?>
-                      <span class="param-unit">mm</span>
-                      </span>
-                  </li>
-                  <li><span>Longitud de filo:</span>
-                      <span><?= number_format($fluteLenMb,3,'.','') ?>
-                      <span class="param-unit">mm</span>
-                      </span>
-                  </li>
-                  <li><span>Longitud total:</span>
-                      <span><?= number_format($fullLenMb,3,'.','') ?>
-                      <span class="param-unit">mm</span>
-                      </span>
-                  </li>
-                  <li><span>Número de filos (Z):</span><span><?= $fluteCountMb ?></span></li>
-                  <li><span>Tipo de punta:</span><span><?= $toolType ?></span></li>
-                  <li><span>Recubrimiento:</span><span><?= $coatingMb ?></span></li>
-                  <li><span>Material fabricación:</span><span><?= $materialMb ?></span></li>
-                  <li><span>Marca:</span><span><?= $brandMb ?></span></li>
-                  <li><span>País de origen:</span><span><?= $madeInMb ?></span></li>
-                </ul>
-              </div>
-              <div class="col-12 col-lg-5 px-2 d-flex justify-content-center align-items-center">
-                <?php if ($vectorURL): ?>
-                  <img src="<?= htmlspecialchars($vectorURL, ENT_QUOTES) ?>"
-                       alt="Imagen vectorial herramienta"
-                       class="vector-image mx-auto d-block">
-                <?php else: ?>
-                  <div class="text-secondary">Sin imagen vectorial</div>
-                <?php endif; ?>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Configuración -->
-    <div class="col-12 col-lg-4 mb-3">
-      <div class="card h-100 shadow-sm">
-        <div class="card-header text-center p-3"
-             data-bs-toggle="collapse"
-             data-bs-target="#configCollapse"
-             aria-expanded="true">
-          <h5 class="mb-0">Configuración de Usuario</h5>
-        </div>
-        <div id="configCollapse" class="collapse show">
-          <div class="card-body p-4">
-            <div class="config-section mb-3">
-              <div class="config-section-title">Material</div>
-              <div class="config-item">
-                <div class="label-static">Categoría padre:</div>
-                <div class="value-static"><?= $materialParent ?></div>
-              </div>
-              <div class="config-item">
-                <div class="label-static">Material a mecanizar:</div>
-                <div class="value-static"><?= $materialName ?></div>
-              </div>
-            </div>
-            <div class="section-divider"></div>
-            <div class="config-section mb-3">
-              <div class="config-section-title">Estrategia</div>
-              <div class="config-item">
-                <div class="label-static">Categoría padre estr.:</div>
-                <div class="value-static"><?= $strategyParent ?></div>
-              </div>
-              <div class="config-item">
-                <div class="label-static">Estrategia de corte:</div>
-                <div class="value-static"><?= $strategyName ?></div>
-              </div>
-            </div>
-            <div class="section-divider"></div>
-            <div class="config-section">
-              <div class="config-section-title">Máquina</div>
-              <div class="config-item">
-                <div class="label-static">Espesor del material:</div>
-                <div class="value-static"><?= number_format($thickness,2) ?> <span class="param-unit">mm</span></div>
-              </div>
-              <div class="config-item">
-                <div class="label-static">Tipo de transmisión:</div>
-                <div class="value-static"><?= $transName ?></div>
-              </div>
-              <div class="config-item">
-                <div class="label-static">Feedrate máximo:</div>
-                <div class="value-static"><?= number_format($frMax,0) ?> <span class="param-unit">mm/min</span></div>
-              </div>
-              <div class="config-item">
-                <div class="label-static">RPM mínima:</div>
-                <div class="value-static"><?= number_format($rpmMin,0) ?> <span class="param-unit">rev/min</span></div>
-              </div>
-              <div class="config-item">
-                <div class="label-static">RPM máxima:</div>
-                <div class="value-static"><?= number_format($rpmMax,0) ?> <span class="param-unit">rev/min</span></div>
-              </div>
-              <div class="config-item">
-                <div class="label-static">Potencia disponible:</div>
-                <div class="value-static"><?= number_format($powerAvail,1) ?> <span class="param-unit">HP</span></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    
 
-    <!-- Notas -->
-    <div class="col-12 col-lg-4 mb-3">
+    <!-- Radar Chart + Notas -->
+    <div class="col-12 col-lg-4 mb-3 area-radar">
       <div class="card h-100 shadow-sm">
-        <div class="card-header text-center p-3"><h5 class="mb-0">Notas Adicionales</h5></div>
+        <div class="card-header text-center p-3"><h5 class="mb-0">Distribución Radar</h5></div>
         <div class="card-body p-4">
+          <div class="d-flex justify-content-center mb-4">
+            <canvas id="radarChart" width="300" height="300"></canvas>
+          </div>
+          <div id="rpmAlert" class="alert alert-danger d-none"></div>
           <?php if ($notesArray): ?>
             <ul class="notes-list mb-0">
               <?php foreach ($notesArray as $note): ?>
-                <li class="mb-2 d-flex align-items-start">
+                <li class="d-flex align-items-start mb-2">
                   <i data-feather="file-text" class="me-2"></i>
                   <div><?= htmlspecialchars($note, ENT_QUOTES) ?></div>
                 </li>
@@ -629,20 +579,304 @@ if (!file_exists($countUpLocal))
       </div>
     </div>
   </div>
-</div>
-</div><!-- .content-main -->
-</div><!-- .step6 -->
-<section id="wizard-dashboard"></section>
 
-<!-- SCRIPTS -->
-<script>window.step6Params = <?= $jsonParams ?>; window.step6Csrf = '<?= $csrfToken ?>';</script>
+
+<!-- ===============================================================
+     ESPECIFICACIONES  ·  CONFIGURACIÓN
+     (dos tarjetas alineadas, idéntico formato de “Configuración
+     de Usuario” para la sección Especificaciones Técnicas)
+=============================================================== -->
+<div class="row gx-3 mb-4 cards-grid"><!-- grilla flex→grid -->
+
+  <!--─────────────────── 1) ESPECIFICACIONES TÉCNICAS ──────────────────-->
+  <div class="col-12 col-lg-4 mb-3 area-specs">
+    <div class="card h-100 shadow-sm">
+      <div class="card-header text-center p-3"
+           data-bs-toggle="collapse"
+           data-bs-target="#specCollapse"
+           aria-expanded="true">
+        <h5 class="mb-0">Especificaciones Técnicas</h5>
+      </div>
+
+      <div id="specCollapse" class="collapse show">
+        <div class="card-body p-4">
+
+          <!-- ===== Filos ===== -->
+          <div class="config-section mb-3">
+            <div class="config-section-title">Filos</div>
+            <div class="config-item">
+              <div class="label-static">Número de filos (Z):</div>
+              <div class="value-static"><?= $fluteCountMb ?></div>
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <!-- ===== Diámetros ===== -->
+          <div class="config-section mb-3">
+            <div class="config-section-title">Diámetros</div>
+
+            <div class="config-item">
+              <div class="label-static">Diám. de corte (d1):</div>
+              <div class="value-static">
+                <?= number_format($diameterMb,3,'.','') ?> <span class="param-unit">mm</span>
+              </div>
+            </div>
+
+            <div class="config-item">
+              <div class="label-static">Diám. del vástago:</div>
+              <div class="value-static">
+                <?= number_format($shankMb,3,'.','') ?> <span class="param-unit">mm</span>
+              </div>
+            </div>
+
+            <div class="config-item">
+              <div class="label-static">Tipo de punta:</div>
+              <div class="value-static"><?= $toolType ?></div>
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <!-- ===== Longitudes ===== -->
+          <div class="config-section mb-3">
+            <div class="config-section-title">Longitudes</div>
+
+            <div class="config-item">
+              <div class="label-static">Longitud de corte:</div>
+              <div class="value-static">
+                <?= number_format($cutLenMb,3,'.','') ?> <span class="param-unit">mm</span>
+              </div>
+            </div>
+
+            <div class="config-item">
+              <div class="label-static">Longitud de filo:</div>
+              <div class="value-static">
+                <?= number_format($fluteLenMb,3,'.','') ?> <span class="param-unit">mm</span>
+              </div>
+            </div>
+
+          <div class="config-item">
+            <div class="label-static">Longitud total:</div>
+            <div class="value-static">
+              <?= number_format($fullLenMb,3,'.','') ?> <span class="param-unit">mm</span>
+            </div>
+          </div>
+        </div>
+        <div id="lenAlert" class="alert alert-danger d-none mt-2"></div>
+
+        <div class="section-divider"></div>
+
+          <!-- ===== Composición ===== -->
+          <div class="config-section">
+            <div class="config-section-title">Composición</div>
+
+            <div class="config-item">
+              <div class="label-static">Material fabricación:</div>
+              <div class="value-static"><?= $materialMb ?></div>
+            </div>
+
+            <div class="config-item">
+              <div class="label-static">Recubrimiento:</div>
+              <div class="value-static"><?= $coatingMb ?></div>
+            </div>
+
+            <div class="config-item">
+              <div class="label-static">Marca:</div>
+              <div class="value-static"><?= $brandMb ?></div>
+            </div>
+
+            <div class="config-item">
+              <div class="label-static">País de origen:</div>
+              <div class="value-static"><?= $madeInMb ?></div>
+            </div>
+          </div>
+
+        </div><!-- /.card-body -->
+      </div><!-- /.collapse -->
+    </div><!-- /.card -->
+  </div><!-- /.area-specs -->
+
+
+  <!--─────────────────── 2) CONFIGURACIÓN DE USUARIO ──────────────────-->
+  <div class="col-12 col-lg-4 mb-3 area-config">
+    <div class="card h-100 shadow-sm">
+      <div class="card-header text-center p-3"
+           data-bs-toggle="collapse"
+           data-bs-target="#configCollapse"
+           aria-expanded="true">
+        <h5 class="mb-0">Configuración de Usuario</h5>
+      </div>
+
+      <div id="configCollapse" class="collapse show">
+        <div class="card-body p-4">
+
+          <div class="config-section mb-3">
+            <div class="config-section-title">Material</div>
+            <div class="config-item">
+              <div class="label-static">Categoría padre:</div>
+              <div class="value-static"><?= $materialParent ?></div>
+            </div>
+            <div class="config-item">
+              <div class="label-static">Material a mecanizar:</div>
+              <div class="value-static"><?= $materialName ?></div>
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <div class="config-section mb-3">
+            <div class="config-section-title">Estrategia</div>
+            <div class="config-item">
+              <div class="label-static">Categoría padre estr.:</div>
+              <div class="value-static"><?= $strategyParent ?></div>
+            </div>
+            <div class="config-item">
+              <div class="label-static">Estrategia de corte:</div>
+              <div class="value-static"><?= $strategyName ?></div>
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <div class="config-section">
+            <div class="config-section-title">Máquina</div>
+            <div class="config-item">
+              <div class="label-static">Espesor del material:</div>
+              <div class="value-static"><?= number_format($thickness,2) ?> <span class="param-unit">mm</span></div>
+            </div>
+            <div class="config-item">
+              <div class="label-static">Tipo de transmisión:</div>
+              <div class="value-static"><?= $transName ?></div>
+            </div>
+            <div class="config-item">
+              <div class="label-static">Feedrate máximo:</div>
+              <div class="value-static"><?= number_format($frMax,0) ?> <span class="param-unit">mm/min</span></div>
+            </div>
+            <div class="config-item">
+              <div class="label-static">RPM mínima:</div>
+              <div class="value-static"><?= number_format($rpmMin,0) ?> <span class="param-unit">rev/min</span></div>
+            </div>
+            <div class="config-item">
+              <div class="label-static">RPM máxima:</div>
+              <div class="value-static"><?= number_format($rpmMax,0) ?> <span class="param-unit">rev/min</span></div>
+            </div>
+            <div class="config-item">
+              <div class="label-static">Potencia disponible:</div>
+              <div class="value-static"><?= number_format($powerAvail,1) ?> <span class="param-unit">HP</span></div>
+            </div>
+          </div>
+
+        </div><!-- /.card-body -->
+      </div><!-- /.collapse -->
+    </div><!-- /.card -->
+  </div><!-- /.area-config -->
+
+
+
+</div><!-- /.cards-grid -->
+
+
+</div><!-- .content-main -->
+
+<script 
+  type="module" 
+  defer 
+  src="<?= asset('assets/js/step6.js') ?>"
+  onload="console.info('[step6] module loaded 👍'); window.step6?.init?.();"
+  onerror="console.error('❌ step6.js failed to load');">
+</script>
+
+<!-- ========== SCRIPTS (blindados) ========== -->
+<script>
+  /*-- Parámetros técnicos + CSRF (100 % seguro) --*/
+  window.step6Params = <?= json_encode(
+        $params,
+        JSON_UNESCAPED_UNICODE |
+        JSON_HEX_TAG  | JSON_HEX_AMP |
+        JSON_HEX_APOS | JSON_HEX_QUOT
+  ) ?>;
+  window.step6Csrf   = <?= json_encode($csrfToken, JSON_HEX_TAG) ?>;
+  window.step6AjaxUrl = <?= json_encode(asset('ajax/step6_ajax_legacy_minimal.php'), JSON_HEX_TAG) ?>;
+</script>
+
 <?php if (!$embedded): ?>
-<script src="<?= $bootstrapJsRel ?>" defer></script>
-<script src="<?= asset('node_modules/feather-icons/dist/feather.min.js') ?>" defer></script>
-<script src="<?= asset('node_modules/chart.js/dist/chart.umd.min.js') ?>" defer></script>
-<script src="<?= asset('node_modules/countup.js/dist/countUp.umd.js') ?>" defer></script>
-<script src="<?= $step6JsRel ?>" defer></script>
-<script>requestAnimationFrame(() => feather.replace());</script>
-</body>
-</html>
+
+<?php
+/*-----------------------------------------------------------------
+ *  Función helper: inyecta <script defer> local ⇢ o CDN fallback
+ *----------------------------------------------------------------*/
+function safeScript(string $local, string $cdn = ''): void
+{
+    $root = dirname(__DIR__, 2) . '/';
+    $path = $root . ltrim($local, '/');
+
+    if (is_readable($path)) {
+        echo '<script src="' . asset($local) . '" defer></script>' . PHP_EOL;
+    } elseif ($cdn) {
+        echo '<script src="' . $cdn . '" defer crossorigin="anonymous"></script>' . PHP_EOL;
+    } else {
+        echo '<!-- ⚠️  ' . htmlspecialchars($local) . ' no encontrado -->' . PHP_EOL;
+    }
+}
+
+/*-----------------------------------------------------------------
+ *  1) Bootstrap 5 bundle (local o CDN)
+ *----------------------------------------------------------------*/
+safeScript(
+    'assets/js/bootstrap.bundle.min.js',
+    'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js'
+);
+
+/*-----------------------------------------------------------------
+ *  2) Feather-icons
+ *----------------------------------------------------------------*/
+safeScript(
+    'node_modules/feather-icons/dist/feather.min.js',
+    'https://cdn.jsdelivr.net/npm/feather-icons@4/dist/feather.min.js'
+);
+
+/*-----------------------------------------------------------------
+ *  3) Chart.js
+ *----------------------------------------------------------------*/
+safeScript(
+    'node_modules/chart.js/dist/chart.umd.min.js',
+    'https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js'
+);
+
+/*-----------------------------------------------------------------
+ *  4) CountUp.js
+ *----------------------------------------------------------------*/
+safeScript(
+    'node_modules/countup.js/dist/countUp.umd.js',
+    'https://cdn.jsdelivr.net/npm/countup.js@2.6.2/dist/countUp.umd.js'
+);
+
+/*-----------------------------------------------------------------
+ *  5) Tu propio step6.js (ahora ES module, solo local; sin CDN)
+ *----------------------------------------------------------------*/
+
+?>
+<!-- views/steps/step6.php  ── al final, justo antes de </body> -->
+
+<!-- Script principal del paso 6  -->
+
+
+<script>
+/*-- Feather.replace() seguro: reintenta 10× cada 120 ms --*/
+(function waitFeather(r = 10) {
+  if (window.feather && typeof feather.replace === 'function') {
+    requestAnimationFrame(() => feather.replace({ class: 'feather' }));
+  } else if (r) {
+    setTimeout(() => waitFeather(r - 1), 120);
+  } else {
+    console.warn('⚠️  Feather Icons no cargó: se omite replace()');
+  }
+})();
+</script>
+
 <?php endif; ?>
+
+
+
+</body></html>
