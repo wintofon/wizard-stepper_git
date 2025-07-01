@@ -777,17 +777,10 @@ foreach ($styles as [$local, $cdn]) {
 </div><!-- /.cards-grid -->
 
 
+
 </div><!-- .content-main -->
 
-<script 
-  type="module" 
-  defer 
-  src="<?= asset('assets/js/step6.js') ?>"
-  onload="console.info('[step6] module loaded 👍'); window.step6?.init?.();"
-  onerror="console.error('❌ step6.js failed to load');">
-</script>
-
-<!-- ========== SCRIPTS (blindados) ========== -->
+<!-- ========== Configuración paso 6 ========== -->
 <script>
   /*-- Parámetros técnicos + CSRF (100 % seguro) --*/
   window.step6Params = <?= json_encode(
@@ -799,6 +792,16 @@ foreach ($styles as [$local, $cdn]) {
   window.step6Csrf   = <?= json_encode($csrfToken, JSON_HEX_TAG) ?>;
   window.step6AjaxUrl = <?= json_encode(asset('ajax/step6_ajax_legacy_minimal.php'), JSON_HEX_TAG) ?>;
 </script>
+
+<script
+  type="module"
+  defer
+  src="<?= asset('assets/js/step6.js') ?>"
+  onload="console.info('[step6] module loaded 👍'); window.step6?.init?.();"
+  onerror="console.error('❌ step6.js failed to load');">
+</script>
+
+<!-- ========== SCRIPTS (blindados) ========== -->
 
 <?php if (!$embedded): ?>
 
