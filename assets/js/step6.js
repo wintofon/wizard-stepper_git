@@ -185,7 +185,7 @@
 
    render({
       vc:state.vc, fz:state.fz, hm:hmVal, n:N|0, vf:vf|0, vf_ramp: Math.round(vfRamp),
-      hp:hpVal, mmr:mmrVal, fc:fcVal|0, w:kWval*1000|0,
+      hp:hpVal, mmr:  Math.round(mmrVal), fc:fcVal|0, w:kWval*1000|0,
       eta:Math.min(100,(hpVal/PWR)*100)|0,
       ae:state.ae, ap:apVal,
       life:lifePct, power:powerPct, finish:finishPct
