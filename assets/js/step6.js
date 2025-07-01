@@ -316,6 +316,24 @@
     makeRadar();
     syncPass();
     recalc();
+
+    // Actualiza visualización de límites del slider fz
+    (() => {
+      const group = SL.fz?.closest('.mb-4');
+      if (!group) return;
+      const fzMinSpan = group.querySelector('span:nth-child(1)');
+      const fzMidVal  = group.querySelector('#valFz');
+      const fzMaxSpan = group.querySelector('span:last-child');
+
+      const fzMin  = fmt(FZ_MIN * K_SEG_transmission, 4);
+      const fzBase = fmt(FZ0 * K_SEG_transmission, 4);
+      const fzMax  = fmt(FZ_MAX * K_SEG_transmission, 4);
+
+      if (fzMinSpan) fzMinSpan.textContent = fzMin;
+      if (fzMidVal)  fzMidVal.textContent  = fzBase;
+      if (fzMaxSpan) fzMaxSpan.textContent = fzMax;
+    })();
+
     log('Init completo');
   } catch(e) {
     error(e);
