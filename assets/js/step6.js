@@ -190,9 +190,8 @@ render({
   n:   N | 0,
   vf:  vf | 0,
 
-  // sin decimales:
-  vf_ramp: Math.round(vfRamp),
-  mmr:     Math.round(mmrVal),
+  vf_ramp: Math.round(vfRamp),   // ← entero
+  mmr:     Math.round(mmrVal),   // ← entero
 
   hp:  hpVal,
   fc:  fcVal | 0,
@@ -204,6 +203,7 @@ render({
   power: powerPct,
   finish: finishPct
 });
+
 
 
   /* ────────────── Slider UI helper ─────────────── */
