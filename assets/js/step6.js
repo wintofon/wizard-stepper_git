@@ -225,9 +225,13 @@
 
   /* ───────────────────── INIT ─────────────────── */
   try {
-    /* Limitar VC: ±50 % del valor base */
-    const vcMin = VC0 * 0.5;
-    const vcMax = VC0 * 1.5;
+    /* Limitar VC: ±50 % del valor base, dentro de RPM_MIN/MAX */
+    const vcBaseMin = VC0 * 0.5;
+    const vcBaseMax = VC0 * 1.5;
+    const vcFromRpm = rpm => (rpm * Math.PI * D) / 1000;
+    const vcMin = Math.max(vcBaseMin, vcFromRpm(RPM_MIN));
+    const vcMax = Math.min(vcBaseMax, vcFromRpm(RPM_MAX));
+    state.vc = Math.max(vcMin, Math.min(state.vc, vcMax));
     SL.vc.min = fmt(vcMin,1); SL.vc.max = fmt(vcMax,1); SL.vc.value = fmt(state.vc,1);
 
     SL.pass.value=1;                // por defecto 1 pasada
