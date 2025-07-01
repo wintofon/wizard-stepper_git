@@ -183,14 +183,28 @@
     const powerPct  = Math.min(100,(hpVal/PWR)*100);
     const finishPct = Math.max(0,100-lifePct);
 
-    render({
-      vc:state.vc, fz:state.fz, hm:hmVal, n:N|0, vf:vf|0, vf_ramp:vfRamp,
-      hp:hpVal, mmr:mmrVal, fc:fcVal|0, w:kWval*1000|0,
-      eta:Math.min(100,(hpVal/PWR)*100)|0,
-      ae:state.ae, ap:apVal,
-      life:lifePct, power:powerPct, finish:finishPct
-    });
-  };
+render({
+  vc:  state.vc,
+  fz:  state.fz,
+  hm:  hmVal,
+  n:   N | 0,
+  vf:  vf | 0,
+
+  // sin decimales:
+  vf_ramp: Math.round(vfRamp),
+  mmr:     Math.round(mmrVal),
+
+  hp:  hpVal,
+  fc:  fcVal | 0,
+  w:   kWval * 1000 | 0,
+  eta: Math.min(100, (hpVal / PWR) * 100) | 0,
+  ae:  state.ae,
+  ap:  apVal,
+  life:  lifePct,
+  power: powerPct,
+  finish: finishPct
+});
+
 
   /* ────────────── Slider UI helper ─────────────── */
   const beautify = (slider,dec=3) => {
