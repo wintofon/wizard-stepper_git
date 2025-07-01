@@ -26,7 +26,7 @@
     rpm_min:     RPM_MIN,
     rpm_max:     RPM_MAX,
     fr_max:      FR_MAX,
-    coef_seg:    K_SEG,
+    coef_seg:    K_SEG_transmission = 1.2,
     Kc11:        KC,
     mc:          MC,
     eta:         ETA,
@@ -44,11 +44,15 @@
   const fmt = (n,d=1) => parseFloat(n).toFixed(d);
 
   const SL = {
-    fz: $('#sliderFz'),
-    vc: $('#sliderVc'),
-    ae: $('#sliderAe'),
+    fz:   $('#sliderFz'),
+    vc:   $('#sliderVc'),
+    ae:   $('#sliderAe'),
     pass: $('#sliderPasadas')
   };
+  // Multiplicar límites de fz por coef. seguridad
+  SL.fz.min = (FZ_MIN * K_SEG_transmission).toFixed(4);
+  SL.fz.max = (FZ_MAX * K_SEG_transmission).toFixed(4);
+
   const OUT = {
     vc:$('#outVc'), fz:$('#outFz'), hm:$('#outHm'), n:$('#outN'),
     vf:$('#outVf'), hp:$('#outHp'), mmr:$('#valueMrr'),
@@ -58,10 +62,9 @@
   const feedAlert = $('#feedAlert');
   const rpmAlert  = $('#rpmAlert');
   const lenAlert  = $('#lenAlert');
-  // asumimos existe:
   const hpAlert   = $('#hpAlert');
 
-  const state = { fz:+FZ0, vc:+VC0, ae:D*0.5, ap:1, last:{} };
+  const state = { fz:+FZ0 * K_SEG_transmission, vc:+VC0, ae:D*0.5, ap:1, last:{} };
 
   /* ────────────────── ALERT HELPERS ────────────────── */
   const showAlert = (el,msg) => {
@@ -90,8 +93,8 @@
     hideAlert(lenAlert); return true;
   };
   const validateHP = pct => {
-    if (pct >= 80) { showAlert(hpAlert, '⚠️ Potencia > 80% disponible'); }
-    else hideAlert(hpAlert);
+    if (pct >= 80) showAlert(hpAlert, '⚠️ Potencia > 80% disponible');
+    else          hideAlert(hpAlert);
   };
 
   /* ──────────────────── FORMULAS ──────────────────── */
@@ -100,28 +103,46 @@
   const hmCalc   = (fz,ae)   => { const p = 2*Math.asin(Math.min(1, ae/D)); return p ? fz*(1-Math.cos(p))/p : fz; };
   const mmrCalc  = (ap,vf,ae)=> (ap*ae*vf)/1000;
   const kc_h     = hm       => KC*Math.pow(hm,-MC);
-  const FcT      = (kc,ap)  => kc*ap*Z*(1+K_SEG*Math.tan(0));
+  const FcT      = (kc,ap)  => kc*ap*Z*(1 + K_SEG_transmission * Math.tan(0));
   const kWCalc   = (kc,ap,ae,vf)=> (ap*ae*vf*kc)/(60e6*ETA);
-  const hpCalc   = kW        => kW*1.341;
+  const hpCalc   = w        => w*1.341;
 
   /* ────────────── SLIDER UI HELPERS ────────────── */
   function beautify(slider,dec) {
     if (!slider) return;
     const wrap = slider.closest('.slider-wrap');
     const bub  = wrap?.querySelector('.slider-bubble');
-    const min  = +slider.min, max = +slider.max;
+    const [min,max] = [+slider.min, +slider.max];
     const paint = v => {
       wrap.style.setProperty('--val', ((v-min)/(max-min))*100);
       if (bub) bub.textContent = fmt(v,dec);
     };
     paint(+slider.value);
-    slider.addEventListener('input', e => { paint(+e.target.value); onInput(); });
+    slider.addEventListener('input',e => { paint(+e.target.value); onInput(); });
   }
+
+  /**
+   * ─────────────────── PASADAS SYNC ───────────────────
+   * Ajusta el rango del slider de 'pasadas' de modo que
+   * la profundidad de pasada (THK/passes) nunca exceda CUT_LEN.
+   */
   function syncPass() {
-    const maxP = Math.max(1, Math.ceil(THK/state.ae));
-    SL.pass.max = maxP; SL.pass.min = 1; SL.pass.step = 1;
-    if (+SL.pass.value > maxP) SL.pass.value = maxP;
-    state.ap = +SL.pass.value;
+    // Mínimo de pasadas para que ap = THK/passes ≤ CUT_LEN
+    const minPasses = Math.ceil(THK / CUT_LEN);
+    // Máximo de pasadas para razonable (usa el ancho de pasada como límite alto)
+    const maxPasses = Math.max(1, Math.ceil(THK / state.ae));
+
+    SL.pass.min  = minPasses;
+    SL.pass.max  = maxPasses;
+    SL.pass.step = 1;
+
+    // Si el valor actual está fuera de rango, ajústalo
+    let p = +SL.pass.value;
+    if (p < minPasses) p = minPasses;
+    if (p > maxPasses) p = maxPasses;
+    SL.pass.value = p;
+
+    state.ap = p;
     $('#textPasadasInfo').textContent =
       `${state.ap} pasada${state.ap>1?'s':''} de ${(THK/state.ap).toFixed(2)} mm`;
   }
@@ -144,79 +165,75 @@
   };
 
   function recalc() {
-    // básicos
+    // Cálculo de RPM y feed
     const N     = rpmCalc(state.vc);
     const vfRaw = feedCalc(N, state.fz);
     const vf    = Math.min(vfRaw, FR_MAX);
-    // ajustar fz si topa
+
+    // Si feed topa, ajustar fz
     if (vfRaw >= FR_MAX) {
       state.fz = FR_MAX/(N*Z);
       SL.fz.value = fmt(state.fz,4);
-      SL.fz.closest('.slider-wrap').querySelector('.slider-bubble').textContent = fmt(state.fz,4);
+      SL.fz.closest('.slider-wrap')
+           .querySelector('.slider-bubble').textContent = fmt(state.fz,4);
     }
-    // profundidad
-    const apVal = THK/state.ap;
+
+    // Profundidad de pasada
+    const apVal = THK / state.ap;
+
+    // Validaciones
     validateFeed(vf);
     validateRpm(N);
     validateLength();
+    // (pasadas redondeadas abajo ya garantizan apVal ≤ CUT_LEN)
 
-    // cálculos
-    const hmVal  = hmCalc(state.fz, state.ae);
+    // Demás cálculos
+    const hmVal  = hmCalc(state.fz,state.ae);
     const kcVal  = kc_h(hmVal);
-    const mmrVal = mmrCalc(apVal, vf, state.ae);
-    const fcVal  = FcT(kcVal, apVal);
-    const kWv    = kWCalc(kcVal, apVal, state.ae, vf);
-    const hpVal  = hpCalc(kWv);
+    const mmrVal = mmrCalc(apVal,vf,state.ae);
+    const fcVal  = FcT(kcVal,apVal);
+    const wVal   = kWCalc(kcVal,apVal,state.ae,vf);
+    const hpVal  = hpCalc(wVal);
 
-    // porcentajes
-    const lifePct   = Math.min(100, ((state.fz - FZ_MIN)/(FZ_MAX - FZ_MIN))*100);
+    // Porcentajes radar
+    const lifePct   = Math.min(100,((state.fz-FZ_MIN)/(FZ_MAX-FZ_MIN))*100);
     const powerPct  = (hpVal/(HP_AVAIL||1))*100;
-    const finishPct = Math.max(0, 100 - lifePct);
-
+    const finishPct = Math.max(0,100-lifePct);
     validateHP(powerPct);
 
-// ───────────────────────────
-// Actualiza la vista con los nuevos valores calculados
-// ───────────────────────────
-render({
-  // Velocidades y avances
-  vc:       state.vc,                                 // Velocidad de corte (m/min)
-  n:        N | 0,                                    // Revoluciones por minuto (RPM)
-  vf:       vf | 0,                                   // Velocidad de avance (mm/min)
-  vf_ramp:  Math.round(vf * Math.cos(ANGLE_RAMP * Math.PI / 180) / Z),
-
-  // Compromiso y profundidades
-  ae:       state.ae,                                 // Ancho de pasada (mm)
-  ap:       apVal,                                    // Profundidad de pasada (mm)
-
-  // Grosor de viruta y eliminación de material
-  hm:       hmVal,                                    // Grosor medio de viruta (mm)
-  mmr:      Math.round(mmrVal),                       // Tasa de remoción de material (mm³/min)
-
-  // Fuerzas y potencia
-  fc:       fcVal | 0,                                // Fuerza de corte (N)
-   hp:       hpVal,                                     // Potencia requerida (HP)
-  w:        (kWv * 1000) | 0,                         // Potencia en W
-  eta:      Math.min(100, powerPct) | 0,              // Eficiencia (%) basado en HP disponible
-
-  // Métricas del radar
-  life:     lifePct,                                  // Vida útil (%)
-  power:    powerPct,                                 // Uso de potencia (%)
-  finish:   finishPct,                                // Calidad de terminación (%)
-
-  // Avance por diente
-  fz:       state.fz                                 // Avance por diente (mm/tooth)
-});
-
+    // Render final
+    render({
+      vc:       state.vc,
+      n:        N|0,
+      vf:       vf|0,
+      vf_ramp:  Math.round(vf * Math.cos(ANGLE_RAMP * Math.PI/180) / Z),
+      ae:       state.ae,
+      ap:       apVal,
+      hm:       hmVal,
+      mmr:      Math.round(mmrVal),
+      fc:       fcVal|0,
+      hp:       hpVal.toFixed(1),
+      w:        (wVal*1000)|0,
+      eta:      Math.min(100,powerPct)|0,
+      life:     lifePct,
+      power:    powerPct,
+      finish:   finishPct,
+      fz:       state.fz
+    });
+  }
 
   /* ─────────────────── INPUT HANDLER ─────────────────── */
   function onInput() {
-    state.fz = +SL.fz.value;
+    // fz multiplicado por coef. seguridad
+    const rawFz = +SL.fz.value;
+    state.fz = rawFz * K_SEG_transmission;
+
     state.vc = +SL.vc.value;
-    // limitar ancho de pasada ≤ diámetro (redondeado down)
+    // ae ≤ diámetro (redondeado abajo)
     const maxAe = Math.floor(D);
     state.ae = Math.min(+SL.ae.value, maxAe);
     SL.ae.value = state.ae;
+
     syncPass();
     recalc();
   }
@@ -231,51 +248,46 @@ render({
       data: {
         labels: ['Vida Útil','Potencia','Terminación'],
         datasets: [{
-          data: [0,0,0],
-          fill: true,
-          borderWidth:2,
-          backgroundColor: 'rgba(76,175,80,0.2)',
-          borderColor: '#4caf50'
+          data: [0,0,0], fill:true, borderWidth:2,
+          backgroundColor:'rgba(76,175,80,0.2)', borderColor:'#4caf50'
         }]
       },
-      options:{
-        scales:{ r:{ min:0, max:100, ticks:{stepSize:20} } },
-        plugins:{ legend:{ display:false } }
+      options: {
+        scales: { r:{ min:0,max:100,ticks:{ stepSize:20 }}},
+        plugins:{ legend:{ display:false }}
       }
     });
   }
 
   try {
-    // rango Vc ±50%
+    // Ajustes iniciales de sliders
     SL.vc.min   = fmt(VC0*0.5,1);
     SL.vc.max   = fmt(VC0*1.5,1);
     SL.vc.value = fmt(state.vc,1);
-    // rango ae ≤ diámetro
+
     SL.ae.min   = fmt(0.1,1);
     SL.ae.max   = fmt(Math.floor(D),1);
     SL.ae.value = fmt(state.ae,1);
-    // slider pasadas
+
     SL.pass.value = 1;
-    // embellecer
+
     beautify(SL.fz,4);
     beautify(SL.vc,1);
     beautify(SL.ae,1);
     beautify(SL.pass,0);
-    // eventos
-    ['input','change'].forEach(evt => {
-      ['fz','vc','ae','pass'].forEach(k => {
-        if (SL[k]) SL[k].addEventListener(evt, onInput);
+
+    ['input','change'].forEach(evt=>{
+      ['fz','vc','ae','pass'].forEach(k=>{
+        if (SL[k]) SL[k].addEventListener(evt,onInput);
       });
     });
-    // init radar + recalc
-    (() => {
-      makeRadar();
-      syncPass();
-      recalc();
-    })();
+
+    makeRadar();
+    syncPass();
+    recalc();
     log('Init completo');
   } catch(e) {
     error(e);
-    fatal('Error JS: '+e.message);
+    alert('Error JS: '+e.message);
   }
 })();
