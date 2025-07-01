@@ -58,7 +58,9 @@
     hp_avail:    HP_AVAIL,
     fz_min0:     FZ_MIN,
     fz_max0:     FZ_MAX,
+    vfRamp:      VFRAMP,
     angle_ramp:  ANGLE_RAMP
+    
   } = P;
 
   /* ──────────────── STATE & CONSTANTS ─────────────── */
