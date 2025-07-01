@@ -174,7 +174,7 @@ th{text-align:left;background:#f0f0f0;}
   Anteriormente se imprimía $baseRampFeed calculado en PHP.
   Ahora el valor se obtiene en el navegador, por eso dejamos '--'.
 -->
-<tr><th>Feedrate en rampa</th><td><span id="valueRampVf" class="fw-bold">--</span> mm/min</td></tr>
+<tr><th>Velocidad de avance en rampa</th><td><span id="valueRampVf" class="fw-bold">--</span> mm/min</td></tr>
 <tr><th>Chip thickness</th><td><span id="outHm"><?=number_format($result['hm'],4)?></span> mm</td></tr>
 <tr><th>ap</th><td><span id="outAp"><?=number_format($result['ap'],3)?></span> mm</td></tr>
 <tr><th>Potencia</th><td><span id="outHp"><?=number_format($result['hp'],2)?></span> HP (<span id="outWatts"><?=number_format($result['watts'])?></span> W)</td></tr>

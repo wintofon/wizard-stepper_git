@@ -82,7 +82,9 @@
   const OUT   = {
     vc:$('#outVc'), fz:$('#outFz'), hm:$('#outHm'), n:$('#outN'), vf:$('#outVf'),
     hp:$('#outHp'), mmr:$('#valueMrr'), fc:$('#valueFc'), w:$('#valueW'), eta:$('#valueEta'),
-    ae:$('#outAe'), ap:$('#outAp'), vf_ramp:$('#valueRampVf')
+    ae:$('#outAe'), ap:$('#outAp'),
+    // Span para mostrar el feedrate en rampa calculado dinámicamente
+    vf_ramp:$('#valueRampVf')
   };
   const infoPass  = $('#textPasadasInfo');
   const errBox    = $('#errorMsg');
@@ -136,6 +138,10 @@
   const render = snap => {
     if (!diff(state.last,snap)) return;
     for (const k in snap) if (OUT[k]) OUT[k].textContent = fmt(snap[k], snap[k]%1?2:0);
+    // Inyección específica del avance en rampa
+    if (snap.vf_ramp !== undefined && OUT.vf_ramp) {
+      OUT.vf_ramp.textContent = snap.vf_ramp.toFixed(1);
+    }
     radar && (radar.data.datasets[0].data=[snap.life,snap.power,snap.finish],radar.update());
     state.last=snap; log('render',snap);
   };
@@ -145,6 +151,7 @@
     const N      = rpm(state.vc);
     const vfRaw  = feed(N,state.fz);
     const vf     = Math.min(vfRaw,FR_MAX);
+    // Avance en rampa: divide el feedrate total entre el nº de filos
     const vfRamp = vf / Z;
 
     /* Si feedrate topa, corregir fz visualmente para reflejar límite */
@@ -205,19 +212,25 @@
   };
 
   /* ───────────────────── INIT ─────────────────── */
-  try {
-    /* Limitar VC: ±50 % pero dentro de RPM */
-    const vcMin = Math.max(VC0*0.5,(RPM_MIN*Math.PI*D)/1000);
-    const vcMax = Math.min(VC0*1.5,(RPM_MAX*Math.PI*D)/1000);
-    SL.vc.min=fmt(vcMin,1); SL.vc.max=fmt(vcMax,1); SL.vc.value=fmt(state.vc,1);
+  const init = () => {
+    try {
+      /* Limitar VC: ±50 % pero dentro de RPM */
+      const vcMin = Math.max(VC0*0.5,(RPM_MIN*Math.PI*D)/1000);
+      const vcMax = Math.min(VC0*1.5,(RPM_MAX*Math.PI*D)/1000);
+      SL.vc.min=fmt(vcMin,1); SL.vc.max=fmt(vcMax,1); SL.vc.value=fmt(state.vc,1);
 
-    SL.pass.value=1;                // por defecto 1 pasada
-    /* Embellece sliders y listeners */
-    beautify(SL.fz,4); beautify(SL.vc,1); beautify(SL.ae,2); beautify(SL.pass,0);
-    ['change'].forEach(evt=>['fz','vc','ae','pass']
-      .forEach(k=>SL[k]&&SL[k].addEventListener(evt,onInput)));
+      SL.pass.value=1;                // por defecto 1 pasada
+      /* Embellece sliders y listeners */
+      beautify(SL.fz,4); beautify(SL.vc,1); beautify(SL.ae,2); beautify(SL.pass,0);
+      ['change'].forEach(evt=>['fz','vc','ae','pass']
+        .forEach(k=>SL[k]&&SL[k].addEventListener(evt,onInput)));
 
-    makeRadar(); syncPass(); recalc();
-    log('init OK');
-  } catch(e) { error(e); fatal('JS: '+e.message);}
+      makeRadar(); syncPass(); recalc();
+      log('init OK');
+    } catch(e) { error(e); fatal('JS: '+e.message); }
+  };
+
+  // Esperamos al DOM para asegurar que todos los elementos existen
+  document.addEventListener('DOMContentLoaded', init);
+  window.step6 = { init };
 })();
