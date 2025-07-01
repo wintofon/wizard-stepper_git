@@ -175,15 +175,39 @@
 
     validateHP(powerPct);
 
-    render({
-      vc: state.vc, fz:state.fz, hm:hmVal, n:N|0,
-      vf:vf|0, vf_ramp: Math.round(vf* Math.cos(ANGLE_RAMP*Math.PI/180)/Z),
-      hp:hpVal, mmr:Math.round(mmrVal), fc:fcVal|0,
-      w:(kWv*1000)|0, eta:Math.min(100,powerPct)|0,
-      ae:state.ae, ap:apVal,
-      life:lifePct, power:powerPct, finish:finishPct
-    });
-  }
+// ───────────────────────────
+// Actualiza la vista con los nuevos valores calculados
+// ───────────────────────────
+render({
+  // Velocidades y avances
+  vc:       state.vc,                                 // Velocidad de corte (m/min)
+  n:        N | 0,                                    // Revoluciones por minuto (RPM)
+  vf:       vf | 0,                                   // Velocidad de avance (mm/min)
+  vf_ramp:  Math.round(vf * Math.cos(ANGLE_RAMP * Math.PI / 180) / Z),
+
+  // Compromiso y profundidades
+  ae:       state.ae,                                 // Ancho de pasada (mm)
+  ap:       apVal,                                    // Profundidad de pasada (mm)
+
+  // Grosor de viruta y eliminación de material
+  hm:       hmVal,                                    // Grosor medio de viruta (mm)
+  mmr:      Math.round(mmrVal),                       // Tasa de remoción de material (mm³/min)
+
+  // Fuerzas y potencia
+  fc:       fcVal | 0,                                // Fuerza de corte (N)
+  hp:       hpVal,                                    // Potencia requerida (HP)
+  w:        (kWv * 1000) | 0,                         // Potencia en W
+  eta:      Math.min(100, powerPct) | 0,              // Eficiencia (%) basado en HP disponible
+
+  // Métricas del radar
+  life:     lifePct,                                  // Vida útil (%)
+  power:    powerPct,                                 // Uso de potencia (%)
+  finish:   finishPct,                                // Calidad de terminación (%)
+
+  // Avance por diente
+  fz:       state.fz                                 // Avance por diente (mm/tooth)
+});
+
 
   /* ─────────────────── INPUT HANDLER ─────────────────── */
   function onInput() {
