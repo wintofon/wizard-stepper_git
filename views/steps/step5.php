@@ -2,28 +2,29 @@
 <?php
 /**
  * File: step5.php
- * Paso 5 – Configurar router CNC
  *
- * Funciones:
- *  - Protección CSRF
- *  - Control de flujo (wizard_progress)
- *  - Validación de campos:
- *      • rpm_min > 0
- *      • rpm_max > 0
- *      • rpm_min < rpm_max
- *      • feed_max > 0
- *      • hp > 0
- *  - Guarda en sesión: trans_id, rpm_min, rpm_max, feed_max, hp, wizard_progress
- *  - Redirige a step6.php
+ * Paso 5 (Auto) – Configurar router CNC
+ *   • Protección CSRF
+ *   • Control de flujo (wizard_progress)
+ *   • Validación de campos:
+ *       – rpm_min > 0
+ *       – rpm_max > 0
+ *       – rpm_min < rpm_max
+ *       – feed_max > 0
+ *       – hp > 0
+ *   • Guarda en sesión: trans_id, rpm_min, rpm_max, feed_max, hp, wizard_progress
+ *   • Redirige a step6.php
  */
 declare(strict_types=1);
 
+// --------------------------------------------------
 // 1) Sesión segura y control de flujo
+// --------------------------------------------------
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start([
-        'cookie_secure'   => true,
-        'cookie_httponly' => true,
-        'cookie_samesite' => 'Strict',
+        'cookie_secure'   => true,     // Solo HTTPS
+        'cookie_httponly' => true,     // No accesible desde JS
+        'cookie_samesite' => 'Strict', // Previene CSRF
     ]);
 }
 if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 4) {
@@ -31,24 +32,30 @@ if (empty($_SESSION['wizard_progress']) || (int)$_SESSION['wizard_progress'] < 4
     exit;
 }
 
-// 2) Dependencias (BD y debug)
+// --------------------------------------------------
+// 2) Dependencias (BD, debug)
+// --------------------------------------------------
 require_once __DIR__ . '/../../includes/db.php';     // instancia $pdo
 require_once __DIR__ . '/../../includes/debug.php';  // helpers de debug
 
-// 3) CSRF token
+// --------------------------------------------------
+// 3) Generar/recuperar CSRF token
+// --------------------------------------------------
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 $csrfToken = $_SESSION['csrf_token'];
 
-// 4) Obtener transmisiones ordenadas por coef_security
-$txList = $pdo->query(
-    "SELECT id, name, rpm_min, rpm_max, feed_max, hp_default, coef_security
-     FROM transmissions
-     ORDER BY coef_security DESC, id ASC"
-)->fetchAll(PDO::FETCH_ASSOC);
+// --------------------------------------------------
+// 4) Obtener transmisiones desde la BD
+//    – Incluye coef_security (nombre real en la tabla)
+//    – Ordena por coef_security DESC, luego por id ASC
+// --------------------------------------------------
+$txList = $pdo->query("SELECT id, name, rpm_min, rpm_max, feed_max, hp_default, coef_security
+    FROM transmissions
+    ORDER BY coef_security DESC, id ASC")->fetchAll(PDO::FETCH_ASSOC);
 
-// Mapa para validación en POST
+// Map para validación rápida en POST
 $validTx = [];
 foreach ($txList as $t) {
     $validTx[(int)$t['id']] = [
@@ -59,24 +66,26 @@ foreach ($txList as $t) {
     ];
 }
 
+// --------------------------------------------------
 // 5) Procesar formulario POST
+// --------------------------------------------------
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // 5.1) Validar CSRF
+    // 5.1) Verificar CSRF
     if (!hash_equals($csrfToken, (string)($_POST['csrf_token'] ?? ''))) {
-        $errors[] = 'Token de seguridad inválido. Recargá e intentá de nuevo.';
+        $errors[] = 'Token de seguridad inválido. Recargá la página e intentá de nuevo.';
     }
-    // 5.2) Validar paso
+    // 5.2) Verificar paso
     if ((int)($_POST['step'] ?? 0) !== 5) {
         $errors[] = 'Paso inválido. Reiniciá el asistente.';
     }
 
-    // 5.3) Sanitizar inputs
-    $id   = filter_input(INPUT_POST, 'trans_id', FILTER_VALIDATE_INT);
-    $rpmn = filter_input(INPUT_POST, 'rpm_min', FILTER_VALIDATE_INT);
-    $rpmm = filter_input(INPUT_POST, 'rpm_max', FILTER_VALIDATE_INT);
-    $feed = filter_input(INPUT_POST, 'feed_max', FILTER_VALIDATE_FLOAT);
-    $hp   = filter_input(INPUT_POST, 'hp', FILTER_VALIDATE_FLOAT);
+    // 5.3) Recuperar valores del POST
+    $id   = filter_input(INPUT_POST, 'trans_id',    FILTER_VALIDATE_INT);
+    $rpmn = filter_input(INPUT_POST, 'rpm_min',     FILTER_VALIDATE_INT);
+    $rpmm = filter_input(INPUT_POST, 'rpm_max',     FILTER_VALIDATE_INT);
+    $feed = filter_input(INPUT_POST, 'feed_max',    FILTER_VALIDATE_FLOAT);
+    $hp   = filter_input(INPUT_POST, 'hp',          FILTER_VALIDATE_FLOAT);
 
     // 5.4) Validaciones de negocio
     if (!isset($validTx[$id]))            $errors[] = 'Elegí una transmisión válida.';
@@ -86,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$feed || $feed <= 0)             $errors[] = 'El avance máximo debe ser > 0.';
     if (!$hp   || $hp   <= 0)             $errors[] = 'La potencia debe ser > 0.';
 
-    // 5.5) Guardar y avanzar
+    // 5.5) Si no hay errores, guardar en sesión y avanzar
     if (empty($errors)) {
         $_SESSION += [
             'trans_id'        => $id,
@@ -102,7 +111,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// 6) Valores previos para el formulario
+// --------------------------------------------------
+// 6) Preparar valores previos para el formulario
+// --------------------------------------------------
 $prev = [
     'trans_id' => $_SESSION['trans_id'] ?? '',
     'rpm_min'  => $_SESSION['rpm_min']   ?? '',
@@ -112,120 +123,4 @@ $prev = [
 ];
 $hasPrev = (int)$prev['trans_id'] > 0;
 ?>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="utf-8">
-  <title>Paso 5 – Configurá tu router</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-<?php
-  // 7) Incluir estilos CSS
-  $styles = [
-    'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
-    'assets/css/objects/step-common.css',
-    'assets/css/components/_step5.css',
-  ];
-  include __DIR__ . '/../partials/styles.php';
-?>
-</head>
-<body>
-<main class="container py-4">
-  <h2 class="step-title"><i data-feather="cpu"></i> Configurá tu router CNC</h2>
-  <p class="step-desc">Ingresá los datos de tu máquina para calcular parámetros.</p>
-
-  <?php if (!empty($errors)): ?>
-    <div class="alert alert-danger mb-4">
-      <ul class="mb-0">
-        <?php foreach ($errors as $err): ?>
-          <li><?= htmlspecialchars($err, ENT_QUOTES) ?></li>
-        <?php endforeach; ?>
-      </ul>
-    </div>
-  <?php endif; ?>
-
-  <form id="routerForm" method="post" novalidate>
-    <input type="hidden" name="step" value="5">
-    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>">
-    <input type="hidden" name="trans_id" id="trans_id" value="<?= htmlspecialchars($prev['trans_id'], ENT_QUOTES) ?>">
-
-    <div class="mb-4">
-      <h5 class="step-subtitle">Seleccione la Transmisión (ordenadas por coef_security)</h5>
-      <div id="txRow" class="d-flex flex-wrap">
-        <?php foreach ($txList as $tx): ?>
-          <?php $tid = (int)$tx['id']; $active = $tid === (int)$prev['trans_id']; ?>
-          <button type="button" class="btn-cat<?= $active ? ' active' : '' ?> me-2 mb-2"
-                  data-id="<?= $tid ?>"
-                  data-rpmmin="<?= $tx['rpm_min'] ?>"
-                  data-rpmmax="<?= $tx['rpm_max'] ?>"
-                  data-feedmax="<?= $tx['feed_max'] ?>"
-                  data-hpdef="<?= $tx['hp_default'] ?>">
-            <?= htmlspecialchars($tx['name'], ENT_QUOTES) ?>
-          </button>
-        <?php endforeach; ?>
-      </div>
-    </div>
-
-    <div id="paramSection" style="display:none;">
-      <h5 class="step-subtitle">Seleccione los parámetros</h5>
-      <div class="row g-3">
-        <?php foreach ([['rpm_min','RPM mínima',1,'rpm'], ['rpm_max','RPM máxima',1,'rpm'], ['feed_max','Avance máximo',0.1,'mm/min'], ['hp','Potencia (HP)',0.1,'HP']] as list($key,$label,$step,$unit)): ?>
-        <div class="col-md-3">
-          <label for="<?= $key ?>" class="form-label"><?= $label ?></label>
-          <div class="input-group has-validation">
-            <input type="number" id="<?= $key ?>" name="<?= $key ?>" step="<?= $step ?>" min="1"
-                   class="form-control" value="<?= htmlspecialchars($prev[$key], ENT_QUOTES) ?>" disabled required>
-            <span class="input-group-text"><?= $unit ?></span>
-            <div class="invalid-feedback"></div>
-          </div>
-        </div>
-        <?php endforeach; ?>
-      </div>
-    </div>
-
-    <div id="nextWrap" class="text-start mt-4" style="display:<?= $hasPrev ? 'block' : 'none' ?>;">
-      <button type="submit" class="btn btn-primary btn-lg">
-        Siguiente <i data-feather="arrow-right" class="ms-1"></i>
-      </button>
-    </div>
-  </form>
-</main>
-
-<script>
-(function() {
-  const txRow        = document.getElementById('txRow');
-  const paramSection = document.getElementById('paramSection');
-  const nextWrap     = document.getElementById('nextWrap');
-  const inputs       = {
-    rpm_min : document.getElementById('rpm_min'),
-    rpm_max : document.getElementById('rpm_max'),
-    feed_max: document.getElementById('feed_max'),
-    hp      : document.getElementById('hp'),
-  };
-  const hiddenTrans  = document.getElementById('trans_id');
-
-  Object.values(inputs).forEach(i => i.disabled = true);
-  const smoothTo = el => el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-  txRow.querySelectorAll('.btn-cat').forEach(btn => {
-    btn.addEventListener('click', () => {
-      txRow.querySelectorAll('.btn-cat').forEach(x => x.classList.remove('active'));
-      btn.classList.add('active');
-
-      const { rpmmin, rpmmax, feedmax, hpdef } = btn.dataset;
-      inputs.rpm_min.value  = rpmmin;
-      inputs.rpm_max.value  = rpmmax;
-      inputs.feed_max.value = feedmax;
-      inputs.hp.value       = hpdef;
-
-      hiddenTrans.value = btn.dataset.id;
-      Object.values(inputs).forEach(i => i.disabled = false);
-      paramSection.style.display = 'block';
-      nextWrap.style.display     = 'block';
-      smoothTo(paramSection);
-    });
-  });
-})();
-</script>
-</body>
-</html>
 ```
