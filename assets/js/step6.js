@@ -100,7 +100,7 @@
     hideAlert(feedAlert); return true;
   };
   const validateRpm = n => {
-    if (n <= RPM_MIN || n >= RPM_MAX) { showAlert(rpmAlert, `RPM fuera de rango (${Math.round(n)})`); return false; }
+    if (n < RPM_MIN || n > RPM_MAX) { showAlert(rpmAlert, `RPM fuera de rango (${Math.round(n)})`); return false; }
     hideAlert(rpmAlert); return true;
   };
   const validateLength = () => {
@@ -119,11 +119,19 @@
   const kW     = (kc,ap,ae,vf)=> (ap*ae*vf*kc)/(60*1e6*ETA);       // 60·10^6 divisor
   const HP     = kWv         => kWv*1.341;
 
+  /* ────────────── helper: waitFor(lib) ────────────── */
+  const ready = (test, cb, r = 20) => {
+    if (test()) return cb();
+    if (r) return setTimeout(() => ready(test, cb, r - 1), 120);
+    warn('Dependencia no cargó: se omite función dependiente');
+  };
+
   /* ───────────────── Radar Chart ───────────────────── */
   let radar;
   const makeRadar = () => {
     const ctx=$('#radarChart')?.getContext('2d');
-    radar = ctx && new Chart(ctx,{
+    if (!ctx || !window.Chart) return warn('Chart.js ausente: sin radar');
+    radar = new Chart(ctx,{
       type:'radar',
       data:{labels:['Vida Útil','Potencia','Terminación'],
             datasets:[{data:[0,0,0],fill:true,borderWidth:2}]},
@@ -148,7 +156,12 @@
     const vfRamp = vf / Z;
 
     /* Si feedrate topa, corregir fz visualmente para reflejar límite */
-    if (vfRaw >= FR_MAX) state.fz = FR_MAX/(N*Z);
+    if (vfRaw >= FR_MAX) {
+      state.fz = FR_MAX/(N*Z);
+      SL.fz.value = fmt(state.fz,4);
+      const bub = SL.fz.closest('.slider-wrap')?.querySelector('.slider-bubble');
+      bub && (bub.textContent = fmt(state.fz,4));
+    }
 
     const apVal  = THK/state.ap;
     validateFeed(vf);
@@ -163,13 +176,14 @@
 
     /* Radar 0–100 % */
     const lifePct   = Math.min(100,((state.fz-FZ_MIN)/(FZ_MAX-FZ_MIN))*100);
-    const powerPct  = Math.min(100,(hpVal/HP_AVAIL)*100);
+    const PWR       = HP_AVAIL || 1;
+    const powerPct  = Math.min(100,(hpVal/PWR)*100);
     const finishPct = Math.max(0,100-lifePct);
 
     render({
       vc:state.vc, fz:state.fz, hm:hmVal, n:N|0, vf:vf|0, vf_ramp:vfRamp,
       hp:hpVal, mmr:mmrVal, fc:fcVal|0, w:kWval*1000|0,
-      eta:Math.min(100,(hpVal/HP_AVAIL)*100)|0,
+      eta:Math.min(100,(hpVal/PWR)*100)|0,
       ae:state.ae, ap:apVal,
       life:lifePct, power:powerPct, finish:finishPct
     });
@@ -217,7 +231,8 @@
     ['change'].forEach(evt=>['fz','vc','ae','pass']
       .forEach(k=>SL[k]&&SL[k].addEventListener(evt,onInput)));
 
-    makeRadar(); syncPass(); recalc();
-    log('init OK');
+    /* Esperar a Chart.js antes de iniciar radar y cálculos */
+    ready(() => window.Chart, () => { makeRadar(); syncPass(); recalc(); });
+    log('init OK (esperando Chart)');
   } catch(e) { error(e); fatal('JS: '+e.message);}
 })();
