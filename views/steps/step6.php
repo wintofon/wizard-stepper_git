@@ -269,7 +269,7 @@ $madeInMb      = htmlspecialchars($toolData['made_in']   ?? 'N/A', ENT_QUOTES);
 
 $baseVc  = (float)$params['vc0'];
 $vcMinDb = (float)$params['vc_min0'];
-$vcMaxDb = (float)($params['vc_max0'] ?? $baseVc * 1.25);
+$vcMaxDb = (float)($params['vc_max0'];
 $baseFz  = (float)$params['fz0'];
 $fzMinDb = (float)$params['fz_min0'];
 $fzMaxDb = (float)$params['fz_max0'];
@@ -281,7 +281,7 @@ $frMax   = (float)$params['fr_max'];
 $baseRpm = (int)  $params['rpm0'];
 $baseFeed= (float)$params['feed0'];
 $baseMmr = (float)$params['mmr_base'];
-$angleRamp = (int)($params['angle_ramp'] ?? 15);
+$angleRamp = (int)($params['angle_ramp'];
 
 $baseRampFeed = $fluteCountMb > 0 ? $baseFeed / $fluteCountMb : $baseFeed; // calculado solo para compatibilidad, se mostrará desde JS
 
@@ -498,7 +498,7 @@ foreach ($styles as [$local, $cdn]) {
         <div class="result-box text-center flex-fill">
           <div class="param-label">Feedrate </div> <span class="param-explain">(Velocidad de avance)</span>
           <div><span id="outVf" class="fw-bold display-6"><?= $outVf ?></span> <span class="param-unit">mm/min</span></div>
-          <div id="feedAlert" class="alert alert-danger alert-compact d-none mt-2"></div>
+     
         </div>
         <div class="result-box text-center flex-fill">
           <div class="param-label">Velocidad del Rotacion </div> <span class="param-explain">(Revoluciones por minuto)</span>
@@ -562,7 +562,14 @@ foreach ($styles as [$local, $cdn]) {
           <div class="d-flex justify-content-center mb-4">
             <canvas id="radarChart" width="300" height="300"></canvas>
           </div>
-          <div id="rpmAlert" class="alert alert-danger alert-compact d-none"></div>
+     <!-- Bloque unificado de alertas -->
+      <div id="unifiedAlerts" class="mt-3">
+        <div id="feedAlert"  class="alert alert-danger d-none"></div>
+        <div id="rpmAlert"   class="alert alert-danger d-none"></div>
+        <div id="lenAlert"   class="alert alert-danger d-none"></div>
+        <div id="hpAlert"    class="alert alert-danger d-none"></div>
+      </div>
+
           <?php if ($notesArray): ?>
             <ul class="notes-list mb-0">
               <?php foreach ($notesArray as $note): ?>
@@ -663,7 +670,7 @@ foreach ($styles as [$local, $cdn]) {
             </div>
           </div>
         </div>
-        <div id="lenAlert" class="alert alert-danger alert-compact d-none mt-2"></div>
+
 
         <div class="section-divider"></div>
 
