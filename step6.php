@@ -60,6 +60,18 @@ $ae      = isset($_POST['ae']) ? (float)$_POST['ae'] : $defaults['diameter'] / 2
 $passes  = isset($_POST['passes']) ? (int)$_POST['passes'] : 1;
 $mcVal   = isset($_POST['mc']) ? (float)$_POST['mc'] : $defaults['mc'];
 
+// Slider ranges synced with step6.js logic
+$D = $defaults['diameter'];
+$rpmMin = $defaults['rpm_min'];
+$rpmMax = $defaults['rpm_max'];
+$vcBaseMin = $vc * 0.5;
+$vcBaseMax = $vc * 1.5;
+$vcFromRpm = fn($rpm) => ($rpm * M_PI * $D) / 1000.0;
+$vcMin = max($vcBaseMin, $vcFromRpm($rpmMin));
+$vcMax = min($vcBaseMax, $vcFromRpm($rpmMax));
+$fzMin = max(0.001, $fz * 0.5);
+$fzMax = $fz * 1.5;
+
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!hash_equals($csrf, (string)($_POST['csrf_token'] ?? ''))) {
@@ -142,11 +154,17 @@ th{text-align:left;background:#f0f0f0;}
 <form method="post" id="calcForm">
   <input type="hidden" name="csrf_token" value="<?=htmlspecialchars($csrf)?>">
   <label>Vc (m/min)
-    <input type="range" id="sliderVc" min="50" max="400" step="1" value="<?=htmlspecialchars($vc)?>">
+    <input type="range" id="sliderVc"
+           min="<?= number_format($vcMin,1,'.','') ?>"
+           max="<?= number_format($vcMax,1,'.','') ?>"
+           step="1" value="<?= htmlspecialchars($vc) ?>">
     <span id="valVc"></span>
   </label>
   <label>fz (mm/diente)
-    <input type="range" id="sliderFz" min="0.01" max="0.20" step="0.001" value="<?=htmlspecialchars($fz)?>">
+    <input type="range" id="sliderFz"
+           min="<?= number_format($fzMin,4,'.','') ?>"
+           max="<?= number_format($fzMax,4,'.','') ?>"
+           step="0.001" value="<?= htmlspecialchars($fz) ?>">
     <span id="valFz"></span>
   </label>
   <label>ae (mm)
