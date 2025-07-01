@@ -3,12 +3,12 @@
  * ====================================================================*/
 
 (() => {
-  'use strict'; 
+  'use strict';
 
   /* ────────────────────── DEBUG HELPERS ────────────────────── */
   const DEBUG = window.DEBUG ?? false;
   const TAG   = '[Step6]';
-  const say   = (lvl, ...m) => { if (DEBUG) console[lvl](${TAG}, ...m); };
+  const say   = (lvl, ...m) => { if (DEBUG) console[lvl](`${TAG}`, ...m); };
   const log   = (...m) => say('log',   ...m);
   const warn  = (...m) => say('warn',  ...m);
   const error = (...m) => say('error', ...m);
@@ -100,9 +100,9 @@
   };
 
   /* ─────────────────── VALIDATIONS ─────────────────── */
-  const validateFeed   = vf  => (vf<FR_MAX ? hideAlert(feedAlert) : showAlert(feedAlert, Feedrate > ${FR_MAX}));
-  const validateRpm    = n   => (RPM_MIN<=n&&n<=RPM_MAX ? hideAlert(rpmAlert) : showAlert(rpmAlert, RPM fuera de rango));
-  const validateLength = ()  => (THK<=CUT_LEN ? hideAlert(lenAlert) : showAlert(lenAlert, Espesor > largo de filo));
+  const validateFeed   = vf  => (vf<FR_MAX ? hideAlert(feedAlert) : showAlert(feedAlert, `Feedrate > ${FR_MAX}`));
+  const validateRpm    = n   => (RPM_MIN<=n&&n<=RPM_MAX ? hideAlert(rpmAlert) : showAlert(rpmAlert, `RPM fuera de rango`));
+  const validateLength = ()  => (THK<=CUT_LEN ? hideAlert(lenAlert) : showAlert(lenAlert, `Espesor > largo de filo`));
   const validateHP     = pct => (pct<80   ? hideAlert(hpAlert)   : showAlert(hpAlert, '⚠️ Potencia >80%'));
 
   /* ──────────────────── FORMULAS ──────────────────── */
@@ -154,7 +154,7 @@
     SL.pass.value = p;
     state.ap = p;
     $('#textPasadasInfo').textContent =
-      ${p} pasada${p>1?'s':''} de ${(THK/p).toFixed(2)} mm;
+      `${p} pasada${p>1?'s':''} de ${(THK/p).toFixed(2)} mm`;
   }
 
   /* ─────────────────── RECALC & RENDER ─────────────────── */
