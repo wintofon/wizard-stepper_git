@@ -124,7 +124,7 @@ class ConfigModel
             }
 
             $coef = (float)$val;
-            if ($coef < 1.0) {
+            if ($coef > 1.0) {
                 dbg("[ConfigModel::getCoefSeg] coef_security menor a 1 ({$coef}), forzando a 1.0");
                 return 1.0;
             }
