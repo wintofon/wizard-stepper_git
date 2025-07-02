@@ -56,8 +56,8 @@ $bulkDup = $_GET['bulk_dup'] ?? null;
           <h6 class="card-title fw-semibold">Total de fresas</h6>
           <p class="display-6"><?= $toolCount ?></p>
           <div class="d-grid gap-2">
-            <a href="tools.php" class="btn btn-outline-primary btn-sm">🔍 Ver</a>
-            <a href="tool_form.php" class="btn btn-outline-success btn-sm">➕ Nuevo</a>
+              <a href="tools/index.php" class="btn btn-outline-primary btn-sm">🔍 Ver</a>
+              <a href="tools/form.php" class="btn btn-outline-success btn-sm">➕ Nuevo</a>
           </div>
         </div>
       </div>
@@ -83,8 +83,8 @@ $bulkDup = $_GET['bulk_dup'] ?? null;
           <h6 class="card-title fw-semibold">Series</h6>
           <p class="display-6"><?= $seriesCount ?></p>
           <div class="d-grid gap-2">
-            <a href="series_edit.php" class="btn btn-outline-primary btn-sm">🔍 Ver / Editar</a>
-            <a href="series_form.php" class="btn btn-outline-success btn-sm">➕ Nueva</a>
+              <a href="series/edit.php" class="btn btn-outline-primary btn-sm">🔍 Ver / Editar</a>
+              <a href="series/form.php" class="btn btn-outline-success btn-sm">➕ Nueva</a>
           </div>
         </div>
       </div>
@@ -100,8 +100,8 @@ $bulkDup = $_GET['bulk_dup'] ?? null;
           <h6 class="card-title fw-semibold">Materiales</h6>
           <p class="display-6"><?= $materialCount ?></p>
           <div class="d-grid gap-2">
-            <a href="materials.php" class="btn btn-outline-primary btn-sm">🔍 Ver</a>
-            <a href="material_form.php" class="btn btn-outline-success btn-sm">➕ Nuevo</a>
+              <a href="materials/index.php" class="btn btn-outline-primary btn-sm">🔍 Ver</a>
+              <a href="materials/form.php" class="btn btn-outline-success btn-sm">➕ Nuevo</a>
           </div>
         </div>
       </div>
@@ -112,8 +112,8 @@ $bulkDup = $_GET['bulk_dup'] ?? null;
           <h6 class="card-title fw-semibold">Categorías</h6>
           <p class="display-6"><?= $categoryCount ?></p>
           <div class="d-grid gap-2">
-            <a href="categories.php" class="btn btn-outline-primary btn-sm">🔍 Ver</a>
-            <a href="category_form.php" class="btn btn-outline-success btn-sm">➕ Nuevo</a>
+              <a href="categories/index.php" class="btn btn-outline-primary btn-sm">🔍 Ver</a>
+              <a href="categories/form.php" class="btn btn-outline-success btn-sm">➕ Nuevo</a>
           </div>
         </div>
       </div>
@@ -129,8 +129,8 @@ $bulkDup = $_GET['bulk_dup'] ?? null;
           <h6 class="card-title fw-semibold">Transmisiones</h6>
           <p class="display-6"><?= $transmissionCount ?></p>
           <div class="d-grid gap-2">
-            <a href="transmissions.php" class="btn btn-outline-primary btn-sm">🔍 Ver</a>
-            <a href="transmission_form.php" class="btn btn-outline-success btn-sm">➕ Nuevo</a>
+              <a href="transmissions/index.php" class="btn btn-outline-primary btn-sm">🔍 Ver</a>
+              <a href="transmissions/form.php" class="btn btn-outline-success btn-sm">➕ Nuevo</a>
           </div>
         </div>
       </div>
@@ -146,8 +146,8 @@ $bulkDup = $_GET['bulk_dup'] ?? null;
           <h6 class="card-title fw-semibold">Tipos mecanizado</h6>
           <p class="display-6"><?= $machiningCount ?></p>
           <div class="d-grid gap-2">
-            <a href="machining_types.php" class="btn btn-outline-primary btn-sm">🔍 Ver</a>
-            <a href="machining_types_form.php" class="btn btn-outline-success btn-sm">➕ Nuevo</a>
+              <a href="machining_types/index.php" class="btn btn-outline-primary btn-sm">🔍 Ver</a>
+              <a href="machining_types/form.php" class="btn btn-outline-success btn-sm">➕ Nuevo</a>
           </div>
         </div>
       </div>
@@ -158,8 +158,8 @@ $bulkDup = $_GET['bulk_dup'] ?? null;
           <h6 class="card-title fw-semibold">Estrategias</h6>
           <p class="display-6"><?= $strategyCount ?></p>
           <div class="d-grid gap-2">
-            <a href="strategies.php" class="btn btn-outline-primary btn-sm">🔍 Ver</a>
-            <a href="strategy_form.php" class="btn btn-outline-success btn-sm">➕ Nuevo</a>
+              <a href="strategies/index.php" class="btn btn-outline-primary btn-sm">🔍 Ver</a>
+              <a href="strategies/form.php" class="btn btn-outline-success btn-sm">➕ Nuevo</a>
           </div>
         </div>
       </div>
@@ -188,7 +188,7 @@ $bulkDup = $_GET['bulk_dup'] ?? null;
               <td><?= htmlspecialchars($t['tool_type']) ?></td>
               <td><span class="badge bg-info text-dark"><?= $t['brand'] ?></span></td>
               <td>
-                <a href="tool_edit.php?tbl=<?= $t['tbl'] ?>&id=<?= $t['tool_id'] ?>" class="btn btn-sm btn-outline-secondary">
+                <a href="tools/edit.php?tbl=<?= $t['tbl'] ?>&id=<?= $t['tool_id'] ?>" class="btn btn-sm btn-outline-secondary">
                   <i class="bi bi-pencil-square"></i>
                 </a>
               </td>
