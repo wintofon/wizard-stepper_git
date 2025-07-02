@@ -36,8 +36,8 @@ This project contains a PHP wizard for configuring CNC operations.
 ## Admin Console
 
 A simple administration panel for managing database records lives under
-`/ADMIN/admin/`. Once the PHP server is running, open
-`http://localhost:8000/ADMIN/admin/` to log in. The welcome screen also links to
+`/admin/panel/`. Once the PHP server is running, open
+`http://localhost:8000/admin/panel/` to log in. The welcome screen also links to
 this panel.
 
 ## Debug Endpoints

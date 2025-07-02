@@ -167,7 +167,7 @@ async function loadTable(q = '') {
         <td><span class="badge bg-info text-dark">${t.brand}</span></td>
         <td>${t.tool_code}</td>
         <td class="text-truncate" style="max-width:200px">
-          ${t.details.image ? `<img src="../admin/${t.details.image}" class="thumb">` : ``}
+          ${t.details.image ? `<img src="../panel/${t.details.image}" class="thumb">` : ``}
           ${t.name}
         </td>
         <td>${t.diameter_mm}</td>

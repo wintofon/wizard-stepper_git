@@ -35,7 +35,7 @@ require_once __DIR__ . '/../includes/init.php';
     </div>
     <button id="btn-start" class="btn btn-primary btn-lg mt-4">Iniciar</button>
     <div class="mt-3">
-      <a class="link-secondary small" href="<?= asset('ADMIN/admin/') ?>">Panel de administración</a>
+      <a class="link-secondary small" href="<?= asset('admin/panel/') ?>">Panel de administración</a>
     </div>
   </main>
   <script src="<?= asset('assets/js/welcome_init.js') ?>"></script>

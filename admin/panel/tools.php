@@ -186,7 +186,7 @@ function renderTable(){
           </td>
           <td><span class="badge bg-info text-dark">${t.brand}</span></td>
           <td>${t.series_id}</td>
-          <td>${t.details.image?`<img src="../admin/${t.details.image}" class="thumb">`:''}</td>
+          <td>${t.details.image?`<img src="../panel/${t.details.image}" class="thumb">`:''}</td>
           <td>${t.tool_code}</td>
           <td class="text-truncate" style="max-width:220px">${t.name}</td>
           <td>${t.diameter_mm}</td>

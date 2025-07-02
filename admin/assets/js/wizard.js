@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
                  name="tool_id" id="tool${t.tool_id}"
                  value="${t.tool_id}">
           <label class="form-check-label" for="tool${t.tool_id}">
-            <img src="../admin/${t.image||''}" class="thumb me-2">
+            <img src="../panel/${t.image||''}" class="thumb me-2">
             ${t.name} ★${t.rating}
           </label>
         </div>
