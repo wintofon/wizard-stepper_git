@@ -28,7 +28,9 @@ $materials = $pdo->query($query)->fetchAll(PDO::FETCH_ASSOC);
             <th>Imagen</th>
             <th>Nombre</th>
             <th>Categoría</th>
-            <th>Esp. de Corte</th>
+            <th>Kc11 (N/mm²)</th>
+            <th>mc</th>
+            <th>Áng. rampa (°)</th>
             <th>Acciones</th>
         </tr>
     </thead>
@@ -44,7 +46,9 @@ $materials = $pdo->query($query)->fetchAll(PDO::FETCH_ASSOC);
                 </td>
                 <td><?= htmlspecialchars($mat['name']) ?></td>
                 <td><?= htmlspecialchars($mat['category_name'] ?? '–') ?></td>
-                <td><?= $mat['spec_energy'] ?> J/mm³</td>
+                <td><?= htmlspecialchars($mat['kc11']) ?></td>
+                <td><?= htmlspecialchars($mat['mc']) ?></td>
+                <td><?= htmlspecialchars($mat['angle_ramp']) ?></td>
                 <td>
                     <a href="material_edit.php?id=<?= $mat['material_id'] ?>" class="btn btn-sm btn-secondary">Editar</a>
                     <a href="material_delete.php?id=<?= $mat['material_id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de eliminar este material?');">Eliminar</a>

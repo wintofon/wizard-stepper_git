@@ -7,10 +7,12 @@ $material_id = $_GET['id'] ?? null;
 $categories = $pdo->query("SELECT * FROM materialcategories ORDER BY name")->fetchAll(PDO::FETCH_ASSOC);
 
 $data = [
-  'name' => '',
-  'category_id' => '',
-  'spec_energy' => '',
-  'image' => ''
+  'name'       => '',
+  'category_id'=> '',
+  'kc11'       => '',
+  'mc'         => '',
+  'angle_ramp' => '',
+  'image'      => ''
 ];
 
 if ($material_id) {
@@ -50,8 +52,18 @@ if ($material_id) {
   </div>
 
   <div class="mb-3">
-    <label>Energía específica (J/mm³)</label>
-    <input type="number" step="0.1" name="spec_energy" class="form-control" value="<?= $data['spec_energy'] ?>">
+    <label>Kc11 (N/mm²)</label>
+    <input type="number" step="0.1" name="kc11" class="form-control" value="<?= $data['kc11'] ?>">
+  </div>
+
+  <div class="mb-3">
+    <label>mc</label>
+    <input type="number" step="0.01" name="mc" class="form-control" value="<?= $data['mc'] ?>">
+  </div>
+
+  <div class="mb-3">
+    <label>Ángulo de rampa (°)</label>
+    <input type="number" step="1" name="angle_ramp" class="form-control" value="<?= $data['angle_ramp'] ?>">
   </div>
 
   <div class="mb-3">

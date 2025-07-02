@@ -27,7 +27,9 @@ $error = "";
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name']);
     $category_id = !empty($_POST['category_id']) ? $_POST['category_id'] : null;
-    $spec_energy = $_POST['spec_energy'];
+    $kc11       = $_POST['kc11'];
+    $mc         = $_POST['mc'];
+    $angle_ramp = $_POST['angle_ramp'];
     $image = $material['image'];
 
     if (!empty($_FILES['image']['name'])) {
@@ -41,8 +43,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($stmtCheck->fetchColumn() > 0) {
         $error = "⚠️ Ya existe otro material con ese nombre.";
     } else {
-        $stmt = $pdo->prepare("UPDATE Materials SET name = ?, category_id = ?, spec_energy = ?, image = ? WHERE material_id = ?");
-        $stmt->execute([$name, $category_id, $spec_energy, $image, $material_id]);
+        $stmt = $pdo->prepare("UPDATE Materials SET name = ?, category_id = ?, kc11 = ?, mc = ?, angle_ramp = ?, image = ? WHERE material_id = ?");
+        $stmt->execute([$name, $category_id, $kc11, $mc, $angle_ramp, $image, $material_id]);
         $message = "✅ Material actualizado correctamente.";
     }
 }
@@ -70,8 +72,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <div class="mb-3">
-        <label>Energía específica (J/mm³)</label>
-        <input type="number" step="0.01" name="spec_energy" class="form-control" value="<?= $material['spec_energy'] ?>">
+        <label>Kc11 (N/mm²)</label>
+        <input type="number" step="0.1" name="kc11" class="form-control" value="<?= $material['kc11'] ?>">
+    </div>
+
+    <div class="mb-3">
+        <label>mc</label>
+        <input type="number" step="0.01" name="mc" class="form-control" value="<?= $material['mc'] ?>">
+    </div>
+
+    <div class="mb-3">
+        <label>Ángulo de rampa (°)</label>
+        <input type="number" step="1" name="angle_ramp" class="form-control" value="<?= $material['angle_ramp'] ?>">
     </div>
 
     <div class="mb-3">
