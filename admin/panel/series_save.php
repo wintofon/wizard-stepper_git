@@ -3,8 +3,10 @@ require_once __DIR__.'/../includes/db.php';
 require_once __DIR__.'/../includes/auth.php';
 header('Content-Type: application/json; charset=utf-8');
 
-function brandTable(int $b):string{
-  return match($b){1=>'tools_sgs',2=>'tools_maykestag',3=>'tools_schneider',default=>'tools_generico'};
+if (!function_exists('brandTable')) {
+  function brandTable(int $b):string{
+    return match($b){1=>'tools_sgs',2=>'tools_maykestag',3=>'tools_schneider',default=>'tools_generico'};
+  }
 }
 function matTable(string $t):string{ return 'toolsmaterial_'.substr($t,6); }
 
