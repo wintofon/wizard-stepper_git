@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!empty($_FILES['image']['name'])) {
         $image = 'categories/' . basename($_FILES['image']['name']);
-        move_uploaded_file($_FILES['image']['tmp_name'], '../admin/' . $image);
+        move_uploaded_file($_FILES['image']['tmp_name'], '../panel/' . $image);
     }
 
     $stmtCheck = $pdo->prepare("SELECT COUNT(*) FROM MaterialCategories WHERE name = ? AND category_id != ?");
