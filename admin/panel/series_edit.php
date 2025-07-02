@@ -30,6 +30,9 @@ $seriesId = $_GET['id'] ?? '';
           </option>
         <?php endforeach; ?>
       </select>
+      <button id="searchBtn" class="btn btn-primary" style="display:none">
+        <i class="bi bi-search"></i> Buscar fresas
+      </button>
       <button id="saveBtn" class="btn btn-success"><i class="bi bi-save"></i> Guardar</button>
     </div>
   </div>
@@ -156,12 +159,23 @@ function renderParams(params, tools){
   }
 }
 
-// al cambiar serie, pido el JSON y dibujo filas
+// al cambiar serie mostrar botón buscar
 $('#seriesSel').on('change', function(){
   const sid = $(this).val();
   $('#series_id').val(sid);
   $('#geoBody').empty();
+  $('#materialsWrap').empty();
+  if (sid) $('#searchBtn').show();
+  else $('#searchBtn').hide();
+});
+
+// buscar fresas de la serie seleccionada
+$('#searchBtn').on('click', function(e){
+  e.preventDefault();
+  const sid = $('#seriesSel').val();
   if (!sid) return;
+  $('#geoBody').empty();
+  $('#materialsWrap').empty();
   $.getJSON('series_ajax.php', { series_id: sid }, function(res){
     $('#brandSel').val(res.brand_id);
     loadSeries(res.brand_id, sid);
@@ -181,8 +195,12 @@ $('#brandSel').on('change', function(){
 
 $(function(){
   const sid = $('#seriesSel').val();
-  if(sid){ $('#seriesSel').trigger('change'); }
-  else    { loadSeries($('#brandSel').val()); }
+  if(sid){
+    $('#searchBtn').show();
+  } else {
+    loadSeries($('#brandSel').val());
+    $('#searchBtn').hide();
+  }
 });
 
 // botón de borrar fila
