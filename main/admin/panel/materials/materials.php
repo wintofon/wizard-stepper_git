@@ -1,7 +1,8 @@
 <?php
-require_once '../includes/db.php';
-require_once '../includes/auth.php';
-include 'header.php';
+// ✅ [REFACTORED] Cambiado de ubicación a /main/admin/panel/materials – actualizado paths
+require_once '../../../../admin/includes/db.php';
+require_once '../../../../admin/includes/auth.php';
+include '../../../../admin/panel/header.php';
 
 // Traer materiales
 $query = "
@@ -58,4 +59,4 @@ $materials = $pdo->query($query)->fetchAll(PDO::FETCH_ASSOC);
     </tbody>
 </table>
 
-<?php include '../includes/footer.php'; ?>
+<?php include '../../../../admin/includes/footer.php'; ?>
