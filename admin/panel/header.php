@@ -24,8 +24,8 @@
             <i class="bi bi-drill"></i> Fresas
           </a>
           <ul class="dropdown-menu" aria-labelledby="navFresas">
-            <li><a class="dropdown-item" href="tools.php">Todas las fresas</a></li>
-            <li><a class="dropdown-item" href="tool_form.php">➕ Nueva fresa</a></li>
+            <li><a class="dropdown-item" href="tools/index.php">Todas las fresas</a></li>
+            <li><a class="dropdown-item" href="tools/form.php">➕ Nueva fresa</a></li>
           </ul>
         </li>
         <!-- Materiales -->
@@ -34,10 +34,10 @@
             <i class="bi bi-stack"></i> Materiales
           </a>
           <ul class="dropdown-menu" aria-labelledby="navMateriales">
-            <li><a class="dropdown-item" href="materials.php">Lista de materiales</a></li>
-            <li><a class="dropdown-item" href="material_form.php">➕ Nuevo material</a></li>
+            <li><a class="dropdown-item" href="materials/index.php">Lista de materiales</a></li>
+            <li><a class="dropdown-item" href="materials/form.php">➕ Nuevo material</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="categories.php">Categorías</a></li>
+            <li><a class="dropdown-item" href="categories/index.php">Categorías</a></li>
           </ul>
         </li>
         <!-- Máquina -->
@@ -46,8 +46,8 @@
             <i class="bi bi-gear"></i> Máquina
           </a>
           <ul class="dropdown-menu" aria-labelledby="navMaquina">
-            <li><a class="dropdown-item" href="transmissions.php">Transmisiones</a></li>
-            <li><a class="dropdown-item" href="transmission_form.php">➕ Nueva transmisión</a></li>
+            <li><a class="dropdown-item" href="transmissions/index.php">Transmisiones</a></li>
+            <li><a class="dropdown-item" href="transmissions/form.php">➕ Nueva transmisión</a></li>
           </ul>
         </li>
         <!-- Mecanizado -->
@@ -56,11 +56,11 @@
             <i class="bi bi-lightning-charge"></i> Mecanizado
           </a>
           <ul class="dropdown-menu" aria-labelledby="navMecanizado">
-            <li><a class="dropdown-item" href="machining_types.php">Tipos de mecanizado</a></li>
-            <li><a class="dropdown-item" href="machining_types_form.php">➕ Nuevo tipo</a></li>
+            <li><a class="dropdown-item" href="machining_types/index.php">Tipos de mecanizado</a></li>
+            <li><a class="dropdown-item" href="machining_types/form.php">➕ Nuevo tipo</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="strategies.php">Estrategias</a></li>
-            <li><a class="dropdown-item" href="strategy_form.php">➕ Nueva estrategia</a></li>
+            <li><a class="dropdown-item" href="strategies/index.php">Estrategias</a></li>
+            <li><a class="dropdown-item" href="strategies/form.php">➕ Nueva estrategia</a></li>
           </ul>
         </li>
       </ul>
