@@ -159,19 +159,7 @@ function renderParams(params, tools){
   }
 }
 
-// al cambiar serie mostrar botón buscar
-$('#seriesSel').on('change', function(){
-  const sid = $(this).val();
-  $('#series_id').val(sid);
-  $('#geoBody').empty();
-  $('#materialsWrap').empty();
-  if (sid) $('#searchBtn').show();
-  else $('#searchBtn').hide();
-});
-
-// buscar fresas de la serie seleccionada
-$('#searchBtn').on('click', function(e){
-  e.preventDefault();
+function fetchSeriesTools(){
   const sid = $('#seriesSel').val();
   if (!sid) return;
   $('#geoBody').empty();
@@ -184,6 +172,26 @@ $('#searchBtn').on('click', function(e){
     });
     renderParams(res.params||{}, res.tools||[]);
   });
+}
+
+// al cambiar serie mostrar y cargar fresas
+$('#seriesSel').on('change', function(){
+  const sid = $(this).val();
+  $('#series_id').val(sid);
+  if (sid) {
+    $('#searchBtn').show();
+    fetchSeriesTools();
+  } else {
+    $('#geoBody').empty();
+    $('#materialsWrap').empty();
+    $('#searchBtn').hide();
+  }
+});
+
+// buscar fresas de la serie seleccionada
+$('#searchBtn').on('click', function(e){
+  e.preventDefault();
+  fetchSeriesTools();
 });
 
 // cambio de marca => cargar series
@@ -197,6 +205,7 @@ $(function(){
   const sid = $('#seriesSel').val();
   if(sid){
     $('#searchBtn').show();
+    fetchSeriesTools();
   } else {
     loadSeries($('#brandSel').val());
     $('#searchBtn').hide();
