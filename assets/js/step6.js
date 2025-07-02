@@ -148,14 +148,24 @@
 
     /* 1-A) Vc se ajusta si RPM fuera de rango */
     if(N>RPM_MAX || N<RPM_MIN){
-      const lim = N>RPM_MAX ? RPM_MAX : RPM_MIN;
+      const lim   = N>RPM_MAX ? RPM_MAX : RPM_MIN;
       const newVc = (lim * Math.PI * D) / 1000;
-      state.vc = newVc;
+      state.vc    = newVc;
       SL.vc.value = fmt(newVc,1);
-      const bub = SL.vc.closest('.slider-wrap')?.querySelector('.slider-bubble');
+
+      // actualizo burbuja
+      const wrap = SL.vc.closest('.slider-wrap');
+      const bub  = wrap?.querySelector('.slider-bubble');
       if(bub) bub.textContent = fmt(newVc,1);
+
+      // pinto la pista del slider para que el thumb se mueva al nuevo valor
+      if(wrap){
+        const minVc = +SL.vc.min, maxVc = +SL.vc.max;
+        wrap.style.setProperty('--val', ((newVc - minVc) / (maxVc - minVc)) * 100);
+      }
+
       showVcAlert(`⚠️ RPM ${fmt(N,0)} fuera de rango → Vc ${fmt(newVc,1)} m/min`);
-      return recalc();                         // rebote con Vc corregido
+      return recalc();  // rebote con Vc corregido
     }
 
     /* 2) Feedrate */
@@ -216,45 +226,50 @@
       data:{ labels:['Vida Útil','Potencia','Terminación'],
              datasets:[{data:[0,0,0],fill:true,borderWidth:2,
                backgroundColor:'rgba(76,175,80,.2)',borderColor:'#4caf50'}] },
-      options:{scales:{r:{min:0,max:100,ticks:{stepSize:20}}},
-               plugins:{legend:{display:false}}}
+      options:{scales:{r:{min:0,max:100,ticks:{stepSize:20}}}, plugins:{legend:{display:false}}}
     });
   };
 
   /* ─────────────────────── INIT ─────────────────────── */
   try{
-    /* Limites iniciales de sliders */
-    SL.vc.min = fmt(VC0*0.5,1); SL.vc.max = fmt(VC0*1.5,1); SL.vc.value = fmt(state.vc,1);
-    SL.ae.min = '0.1'; SL.ae.max = fmt(Math.floor(D),1); SL.ae.value = fmt(state.ae,1);
+    /* Límites iniciales de sliders */
+    SL.vc.min = fmt(VC0*0.5,1);
+    SL.vc.max = fmt(VC0*1.5,1);
+    SL.vc.value = fmt(state.vc,1);
+    SL.ae.min = '0.1';
+    SL.ae.max = fmt(Math.floor(D),1);
+    SL.ae.value = fmt(state.ae,1);
     SL.pass.value = '1';
 
-    /* Mostrar límites numéricos de los sliders (sin optional-chaining a la izquierda) */
+    /* Mostrar límites numéricos de los sliders */
     const vcWrap = SL.vc.closest('.mb-4');
     if(vcWrap){
-      const mi=vcWrap.querySelector('span:nth-child(1)'),
-            md=vcWrap.querySelector('#valVc'),
-            ma=vcWrap.querySelector('span:last-child');
-      if(mi) mi.textContent = fmt(VC0*0.5,1);
-      if(md) md.textContent = fmt(VC0,1);
-      if(ma) ma.textContent = fmt(VC0*1.5,1);
+      vcWrap.querySelector('span:nth-child(1)')?.textContent = fmt(VC0*0.5,1);
+      vcWrap.querySelector('#valVc')?.textContent      = fmt(VC0,1);
+      vcWrap.querySelector('span:last-child')?.textContent = fmt(VC0*1.5,1);
     }
     const fzWrap = SL.fz.closest('.mb-4');
     if(fzWrap){
-      const mi=fzWrap.querySelector('span:nth-child(1)'),
-            md=fzWrap.querySelector('#valFz'),
-            ma=fzWrap.querySelector('span:last-child');
-      if(mi) mi.textContent = fmt(FZ_MIN*K_SEG_transmission,4);
-      if(md) md.textContent = fmt(FZ0 *K_SEG_transmission,4);
-      if(ma) ma.textContent = fmt(FZ_MAX*K_SEG_transmission,4);
+      fzWrap.querySelector('span:nth-child(1)')?.textContent    = fmt(FZ_MIN*K_SEG_transmission,4);
+      fzWrap.querySelector('#valFz')?.textContent               = fmt(FZ0*K_SEG_transmission,4);
+      fzWrap.querySelector('span:last-child')?.textContent     = fmt(FZ_MAX*K_SEG_transmission,4);
     }
 
     /* Beautify y listeners */
-    beautify(SL.fz,4); beautify(SL.vc,1);
-    beautify(SL.ae,1); beautify(SL.pass,0);
+    beautify(SL.fz,4);
+    beautify(SL.vc,1);
+    beautify(SL.ae,1);
+    beautify(SL.pass,0);
     ['input','change'].forEach(evt=>{
       ['fz','vc','ae','pass'].forEach(k=>SL[k]?.addEventListener(evt,onInput));
     });
 
-    makeRadar(); syncPass(); recalc(); log('Init completo');
-  }catch(e){ error(e); alert('Error JS: '+e.message); }
+    makeRadar();
+    syncPass();
+    recalc();
+    log('Init completo');
+  }catch(e){
+    error(e);
+    alert('Error JS: '+e.message);
+  }
 })();
