@@ -24,6 +24,7 @@ if (!$serie = $serie->fetch(PDO::FETCH_ASSOC)) {
   echo json_encode(['tools' => [], 'params' => []]);
   exit;
 }
+$brandId = (int)$serie['brand_id'];
 
 $toolTbl = brandTable($serie['brand_id']);
 $matTbl = 'toolsmaterial_' . substr($toolTbl, 6);
@@ -61,4 +62,8 @@ foreach ($pm as $r) {
   ];
 }
 
-echo json_encode(['tools' => $tools, 'params' => $params], JSON_UNESCAPED_UNICODE);
+echo json_encode([
+  'brand_id' => $brandId,
+  'tools'    => $tools,
+  'params'   => $params
+], JSON_UNESCAPED_UNICODE);

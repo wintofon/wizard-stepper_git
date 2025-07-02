@@ -42,7 +42,7 @@ $seriesId = $_GET['id'] ?? '';
       <div class="row g-3">
         <div class="col-md-3">
           <label class="form-label">Marca</label>
-          <select name="brand_id" class="form-select" required>
+          <select id="brandSel" name="brand_id" class="form-select" required>
             <?php foreach($brands as $b): ?>
               <option value="<?= $b['id'] ?>"><?= htmlspecialchars($b['name']) ?></option>
             <?php endforeach; ?>
@@ -124,6 +124,18 @@ function geoRow(t, alt) {
     <tr class="${rowClass}">${stratHTML}</tr>`;
 }
 
+function loadSeries(brandId, selected){
+  $('#seriesSel').html('<option value="">-- elige serie --</option>');
+  if(!brandId) return;
+  $.getJSON('api_series.php', { brand_id: brandId }, function(list){
+    list.forEach(s => {
+      const opt = $('<option>').val(s.id).text(s.code);
+      if(selected && selected==s.id) opt.prop('selected', true);
+      $('#seriesSel').append(opt);
+    });
+  });
+}
+
 // al cambiar serie, pido el JSON y dibujo filas
 $('#seriesSel').on('change', function(){
   const sid = $(this).val();
@@ -131,10 +143,25 @@ $('#seriesSel').on('change', function(){
   $('#geoBody').empty();
   if (!sid) return;
   $.getJSON('series_ajax.php', { series_id: sid }, function(res){
+    $('#brandSel').val(res.brand_id);
+    loadSeries(res.brand_id, sid);
     (res.tools||[]).forEach((t,i)=> {
       $('#geoBody').append( geoRow(t, i%2===1) );
     });
   });
+});
+
+// cambio de marca => cargar series
+$('#brandSel').on('change', function(){
+  loadSeries(this.value);
+  $('#seriesSel').val('');
+  $('#geoBody').empty();
+});
+
+$(function(){
+  const sid = $('#seriesSel').val();
+  if(sid){ $('#seriesSel').trigger('change'); }
+  else    { loadSeries($('#brandSel').val()); }
 });
 
 // botón de borrar fila
