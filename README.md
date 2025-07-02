@@ -33,6 +33,13 @@ This project contains a PHP wizard for configuring CNC operations.
 6. When adding links to CSS, JavaScript or image files in your views, generate the
    path with the `asset()` helper so URLs work from any base path.
 
+## Admin Console
+
+A simple administration panel for managing database records lives under
+`/ADMIN/admin/`. Once the PHP server is running, open
+`http://localhost:8000/ADMIN/admin/` to log in. The welcome screen also links to
+this panel.
+
 ## Debug Endpoints
 
 When running with `?debug=1` in the URL you can access additional debug helpers:

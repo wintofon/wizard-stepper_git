@@ -34,6 +34,9 @@ require_once __DIR__ . '/../includes/init.php';
       <p><strong>📌 Importante:</strong> Este sistema está pensado para routers CNC de gama media-baja. Si usás maquinaria industrial o fresas especiales, validá los parámetros con el fabricante.</p>
     </div>
     <button id="btn-start" class="btn btn-primary btn-lg mt-4">Iniciar</button>
+    <div class="mt-3">
+      <a class="link-secondary small" href="<?= asset('ADMIN/admin/') ?>">Panel de administración</a>
+    </div>
   </main>
   <script src="<?= asset('assets/js/welcome_init.js') ?>"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
