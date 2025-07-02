@@ -1,0 +1,106 @@
+php
+require_once '..includesdb.php';
+require_once '..includesauth.php';
+include '..adminheader.php';
+
+if (!isset($_GET['id'])) {
+  header('Location tools.php');
+  exit;
+}
+
+$tool_id = $_GET['id'];
+$tool = $pdo-prepare(SELECT  FROM tools WHERE tool_id = );
+$tool-execute([$tool_id]);
+$data = $tool-fetch();
+
+if (!$data) {
+  echo div class='alert alert-danger'Fresa no encontrada.div;
+  include '..includesfooter.php';
+  exit;
+}
+
+ Traer materiales y estrategias para edición cruzada
+$materials = $pdo-query(SELECT  FROM materials ORDER BY name)-fetchAll(PDOFETCH_ASSOC);
+$strategies = $pdo-query(SELECT  FROM strategies ORDER BY name)-fetchAll(PDOFETCH_ASSOC);
+$tool_materials = $pdo-prepare(SELECT  FROM toolmaterial WHERE tool_id = );
+$tool_materials-execute([$tool_id]);
+$tool_material_data = $tool_materials-fetchAll(PDOFETCH_ASSOC);
+$tool_strategies = $pdo-prepare(SELECT strategy_id FROM toolstrategy WHERE tool_id = );
+$tool_strategies-execute([$tool_id]);
+$selected_strategies = array_column($tool_strategies-fetchAll(), 'strategy_id');
+
+
+h2Editar Fresah2
+form method=POST action=tool_save.php enctype=multipartform-data
+  input type=hidden name=tool_id value== $data['tool_id'] 
+  div class=row mb-3
+    div class=col
+      labelCódigolabel
+      input type=text name=tool_code value== htmlspecialchars($data['tool_code'])  class=form-control required
+    div
+    div class=col
+      labelNombrelabel
+      input type=text name=name value== htmlspecialchars($data['name'])  class=form-control required
+    div
+  div
+  div class=row mb-3
+    div class=col
+      labelDiámetro (mm)label
+      input type=number step=0.01 name=diameter_mm value== $data['diameter_mm']  class=form-control
+    div
+    div class=col
+      labelFiloslabel
+      input type=number name=flute_count value== $data['flute_count']  class=form-control
+    div
+    div class=col
+      labelTipolabel
+      input type=text name=tool_type value== $data['tool_type']  class=form-control
+    div
+  div
+
+  h4 class=mt-4Estrategias Compatiblesh4
+  php foreach ($strategies as $s) 
+    div class=form-check
+      input class=form-check-input type=checkbox name=strategies[] value== $s['strategy_id']  = in_array($s['strategy_id'], $selected_strategies)  'checked'  '' 
+      label class=form-check-label = htmlspecialchars($s['name'])  label
+    div
+  php endforeach; 
+
+  h4 class=mt-4Parámetros por Materialh4
+  php foreach ($materials as $mat)
+    $rel = array_filter($tool_material_data, fn($r) = $r['material_id'] == $mat['material_id']);
+    $row = reset($rel)  [];
+  
+  div class=border rounded p-3 mb-3
+    strong= htmlspecialchars($mat['name']) strong
+    input type=hidden name=tool_material[= $mat['material_id'] ][material_id] value== $mat['material_id'] 
+    div class=row
+      div class=col
+        labelVc (mmin)label
+        input type=number step=0.1 name=tool_material[= $mat['material_id'] ][vc_m_min] value== $row['vc_m_min']  ''  class=form-control
+      div
+      div class=col
+        labelFz min (mm)label
+        input type=number step=0.01 name=tool_material[= $mat['material_id'] ][fz_min_mm] value== $row['fz_min_mm']  ''  class=form-control
+      div
+      div class=col
+        labelFz máx (mm)label
+        input type=number step=0.01 name=tool_material[= $mat['material_id'] ][fz_max_mm] value== $row['fz_max_mm']  ''  class=form-control
+      div
+      div class=col
+        labelap slotlabel
+        input type=number step=0.1 name=tool_material[= $mat['material_id'] ][ap_slot_mm] value== $row['ap_slot_mm']  ''  class=form-control
+      div
+      div class=col
+        labelae slotlabel
+        input type=number step=0.1 name=tool_material[= $mat['material_id'] ][ae_slot_mm] value== $row['ae_slot_mm']  ''  class=form-control
+      div
+    div
+  div
+  php endforeach; 
+
+  button type=submit class=btn btn-primary mt-3💾 Guardar Cambiosbutton
+  a href=tools.php class=btn btn-secondary mt-3Cancelara
+form
+
+php include '..includesfooter.php'; 

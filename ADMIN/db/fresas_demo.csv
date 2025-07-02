@@ -1,0 +1,6 @@
+tool_id,series,tool_code,name,diameter_mm,flute_count,d1_mm,l2_mm,overall_length_mm,shank_diameter_mm,tool_type,material,notes,image,image_dimensions
+78,1001,10016,Fresa recta Ø6,6.0,2,6.0,18,45,6,EM-STRAIGHT,HSS,Corte general madera,sr06.jpg,800x800
+79,1002,10017,UpCut Ø6,6.0,2,6.0,18,45,6,EM-UPCUT,Carburo,Mejor evacuación de viruta,uc06.jpg,800x800
+80,1003,10018,Ballnose R3.175,6.35,2,6.35,15,50,6,BALLNOSE,Carburo,Acabado 3D en madera y plástico,bn318.jpg,800x800
+81,1004,10019,Compression Ø6,6.0,3,6.0,22,50,6,EM-COMPRESSION,Carburo,Corte limpio arriba/abajo,comp06.jpg,800x800
+82,1005,10020,UpCut Alu Ø6,6.0,2,6.0,16,45,6,EM-UPCUT,Carburo,Pulido para aluminio,alu06.jpg,800x800
