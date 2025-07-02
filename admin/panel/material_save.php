@@ -1,7 +1,6 @@
 <?php
-// ✅ [REFACTORED] Cambiado de ubicación a /main/admin/panel/materials – actualizado paths
-require_once '../../../../admin/includes/db.php';
-require_once '../../../../admin/includes/auth.php';
+require_once '../includes/db.php';
+require_once '../includes/auth.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $id = $_POST['material_id'] ?? null;
@@ -15,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (!empty($_FILES['image']['name'])) {
     $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
     $filename = 'uploads/materials/' . uniqid('mat_') . '.' . $ext;
-    move_uploaded_file($_FILES['image']['tmp_name'], '../../../../admin/' . $filename);
+    move_uploaded_file($_FILES['image']['tmp_name'], '../' . $filename);
     $image = $filename;
   }
 

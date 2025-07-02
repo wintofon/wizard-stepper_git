@@ -1,8 +1,7 @@
 <?php
-// ✅ [REFACTORED] Cambiado de ubicación a /main/admin/panel/materials – actualizado paths
-require_once '../../../../admin/includes/db.php';
-require_once '../../../../admin/includes/auth.php';
-include '../../../../admin/panel/header.php';
+require_once '../includes/db.php';
+require_once '../includes/auth.php';
+include 'header.php';
 
 $material_id = $_GET['id'] ?? null;
 $categories = $pdo->query("SELECT * FROM materialcategories ORDER BY name")->fetchAll(PDO::FETCH_ASSOC);
@@ -22,7 +21,7 @@ if ($material_id) {
   $data = $stmt->fetch();
   if (!$data) {
     echo "<div class='alert alert-danger'>Material no encontrado.</div>";
-    include '../../../../admin/includes/footer.php';
+    include '../includes/footer.php';
     exit;
   }
 }
@@ -82,4 +81,4 @@ if ($material_id) {
   <a href="materials.php" class="btn btn-secondary">Cancelar</a>
 </form>
 
-<?php include '../../../../admin/includes/footer.php'; ?>
+<?php include '../includes/footer.php'; ?>
