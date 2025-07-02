@@ -17,7 +17,7 @@ $categories = $pdo->query($query)->fetchAll(PDO::FETCH_ASSOC);
 
 
 <div class="mb-3 d-flex justify-content-between">
-  <a href="dashboard.php" class="btn btn-outline-secondary">← Volver al panel</a>
+  <a href="../dashboard.php" class="btn btn-outline-secondary">← Volver al panel</a>
   <a href="form.php" class="btn btn-success">➕ Nueva Categoría</a>
 </div>
 
@@ -57,4 +57,4 @@ $categories = $pdo->query($query)->fetchAll(PDO::FETCH_ASSOC);
 </table>
 <?php endif; ?>
 
-<?php include '../../includes/footer.php'; ?>
+<?php include '../footer.php'; ?>

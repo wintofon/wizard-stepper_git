@@ -9,8 +9,8 @@ $mt = $pdo->query("SELECT * FROM machining_types ORDER BY name")
 ?>
 <h2>Tipos de Mecanizado</h2>
 <div class="mb-3 d-flex justify-content-between">
-  <a href="dashboard.php" class="btn btn-outline-secondary">← Panel</a>
-  <a href="machining_types_form.php" class="btn btn-success">➕ Nuevo Tipo</a>
+  <a href="../dashboard.php" class="btn btn-outline-secondary">← Panel</a>
+  <a href="form.php" class="btn btn-success">➕ Nuevo Tipo</a>
 </div>
 
 <table class="table table-bordered table-hover">
@@ -24,9 +24,9 @@ $mt = $pdo->query("SELECT * FROM machining_types ORDER BY name")
         <td><?= htmlspecialchars($m['name']) ?></td>
         <td><?= htmlspecialchars($m['description']) ?></td>
         <td>
-          <a href="machining_types_edit.php?id=<?= $m['machining_type_id'] ?>"
+          <a href="edit.php?id=<?= $m['machining_type_id'] ?>"
              class="btn btn-sm btn-secondary">Editar</a>
-          <a href="machining_types_delete.php?id=<?= $m['machining_type_id'] ?>"
+          <a href="delete.php?id=<?= $m['machining_type_id'] ?>"
              class="btn btn-sm btn-danger"
              onclick="return confirm('¿Eliminar este tipo?');">
             Eliminar
@@ -36,4 +36,5 @@ $mt = $pdo->query("SELECT * FROM machining_types ORDER BY name")
     <?php endforeach; ?>
   </tbody>
 </table>
-<?php include 'footer.php'; ?>
+<?php include '../footer.php'; ?>
+

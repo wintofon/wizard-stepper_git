@@ -15,7 +15,7 @@ $material = $stmt->fetch();
 
 if (!$material) {
     echo "<div class='alert alert-danger'>Material no encontrado.</div>";
-    include '../../includes/footer.php';
+    include '../footer.php';
     exit;
 }
 
@@ -97,4 +97,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </form>
 
-<?php include '../../includes/footer.php'; ?>
+<?php include '../footer.php'; ?>
+

@@ -71,8 +71,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <div class="d-flex justify-content-between">
         <button type="submit" class="btn btn-primary">Guardar Categoría</button>
-        <a href="dashboard.php" class="btn btn-secondary">Cancelar</a>
+        <a href="../dashboard.php" class="btn btn-secondary">Cancelar</a>
     </div>
 </form>
 
-<?php include '../../includes/footer.php'; ?>
+<?php include '../footer.php'; ?>
+

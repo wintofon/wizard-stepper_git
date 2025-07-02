@@ -20,7 +20,7 @@ $strategies = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <h2>Listado de Estrategias</h2>
 <div class="mb-3 d-flex justify-content-between">
-  <a href="dashboard.php" class="btn btn-outline-secondary">← Volver al panel</a>
+  <a href="../dashboard.php" class="btn btn-outline-secondary">← Volver al panel</a>
   <a href="form.php" class="btn btn-success">➕ Nueva Estrategia</a>
 </div>
 

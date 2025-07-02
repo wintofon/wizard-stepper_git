@@ -21,7 +21,7 @@ if ($material_id) {
   $data = $stmt->fetch();
   if (!$data) {
     echo "<div class='alert alert-danger'>Material no encontrado.</div>";
-    include '../../includes/footer.php';
+    include '../footer.php';
     exit;
   }
 }
@@ -81,4 +81,4 @@ if ($material_id) {
   <a href="index.php" class="btn btn-secondary">Cancelar</a>
 </form>
 
-<?php include '../../includes/footer.php'; ?>
+<?php include '../footer.php'; ?>

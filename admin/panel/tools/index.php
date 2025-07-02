@@ -31,8 +31,8 @@ include   '../header.php';
 
   <!-- Navegación -->
   <div class="mb-3 d-flex justify-content-between">
-    <a href="dashboard.php"  class="btn btn-outline-secondary">← Volver al panel</a>
-    <a href="tools_form.php" class="btn btn-success">➕ Nueva Fresa</a>
+    <a href="../dashboard.php"  class="btn btn-outline-secondary">← Volver al panel</a>
+    <a href="form.php" class="btn btn-success">➕ Nueva Fresa</a>
   </div>
 
 <div class="container-fluid py-4">

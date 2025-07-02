@@ -69,4 +69,5 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
   <a href="index.php" class="btn btn-secondary">← Volver</a>
 </form>
 
-<?php include '../../includes/footer.php'; ?>
+<?php include '../footer.php'; ?>
+

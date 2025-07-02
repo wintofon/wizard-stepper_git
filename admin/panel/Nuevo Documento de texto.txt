@@ -31,7 +31,7 @@ $selected_strategies = array_column($tool_strategies-fetchAll(), 'strategy_id');
 
 
 h2Editar Fresah2
-form method=POST action=tool_save.php enctype=multipartform-data
+form method=POST action=save.php enctype=multipartform-data
   input type=hidden name=tool_id value== $data['tool_id'] 
   div class=row mb-3
     div class=col

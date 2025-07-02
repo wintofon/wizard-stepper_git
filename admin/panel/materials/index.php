@@ -17,7 +17,7 @@ $materials = $pdo->query($query)->fetchAll(PDO::FETCH_ASSOC);
 
 
 <div class="mb-3 d-flex justify-content-between">
-  <a href="dashboard.php" class="btn btn-outline-secondary">← Volver al panel</a>
+  <a href="../dashboard.php" class="btn btn-outline-secondary">← Volver al panel</a>
   <a href="form.php" class="btn btn-success">➕ Nuevo Material</a>
 </div>
 
@@ -58,4 +58,4 @@ $materials = $pdo->query($query)->fetchAll(PDO::FETCH_ASSOC);
     </tbody>
 </table>
 
-<?php include '../../includes/footer.php'; ?>
+<?php include '../footer.php'; ?>

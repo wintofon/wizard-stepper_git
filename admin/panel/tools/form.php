@@ -23,12 +23,12 @@ $strategies = $pdo->query("SELECT strategy_id,name FROM strategies ORDER BY name
 <body class="bg-light">
 <div class="container py-4">
   <div class="mb-3 d-flex justify-content-between">
-    <a href="dashboard.php" class="btn btn-outline-secondary">← Volver al panel</a>
+    <a href="../dashboard.php" class="btn btn-outline-secondary">← Volver al panel</a>
     <button form="createForm" class="btn btn-success">💾 Guardar Fresa</button>
   </div>
 
   <h2 class="mb-4">🆕 Alta de Fresa</h2>
-  <form id="createForm" method="POST" action="tool_save.php" enctype="multipart/form-data" class="vstack gap-3">
+  <form id="createForm" method="POST" action="save.php" enctype="multipart/form-data" class="vstack gap-3">
     <!-- Marca / Serie / Código interno -->
     <div class="row g-2">
       <div class="col-md-4">
@@ -161,7 +161,7 @@ $strategies = $pdo->query("SELECT strategy_id,name FROM strategies ORDER BY name
 
     <div class="text-end mt-4">
       <button type="submit" class="btn btn-primary">💾 Guardar</button>
-      <a href="dashboard.php" class="btn btn-secondary">Cancelar</a>
+      <a href="../dashboard.php" class="btn btn-secondary">Cancelar</a>
     </div>
   </form>
 </div>
@@ -207,4 +207,5 @@ $(document).on('click', '.star', function(){
   $cell.find('input[type=hidden]').val(val);
 });
 </script>
-<?php include '../../includes/footer.php'; ?>
+<?php include '../footer.php'; ?>
+

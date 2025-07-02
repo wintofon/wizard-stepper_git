@@ -12,7 +12,7 @@ $toolTypes  = $pdo->query("SELECT code,name FROM tooltypes ORDER BY name")->fetc
 
 <h2>🆕 Crear Nueva Fresa</h2>
 
-<form method="POST" action="tool_save.php" class="vstack gap-3">
+<form method="POST" action="save.php" class="vstack gap-3">
 
 <input type="hidden" name="tool_id" value="">
 
@@ -87,7 +87,7 @@ $toolTypes  = $pdo->query("SELECT code,name FROM tooltypes ORDER BY name")->fetc
 
 <div class="d-flex justify-content-end mt-4 gap-2">
   <button class="btn btn-primary">💾 Guardar Fresa</button>
-  <a href="dashboard.php" class="btn btn-secondary">Cancelar</a>
+  <a href="../dashboard.php" class="btn btn-secondary">Cancelar</a>
 </div>
 </form>
 
@@ -122,4 +122,5 @@ function addMaterial(){
 }
 </script>
 
-<?php include '../../includes/footer.php'; ?>
+<?php include '../footer.php'; ?>
+

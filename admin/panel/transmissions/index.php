@@ -11,7 +11,7 @@ $transmissions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <h2>Listado de Transmisiones</h2>
 
 <div class="mb-3 d-flex justify-content-between">
-  <a href="dashboard.php" class="btn btn-outline-secondary">← Volver al panel</a>
+  <a href="../dashboard.php" class="btn btn-outline-secondary">← Volver al panel</a>
   <a href="form.php" class="btn btn-success">➕ Nueva Transmisión</a>
 </div>
 
@@ -52,4 +52,5 @@ $transmissions = $stmt->fetchAll(PDO::FETCH_ASSOC);
   </tbody>
 </table>
 
-<?php include '../../includes/footer.php'; ?>
+<?php include '../footer.php'; ?>
+

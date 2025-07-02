@@ -20,7 +20,7 @@ if (!function_exists('brandTable')) {
 $tbl    = $_GET['tbl']    ?? null;
 $toolId = isset($_GET['id']) ? (int)$_GET['id'] : null;
 if (!$tbl || !$toolId) {
-    header('Location: dashboard.php');
+    header('Location: ../dashboard.php');
     exit;
 }
 
@@ -29,7 +29,7 @@ $stmt = $pdo->prepare("SELECT * FROM {$tbl} WHERE tool_id = ?");
 $stmt->execute([$toolId]);
 $tool = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$tool) {
-    header('Location: dashboard.php');
+    header('Location: ../dashboard.php');
     exit;
 }
 
@@ -59,12 +59,12 @@ $params = $pm->fetchAll(PDO::FETCH_ASSOC);
 </style>
 
 <div class="mb-3 d-flex justify-content-between">
-  <a href="dashboard.php" class="btn btn-outline-secondary">← Volver al panel</a>
+  <a href="../dashboard.php" class="btn btn-outline-secondary">← Volver al panel</a>
   <button form="editForm" class="btn btn-success">💾 Guardar Cambios</button>
 </div>
 
 <h2 class="mb-4">✏️ Editar Fresa</h2>
-<form id="editForm" method="POST" action="tool_save.php" enctype="multipart/form-data" class="vstack gap-3">
+<form id="editForm" method="POST" action="save.php" enctype="multipart/form-data" class="vstack gap-3">
   <input type="hidden" name="tool_id" value="<?= $toolId ?>">
   <input type="hidden" name="tbl" value="<?= htmlspecialchars($tbl) ?>">
 
@@ -251,7 +251,7 @@ $params = $pm->fetchAll(PDO::FETCH_ASSOC);
 
   <div class="text-end mt-4">
     <button class="btn btn-primary">💾 Guardar</button>
-    <a href="dashboard.php" class="btn btn-secondary">Cancelar</a>
+    <a href="../dashboard.php" class="btn btn-secondary">Cancelar</a>
   </div>
 </form>
 
@@ -304,4 +304,5 @@ $('#brand').on('change', e => loadSeries(e.target.value));
 $(function(){ loadSeries($('#brand').val()); });
 </script>
 
-<?php include '../../includes/footer.php'; ?>
+<?php include '../footer.php'; ?>
+

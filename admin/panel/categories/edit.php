@@ -15,7 +15,7 @@ $category = $stmt->fetch();
 
 if (!$category) {
     echo "<div class='alert alert-danger'>Categoría no encontrada.</div>";
-    include '../../includes/footer.php';
+    include '../footer.php';
     exit;
 }
 
@@ -83,4 +83,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </div>
 </form>
 
-<?php include '../../includes/footer.php'; ?>
+<?php include '../footer.php'; ?>

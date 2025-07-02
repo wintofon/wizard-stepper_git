@@ -7,7 +7,7 @@ $tbl = $_GET['tbl'] ?? '';
 $id  = $_GET['id']  ?? '';
 
 if (!$tbl || !$id) {
-    header('Location: dashboard.php'); exit;
+    header('Location: ../dashboard.php'); exit;
 }
 
 /* ── nombres auxiliares ─────────────────── */
@@ -22,5 +22,5 @@ $pdo->prepare("DELETE FROM $mtbl WHERE tool_id = ?")->execute([$id]);
 /* ── eliminar herramienta ───────────────── */
 $pdo->prepare("DELETE FROM $tbl WHERE tool_id = ?")->execute([$id]);
 
-header('Location: dashboard.php');
+header('Location: ../dashboard.php');
 exit;

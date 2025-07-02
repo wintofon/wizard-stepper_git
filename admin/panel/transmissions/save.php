@@ -10,7 +10,7 @@ require_once '../../includes/auth.php';
 
 /* ── solo procesar peticiones POST ───────────────────── */
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: dashboard.php'); exit;
+    header('Location: ../dashboard.php'); exit;
 }
 
 /* ── identificar tabla según marca ───────────────────── */
@@ -111,5 +111,5 @@ if (!empty($_POST['materials'])) {
 }
 
 /* ── listo ───────────────────────────────────────────── */
-header('Location: dashboard.php');
+header('Location: ../dashboard.php');
 exit;
