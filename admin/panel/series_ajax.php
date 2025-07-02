@@ -9,13 +9,15 @@ if (!$seriesId) {
   exit;
 }
 
-function brandTable(int $b): string {
-  return match($b) {
-    1 => 'tools_sgs',
-    2 => 'tools_maykestag',
-    3 => 'tools_schneider',
-    default => 'tools_generico',
-  };
+if (!function_exists('brandTable')) {
+  function brandTable(int $b): string {
+    return match($b) {
+      1 => 'tools_sgs',
+      2 => 'tools_maykestag',
+      3 => 'tools_schneider',
+      default => 'tools_generico',
+    };
+  }
 }
 
 $serie = $pdo->prepare("SELECT brand_id FROM series WHERE id=?");
