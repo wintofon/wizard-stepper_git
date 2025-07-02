@@ -6,7 +6,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $id = $_POST['material_id'] ?? null;
   $name = trim($_POST['name']);
   $category_id = $_POST['category_id'];
-  $spec_energy = $_POST['spec_energy'] ?: null;
+  $kc11       = $_POST['kc11'] ?: null;
+  $mc         = $_POST['mc'] ?: null;
+  $angle_ramp = $_POST['angle_ramp'] ?: null;
 
   $image = null;
   if (!empty($_FILES['image']['name'])) {
@@ -19,16 +21,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if ($id) {
     // update
     if ($image) {
-      $stmt = $pdo->prepare("UPDATE materials SET name=?, category_id=?, spec_energy=?, image=? WHERE material_id = ?");
-      $stmt->execute([$name, $category_id, $spec_energy, $image, $id]);
+      $stmt = $pdo->prepare("UPDATE materials SET name=?, category_id=?, kc11=?, mc=?, angle_ramp=?, image=? WHERE material_id = ?");
+      $stmt->execute([$name, $category_id, $kc11, $mc, $angle_ramp, $image, $id]);
     } else {
-      $stmt = $pdo->prepare("UPDATE materials SET name=?, category_id=?, spec_energy=? WHERE material_id = ?");
-      $stmt->execute([$name, $category_id, $spec_energy, $id]);
+      $stmt = $pdo->prepare("UPDATE materials SET name=?, category_id=?, kc11=?, mc=?, angle_ramp=? WHERE material_id = ?");
+      $stmt->execute([$name, $category_id, $kc11, $mc, $angle_ramp, $id]);
     }
   } else {
     // insert
-    $stmt = $pdo->prepare("INSERT INTO materials (name, category_id, spec_energy, image) VALUES (?, ?, ?, ?)");
-    $stmt->execute([$name, $category_id, $spec_energy, $image]);
+    $stmt = $pdo->prepare("INSERT INTO materials (name, category_id, kc11, mc, angle_ramp, image) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->execute([$name, $category_id, $kc11, $mc, $angle_ramp, $image]);
   }
 
   header('Location: materials.php');
