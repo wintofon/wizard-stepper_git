@@ -1,5 +1,4 @@
 <?php
-// ✅ [REFACTORED] Cambiado de ubicación de módulos de materiales – actualizado paths
 // admin/dashboard.php
 require_once '../includes/db.php';
 require_once '../includes/auth.php';
@@ -101,8 +100,8 @@ $bulkDup = $_GET['bulk_dup'] ?? null;
           <h6 class="card-title fw-semibold">Materiales</h6>
           <p class="display-6"><?= $materialCount ?></p>
           <div class="d-grid gap-2">
-            <a href="/main/admin/panel/materials/materials.php" class="btn btn-outline-primary btn-sm">🔍 Ver</a>
-            <a href="/main/admin/panel/materials/material_form.php" class="btn btn-outline-success btn-sm">➕ Nuevo</a>
+            <a href="materials.php" class="btn btn-outline-primary btn-sm">🔍 Ver</a>
+            <a href="material_form.php" class="btn btn-outline-success btn-sm">➕ Nuevo</a>
           </div>
         </div>
       </div>

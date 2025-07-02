@@ -1,5 +1,4 @@
 <?php
-// ✅ [REFACTORED] Cambiado de ubicación de módulos de materiales – actualizado paths
 require_once '../includes/db.php';
 require_once '../includes/auth.php';
 include 'header.php';
@@ -31,7 +30,7 @@ $tools = $pdo->query("SELECT * FROM tools ORDER BY tool_id DESC LIMIT 5")->fetch
       <div class="card-body text-success text-center">
         <h5 class="card-title">Materiales cargados</h5>
         <p class="card-text display-6"><?= $materialCount ?></p>
-        <a href="/main/admin/panel/materials/materials.php" class="btn btn-sm btn-success">Ver materiales</a>
+        <a href="materials.php" class="btn btn-sm btn-success">Ver materiales</a>
       </div>
     </div>
   </div>

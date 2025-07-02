@@ -1,4 +1,3 @@
-<!-- ✅ [REFACTORED] Cambiado de ubicación de módulos de materiales -->
 <!doctype html>
 <html lang="es">
 <head>
@@ -35,8 +34,8 @@
             <i class="bi bi-stack"></i> Materiales
           </a>
           <ul class="dropdown-menu" aria-labelledby="navMateriales">
-            <li><a class="dropdown-item" href="/main/admin/panel/materials/materials.php">Lista de materiales</a></li>
-            <li><a class="dropdown-item" href="/main/admin/panel/materials/material_form.php">➕ Nuevo material</a></li>
+            <li><a class="dropdown-item" href="materials.php">Lista de materiales</a></li>
+            <li><a class="dropdown-item" href="material_form.php">➕ Nuevo material</a></li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" href="categories.php">Categorías</a></li>
           </ul>

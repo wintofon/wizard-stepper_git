@@ -1,8 +1,7 @@
 <?php
-// ✅ [REFACTORED] Cambiado de ubicación a /main/admin/panel/materials – actualizado paths
-require_once '../../../../admin/includes/db.php';
-require_once '../../../../admin/includes/auth.php';
-include '../../../../admin/panel/header.php';
+require_once '../includes/db.php';
+require_once '../includes/auth.php';
+include 'header.php';
 
 if (!isset($_GET['id'])) {
     header('Location: materials.php');
@@ -16,7 +15,7 @@ $material = $stmt->fetch();
 
 if (!$material) {
     echo "<div class='alert alert-danger'>Material no encontrado.</div>";
-    include '../../../../admin/includes/footer.php';
+    include '../includes/footer.php';
     exit;
 }
 
@@ -35,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!empty($_FILES['image']['name'])) {
         $image = 'materials/' . basename($_FILES['image']['name']);
-        move_uploaded_file($_FILES['image']['tmp_name'], __DIR__ . '/' . $image);
+        move_uploaded_file($_FILES['image']['tmp_name'], '../panel/' . $image);
     }
 
     // Verificar duplicado
@@ -98,4 +97,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </form>
 
-<?php include '../../../../admin/includes/footer.php'; ?>
+<?php include '../includes/footer.php'; ?>
