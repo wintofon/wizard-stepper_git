@@ -73,6 +73,7 @@ $seriesId = $_GET['id'] ?? '';
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
 const catalogStrats = <?= json_encode(array_column($strats,'name','strategy_id')) ?>;
+const materials = <?= json_encode(array_column($mats,'name','material_id')) ?>;
 let counter = 0;
 
 // genera una fila + la de estrategias debajo
@@ -127,6 +128,34 @@ function loadSeries(brandId, selected){
   });
 }
 
+function renderParams(params, tools){
+  const $wrap = $('#materialsWrap').empty();
+  const cols = ['vc','fz_min','fz_max','ap','ae'];
+  const hdr = ['Vc','Fz min','Fz max','ap','ae'];
+  for(const mid in materials){
+    const data = params[mid] || {rating:0,rows:{}};
+    let rows = '';
+    tools.forEach(t=>{
+      const r = data.rows && data.rows[t.tool_id] ? data.rows[t.tool_id] : {};
+      rows += `<tr><td>${t.diameter_mm||''}</td>`+
+        cols.map(c=>`<td><input name="materials[${mid}][rows][${t.tool_id}][${c}]" class="form-control form-control-sm" value="${r[c]??''}"></td>`).join('')+
+        `</tr>`;
+    });
+    const ratingSel = [1,2,3].map(i=>`<option value="${i}" ${i==data.rating?'selected':''}>${i}</option>`).join('');
+    $wrap.append(`
+      <div class="mb-4">
+        <div class="d-flex align-items-center mb-2">
+          <strong class="me-2">${materials[mid]}</strong>
+          <select name="materials[${mid}][rating]" class="form-select form-select-sm w-auto">${ratingSel}</select>
+        </div>
+        <table class="table table-sm table-bordered">
+          <thead class="table-light"><tr><th>Ø</th>${hdr.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`);
+  }
+}
+
 // al cambiar serie, pido el JSON y dibujo filas
 $('#seriesSel').on('change', function(){
   const sid = $(this).val();
@@ -139,6 +168,7 @@ $('#seriesSel').on('change', function(){
     (res.tools||[]).forEach((t,i)=> {
       $('#geoBody').append( geoRow(t, i%2===1) );
     });
+    renderParams(res.params||{}, res.tools||[]);
   });
 });
 
