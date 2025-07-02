@@ -150,6 +150,13 @@ $('#addTool').on('click', function(){
   const alt = ($('#geoBody tr').length/2)%2===1;
   $('#geoBody').append( geoRow({tool_id:id}, alt) );
 });
+
+// carga inicial si hay una serie seleccionada
+$(function(){
+  if ($('#seriesSel').val()) {
+    $('#seriesSel').trigger('change');
+  }
+});
 </script>
 
 <?php include __DIR__.'/../includes/footer.php'; ?>
