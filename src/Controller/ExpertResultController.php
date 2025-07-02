@@ -82,7 +82,7 @@ class ExpertResultController
         $fzMax0 = (float)$mat['fz_max_mm'];
         $apSlot = (float)$mat['ap_slot_mm'];
         $aeSlot = (float)$mat['ae_slot_mm'];
-        $vcMax0 = $vcMin0 * 1.25;
+        $vcMax0 = $vcMin0 * 1.50;
 
         /* ───────────────────── 5) Coeficientes globales ─────────────────── */
         $Kc11       = ConfigModel::getKc11($pdo, $materialId);
