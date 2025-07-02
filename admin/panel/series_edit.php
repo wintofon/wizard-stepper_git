@@ -5,7 +5,6 @@ include __DIR__.'/header.php';
 
 $series = $pdo->query("SELECT id, code FROM series ORDER BY code")->fetchAll();
 $brands = $pdo->query("SELECT id, name FROM brands ORDER BY name")->fetchAll();
-$types  = $pdo->query("SELECT code, name FROM tooltypes ORDER BY name")->fetchAll();
 $mats   = $pdo->query("SELECT material_id, name FROM materials ORDER BY name")->fetchAll();
 $strats = $pdo->query("SELECT strategy_id, name FROM strategies ORDER BY name")->fetchAll();
 $seriesId = $_GET['id'] ?? '';
@@ -45,14 +44,6 @@ $seriesId = $_GET['id'] ?? '';
           <select id="brandSel" name="brand_id" class="form-select" required>
             <?php foreach($brands as $b): ?>
               <option value="<?= $b['id'] ?>"><?= htmlspecialchars($b['name']) ?></option>
-            <?php endforeach; ?>
-          </select>
-        </div>
-        <div class="col-md-3">
-          <label class="form-label">Tipo</label>
-          <select name="tool_type" class="form-select">
-            <?php foreach($types as $t): ?>
-              <option value="<?= htmlspecialchars($t['code']) ?>"><?= htmlspecialchars($t['name']) ?></option>
             <?php endforeach; ?>
           </select>
         </div>
