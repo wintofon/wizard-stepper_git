@@ -49,8 +49,10 @@ foreach(['series_id','diameter_mm','shank_diameter_mm','flute_length_mm',
 }
 
 if($qText!==''){
-   $where[]="(U.name LIKE ? OR U.tool_code LIKE ?)";
-   $bind[]="%{$qText}%"; $bind[]="%{$qText}%";
+   $where[]="(U.name LIKE ? OR U.tool_code LIKE ? OR s.code LIKE ?)";
+   $bind[]="%{$qText}%"; 
+   $bind[]="%{$qText}%"; 
+   $bind[]="%{$qText}%";
 }
 
 /* --- 5) Material mecanizable --- */
@@ -81,7 +83,7 @@ if(!empty($f['strategy_id'])){
 }
 
 /* --- 7) SQL final --- */
-$sql="SELECT * FROM (\n$baseSql\n) AS U";
+$sql="SELECT U.*, s.code AS series_code FROM (\n$baseSql\n) AS U\n            LEFT JOIN series s ON s.id = U.series_id";
 if($where) $sql.="\nWHERE ".implode("\n  AND ",$where);
 $sql.="\nORDER BY U.tool_id DESC";
 
