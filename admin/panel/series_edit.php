@@ -199,6 +199,8 @@ $('#brandSel').on('change', function(){
   loadSeries(this.value);
   $('#seriesSel').val('');
   $('#geoBody').empty();
+  $('#materialsWrap').empty();
+  $('#searchBtn').hide();
 });
 
 $(function(){
