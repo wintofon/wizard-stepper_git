@@ -52,7 +52,7 @@ $pm = $pdo->prepare("SELECT tm.tool_id, tm.material_id, tm.rating,
          tm.vc_m_min, tm.fz_min_mm, tm.fz_max_mm, tm.ap_slot_mm, tm.ae_slot_mm
     FROM {$toolTbl} t
     JOIN {$matTbl} tm ON tm.tool_id = t.tool_id
-   WHERE t.series_id = ?");
+   WHERE t.series_id = ? AND tm.rating > 0");
 $pm->execute([$seriesId]);
 $params = [];
 foreach ($pm as $r) {
