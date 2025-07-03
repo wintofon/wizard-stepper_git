@@ -135,20 +135,21 @@ function renderParams(params, tools){
   const $wrap = $('#materialsWrap').empty();
   const cols = ['vc','fz_min','fz_max','ap','ae'];
   const hdr = ['Vc','Fz min','Fz max','ap','ae'];
-  for(const mid in materials){
-    const data = params[mid] || {rating:0,rows:{}};
+  Object.entries(params).forEach(([mid, data]) => {
+    if(!data || data.rating <= 0) return;
     let rows = '';
-    tools.forEach(t=>{
+    tools.forEach(t => {
       const r = data.rows && data.rows[t.tool_id] ? data.rows[t.tool_id] : {};
       rows += `<tr><td>${t.diameter_mm||''}</td>`+
         cols.map(c=>`<td><input name="materials[${mid}][rows][${t.tool_id}][${c}]" class="form-control form-control-sm" value="${r[c]??''}"></td>`).join('')+
         `</tr>`;
     });
     const ratingSel = [1,2,3].map(i=>`<option value="${i}" ${i==data.rating?'selected':''}>${i}</option>`).join('');
+    const matName = materials[mid] || mid;
     $wrap.append(`
       <div class="mb-4">
         <div class="d-flex align-items-center mb-2">
-          <strong class="me-2">${materials[mid]}</strong>
+          <strong class="me-2">${matName}</strong>
           <select name="materials[${mid}][rating]" class="form-select form-select-sm w-auto">${ratingSel}</select>
         </div>
         <table class="table table-sm table-bordered">
@@ -156,7 +157,7 @@ function renderParams(params, tools){
           <tbody>${rows}</tbody>
         </table>
       </div>`);
-  }
+  });
 }
 
 function fetchSeriesTools(){
