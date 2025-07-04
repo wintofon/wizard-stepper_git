@@ -84,3 +84,8 @@
 </nav>
 
 <div class="container-fluid">
+  <?php if (basename($_SERVER['PHP_SELF']) !== 'dashboard.php'): ?>
+    <div class="mb-3">
+      <a href="dashboard.php" class="btn btn-outline-secondary">← Volver al panel</a>
+    </div>
+  <?php endif; ?>
