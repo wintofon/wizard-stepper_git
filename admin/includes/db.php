@@ -27,7 +27,14 @@ function db(): PDO
             $pdo = new PDO($dsn, DB_USER, DB_PASS, $opts);
         } catch (PDOException $e) {
             http_response_code(500);
-            exit('DB Connection Error: ' . htmlspecialchars($e->getMessage()));
+            $msg = 'DB Connection Error: ' . $e->getMessage();
+            if (str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json')) {
+                header('Content-Type: application/json; charset=utf-8');
+                echo json_encode(['success' => false, 'error' => $msg]);
+            } else {
+                echo htmlspecialchars($msg);
+            }
+            exit;
         }
     }
     return $pdo;

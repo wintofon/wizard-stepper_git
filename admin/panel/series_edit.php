@@ -238,9 +238,14 @@ $('#saveBtn').on('click', function(e){
     if(res.success){
       alert('Datos guardados');
     }else{
-      alert('Error: '+ (res.error || ''));}
-  }, 'json').fail(function(){
-    alert('Error de conexión');
+      alert('Error: '+ (res.error || ''));
+    }
+  }, 'json').fail(function(jqXHR){
+    let msg = 'Error de conexión';
+    if(jqXHR.responseText){
+      msg += ': ' + jqXHR.responseText.trim();
+    }
+    alert(msg);
   }).always(function(){ $btn.prop('disabled', false); });
 });
 
