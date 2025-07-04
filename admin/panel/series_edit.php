@@ -54,7 +54,11 @@ $seriesId = $_GET['id'] ?? '';
       </div>
     </div>
 
-    <div class="table-wrap mb-4">
+    <div id="geoWrap" class="table-wrap mb-4">
+      <div class="d-flex justify-content-end mb-2">
+        <button id="editGeo" type="button" class="btn btn-outline-primary btn-sm me-2">Editar</button>
+        <button id="saveGeo" type="button" class="btn btn-success btn-sm" style="display:none">Guardar</button>
+      </div>
       <table id="geoTbl" class="table table-bordered align-middle">
         <thead class="table-light">
           <tr>
@@ -66,11 +70,11 @@ $seriesId = $_GET['id'] ?? '';
         </thead>
         <tbody id="geoBody"></tbody>
       </table>
-      <button id="addTool" type="button" class="btn btn-outline-primary btn-sm">➕ Agregar fresa</button>
+      <button id="addTool" type="button" class="btn btn-outline-primary btn-sm" style="display:none">➕ Agregar fresa</button>
     </div>
 
     <div id="materialsWrap"></div>
-    <button id="addMat" type="button" class="btn btn-outline-success btn-sm mb-5">➕ Agregar material</button>
+    <button id="addMat" type="button" class="btn btn-outline-success btn-sm mb-5" style="display:none">➕ Agregar material</button>
   </form>
 </div>
 
@@ -80,6 +84,47 @@ const catalogStrats = <?= json_encode(array_column($strats,'name','strategy_id')
 const materials = <?= json_encode(array_column($mats,'name','material_id')) ?>;
 let counter = 0;
 let matCounter = 0;
+
+function toggleGeo(edit){
+  $('#geoTbl input, #geoTbl select, #geoTbl textarea, #geoTbl button.delTool').prop('disabled', !edit);
+  $('#addTool').toggle(edit);
+  $('#saveGeo').toggle(edit);
+  $('#editGeo').toggle(!edit);
+  checkAddMat();
+}
+
+function toggleMat($blk, edit){
+  $blk.find('input,select,textarea,button.delMat').prop('disabled', !edit);
+  $blk.find('.saveMat').toggle(edit);
+  $blk.find('.editMat').toggle(!edit);
+  checkAddMat();
+}
+
+function checkAddMat(){
+  if($('#saveGeo').is(':visible') || $('.saveMat:visible').length){
+    $('#addMat').show();
+  }else{
+    $('#addMat').hide();
+  }
+}
+
+function saveAll($btn, after){
+  $btn.prop('disabled', true);
+  $.post('series_save.php', $('#seriesForm').serialize(), function(res){
+    if(res.success){
+      alert('Datos guardados');
+      if(after) after();
+    }else{
+      alert('Error: '+ (res.error || ''));
+    }
+  }, 'json').fail(function(jqXHR){
+    let msg = 'Error de conexión';
+    if(jqXHR.responseText){
+      msg += ': ' + jqXHR.responseText.trim();
+    }
+    alert(msg);
+  }).always(function(){ $btn.prop('disabled', false); });
+}
 
 // genera una fila + la de estrategias debajo
 function geoRow(t, alt) {
@@ -158,6 +203,8 @@ function renderParams(params, tools){
         <div class="d-flex align-items-center mb-2">
           <strong class="me-2">${matName}</strong>
           <select name="materials[${mid}][rating]" class="form-select form-select-sm w-auto me-2">${ratingSel}</select>
+          <button type="button" class="btn btn-outline-primary btn-sm me-2 editMat">Editar</button>
+          <button type="button" class="btn btn-success btn-sm saveMat" style="display:none">Guardar</button>
         </div>
         <div class="mb-2"><strong>Estrategias:</strong> ${stratOpts}</div>
         <table class="table table-sm table-bordered">
@@ -180,6 +227,9 @@ function fetchSeriesTools(){
       $('#geoBody').append( geoRow(t, i%2===1) );
     });
     renderParams(res.params||{}, res.tools||[]);
+    toggleGeo(false);
+    $('#materialsWrap .mat-block').each(function(){ toggleMat($(this), false); });
+    checkAddMat();
   });
 }
 
@@ -233,20 +283,31 @@ $(document).on('click', '.delTool', function(){
 // guardar serie y parámetros
 $('#saveBtn').on('click', function(e){
   e.preventDefault();
-  const $btn = $(this).prop('disabled', true);
-  $.post('series_save.php', $('#seriesForm').serialize(), function(res){
-    if(res.success){
-      alert('Datos guardados');
-    }else{
-      alert('Error: '+ (res.error || ''));
-    }
-  }, 'json').fail(function(jqXHR){
-    let msg = 'Error de conexión';
-    if(jqXHR.responseText){
-      msg += ': ' + jqXHR.responseText.trim();
-    }
-    alert(msg);
-  }).always(function(){ $btn.prop('disabled', false); });
+  saveAll($(this));
+});
+
+$('#editGeo').on('click', function(){
+  toggleGeo(true);
+  checkAddMat();
+});
+
+$('#saveGeo').on('click', function(){
+  const $btn = $(this);
+  saveAll($btn, () => toggleGeo(false));
+  checkAddMat();
+});
+
+$(document).on('click', '.editMat', function(){
+  const $blk = $(this).closest('.mat-block');
+  toggleMat($blk, true);
+  checkAddMat();
+});
+
+$(document).on('click', '.saveMat', function(){
+  const $blk = $(this).closest('.mat-block');
+  const $btn = $(this);
+  saveAll($btn, () => toggleMat($blk, false));
+  checkAddMat();
 });
 
 // agregar bloque de material vacío
@@ -270,11 +331,13 @@ $('#addMat').on('click', function(){
       cols.map(c=>`<td><input name="materials[${mid}][rows][${tid}][${c}]" class="form-control form-control-sm"></td>`).join('')+
       `</tr>`;
   });
-  $('#materialsWrap').append(`
+  const html = `
     <div class="mb-4 mat-block">
       <div class="d-flex align-items-center mb-2">
         <select name="materials[${mid}][material_id]" class="form-select me-2 w-auto">${opts}</select>
         <select name="materials[${mid}][rating]" class="form-select form-select-sm w-auto me-2">${ratingSel}</select>
+        <button type="button" class="btn btn-outline-primary btn-sm me-2 editMat">Editar</button>
+        <button type="button" class="btn btn-success btn-sm saveMat" style="display:none">Guardar</button>
         <button type="button" class="btn btn-outline-danger btn-sm delMat">✖</button>
       </div>
       <div class="mb-2"><strong>Estrategias:</strong> ${stratOpts}</div>
@@ -282,11 +345,15 @@ $('#addMat').on('click', function(){
         <thead class="table-light"><tr><th>Ø</th>${hdr.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
         <tbody>${rows}</tbody>
       </table>
-    </div>`);
+    </div>`;
+  const $blk = $(html).appendTo('#materialsWrap');
+  toggleMat($blk, true);
+  checkAddMat();
 });
 
 $(document).on('click', '.delMat', function(){
   $(this).closest('.mat-block').remove();
+  checkAddMat();
 });
 
 // al cambiar estrategia de material, aplicar a todas las fresas
