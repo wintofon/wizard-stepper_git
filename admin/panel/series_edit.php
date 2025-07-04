@@ -78,6 +78,7 @@ $seriesId = $_GET['id'] ?? '';
 const catalogStrats = <?= json_encode(array_column($strats,'name','strategy_id')) ?>;
 const materials = <?= json_encode(array_column($mats,'name','material_id')) ?>;
 let counter = 0;
+let matCounter = 0;
 
 // genera una fila + la de estrategias debajo
 function geoRow(t, alt) {
@@ -220,6 +221,54 @@ $(document).on('click', '.delTool', function(){
   const tr = $(this).closest('tr');
   tr.next('tr').remove();
   tr.remove();
+});
+
+// guardar serie y parámetros
+$('#saveBtn').on('click', function(e){
+  e.preventDefault();
+  const $btn = $(this).prop('disabled', true);
+  $.post('series_save.php', $('#seriesForm').serialize(), function(res){
+    if(res.success){
+      alert('Datos guardados');
+    }else{
+      alert('Error: '+ (res.error || ''));}
+  }, 'json').fail(function(){
+    alert('Error de conexión');
+  }).always(function(){ $btn.prop('disabled', false); });
+});
+
+// agregar bloque de material vacío
+$('#addMat').on('click', function(){
+  const mid = 'new_' + (++matCounter);
+  const opts = Object.entries(materials)
+    .map(([id,name]) => `<option value="${id}">${name}</option>`).join('');
+  const ratingSel = [1,2,3].map(i=>`<option value="${i}">${i}</option>`).join('');
+  const cols = ['vc','fz_min','fz_max','ap','ae'];
+  const hdr = ['Vc','Fz min','Fz max','ap','ae'];
+  let rows = '';
+  $('#geoBody tr[data-tid]').each(function(){
+    const tid = $(this).data('tid');
+    const dia = $(this).find('input[name$="[diameter_mm]"]').val() || '';
+    rows += `<tr><td>${dia}</td>`+
+      cols.map(c=>`<td><input name="materials[${mid}][rows][${tid}][${c}]" class="form-control form-control-sm"></td>`).join('')+
+      `</tr>`;
+  });
+  $('#materialsWrap').append(`
+    <div class="mb-4 mat-block">
+      <div class="d-flex align-items-center mb-2">
+        <select name="materials[${mid}][material_id]" class="form-select me-2 w-auto">${opts}</select>
+        <select name="materials[${mid}][rating]" class="form-select form-select-sm w-auto me-2">${ratingSel}</select>
+        <button type="button" class="btn btn-outline-danger btn-sm delMat">✖</button>
+      </div>
+      <table class="table table-sm table-bordered">
+        <thead class="table-light"><tr><th>Ø</th>${hdr.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`);
+});
+
+$(document).on('click', '.delMat', function(){
+  $(this).closest('.mat-block').remove();
 });
 
 // agregar fresa vacía

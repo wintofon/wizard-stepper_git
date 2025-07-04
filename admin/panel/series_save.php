@@ -56,10 +56,12 @@ try{
   $pdo->prepare("DELETE pm FROM {$matTbl} pm JOIN {$toolTbl} t USING(tool_id)
                  WHERE t.series_id=?")->execute([$seriesId]);
   foreach($_POST['materials']??[] as $mid=>$d){
+    if(str_starts_with($mid,'new_'))
+      $mid = (int)($d['material_id'] ?? 0);
     $rating=(int)($d['rating']??0);
     foreach($d['rows']??[] as $tid=>$p){
       if(str_starts_with($tid,'new_')) $tid=$mapNew[$tid]??0;
-      if(!$tid) continue;
+      if(!$tid || !$mid) continue;
       $pdo->prepare("INSERT INTO {$matTbl}
         (tool_id,material_id,rating,vc_m_min,fz_min_mm,fz_max_mm,ap_slot_mm,ae_slot_mm)
         VALUES (?,?,?,?,?,?,?,?)")
