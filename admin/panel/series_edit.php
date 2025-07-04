@@ -16,6 +16,7 @@ $seriesId = $_GET['id'] ?? '';
   .sortable { cursor: pointer; }
   .table-wrap { overflow-x: auto; }
   tr.alt { background: #e9f3fb; }
+  tr.tool-strategies { display: none; }
 </style>
 
 <div class="container py-4">
@@ -117,7 +118,7 @@ function geoRow(t, alt) {
       <td><input name="${pre}[coated]" class="form-control" value="${t.coated||''}"></td>
       <td><button type="button" class="btn btn-sm btn-outline-danger delTool">✖</button></td>
     </tr>
-    <tr class="${rowClass}">${stratHTML}</tr>`;
+    <tr class="${rowClass} tool-strategies">${stratHTML}</tr>`;
 }
 
 function loadSeries(brandId, selected){
