@@ -5,8 +5,18 @@ include __DIR__.'/header.php';
 
 $series = $pdo->query("SELECT id, code FROM series ORDER BY code")->fetchAll();
 $brands = $pdo->query("SELECT id, name FROM brands ORDER BY name")->fetchAll();
-$mats   = $pdo->query("SELECT material_id, name FROM materials ORDER BY name")->fetchAll();
+$parents = $pdo->query("SELECT category_id, name FROM materialcategories WHERE parent_id IS NULL ORDER BY name")->fetchAll();
+$mats = $pdo->query("SELECT m.material_id, m.name, c.parent_id
+                     FROM materials m
+                     LEFT JOIN materialcategories c ON m.category_id = c.category_id
+                     ORDER BY m.name")->fetchAll();
 $strats = $pdo->query("SELECT strategy_id, name FROM strategies ORDER BY name")->fetchAll();
+$materialNames = [];
+$materialParents = [];
+foreach ($mats as $m) {
+    $materialNames[$m['material_id']] = $m['name'];
+    $materialParents[$m['material_id']] = $m['parent_id'];
+}
 $seriesId = $_GET['id'] ?? '';
 ?>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
@@ -17,6 +27,9 @@ $seriesId = $_GET['id'] ?? '';
   .table-wrap { overflow-x: auto; }
   tr.alt { background: #e9f3fb; }
   tr.tool-strategies { display: none; }
+  .star { cursor:pointer; color:#ddd; font-size:1.2rem; }
+  .star.filled { color:#0d6efd; }
+  .rating-stars { white-space:nowrap; }
 </style>
 
 <div class="container py-4">
@@ -73,6 +86,35 @@ $seriesId = $_GET['id'] ?? '';
       <button id="addTool" type="button" class="btn btn-outline-primary btn-sm" style="display:none">➕ Agregar fresa</button>
     </div>
 
+    <div class="mb-3">
+      <label class="form-label me-2">Filtrar por padre de material</label>
+      <select id="parentFilter" class="form-select form-select-sm d-inline-block w-auto">
+        <option value="">-- todas --</option>
+        <?php foreach($parents as $p): ?>
+          <option value="<?= $p['category_id'] ?>"><?= htmlspecialchars($p['name']) ?></option>
+        <?php endforeach; ?>
+      </select>
+    </div>
+
+    <div id="bulkOps" class="mb-3">
+      <div class="d-flex flex-wrap align-items-center gap-2">
+        <span>Global:</span>
+        <?php foreach($strats as $s): ?>
+          <label class="form-check form-check-inline mb-0">
+            <input type="checkbox" class="form-check-input bulk-strategy" value="<?= $s['strategy_id'] ?>">
+            <span class="form-check-label"><?= htmlspecialchars($s['name']) ?></span>
+          </label>
+        <?php endforeach; ?>
+        <select id="bulkRating" class="form-select form-select-sm w-auto">
+          <option value="">Rating</option>
+          <?php for($i=1;$i<=3;$i++): ?>
+            <option value="<?= $i ?>"><?= $i ?></option>
+          <?php endfor; ?>
+        </select>
+        <button type="button" id="applyBulk" class="btn btn-outline-primary btn-sm">Aplicar</button>
+      </div>
+    </div>
+
     <div id="materialsWrap"></div>
     <button id="addMat" type="button" class="btn btn-outline-success btn-sm mb-5" style="display:none">➕ Agregar material</button>
   </form>
@@ -81,7 +123,8 @@ $seriesId = $_GET['id'] ?? '';
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
 const catalogStrats = <?= json_encode(array_column($strats,'name','strategy_id')) ?>;
-const materials = <?= json_encode(array_column($mats,'name','material_id')) ?>;
+const materials = <?= json_encode($materialNames) ?>;
+const materialParents = <?= json_encode($materialParents) ?>;
 let counter = 0;
 let matCounter = 0;
 
@@ -109,6 +152,7 @@ function checkAddMat(){
 }
 
 function saveAll($btn, after){
+  if(!confirm('¿Guardar cambios?')) return;
   $btn.prop('disabled', true);
   $.post('series_save.php', $('#seriesForm').serialize(), function(res){
     if(res.success){
@@ -196,13 +240,13 @@ function renderParams(params, tools){
         cols.map(c=>`<td><input name="materials[${mid}][rows][${t.tool_id}][${c}]" class="form-control form-control-sm" value="${r[c]??''}"></td>`).join('')+
         `</tr>`;
     });
-    const ratingSel = [1,2,3].map(i=>`<option value="${i}" ${i==data.rating?'selected':''}>${i}</option>`).join('');
+    const ratingStars = [1,2,3].map(i=>`<i class="bi bi-star star ${i<=data.rating?'filled':''}" data-value="${i}"></i>`).join('');
     const matName = materials[mid] || mid;
     $wrap.append(`
-      <div class="mb-4 mat-block">
+      <div class="mb-4 mat-block" data-parent="${materialParents[mid]||''}">
         <div class="d-flex align-items-center mb-2">
           <strong class="me-2">${matName}</strong>
-          <select name="materials[${mid}][rating]" class="form-select form-select-sm w-auto me-2">${ratingSel}</select>
+          <span class="rating-stars me-2">${ratingStars}<input type="hidden" name="materials[${mid}][rating]" value="${data.rating}"></span>
           <button type="button" class="btn btn-outline-primary btn-sm me-2 editMat">Editar</button>
           <button type="button" class="btn btn-success btn-sm saveMat" style="display:none">Guardar</button>
         </div>
@@ -212,6 +256,13 @@ function renderParams(params, tools){
           <tbody>${rows}</tbody>
         </table>
       </div>`);
+    const $blk = $('#materialsWrap .mat-block:last');
+    $blk.find('select[name$="[material_id]"]').on('change', function(){
+      const mid2 = $(this).val();
+      $blk.attr('data-parent', materialParents[mid2]||'');
+      $('#parentFilter').trigger('change');
+    });
+    $('#parentFilter').trigger('change');
   });
 }
 
@@ -315,7 +366,7 @@ $('#addMat').on('click', function(){
   const mid = 'new_' + (++matCounter);
   const opts = Object.entries(materials)
     .map(([id,name]) => `<option value="${id}">${name}</option>`).join('');
-  const ratingSel = [1,2,3].map(i=>`<option value="${i}">${i}</option>`).join('');
+  const ratingStars = [1,2,3].map(i=>`<i class="bi bi-star star" data-value="${i}"></i>`).join('');
   const cols = ['vc','fz_min','fz_max','ap','ae'];
   const hdr = ['Vc','Fz min','Fz max','ap','ae'];
   const stratOpts = Object.entries(catalogStrats)
@@ -332,10 +383,10 @@ $('#addMat').on('click', function(){
       `</tr>`;
   });
   const html = `
-    <div class="mb-4 mat-block">
+    <div class="mb-4 mat-block" data-parent="">
       <div class="d-flex align-items-center mb-2">
         <select name="materials[${mid}][material_id]" class="form-select me-2 w-auto">${opts}</select>
-        <select name="materials[${mid}][rating]" class="form-select form-select-sm w-auto me-2">${ratingSel}</select>
+        <span class="rating-stars me-2">${ratingStars}<input type="hidden" name="materials[${mid}][rating]" value="0"></span>
         <button type="button" class="btn btn-outline-primary btn-sm me-2 editMat">Editar</button>
         <button type="button" class="btn btn-success btn-sm saveMat" style="display:none">Guardar</button>
         <button type="button" class="btn btn-outline-danger btn-sm delMat">✖</button>
@@ -347,8 +398,14 @@ $('#addMat').on('click', function(){
       </table>
     </div>`;
   const $blk = $(html).appendTo('#materialsWrap');
+  $blk.find('select[name$="[material_id]"]').on('change', function(){
+    const mid2 = $(this).val();
+    $blk.attr('data-parent', materialParents[mid2]||'');
+    $('#parentFilter').trigger('change');
+  });
   toggleMat($blk, true);
   checkAddMat();
+  $('#parentFilter').trigger('change');
 });
 
 $(document).on('click', '.delMat', function(){
@@ -361,6 +418,50 @@ $(document).on('change', '.mat-strategy', function(){
   const sid = $(this).val();
   const checked = $(this).is(':checked');
   $('#geoBody input[type=checkbox][value="'+sid+'"]').prop('checked', checked);
+});
+
+// rating con estrellas
+$(document).on('click', '.rating-stars .star', function(){
+  const $s = $(this);
+  const $wrap = $s.closest('.rating-stars');
+  const val = parseInt($s.data('value'));
+  $wrap.find('.star').each(function(){
+    $(this).toggleClass('filled', parseInt($(this).data('value')) <= val);
+  });
+  $wrap.find('input[type=hidden]').val(val);
+});
+
+// filtro por padre
+$('#parentFilter').on('change', function(){
+  const pid = $(this).val();
+  $('.mat-block').each(function(){
+    const p = $(this).data('parent');
+    if(!pid || pid==p){
+      $(this).show();
+    } else {
+      $(this).hide();
+    }
+  });
+});
+
+// aplicar cambios globales
+$('#applyBulk').on('click', function(){
+  if(!confirm('¿Aplicar cambios globales?')) return;
+  const rating = $('#bulkRating').val();
+  if(rating){
+    $('.rating-stars').each(function(){
+      const $r = $(this);
+      $r.find('input[type=hidden]').val(rating);
+      $r.find('.star').each(function(){
+        $(this).toggleClass('filled', parseInt($(this).data('value')) <= rating);
+      });
+    });
+  }
+  $('#bulkOps input.bulk-strategy').each(function(){
+    const sid = $(this).val();
+    const checked = $(this).is(':checked');
+    $('.mat-block input.mat-strategy[value="'+sid+'"]').prop('checked', checked).trigger('change');
+  });
 });
 
 // agregar fresa vacía
