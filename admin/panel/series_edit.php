@@ -136,6 +136,11 @@ function renderParams(params, tools){
   const $wrap = $('#materialsWrap').empty();
   const cols = ['vc','fz_min','fz_max','ap','ae'];
   const hdr = ['Vc','Fz min','Fz max','ap','ae'];
+  const stratOpts = Object.entries(catalogStrats)
+    .map(([sid,name]) => `<div class="form-check form-check-inline">
+        <input type="checkbox" class="form-check-input mat-strategy" value="${sid}">
+        <label class="form-check-label">${name}</label>
+      </div>`).join('');
   Object.entries(params).forEach(([mid, data]) => {
     if(!data || data.rating <= 0) return;
     let rows = '';
@@ -148,11 +153,12 @@ function renderParams(params, tools){
     const ratingSel = [1,2,3].map(i=>`<option value="${i}" ${i==data.rating?'selected':''}>${i}</option>`).join('');
     const matName = materials[mid] || mid;
     $wrap.append(`
-      <div class="mb-4">
+      <div class="mb-4 mat-block">
         <div class="d-flex align-items-center mb-2">
           <strong class="me-2">${matName}</strong>
-          <select name="materials[${mid}][rating]" class="form-select form-select-sm w-auto">${ratingSel}</select>
+          <select name="materials[${mid}][rating]" class="form-select form-select-sm w-auto me-2">${ratingSel}</select>
         </div>
+        <div class="mb-2"><strong>Estrategias:</strong> ${stratOpts}</div>
         <table class="table table-sm table-bordered">
           <thead class="table-light"><tr><th>Ø</th>${hdr.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
           <tbody>${rows}</tbody>
@@ -245,6 +251,11 @@ $('#addMat').on('click', function(){
   const ratingSel = [1,2,3].map(i=>`<option value="${i}">${i}</option>`).join('');
   const cols = ['vc','fz_min','fz_max','ap','ae'];
   const hdr = ['Vc','Fz min','Fz max','ap','ae'];
+  const stratOpts = Object.entries(catalogStrats)
+    .map(([sid,name]) => `<div class="form-check form-check-inline">
+        <input type="checkbox" class="form-check-input mat-strategy" value="${sid}">
+        <label class="form-check-label">${name}</label>
+      </div>`).join('');
   let rows = '';
   $('#geoBody tr[data-tid]').each(function(){
     const tid = $(this).data('tid');
@@ -260,6 +271,7 @@ $('#addMat').on('click', function(){
         <select name="materials[${mid}][rating]" class="form-select form-select-sm w-auto me-2">${ratingSel}</select>
         <button type="button" class="btn btn-outline-danger btn-sm delMat">✖</button>
       </div>
+      <div class="mb-2"><strong>Estrategias:</strong> ${stratOpts}</div>
       <table class="table table-sm table-bordered">
         <thead class="table-light"><tr><th>Ø</th>${hdr.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
         <tbody>${rows}</tbody>
@@ -269,6 +281,13 @@ $('#addMat').on('click', function(){
 
 $(document).on('click', '.delMat', function(){
   $(this).closest('.mat-block').remove();
+});
+
+// al cambiar estrategia de material, aplicar a todas las fresas
+$(document).on('change', '.mat-strategy', function(){
+  const sid = $(this).val();
+  const checked = $(this).is(':checked');
+  $('#geoBody input[type=checkbox][value="'+sid+'"]').prop('checked', checked);
 });
 
 // agregar fresa vacía
