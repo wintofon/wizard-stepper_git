@@ -66,7 +66,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
   </div>
 
   <button type="submit" class="btn btn-success">Guardar</button>
-  <a href="transmissions.php" class="btn btn-secondary">← Volver</a>
+  <a href="dashboard.php" class="btn btn-secondary">← Volver al panel</a>
 </form>
 
 <?php include '../includes/footer.php'; ?>

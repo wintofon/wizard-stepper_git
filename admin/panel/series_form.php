@@ -7,7 +7,7 @@ $brands = $pdo->query("SELECT id,name FROM brands ORDER BY name")->fetchAll();
 ?>
 <div class="container py-4">
   <div class="mb-3 d-flex justify-content-between">
-    <a href="dashboard.php" class="btn btn-outline-secondary">← Volver</a>
+    <a href="dashboard.php" class="btn btn-outline-secondary">← Volver al panel</a>
   </div>
 
   <h2>➕ Nueva Serie</h2>

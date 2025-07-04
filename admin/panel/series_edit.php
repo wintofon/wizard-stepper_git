@@ -21,7 +21,7 @@ $seriesId = $_GET['id'] ?? '';
 
 <div class="container py-4">
   <div class="d-flex justify-content-between mb-3">
-    <a href="dashboard.php" class="btn btn-outline-secondary">← Volver</a>
+    <a href="dashboard.php" class="btn btn-outline-secondary">← Volver al panel</a>
     <div class="d-flex gap-3">
       <select id="seriesSel" class="form-select">
         <option value="">-- elige serie --</option>
