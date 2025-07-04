@@ -127,6 +127,20 @@ const materials = <?= json_encode($materialNames) ?>;
 const materialParents = <?= json_encode($materialParents) ?>;
 let counter = 0;
 let matCounter = 0;
+const allMaterialOptions = Object.entries(materials)
+  .map(([id, name]) => `<option value="${id}">${name}</option>`)
+  .join('');
+
+function updateMaterialSelects(pid) {
+  $('#materialsWrap select[name$="[material_id]"]').each(function () {
+    const selected = $(this).val();
+    const opts = Object.entries(materials)
+      .filter(([id]) => !pid || materialParents[id] == pid || id === selected)
+      .map(([id, name]) => `<option value="${id}"${id === selected ? ' selected' : ''}>${name}</option>`)
+      .join('');
+    $(this).html(opts);
+  });
+}
 
 function toggleGeo(edit){
   $('#geoTbl input, #geoTbl select, #geoTbl textarea, #geoTbl button.delTool').prop('disabled', !edit);
@@ -364,8 +378,7 @@ $(document).on('click', '.saveMat', function(){
 // agregar bloque de material vacío
 $('#addMat').on('click', function(){
   const mid = 'new_' + (++matCounter);
-  const opts = Object.entries(materials)
-    .map(([id,name]) => `<option value="${id}">${name}</option>`).join('');
+  const opts = allMaterialOptions;
   const ratingStars = [1,2,3].map(i=>`<i class="bi bi-star star" data-value="${i}"></i>`).join('');
   const cols = ['vc','fz_min','fz_max','ap','ae'];
   const hdr = ['Vc','Fz min','Fz max','ap','ae'];
@@ -434,6 +447,7 @@ $(document).on('click', '.rating-stars .star', function(){
 // filtro por padre
 $('#parentFilter').on('change', function(){
   const pid = $(this).val();
+  updateMaterialSelects(pid);
   $('.mat-block').each(function(){
     const p = $(this).data('parent');
     if(!pid || pid==p){
