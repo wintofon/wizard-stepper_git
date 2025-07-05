@@ -48,8 +48,9 @@ $tools->execute([$toolTbl, $seriesId]);
 $tools = $tools->fetchAll(PDO::FETCH_ASSOC);
 
 // Obtener parámetros por material
-$pm = $pdo->prepare("SELECT tm.tool_id, tm.material_id, tm.rating,
-         tm.vc_m_min, tm.fz_min_mm, tm.fz_max_mm, tm.ap_slot_mm, tm.ae_slot_mm
+$pm = $pdo->prepare("SELECT tm.tool_id, tm.material_id,
+         tm.vc_m_min, tm.fz_min_mm, tm.fz_max_mm, tm.ap_slot_mm, tm.ae_slot_mm,
+         tm.rating
     FROM {$toolTbl} t
     JOIN {$matTbl} tm ON tm.tool_id = t.tool_id
    WHERE t.series_id = ?");
@@ -57,7 +58,7 @@ $pm->execute([$seriesId]);
 $params = [];
 foreach ($pm as $r) {
   $mid = $r['material_id'];
-  $params[$mid]['rating'] = (int)$r['rating'];
+  $params[$mid]['rating'] = isset($r['rating']) ? (int)$r['rating'] : 0;
   $params[$mid]['rows'][$r['tool_id']] = [
     'vc' => $r['vc_m_min'], 'fz_min' => $r['fz_min_mm'], 'fz_max' => $r['fz_max_mm'],
     'ap' => $r['ap_slot_mm'], 'ae' => $r['ae_slot_mm']
