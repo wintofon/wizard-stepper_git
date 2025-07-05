@@ -174,7 +174,7 @@ if ($tool) {
                &nbsp;|&nbsp; <strong>Serie:</strong> <?= htmlspecialchars($tool['serie']) ?></p>
             <p class="mb-1"><strong>Ø:</strong> <?= (float)$tool['diameter_mm'] ?> mm
                &nbsp;|&nbsp; <strong>Filos:</strong> <?= (int)$tool['flute_count'] ?></p>
-            <p class="mb-1"><strong>Tipo:</strong> <?= htmlspecialchars($tool['tool_type']) ?></p>
+            <p class="mb-1"><strong>Tipo:</strong> <?= htmlspecialchars($tool['tool_type'] ?? 'N/A') ?></p>
             <p class="mb-0"><strong>Long. corte:</strong> <?= (float)$tool['cut_length_mm'] ?> mm
                &nbsp;|&nbsp; <strong>Total:</strong> <?= (float)$tool['length_total_mm'] ?> mm</p>
           </div>
