@@ -76,14 +76,47 @@ $seriesId = $_GET['id'] ?? '';
         <thead class="table-light">
           <tr>
             <?php
-              $hdr = ['Ø','Código','⌀ cabo','L útil','L filo','L total','∠ cónico','Filos','Radio','Rack','Helix','Mat.','Origen','Recub.','✖'];
+              $hdr = ['Ø','Código','Nombre','Tipo','Notas','Imagen','Dim img','⌀ cabo','L útil','L filo','L total','∠ cónico','Filos','Radio','Rack','Helix','Mat.','Origen','Recub.','✖'];
               foreach($hdr as $h) echo "<th class='sortable'>".htmlspecialchars($h)."</th>";
             ?>
+          </tr>
+          <tr id="bulkRow">
+            <td colspan="<?= count($hdr) ?>">
+              <div class="d-flex flex-wrap align-items-center gap-2">
+                <select id="bulkColumn" class="form-select form-select-sm w-auto">
+                  <option value="made_in">Origen</option>
+                  <option value="material">Material</option>
+                  <option value="tool_type">Tipo</option>
+                  <option value="coated">Recubierto</option>
+                </select>
+                <input id="bulkValue" class="form-control form-control-sm w-auto" placeholder="Nuevo valor">
+                <button type="button" id="bulkApply" class="btn btn-sm btn-primary">Aplicar a toda la tabla</button>
+              </div>
+            </td>
           </tr>
         </thead>
         <tbody id="geoBody"></tbody>
       </table>
       <button id="addTool" type="button" class="btn btn-outline-primary btn-sm" style="display:none">➕ Agregar fresa</button>
+      <!-- Modal de confirmación doble -->
+      <div class="modal fade" id="confirmBulkModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Confirmar acción masiva</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+              <p>Escribí <strong>APLICAR</strong> para continuar.</p>
+              <input id="confirmWord" class="form-control">
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="button" id="confirmBulkBtn" class="btn btn-danger" disabled>Aplicar</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="mb-3">
@@ -191,7 +224,7 @@ function geoRow(t, alt) {
   const rowClass = alt ? 'alt' : '';
   const strategies = (t.strategy_ids||'').split(',').filter(x=>x);
 
-  let stratHTML = `<td colspan="15"><strong>Estrategias:</strong><div class="row">`;
+  let stratHTML = `<td colspan="20"><strong>Estrategias:</strong><div class="row">`;
   for (let sid in catalogStrats) {
     const checked = strategies.includes(sid) ? 'checked' : '';
     stratHTML += `<div class="col-auto form-check form-check-inline">
@@ -199,26 +232,29 @@ function geoRow(t, alt) {
       <label class="form-check-label">${catalogStrats[sid]}</label>
     </div>`;
   }
-  stratHTML += `</div><div class="mt-2"><strong>Imagen:</strong>
-    <input name="${pre}[image]" class="form-control d-inline w-auto" value="${t.image||''}">
-  </div></td>`;
+  stratHTML += `</div></td>`;
 
   return `
     <tr class="${rowClass}" data-tid="${id}">
-      <td><input name="${pre}[diameter_mm]" class="form-control" value="${t.diameter_mm||''}"></td>
-      <td><input name="${pre}[tool_code]" class="form-control" value="${t.tool_code||''}"></td>
-      <td><input name="${pre}[shank_diameter_mm]" class="form-control" value="${t.shank_diameter_mm||''}"></td>
-      <td><input name="${pre}[flute_length_mm]" class="form-control" value="${t.flute_length_mm||''}"></td>
-      <td><input name="${pre}[cut_length_mm]" class="form-control" value="${t.cut_length_mm||''}"></td>
-      <td><input name="${pre}[full_length_mm]" class="form-control" value="${t.full_length_mm||''}"></td>
-      <td><input name="${pre}[conical_angle]" class="form-control" value="${t.conical_angle||''}"></td>
-      <td><input name="${pre}[flute_count]" class="form-control" value="${t.flute_count||''}"></td>
-      <td><input name="${pre}[radius]" class="form-control" value="${t.radius||''}"></td>
-      <td><input name="${pre}[rack_angle]" class="form-control" value="${t.rack_angle||''}"></td>
-      <td><input name="${pre}[helix]" class="form-control" value="${t.helix||''}"></td>
-      <td><input name="${pre}[material]" class="form-control" value="${t.material||''}"></td>
-      <td><input name="${pre}[made_in]" class="form-control" value="${t.made_in||''}"></td>
-      <td><input name="${pre}[coated]" class="form-control" value="${t.coated||''}"></td>
+      <td><input name="${pre}[diameter_mm]" class="form-control form-control-sm" value="${t.diameter_mm||''}"></td>
+      <td><input name="${pre}[tool_code]" class="form-control form-control-sm" value="${t.tool_code||''}"></td>
+      <td><input name="${pre}[name]" class="form-control form-control-sm" value="${t.name||''}"></td>
+      <td><input name="${pre}[tool_type]" class="form-control form-control-sm" value="${t.tool_type||''}"></td>
+      <td><input name="${pre}[notes]" class="form-control form-control-sm" value="${t.notes||''}"></td>
+      <td><input name="${pre}[image]" class="form-control form-control-sm" value="${t.image||''}"></td>
+      <td><input name="${pre}[image_dimensions]" class="form-control form-control-sm" value="${t.image_dimensions||''}"></td>
+      <td><input name="${pre}[shank_diameter_mm]" class="form-control form-control-sm" value="${t.shank_diameter_mm||''}"></td>
+      <td><input name="${pre}[flute_length_mm]" class="form-control form-control-sm" value="${t.flute_length_mm||''}"></td>
+      <td><input name="${pre}[cut_length_mm]" class="form-control form-control-sm" value="${t.cut_length_mm||''}"></td>
+      <td><input name="${pre}[full_length_mm]" class="form-control form-control-sm" value="${t.full_length_mm||''}"></td>
+      <td><input name="${pre}[conical_angle]" class="form-control form-control-sm" value="${t.conical_angle||''}"></td>
+      <td><input name="${pre}[flute_count]" class="form-control form-control-sm" value="${t.flute_count||''}"></td>
+      <td><input name="${pre}[radius]" class="form-control form-control-sm" value="${t.radius||''}"></td>
+      <td><input name="${pre}[rack_angle]" class="form-control form-control-sm" value="${t.rack_angle||''}"></td>
+      <td><input name="${pre}[helix]" class="form-control form-control-sm" value="${t.helix||''}"></td>
+      <td><input name="${pre}[material]" class="form-control form-control-sm" value="${t.material||''}"></td>
+      <td><input name="${pre}[made_in]" class="form-control form-control-sm" value="${t.made_in||''}"></td>
+      <td><input name="${pre}[coated]" class="form-control form-control-sm" value="${t.coated||''}"></td>
       <td><button type="button" class="btn btn-sm btn-outline-danger delTool">✖</button></td>
     </tr>
     <tr class="${rowClass} tool-strategies">${stratHTML}</tr>`;
@@ -485,5 +521,7 @@ $('#addTool').on('click', function(){
   $('#geoBody').append( geoRow({tool_id:id}, alt) );
 });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../../assets/js/series_edit.js"></script>
 
 <?php include __DIR__.'/../includes/footer.php'; ?>
