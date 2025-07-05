@@ -282,7 +282,7 @@ function renderParams(params, tools){
         <label class="form-check-label">${name}</label>
       </div>`).join('');
   Object.entries(params).forEach(([mid, data]) => {
-    if(!data || data.rating <= 0) return;
+    if(!data) return;
     let rows = '';
     tools.forEach(t => {
       const r = data.rows && data.rows[t.tool_id] ? data.rows[t.tool_id] : {};
