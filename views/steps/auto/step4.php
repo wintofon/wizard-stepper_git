@@ -189,7 +189,7 @@ if($tool){
         <?php endif; ?>
 
         <div class="card-body">
-          <h4><?= htmlspecialchars($tool['tool_code']) ?> – <?= htmlspecialchars($tool['name']) ?></h4>
+          <h4><?= htmlspecialchars($tool['tool_code']) ?> – <?= htmlspecialchars($tool['name'] ?? 'N/A') ?></h4>
           <p class="mb-1"><strong>Marca:</strong> <?= htmlspecialchars($tool['brand']) ?>
              &nbsp;|&nbsp; <strong>Serie:</strong> <?= htmlspecialchars($tool['serie']) ?></p>
           <p class="mb-1"><strong>Ø:</strong> <?= (float)$tool['diameter_mm'] ?> mm
